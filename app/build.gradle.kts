@@ -29,8 +29,8 @@ android {
         applicationId = "com.dariusepure.caractivitylog"
         minSdk = 24
         targetSdk = 35
-        versionCode = 9
-        versionName = "1.6"
+        versionCode = 10
+        versionName = "2.0"
 
         multiDexEnabled = true
 
@@ -116,16 +116,19 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.googleid)
 
+    implementation(libs.androidx.work.runtime.ktx)
+
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
 
     // Other
     implementation(libs.kotlinx.serialization)
 
-    // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
 
     // Firebase
     implementation(platform(libs.firebase.bom))

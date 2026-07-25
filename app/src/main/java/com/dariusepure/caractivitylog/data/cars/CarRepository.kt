@@ -15,6 +15,7 @@ import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.domain.User
 import com.dariusepure.caractivitylog.ui.cars.ChatMessage
 import com.dariusepure.caractivitylog.data.auth.AuthRepository
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
@@ -261,6 +262,18 @@ class CarRepository @Inject constructor(
             batch.set(firestore.collection("users").document(uid).collection("friends").document(friendUid), mapOf("since" to com.google.firebase.Timestamp.now()))
             batch.set(firestore.collection("users").document(friendUid).collection("friends").document(uid), mapOf("since" to com.google.firebase.Timestamp.now()))
         }.await()
+    }
+
+    suspend fun getAllCarsOnce(): List<Car> {
+        return try {
+            cars.first()
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun getLatestInspection(carId: String): VehicleInspection? {
+        return getInspections(carId).first().maxByOrNull { it.date }
     }
 
     fun getMileageLogs(carId: String): Flow<List<MileageLog>> = callbackFlow {
