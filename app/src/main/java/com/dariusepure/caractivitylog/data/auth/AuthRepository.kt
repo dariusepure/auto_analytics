@@ -16,6 +16,8 @@ import com.dariusepure.caractivitylog.BuildConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,11 +28,12 @@ class AuthRepository @Inject constructor(
 ) {
     private val sharedPrefs = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
     private val _isGuestMode = MutableStateFlow(sharedPrefs.getBoolean("is_guest_mode", false))
+    private val _refreshVerification = MutableSharedFlow<Unit>(replay = 1)
 
     val signedIn: Flow<Boolean> = combine(
         callbackFlow {
-            val listener = FirebaseAuth.AuthStateListener {
-                trySend(firebaseAuth.currentUser != null)
+            val listener = FirebaseAuth.AuthStateListener { auth ->
+                trySend(auth.currentUser != null)
             }
             firebaseAuth.addAuthStateListener(listener)
             awaitClose { firebaseAuth.removeAuthStateListener(listener) }
@@ -40,8 +43,24 @@ class AuthRepository @Inject constructor(
         firebaseSignedIn || guestMode
     }
 
+    val isEmailVerified: Flow<Boolean> = combine(
+        callbackFlow {
+            val listener = FirebaseAuth.AuthStateListener {
+                trySend(Unit)
+            }
+            firebaseAuth.addAuthStateListener(listener)
+            awaitClose { firebaseAuth.removeAuthStateListener(listener) }
+        },
+        _refreshVerification.onStart { emit(Unit) }
+    ) { _, _ ->
+        firebaseAuth.currentUser?.isEmailVerified ?: false
+    }
+
     val isCurrentlySignedIn: Boolean
         get() = firebaseAuth.currentUser != null || _isGuestMode.value
+
+    val isCurrentlyVerified: Boolean
+        get() = firebaseAuth.currentUser?.isEmailVerified ?: false
 
     val isGuestMode: Boolean
         get() = _isGuestMode.value
@@ -55,9 +74,23 @@ class AuthRepository @Inject constructor(
         return firebaseAuth.currentUser?.uid ?: if (_isGuestMode.value) "guest_user" else null
     }
 
+    fun checkVerificationStatus(): Boolean {
+        return firebaseAuth.currentUser?.isEmailVerified ?: false
+    }
+
     suspend fun signUp(email: String, password: String) {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
             .await()
+        sendEmailVerification()
+    }
+
+    suspend fun sendEmailVerification() {
+        firebaseAuth.currentUser?.sendEmailVerification()?.await()
+    }
+
+    suspend fun reloadUser() {
+        firebaseAuth.currentUser?.reload()?.await()
+        _refreshVerification.emit(Unit)
     }
 
     suspend fun signIn(email: String, password: String) {

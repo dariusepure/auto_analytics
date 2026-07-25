@@ -1,5 +1,6 @@
 package com.dariusepure.caractivitylog.ui.auth
 
+import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dariusepure.caractivitylog.data.auth.AuthRepository
@@ -26,8 +27,18 @@ class SignUpViewModel @Inject constructor(
             return
         }
 
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            _state.value = SignUpState.Error("Please enter a valid email address")
+            return
+        }
+
         if (password != confirmPassword) {
             _state.value = SignUpState.Error("Passwords do not match")
+            return
+        }
+
+        if (password.length < 6) {
+            _state.value = SignUpState.Error("Password must be at least 6 characters")
             return
         }
 

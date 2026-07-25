@@ -18,4 +18,20 @@ class MainViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = authRepository.isCurrentlySignedIn
     )
+
+    val isEmailVerified: StateFlow<Boolean> = authRepository.isEmailVerified.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
+
+    val isGuestMode: Boolean
+        get() = authRepository.isGuestMode
+
+    val isCurrentlyVerified: Boolean
+        get() = authRepository.isCurrentlyVerified
+
+    fun checkUserVerification(): Boolean {
+        return authRepository.checkVerificationStatus()
+    }
 }

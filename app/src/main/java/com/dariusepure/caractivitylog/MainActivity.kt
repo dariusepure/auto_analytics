@@ -26,12 +26,13 @@ class MainActivity : ComponentActivity() {
             
             val isDarkMode by themeViewModel.isDarkMode.collectAsState()
             val signedIn by viewModel.signedIn.collectAsState()
+            val isEmailVerified by viewModel.isEmailVerified.collectAsState()
             
             val systemDark = isSystemInDarkTheme()
             val useDarkTheme = isDarkMode ?: systemDark
 
             val startDestination = if (signedIn) {
-                Screen.CarList.route
+                if (isEmailVerified || viewModel.isGuestMode) Screen.CarList.route else Screen.EmailVerification.route
             } else {
                 Screen.SignIn.route
             }
