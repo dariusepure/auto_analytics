@@ -5,14 +5,18 @@ import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.Filter
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.MileageLog
+import com.dariusepure.caractivitylog.domain.User
 import com.dariusepure.caractivitylog.ui.cars.ChatMessage
 import com.dariusepure.caractivitylog.data.auth.AuthRepository
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -34,68 +38,73 @@ class CarRepository @Inject constructor(
         }
     }
 
-    val cars: Flow<List<Car>> = callbackFlow {
+    val cars: Flow<List<Car>> = authRepository.signedIn.flatMapLatest { signedIn ->
+        if (!signedIn) return@flatMapLatest flowOf(emptyList())
+        
+        val uid = authRepository.getUserId() ?: return@flatMapLatest flowOf(emptyList())
         checkNetwork()
-        val uid = authRepository.getUserId() ?: run {
-            trySend(emptyList())
-            close()
-            return@callbackFlow
-        }
 
-        val listener = firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .orderBy("updatedAt", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshots, exception ->
-                if (exception != null) {
-                    close(exception)
-                    return@addSnapshotListener
+        callbackFlow {
+            // Support both owned cars (legacy and new) and shared cars
+            // For now, let's stick to the subcollection for owned cars and add a "shared_cars" collection or similar
+            // OR use a collection group query if we move ownerUid to the car document
+            
+            val listener = firestore.collectionGroup("cars")
+                .where(
+                    Filter.or(
+                        Filter.equalTo("ownerUid", uid),
+                        Filter.arrayContains("sharedWith", uid)
+                    )
+                )
+                .addSnapshotListener { snapshots, exception ->
+                    if (exception != null) {
+                        close(exception)
+                        return@addSnapshotListener
+                    }
+
+                    val results = snapshots?.documents?.mapNotNull { doc ->
+                        val car = doc.toObject(FirestoreCar::class.java)?.fromFirebase()
+                        if (car?.deleted == false) car else null
+                    } ?: emptyList()
+
+                    trySend(results.sortedByDescending { it.updatedAt })
                 }
 
-                val results = snapshots?.documents?.mapNotNull { doc ->
-                    val car = doc.toObject(FirestoreCar::class.java)?.fromFirebase()
-                    if (car?.deleted == false) car else null
-                } ?: emptyList()
-
-                trySend(results)
-            }
-
-        awaitClose { listener.remove() }
+            awaitClose { listener.remove() }
+        }
     }
 
-    val deletedCars: Flow<List<Car>> = callbackFlow {
+    val deletedCars: Flow<List<Car>> = authRepository.signedIn.flatMapLatest { signedIn ->
+        if (!signedIn) return@flatMapLatest flowOf(emptyList())
+        
+        val uid = authRepository.getUserId() ?: return@flatMapLatest flowOf(emptyList())
         checkNetwork()
-        val uid = authRepository.getUserId() ?: run {
-            trySend(emptyList())
-            close()
-            return@callbackFlow
-        }
 
-        val listener = firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .orderBy("updatedAt", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshots, exception ->
-                if (exception != null) {
-                    close(exception)
-                    return@addSnapshotListener
+        callbackFlow {
+            val listener = firestore.collectionGroup("cars")
+                .whereEqualTo("ownerUid", uid)
+                .whereEqualTo("deleted", true)
+                .addSnapshotListener { snapshots, exception ->
+                    if (exception != null) {
+                        close(exception)
+                        return@addSnapshotListener
+                    }
+
+                    val results = snapshots?.documents?.mapNotNull { doc ->
+                        doc.toObject(FirestoreCar::class.java)?.fromFirebase()
+                    } ?: emptyList()
+
+                    trySend(results.sortedByDescending { it.updatedAt })
                 }
 
-                val results = snapshots?.documents?.mapNotNull { doc ->
-                    val car = doc.toObject(FirestoreCar::class.java)?.fromFirebase()
-                    if (car?.deleted == true) car else null
-                } ?: emptyList()
-
-                trySend(results)
-            }
-
-        awaitClose { listener.remove() }
+            awaitClose { listener.remove() }
+        }
     }
 
     suspend fun createCar(car: Car) {
         checkNetwork()
         val uid = getUid()
-        val firestoreCar = car.toFirebase()
+        val firestoreCar = car.copy(ownerUid = uid).toFirebase()
 
         val reference = if (car.id.isEmpty()) {
             firestore.collection("users")
@@ -189,6 +198,69 @@ class CarRepository @Inject constructor(
             .document(carId)
             .delete()
             .await()
+    }
+
+    suspend fun shareCar(carId: String, friendUid: String) {
+        val ownerUid = getUid()
+        val carRef = firestore.collection("users").document(ownerUid).collection("cars").document(carId)
+        val car = carRef.get().await().toObject(FirestoreCar::class.java) ?: throw Exception("Car not found")
+        
+        val newSharedWith = car.sharedWith.toMutableList()
+        if (!newSharedWith.contains(friendUid)) {
+            newSharedWith.add(friendUid)
+            carRef.update("sharedWith", newSharedWith).await()
+        }
+    }
+
+    suspend fun unshareCar(carId: String, friendUid: String) {
+        val ownerUid = getUid()
+        val carRef = firestore.collection("users").document(ownerUid).collection("cars").document(carId)
+        val car = carRef.get().await().toObject(FirestoreCar::class.java) ?: throw Exception("Car not found")
+        
+        val newSharedWith = car.sharedWith.toMutableList()
+        if (newSharedWith.remove(friendUid)) {
+            carRef.update("sharedWith", newSharedWith).await()
+        }
+    }
+
+    fun getFriends(): Flow<List<User>> = callbackFlow {
+        val uid = getUid()
+        val listener = firestore.collection("users").document(uid).collection("friends")
+            .addSnapshotListener { snapshots, _ ->
+                val friendUids = snapshots?.documents?.map { it.id } ?: emptyList()
+                if (friendUids.isEmpty()) {
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
+                
+                // Fetch user profiles for these UIDs
+                // Note: Firestore doesn't support 'in' queries with more than 10-30 items easily, 
+                // but for friends it's usually okay.
+                firestore.collection("users").whereIn("uid", friendUids).get()
+                    .addOnSuccessListener { userSnapshots ->
+                        val users = userSnapshots.documents.mapNotNull { it.toObject(User::class.java) }
+                        trySend(users)
+                    }
+            }
+        awaitClose { listener.remove() }
+    }
+
+    suspend fun findUserByUsername(username: String): User? {
+        val usernameDoc = firestore.collection("usernames").document(username.lowercase()).get().await()
+        if (!usernameDoc.exists()) return null
+        
+        val uid = usernameDoc.getString("uid") ?: return null
+        return firestore.collection("users").document(uid).get().await().toObject(User::class.java)
+    }
+
+    suspend fun addFriend(friendUid: String) {
+        val uid = getUid()
+        if (uid == friendUid) throw Exception("Cannot add yourself as friend")
+        
+        firestore.runBatch { batch ->
+            batch.set(firestore.collection("users").document(uid).collection("friends").document(friendUid), mapOf("since" to com.google.firebase.Timestamp.now()))
+            batch.set(firestore.collection("users").document(friendUid).collection("friends").document(uid), mapOf("since" to com.google.firebase.Timestamp.now()))
+        }.await()
     }
 
     fun getMileageLogs(carId: String): Flow<List<MileageLog>> = callbackFlow {

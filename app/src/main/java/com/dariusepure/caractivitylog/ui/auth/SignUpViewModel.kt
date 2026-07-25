@@ -21,9 +21,12 @@ class SignUpViewModel @Inject constructor(
 
     val signedIn = authRepository.signedIn
 
-    fun onSignUp(email: String, password: String, confirmPassword: String) {
-        if (email.isBlank() || password.isBlank()) {
-            _state.value = SignUpState.Error("Email and password cannot be empty")
+    private val _usernameAvailable = MutableStateFlow<Boolean?>(null)
+    val usernameAvailable = _usernameAvailable.asStateFlow()
+
+    fun onSignUp(email: String, password: String, confirmPassword: String, name: String, username: String) {
+        if (email.isBlank() || password.isBlank() || name.isBlank() || username.isBlank()) {
+            _state.value = SignUpState.Error("All fields are required")
             return
         }
 
@@ -42,13 +45,32 @@ class SignUpViewModel @Inject constructor(
             return
         }
 
+        if (username.length < 3) {
+            _state.value = SignUpState.Error("Username must be at least 3 characters")
+            return
+        }
+
         viewModelScope.launch {
             _state.value = SignUpState.Pending
             try {
-                authRepository.signUp(email, password)
+                if (!authRepository.isUsernameAvailable(username)) {
+                    _state.value = SignUpState.Error("Username is already taken")
+                    return@launch
+                }
+                authRepository.signUp(email, password, name, username)
             } catch (e: Exception) {
                 _state.value = SignUpState.Error(e.localizedMessage ?: "An error occurred during sign up")
             }
+        }
+    }
+
+    fun checkUsername(username: String) {
+        if (username.length < 3) {
+            _usernameAvailable.value = null
+            return
+        }
+        viewModelScope.launch {
+            _usernameAvailable.value = authRepository.isUsernameAvailable(username)
         }
     }
 }

@@ -8,11 +8,13 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import com.dariusepure.caractivitylog.BuildConfig
+import com.dariusepure.caractivitylog.domain.User
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +26,7 @@ import javax.inject.Singleton
 @Singleton
 class AuthRepository @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
+    private val firestore: FirebaseFirestore,
     @ApplicationContext private val context: Context
 ) {
     private val sharedPrefs = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
@@ -78,9 +81,57 @@ class AuthRepository @Inject constructor(
         return firebaseAuth.currentUser?.isEmailVerified ?: false
     }
 
-    suspend fun signUp(email: String, password: String) {
-        firebaseAuth.createUserWithEmailAndPassword(email, password)
-            .await()
+    suspend fun isUsernameAvailable(username: String): Boolean {
+        if (username.length < 3) return false
+        val doc = firestore.collection("usernames").document(username.lowercase()).get().await()
+        return !doc.exists()
+    }
+
+    suspend fun signUp(email: String, password: String, name: String, username: String) {
+        val normalizedUsername = username.lowercase().trim()
+        
+        // Use a transaction to ensure atomic check-and-set for username uniqueness
+        try {
+            firestore.runTransaction { transaction ->
+                val usernameRef = firestore.collection("usernames").document(normalizedUsername)
+                if (transaction.get(usernameRef).exists()) {
+                    throw Exception("Username is already taken")
+                }
+            }.await()
+        } catch (e: Exception) {
+            if (e.message == "Username is already taken") throw e
+            // If it's a network error or something else, we'll catch it in the next step anyway
+        }
+
+        val result = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+        val user = result.user ?: throw Exception("Failed to create user")
+
+        try {
+            val userData = mapOf(
+                "uid" to user.uid,
+                "name" to name,
+                "username" to normalizedUsername,
+                "email" to email
+            )
+
+            firestore.runTransaction { transaction ->
+                val userRef = firestore.collection("users").document(user.uid)
+                val usernameRef = firestore.collection("usernames").document(normalizedUsername)
+                
+                // Re-check inside the final transaction to be 100% sure
+                if (transaction.get(usernameRef).exists()) {
+                    throw Exception("Username was taken during registration")
+                }
+
+                transaction.set(userRef, userData)
+                transaction.set(usernameRef, mapOf("uid" to user.uid))
+            }.await()
+        } catch (e: Exception) {
+            // Clean up: delete the newly created Auth user if Firestore setup fails
+            user.delete().await()
+            throw e
+        }
+
         sendEmailVerification()
     }
 

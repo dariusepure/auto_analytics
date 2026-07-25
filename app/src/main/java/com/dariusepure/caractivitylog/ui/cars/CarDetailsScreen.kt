@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.AssignmentTurnedIn
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.LocalGasStation
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -54,6 +55,7 @@ import com.dariusepure.caractivitylog.ui.common.CarFormatters
 import com.dariusepure.caractivitylog.util.PdfReportGenerator
 import com.dariusepure.caractivitylog.ui.common.ErrorState
 import com.dariusepure.caractivitylog.ui.common.LoadingState
+import com.dariusepure.caractivitylog.domain.User
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -354,8 +356,85 @@ fun CarDetailsScreen(
                         }
 
                         Spacer(Modifier.height(12.dp))
-                        
+
+                        if (!s.isGuestMode) {
+                            ShareSection(
+                                friends = s.friends,
+                                sharedWith = car.sharedWith,
+                                onShare = { friendUid -> viewModel.shareCar(car.id, friendUid) },
+                                onUnshare = { friendUid -> viewModel.unshareCar(car.id, friendUid) }
+                            )
+                        }
+
                         Spacer(Modifier.height(80.dp)) // Space for FAB
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ShareSection(
+    friends: List<User>,
+    sharedWith: List<String>,
+    onShare: (String) -> Unit,
+    onUnshare: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { expanded = !expanded }
+            ) {
+                Icon(Icons.Default.People, contentDescription = null)
+                Spacer(Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Share with Friends",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "${sharedWith.size} people have access",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Icon(
+                    imageVector = if (expanded) Icons.Default.ArrowDropDown else Icons.AutoMirrored.Filled.ArrowBack, // Should use a proper rotate icon
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            if (expanded) {
+                Spacer(Modifier.height(16.dp))
+                if (friends.isEmpty()) {
+                    Text("No friends to share with. Add some friends first!", style = MaterialTheme.typography.bodySmall)
+                } else {
+                    friends.forEach { friend ->
+                        val isShared = sharedWith.contains(friend.uid)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                        ) {
+                            Text(friend.name, modifier = Modifier.weight(1f))
+                            if (isShared) {
+                                TextButton(onClick = { onUnshare(friend.uid) }) {
+                                    Text("Unshare", color = MaterialTheme.colorScheme.error)
+                                }
+                            } else {
+                                Button(onClick = { onShare(friend.uid) }) {
+                                    Text("Share")
+                                }
+                            }
+                        }
                     }
                 }
             }
