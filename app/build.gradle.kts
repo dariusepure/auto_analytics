@@ -8,7 +8,22 @@ val localProperties = Properties().apply {
     val f = rootProject.file("local.properties")
     if (f.exists()) f.inputStream().use { load(it) }
 }
-val webClientId: String = localProperties.getProperty("WEB_CLIENT_ID", "")
+
+fun readWebClientId(): String {
+    val fromProps = localProperties.getProperty("WEB_CLIENT_ID", "")
+    if (fromProps.isNotEmpty()) return fromProps
+
+    val googleServicesFile = project.file("google-services.json")
+    if (googleServicesFile.exists()) {
+        val content = googleServicesFile.readText()
+        // Extract the client_id associated with client_type 3 (Web Client)
+        val regex = "\"client_id\":\\s*\"([^\"]+)\",\\s*\"client_type\":\\s*3".toRegex()
+        return regex.find(content)?.groupValues?.get(1) ?: ""
+    }
+    return ""
+}
+
+val webClientId: String = readWebClientId()
 
 plugins {
     alias(libs.plugins.android.application)
@@ -86,6 +101,7 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+        resValues = true
     }
 }
 
@@ -173,6 +189,27 @@ configurations.all {
             if (requested.group == "io.ktor") {
                 // Forțează utilizarea versiunii stabile compatibile cu Gemini
                 useVersion("2.3.12")
+            }
+        }
+    }
+}
+
+val buildDirProvider = layout.buildDirectory
+tasks.matching { it.name.contains("GoogleServices") }.configureEach {
+    val googleKeyVal = localProperties.getProperty("google.api.key", "")
+    val bDir = buildDirProvider.get().asFile
+    doLast {
+        if (googleKeyVal.isNotEmpty()) {
+            val generatedResDir = File(bDir, "generated/res/google-services")
+            if (generatedResDir.exists()) {
+                generatedResDir.walkTopDown().forEach { file ->
+                    if (file.name == "values.xml") {
+                        val content = file.readText()
+                        if (content.contains("YOUR_GOOGLE_API_KEY_HERE")) {
+                            file.writeText(content.replace("YOUR_GOOGLE_API_KEY_HERE", googleKeyVal))
+                        }
+                    }
+                }
             }
         }
     }

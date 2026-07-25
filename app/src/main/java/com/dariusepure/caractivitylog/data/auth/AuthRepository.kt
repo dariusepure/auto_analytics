@@ -9,6 +9,7 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.appcheck.FirebaseAppCheck
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -88,7 +89,9 @@ class AuthRepository @Inject constructor(
     }
 
     suspend fun signUp(email: String, password: String, name: String, username: String) {
+        debugAppCheck()
         val normalizedUsername = username.lowercase().trim()
+        android.util.Log.d("AuthRepository", "Starting signUp for $email, username: $normalizedUsername")
         
         // Use a transaction to ensure atomic check-and-set for username uniqueness
         try {
@@ -98,13 +101,21 @@ class AuthRepository @Inject constructor(
                     throw Exception("Username is already taken")
                 }
             }.await()
+            android.util.Log.d("AuthRepository", "Username $normalizedUsername is available")
         } catch (e: Exception) {
+            android.util.Log.e("AuthRepository", "Error checking username availability", e)
             if (e.message == "Username is already taken") throw e
-            // If it's a network error or something else, we'll catch it in the next step anyway
         }
 
-        val result = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+        val result = try {
+            firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+        } catch (e: Exception) {
+            android.util.Log.e("AuthRepository", "Firebase Auth createUser failed", e)
+            throw e
+        }
+        
         val user = result.user ?: throw Exception("Failed to create user")
+        android.util.Log.d("AuthRepository", "Firebase user created: ${user.uid}")
 
         try {
             val userData = mapOf(
@@ -118,7 +129,6 @@ class AuthRepository @Inject constructor(
                 val userRef = firestore.collection("users").document(user.uid)
                 val usernameRef = firestore.collection("usernames").document(normalizedUsername)
                 
-                // Re-check inside the final transaction to be 100% sure
                 if (transaction.get(usernameRef).exists()) {
                     throw Exception("Username was taken during registration")
                 }
@@ -126,13 +136,19 @@ class AuthRepository @Inject constructor(
                 transaction.set(userRef, userData)
                 transaction.set(usernameRef, mapOf("uid" to user.uid))
             }.await()
+            android.util.Log.d("AuthRepository", "Firestore profile created for ${user.uid}")
         } catch (e: Exception) {
-            // Clean up: delete the newly created Auth user if Firestore setup fails
+            android.util.Log.e("AuthRepository", "Firestore transaction failed, deleting Auth user", e)
             user.delete().await()
             throw e
         }
 
-        sendEmailVerification()
+        try {
+            sendEmailVerification()
+            android.util.Log.d("AuthRepository", "Verification email sent")
+        } catch (e: Exception) {
+            android.util.Log.w("AuthRepository", "Verification email failed but account is created", e)
+        }
     }
 
     suspend fun sendEmailVerification() {
@@ -150,6 +166,7 @@ class AuthRepository @Inject constructor(
     }
 
     suspend fun signInWithGoogle(context: Context) {
+        debugAppCheck()
         // Log the SHA-1 for debugging purposes
         try {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
@@ -189,10 +206,15 @@ class AuthRepository @Inject constructor(
             android.util.Log.e("AuthRepository", "Error getting SHA-1", e)
         }
 
-        android.util.Log.d("AuthRepository", "Using WEB_CLIENT_ID: ${BuildConfig.WEB_CLIENT_ID}")
+        val clientId = BuildConfig.WEB_CLIENT_ID
+        if (clientId.isBlank()) {
+            throw IllegalStateException("Google Web Client ID is missing. Please add WEB_CLIENT_ID to local.properties or ensure google-services.json is valid.")
+        }
+
+        android.util.Log.d("AuthRepository", "Using WEB_CLIENT_ID: $clientId")
 
         val googleIdOption = GetGoogleIdOption.Builder()
-            .setServerClientId(BuildConfig.WEB_CLIENT_ID)
+            .setServerClientId(clientId)
             .setFilterByAuthorizedAccounts(false)
             .setAutoSelectEnabled(false) // Disable for now to force the picker
             .build()
@@ -203,8 +225,10 @@ class AuthRepository @Inject constructor(
 
         try {
             val credentialManager = CredentialManager.create(context)
+            android.util.Log.d("AuthRepository", "Requesting credentials...")
             val response = credentialManager.getCredential(context, request)
             val credential = response.credential
+            android.util.Log.d("AuthRepository", "Credential received: ${credential.type}")
 
             if (credential is CustomCredential &&
                 credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
@@ -213,16 +237,27 @@ class AuthRepository @Inject constructor(
                 val idToken = googleIdTokenCredential.idToken
                 val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
                 firebaseAuth.signInWithCredential(firebaseCredential).await()
+                android.util.Log.d("AuthRepository", "Google sign-in successful")
             } else {
                 throw IllegalStateException("Unexpected credential type: ${credential.type}")
             }
         } catch (e: Exception) {
-            // Re-throw or handle specifically if needed
+            android.util.Log.e("AuthRepository", "Google sign-in error", e)
             throw e
         }
     }
 
     fun signOut() {
         firebaseAuth.signOut()
+    }
+
+    private suspend fun debugAppCheck() {
+        try {
+            android.util.Log.d("AuthRepository", "Checking App Check status...")
+            val tokenResult = FirebaseAppCheck.getInstance().getAppCheckToken(false).await()
+            android.util.Log.d("AuthRepository", "App Check Token retrieved successfully: ${tokenResult.token.take(10)}...")
+        } catch (e: Exception) {
+            android.util.Log.e("AuthRepository", "App Check token retrieval FAILED. This will likely block Firebase requests.", e)
+        }
     }
 }

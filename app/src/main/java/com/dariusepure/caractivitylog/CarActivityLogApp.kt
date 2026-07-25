@@ -18,7 +18,10 @@ class CarActivityLogApp : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+        android.util.Log.d("CarActivityLogApp", "Initializing application...")
         FirebaseApp.initializeApp(this)
+        android.util.Log.d("CarActivityLogApp", "FirebaseApp initialized")
         AppCheckHelper.init(this)
+        android.util.Log.d("CarActivityLogApp", "AppCheck initialized")
     }
 }
