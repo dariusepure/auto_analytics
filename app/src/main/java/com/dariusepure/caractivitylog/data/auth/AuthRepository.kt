@@ -13,24 +13,47 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import com.dariusepure.caractivitylog.BuildConfig
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class AuthRepository @Inject constructor(
-    private val firebaseAuth: FirebaseAuth
+    private val firebaseAuth: FirebaseAuth,
+    @ApplicationContext private val context: Context
 ) {
-    val signedIn: Flow<Boolean> = callbackFlow {
-        val listener = FirebaseAuth.AuthStateListener {
-            trySend(firebaseAuth.currentUser != null)
-        }
+    private val sharedPrefs = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+    private val _isGuestMode = MutableStateFlow(sharedPrefs.getBoolean("is_guest_mode", false))
 
-        firebaseAuth.addAuthStateListener(listener)
-        awaitClose {
-            firebaseAuth.removeAuthStateListener(listener)
-        }
+    val signedIn: Flow<Boolean> = combine(
+        callbackFlow {
+            val listener = FirebaseAuth.AuthStateListener {
+                trySend(firebaseAuth.currentUser != null)
+            }
+            firebaseAuth.addAuthStateListener(listener)
+            awaitClose { firebaseAuth.removeAuthStateListener(listener) }
+        },
+        _isGuestMode
+    ) { firebaseSignedIn, guestMode ->
+        firebaseSignedIn || guestMode
     }
 
     val isCurrentlySignedIn: Boolean
-        get() = firebaseAuth.currentUser != null
+        get() = firebaseAuth.currentUser != null || _isGuestMode.value
+
+    val isGuestMode: Boolean
+        get() = _isGuestMode.value
+
+    fun setGuestMode(enabled: Boolean) {
+        sharedPrefs.edit().putBoolean("is_guest_mode", enabled).apply()
+        _isGuestMode.value = enabled
+    }
+
+    fun getUserId(): String? {
+        return firebaseAuth.currentUser?.uid ?: if (_isGuestMode.value) "guest_user" else null
+    }
 
     suspend fun signIn(email: String, password: String) {
         firebaseAuth.signInWithEmailAndPassword(email, password)

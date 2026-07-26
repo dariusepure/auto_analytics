@@ -155,6 +155,16 @@ fun SignInScreen(
                 Text("Continue with Google")
             }
 
+            TextButton(
+                onClick = { viewModel.onContinueAsGuest() },
+                enabled = !submitting,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+            ) {
+                Text("Continue Offline (Guest Mode)")
+            }
+
             Row(
                 modifier = Modifier.padding(top = 16.dp),
                 verticalAlignment = Alignment.CenterVertically

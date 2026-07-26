@@ -60,6 +60,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.HorizontalDivider
@@ -1605,12 +1606,19 @@ fun ScannedCarDataConfirmationDialog(
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(text = label, style = MaterialTheme.typography.labelSmall)
-                                    Text(text = value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+                                    Text(
+                                        text = value,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 }
-                                Checkbox(
-                                    checked = isSelected,
-                                    onCheckedChange = null // Handled by Surface click
-                                )
+                                if (isSelected) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
                             }
                         }
                     }
@@ -1647,9 +1655,10 @@ fun ScannedCarDataConfirmationDialog(
                         mileage = if ("mileage" in selectedKeys) data.mileage else null
                     )
                     onConfirm(confirmedData)
-                }
+                },
+                enabled = selectedKeys.isNotEmpty()
             ) {
-                Text("Apply Selected")
+                Text("Apply Selected (${selectedKeys.size})")
             }
         },
         dismissButton = {

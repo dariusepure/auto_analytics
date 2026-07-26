@@ -25,10 +25,12 @@ class MainActivity : ComponentActivity() {
             val themeViewModel: ThemeViewModel = viewModel()
             
             val isDarkMode by themeViewModel.isDarkMode.collectAsState()
+            val signedIn by viewModel.signedIn.collectAsState()
+            
             val systemDark = isSystemInDarkTheme()
             val useDarkTheme = isDarkMode ?: systemDark
 
-            val startDestination = if (viewModel.isUserSignedIn) {
+            val startDestination = if (signedIn) {
                 Screen.CarList.route
             } else {
                 Screen.SignIn.route

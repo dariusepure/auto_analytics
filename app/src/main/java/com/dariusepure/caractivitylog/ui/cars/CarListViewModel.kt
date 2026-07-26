@@ -73,6 +73,7 @@ class CarListViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 authRepository.signOut()
+                authRepository.setGuestMode(false)
             } catch (e: Exception) {
                 // Log error
             }

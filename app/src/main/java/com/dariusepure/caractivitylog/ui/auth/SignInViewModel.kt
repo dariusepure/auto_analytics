@@ -64,4 +64,8 @@ class SignInViewModel @Inject constructor(
             }
         }
     }
+
+    fun onContinueAsGuest() {
+        authRepository.setGuestMode(true)
+    }
 }

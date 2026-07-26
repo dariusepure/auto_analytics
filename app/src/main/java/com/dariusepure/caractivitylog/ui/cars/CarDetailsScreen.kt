@@ -236,7 +236,7 @@ fun CarDetailsScreen(
                             onClick = onDiagnosisClick,
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
                             )
                         ) {
                             Row(
@@ -245,20 +245,17 @@ fun CarDetailsScreen(
                             ) {
                                 Icon(
                                     Icons.Default.Psychology, 
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                    contentDescription = null
                                 )
                                 Spacer(Modifier.width(12.dp))
                                 Column {
                                     Text(
                                         text = "AI Diagnosis Chat",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                        style = MaterialTheme.typography.titleMedium
                                     )
                                     Text(
                                         text = "Get expert advice and health reports",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                                        style = MaterialTheme.typography.bodySmall
                                     )
                                 }
                             }
@@ -270,7 +267,7 @@ fun CarDetailsScreen(
                             onClick = onFuelClick,
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
                             )
                         ) {
                             Row(
@@ -279,20 +276,17 @@ fun CarDetailsScreen(
                             ) {
                                 Icon(
                                     Icons.Default.LocalGasStation, 
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSecondaryContainer
+                                    contentDescription = null
                                 )
                                 Spacer(Modifier.width(12.dp))
                                 Column {
                                     Text(
                                         text = "Fuel Consumption",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                                        style = MaterialTheme.typography.titleMedium
                                     )
                                     Text(
                                         text = "Track fillings and view stats",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
+                                        style = MaterialTheme.typography.bodySmall
                                     )
                                 }
                             }
