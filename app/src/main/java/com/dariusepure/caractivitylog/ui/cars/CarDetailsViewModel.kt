@@ -5,9 +5,12 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dariusepure.caractivitylog.data.ai.GeminiRepository
+import com.dariusepure.caractivitylog.data.auth.AuthRepository
 import com.dariusepure.caractivitylog.data.cars.CarRepository
 import com.dariusepure.caractivitylog.domain.Car
+import com.dariusepure.caractivitylog.domain.FuelLog
 import com.dariusepure.caractivitylog.domain.MileageLog
+import com.dariusepure.caractivitylog.domain.User
 import com.dariusepure.caractivitylog.domain.ScannedMileageEntry
 import com.dariusepure.caractivitylog.domain.VehicleInspection
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,6 +35,9 @@ sealed class CarDetailsUiState {
         val car: Car,
         val mileageLogs: List<MileageLog>,
         val inspections: List<VehicleInspection>,
+        val fuelLogs: List<FuelLog> = emptyList(),
+        val friends: List<User> = emptyList(),
+        val isGuestMode: Boolean = false,
         val isScanning: Boolean = false
     ) : CarDetailsUiState()
     data class Error(val message: String) : CarDetailsUiState()
@@ -40,7 +46,8 @@ sealed class CarDetailsUiState {
 @HiltViewModel
 class CarDetailsViewModel @Inject constructor(
     private val carRepository: CarRepository,
-    private val geminiRepository: GeminiRepository
+    private val geminiRepository: GeminiRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<CarDetailsUiState>(CarDetailsUiState.Loading)
@@ -61,11 +68,16 @@ class CarDetailsViewModel @Inject constructor(
                 combine(
                     carRepository.getCarFlow(carId),
                     carRepository.getMileageLogs(carId),
-                    carRepository.getInspections(carId)
-                ) { car, logs, inspections ->
+                    carRepository.getInspections(carId),
+                    carRepository.getFuelLogs(carId),
+                    carRepository.getFriends()
+                ) { car, logs, inspections, fuelLogs, friends ->
                     if (car != null) {
                         val currentScanning = (_state.value as? CarDetailsUiState.Success)?.isScanning ?: false
-                        CarDetailsUiState.Success(car, logs, inspections, currentScanning)
+                        CarDetailsUiState.Success(
+                            car, logs, inspections, fuelLogs, friends, 
+                            authRepository.isGuestMode, currentScanning
+                        )
                     } else {
                         CarDetailsUiState.Error("Car not found")
                     }
@@ -201,6 +213,28 @@ class CarDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 carRepository.deleteInspection(carId, inspectionId)
+            } catch (e: Exception) {
+                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+            }
+        }
+    }
+
+    fun shareCar(carId: String, friendUid: String) {
+        viewModelScope.launch {
+            try {
+                carRepository.shareCar(carId, friendUid)
+                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Car shared successfully"))
+            } catch (e: Exception) {
+                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+            }
+        }
+    }
+
+    fun unshareCar(carId: String, friendUid: String) {
+        viewModelScope.launch {
+            try {
+                carRepository.unshareCar(carId, friendUid)
+                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Car unshared successfully"))
             } catch (e: Exception) {
                 _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
             }

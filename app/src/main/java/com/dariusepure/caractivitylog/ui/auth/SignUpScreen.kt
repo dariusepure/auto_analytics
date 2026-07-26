@@ -29,6 +29,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -45,10 +46,13 @@ fun SignUpScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val signedIn by viewModel.signedIn.collectAsStateWithLifecycle(initialValue = false)
+    val usernameAvailable by viewModel.usernameAvailable.collectAsStateWithLifecycle()
 
     val submitting = state == SignUpState.Pending
 
     var email by rememberSaveable { mutableStateOf("") }
+    var name by rememberSaveable { mutableStateOf("") }
+    var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var confirmPassword by rememberSaveable { mutableStateOf("") }
 
@@ -102,13 +106,40 @@ fun SignUpScreen(
             }
 
             OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Full Name") },
+                singleLine = true,
+                enabled = !submitting,
+                modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+            )
+            OutlinedTextField(
+                value = username,
+                onValueChange = { 
+                    username = it
+                    viewModel.checkUsername(it)
+                },
+                label = { Text("Username (User ID)") },
+                singleLine = true,
+                enabled = !submitting,
+                isError = usernameAvailable == false,
+                supportingText = {
+                    if (usernameAvailable == false) {
+                        Text("Username already taken")
+                    } else if (username.length >= 3 && usernameAvailable == true) {
+                        Text("Username available", color = Color(0xFF4CAF50))
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+            )
+            OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
                 label = { Text("Email") },
                 singleLine = true,
                 enabled = !submitting,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
             )
             OutlinedTextField(
                 value = password,
@@ -134,9 +165,9 @@ fun SignUpScreen(
 
             Button(
                 onClick = {
-                    viewModel.onSignUp(email, password, confirmPassword)
+                    viewModel.onSignUp(email, password, confirmPassword, name, username)
                 },
-                enabled = !submitting && email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank(),
+                enabled = !submitting && email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank() && name.isNotBlank() && username.isNotBlank() && usernameAvailable == true,
                 modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
             ) {
                 if (submitting) {

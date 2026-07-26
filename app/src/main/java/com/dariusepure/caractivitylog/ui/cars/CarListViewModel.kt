@@ -69,6 +69,9 @@ class CarListViewModel @Inject constructor(
         }
     }
 
+    val isGuestMode: Boolean
+        get() = authRepository.isGuestMode
+
     fun signOut() {
         viewModelScope.launch {
             try {
