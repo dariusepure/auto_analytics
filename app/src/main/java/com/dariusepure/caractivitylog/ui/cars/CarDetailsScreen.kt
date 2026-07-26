@@ -3,6 +3,8 @@ package com.dariusepure.caractivitylog.ui.cars
 import android.app.DatePickerDialog
 import android.graphics.Bitmap
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -49,6 +51,7 @@ import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.domain.VehicleInspection
 import com.dariusepure.caractivitylog.domain.displayName
 import com.dariusepure.caractivitylog.ui.common.CarFormatters
+import com.dariusepure.caractivitylog.util.PdfReportGenerator
 import com.dariusepure.caractivitylog.ui.common.ErrorState
 import com.dariusepure.caractivitylog.ui.common.LoadingState
 import java.text.SimpleDateFormat
@@ -70,6 +73,33 @@ fun CarDetailsScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    val pdfLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/pdf"),
+        onResult = { uri ->
+            uri?.let {
+                val success = (state as? CarDetailsUiState.Success)?.let { s ->
+                    try {
+                        context.contentResolver.openOutputStream(it)?.use { os ->
+                            PdfReportGenerator.generateReport(
+                                context, s.car, s.mileageLogs, s.inspections, s.fuelLogs, os
+                            )
+                        }
+                        true
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        false
+                    }
+                } ?: false
+                
+                if (success) {
+                    Toast.makeText(context, "Report saved successfully", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Failed to save report", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    )
     
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect { event ->
@@ -286,6 +316,37 @@ fun CarDetailsScreen(
                                     )
                                     Text(
                                         text = "Track fillings and view stats",
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(Modifier.height(24.dp))
+
+                        Card(
+                            onClick = { 
+                                val fileName = "Report_${car.displayName.replace(" ", "_")}_${SimpleDateFormat("yyyyMMdd", Locale.ROOT).format(Date())}.pdf"
+                                pdfLauncher.launch(fileName) 
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.Description, contentDescription = null)
+                                Spacer(Modifier.width(12.dp))
+                                Column {
+                                    Text(
+                                        text = "Generate PDF Report",
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    Text(
+                                        text = "Export vehicle history to PDF",
                                         style = MaterialTheme.typography.bodySmall
                                     )
                                 }

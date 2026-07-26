@@ -32,7 +32,6 @@ import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.outlined.DirectionsCar
-import androidx.compose.material.icons.filled.People
 import com.dariusepure.caractivitylog.ui.common.CarFormatters
 import com.dariusepure.caractivitylog.ui.theme.ThemeViewModel
 import androidx.compose.material3.Card
@@ -188,7 +187,6 @@ fun CarListScreen(
     onAddCarClick: () -> Unit,
     onEditCarClick: (String) -> Unit,
     onRecycleBinClick: () -> Unit,
-    onFriendsClick: () -> Unit,
     onLogout: () -> Unit,
     viewModel: CarListViewModel = hiltViewModel(),
     themeViewModel: ThemeViewModel = hiltViewModel(),
@@ -205,7 +203,6 @@ fun CarListScreen(
         onAddCarClick = onAddCarClick,
         onEditCarClick = onEditCarClick,
         onRecycleBinClick = onRecycleBinClick,
-        onFriendsClick = onFriendsClick,
         onDeleteCar = { carId -> viewModel.onDeleteCar(carId) },
         onLogoutClick = {
             viewModel.signOut()
@@ -215,7 +212,6 @@ fun CarListScreen(
         onSortOrderChange = { viewModel.onSortOrderChanged(it) },
         currentSortOrder = sortOrder,
         isDark = currentDark,
-        isGuestMode = viewModel.isGuestMode,
         state = state
     )
 }
@@ -227,14 +223,12 @@ private fun InnerCarListScreen(
     onAddCarClick: () -> Unit,
     onEditCarClick: (String) -> Unit,
     onRecycleBinClick: () -> Unit,
-    onFriendsClick: () -> Unit,
     onDeleteCar: (String) -> Unit,
     onLogoutClick: () -> Unit,
     onThemeToggle: () -> Unit,
     onSortOrderChange: (CarSortOrder) -> Unit,
     currentSortOrder: CarSortOrder,
     isDark: Boolean,
-    isGuestMode: Boolean,
     state: CarListUiState,
     modifier: Modifier = Modifier,
 ) {
@@ -276,14 +270,6 @@ private fun InnerCarListScreen(
                                     }
                                 )
                             }
-                        }
-                    }
-                    if (!isGuestMode) {
-                        IconButton(onClick = onFriendsClick) {
-                            Icon(
-                                imageVector = Icons.Default.People,
-                                contentDescription = "Friends"
-                            )
                         }
                     }
                     IconButton(onClick = onRecycleBinClick) {

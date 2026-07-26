@@ -1,11 +1,9 @@
 package com.dariusepure.caractivitylog.ui.auth
 
-import android.app.Activity
 import android.content.Context
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -49,7 +47,7 @@ class SignInViewModel @Inject constructor(
             try {
                 authRepository.signIn(email, password)
             } catch (exception: Exception) {
-                _state.value = SignInState.Error(exception.message ?: "We don't why it failed, but it did")
+                _state.value = SignInState.Error(exception.message ?: "An unexpected error occurred during Sign-In")
             }
         }
     }

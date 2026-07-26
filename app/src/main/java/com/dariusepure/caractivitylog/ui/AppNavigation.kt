@@ -9,7 +9,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.dariusepure.caractivitylog.ui.auth.SignInScreen
 import com.dariusepure.caractivitylog.ui.auth.SignUpScreen
-import com.dariusepure.caractivitylog.ui.auth.EmailVerificationScreen
 import com.dariusepure.caractivitylog.ui.cars.AddCarScreen
 import com.dariusepure.caractivitylog.ui.cars.CarDetailsScreen
 import com.dariusepure.caractivitylog.ui.cars.CarListScreen
@@ -20,16 +19,12 @@ import com.dariusepure.caractivitylog.ui.cars.TechnicalSheetScreen
 import com.dariusepure.caractivitylog.ui.cars.DiagnosisScreen
 import com.dariusepure.caractivitylog.ui.cars.FuelHistoryScreen
 import com.dariusepure.caractivitylog.ui.cars.RecycleBinScreen
-import com.dariusepure.caractivitylog.ui.friends.FriendsScreen
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dariusepure.caractivitylog.ui.theme.ThemeViewModel
-import kotlinx.coroutines.launch
 
 sealed class Screen(val route: String) {
     data object SignIn : Screen("signin")
     data object SignUp : Screen("signup")
-    data object EmailVerification : Screen("emailverification")
     data object CarList : Screen("carlist")
     data object CarDetails : Screen("cardetails/{carId}") {
         fun createRoute(carId: String) = "cardetails/$carId"
@@ -54,7 +49,6 @@ sealed class Screen(val route: String) {
         fun createRoute(carId: String) = "fuelhistory/$carId"
     }
     data object RecycleBin : Screen("recyclebin")
-    data object Friends : Screen("friends")
 }
 
 @Composable
@@ -62,8 +56,7 @@ fun AppNavigation(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startDestination: String = Screen.CarList.route,
-    themeViewModel: ThemeViewModel = hiltViewModel(),
-    mainViewModel: MainViewModel = hiltViewModel()
+    themeViewModel: ThemeViewModel = hiltViewModel()
 ) {
     NavHost(
         navController = navController,
@@ -73,14 +66,8 @@ fun AppNavigation(
         composable(Screen.SignIn.route) {
             SignInScreen(
                 onSignedIn = {
-                    if (mainViewModel.checkUserVerification() || mainViewModel.isGuestMode) {
-                        navController.navigate(Screen.CarList.route) {
-                            popUpTo(Screen.SignIn.route) { inclusive = true }
-                        }
-                    } else {
-                        navController.navigate(Screen.EmailVerification.route) {
-                            popUpTo(Screen.SignIn.route) { inclusive = true }
-                        }
+                    navController.navigate(Screen.CarList.route) {
+                        popUpTo(Screen.SignIn.route) { inclusive = true }
                     }
                 },
                 onSignUpClick = {
@@ -91,21 +78,12 @@ fun AppNavigation(
         composable(Screen.SignUp.route) {
             SignUpScreen(
                 onSignedIn = {
-                    navController.navigate(Screen.EmailVerification.route) {
-                        popUpTo(Screen.SignUp.route) { inclusive = true }
+                    navController.navigate(Screen.CarList.route) {
+                        popUpTo(Screen.SignIn.route) { inclusive = true }
                     }
                 },
                 onBackToSignIn = {
                     navController.popBackStack()
-                }
-            )
-        }
-        composable(Screen.EmailVerification.route) {
-            EmailVerificationScreen(
-                onVerified = {
-                    navController.navigate(Screen.CarList.route) {
-                        popUpTo(Screen.EmailVerification.route) { inclusive = true }
-                    }
                 }
             )
         }
@@ -122,9 +100,6 @@ fun AppNavigation(
                 },
                 onRecycleBinClick = {
                     navController.navigate(Screen.RecycleBin.route)
-                },
-                onFriendsClick = {
-                    navController.navigate(Screen.Friends.route)
                 },
                 onLogout = {
                     navController.navigate(Screen.SignIn.route) {
@@ -215,11 +190,6 @@ fun AppNavigation(
         }
         composable(Screen.RecycleBin.route) {
             RecycleBinScreen(
-                onBack = { navController.popBackStack() }
-            )
-        }
-        composable(Screen.Friends.route) {
-            FriendsScreen(
                 onBack = { navController.popBackStack() }
             )
         }

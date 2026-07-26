@@ -49,8 +49,6 @@ data class Car(
     val tireWidth: Int = 0,
     val tireAspectRatio: Int = 0,
     val tireDiameter: Int = 0,
-    val ownerUid: String = "",
-    val sharedWith: List<String> = emptyList(),
     val createdAt: Date = Date(),
     val updatedAt: Date = Date(),
     val activityCount: Int = 0,

@@ -68,16 +68,9 @@ class GeminiRepository @Inject constructor(
     )
 
     private fun getModel(tools: List<Tool>? = null): GenerativeModel {
-        val apiKey = BuildConfig.GEMINI_API_KEY
-        if (apiKey.isBlank()) {
-            android.util.Log.e("GeminiRepository", "API Key is empty! Make sure gemini.api.key is set in local.properties")
-        } else {
-            android.util.Log.d("GeminiRepository", "Using API Key starting with: ${apiKey.take(5)}...")
-        }
-        
         return GenerativeModel(
             modelName = modelName,
-            apiKey = apiKey,
+            apiKey = BuildConfig.GEMINI_API_KEY,
             generationConfig = generationConfig {
                 this.temperature = this@GeminiRepository.temperature
             },
@@ -116,22 +109,14 @@ class GeminiRepository @Inject constructor(
             }
 
             val scanModel = getModel()
-            android.util.Log.d("GeminiRepository", "Sending registration certificate to AI...")
             val response = scanModel.generateContent(inputContent)
             val fullText = response.text ?: throw Exception("Empty response from AI")
             
             val jsonText = extractJson(fullText)
             val data = json.decodeFromString<ScannedCarData>(jsonText)
-            android.util.Log.d("GeminiRepository", "Scan successful")
             Result.success(data)
         } catch (e: Exception) {
-            android.util.Log.e("GeminiRepository", "Scan failed with error", e)
-            if (e.message?.contains("API_KEY_INVALID", ignoreCase = true) == true || 
-                e.message?.contains("leaked", ignoreCase = true) == true) {
-                Result.failure(Exception("AI Key Error: The API key is invalid or has been disabled (leaked). Please update it in local.properties.", e))
-            } else {
-                Result.failure(e)
-            }
+            Result.failure(e)
         }
     }
 
@@ -169,22 +154,14 @@ class GeminiRepository @Inject constructor(
             }
 
             val scanModel = getModel()
-            android.util.Log.d("GeminiRepository", "Sending document to AI...")
             val response = scanModel.generateContent(inputContent)
             val fullText = response.text ?: throw Exception("Empty response from AI")
             
             val jsonText = extractJson(fullText)
             val data = json.decodeFromString<ScannedCarData>(jsonText)
-            android.util.Log.d("GeminiRepository", "Scan successful")
             Result.success(data)
         } catch (e: Exception) {
-            android.util.Log.e("GeminiRepository", "Scan failed with error", e)
-            if (e.message?.contains("API_KEY_INVALID", ignoreCase = true) == true || 
-                e.message?.contains("leaked", ignoreCase = true) == true) {
-                Result.failure(Exception("AI Key Error: The API key is invalid or has been disabled (leaked). Please update it in local.properties.", e))
-            } else {
-                Result.failure(e)
-            }
+            Result.failure(e)
         }
     }
 

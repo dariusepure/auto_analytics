@@ -55,13 +55,13 @@ class AuthRepository @Inject constructor(
         return firebaseAuth.currentUser?.uid ?: if (_isGuestMode.value) "guest_user" else null
     }
 
-    suspend fun signIn(email: String, password: String) {
-        firebaseAuth.signInWithEmailAndPassword(email, password)
+    suspend fun signUp(email: String, password: String) {
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
             .await()
     }
 
-    suspend fun signUp(email: String, password: String) {
-        firebaseAuth.createUserWithEmailAndPassword(email, password)
+    suspend fun signIn(email: String, password: String) {
+        firebaseAuth.signInWithEmailAndPassword(email, password)
             .await()
     }
 

@@ -46,16 +46,14 @@ class CarRepository @Inject constructor(
             .document(uid)
             .collection("cars")
             .orderBy("updatedAt", Query.Direction.DESCENDING)
-            .addSnapshotListener(MetadataChanges.INCLUDE) { snapshots, exception ->
+            .addSnapshotListener { snapshots, exception ->
                 if (exception != null) {
                     close(exception)
                     return@addSnapshotListener
                 }
 
                 val results = snapshots?.documents?.mapNotNull { doc ->
-                    val car = doc.toObject(FirestoreCar::class.java)?.fromFirebase(
-                        isSynced = !doc.metadata.hasPendingWrites()
-                    )
+                    val car = doc.toObject(FirestoreCar::class.java)?.fromFirebase()
                     if (car?.deleted == false) car else null
                 } ?: emptyList()
 
@@ -97,7 +95,6 @@ class CarRepository @Inject constructor(
     suspend fun createCar(car: Car) {
         checkNetwork()
         val uid = getUid()
-
         val firestoreCar = car.toFirebase()
 
         val reference = if (car.id.isEmpty()) {
