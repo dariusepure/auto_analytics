@@ -1,9 +1,12 @@
 package com.dariusepure.caractivitylog.data.auth
 
 import android.content.Context
+import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
@@ -26,8 +29,11 @@ class AuthRepository @Inject constructor(
 ) {
     private val sharedPrefs = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
     private val _isGuestMode = MutableStateFlow(sharedPrefs.getBoolean("is_guest_mode", false))
+    
+    private val TAG = "AuthRepository"
 
     val signedIn: Flow<Boolean> = combine(
+
         callbackFlow {
             val listener = FirebaseAuth.AuthStateListener {
                 trySend(firebaseAuth.currentUser != null)
@@ -66,51 +72,18 @@ class AuthRepository @Inject constructor(
     }
 
     suspend fun signInWithGoogle(context: Context) {
-        // Log the SHA-1 for debugging purposes
-        try {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                val packageInfo = context.packageManager.getPackageInfo(
-                    context.packageName,
-                    android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES
-                )
-                val signingInfo = packageInfo.signingInfo
-                if (signingInfo != null) {
-                    val signatures = if (signingInfo.hasMultipleSigners()) {
-                        signingInfo.signingCertificateHistory
-                    } else {
-                        signingInfo.apkContentsSigners
-                    }
-                    for (signature in signatures) {
-                        val md = java.security.MessageDigest.getInstance("SHA-1")
-                        val digest = md.digest(signature.toByteArray())
-                        val sha1 = digest.joinToString(":") { "%02x".format(it) }
-                        android.util.Log.d("AuthRepository", "SHA-1: $sha1")
-                    }
-                }
-            } else {
-                @Suppress("DEPRECATION")
-                val packageInfo = context.packageManager.getPackageInfo(
-                    context.packageName,
-                    android.content.pm.PackageManager.GET_SIGNATURES
-                )
-                @Suppress("DEPRECATION")
-                packageInfo.signatures?.forEach { signature ->
-                    val md = java.security.MessageDigest.getInstance("SHA-1")
-                    val digest = md.digest(signature.toByteArray())
-                    val sha1 = digest.joinToString(":") { "%02x".format(it) }
-                    android.util.Log.d("AuthRepository", "SHA-1: $sha1")
-                }
-            }
-        } catch (e: Exception) {
-            android.util.Log.e("AuthRepository", "Error getting SHA-1", e)
+        val webClientId = BuildConfig.WEB_CLIENT_ID
+        Log.d(TAG, "Starting Google Sign-In with WEB_CLIENT_ID: '$webClientId'")
+        
+        if (webClientId.isBlank()) {
+            Log.e(TAG, "WEB_CLIENT_ID is empty! Google Sign-In will fail.")
+            throw IllegalStateException("Web Client ID is not configured in local.properties")
         }
 
-        android.util.Log.d("AuthRepository", "Using WEB_CLIENT_ID: ${BuildConfig.WEB_CLIENT_ID}")
-
         val googleIdOption = GetGoogleIdOption.Builder()
-            .setServerClientId(BuildConfig.WEB_CLIENT_ID)
+            .setServerClientId(webClientId)
             .setFilterByAuthorizedAccounts(false)
-            .setAutoSelectEnabled(false) // Disable for now to force the picker
+            .setAutoSelectEnabled(false)
             .build()
 
         val request = GetCredentialRequest.Builder()
@@ -119,21 +92,34 @@ class AuthRepository @Inject constructor(
 
         try {
             val credentialManager = CredentialManager.create(context)
+            Log.d(TAG, "Calling getCredential...")
             val response = credentialManager.getCredential(context, request)
             val credential = response.credential
+
+            Log.d(TAG, "Received credential type: ${credential.type}")
 
             if (credential is CustomCredential &&
                 credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
             ) {
                 val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                 val idToken = googleIdTokenCredential.idToken
+                Log.d(TAG, "ID Token obtained successfully")
+                
                 val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
                 firebaseAuth.signInWithCredential(firebaseCredential).await()
+                Log.d(TAG, "Firebase sign-in successful")
             } else {
+                Log.e(TAG, "Unexpected credential type: ${credential.type}")
                 throw IllegalStateException("Unexpected credential type: ${credential.type}")
             }
+        } catch (e: NoCredentialException) {
+            Log.e(TAG, "No credentials found. This usually means the SHA-1 is not registered in Firebase or no Google account is available on device.", e)
+            throw Exception("No Google accounts found or configuration issue (check SHA-1 in Firebase).")
+        } catch (e: GetCredentialException) {
+            Log.e(TAG, "Credential Manager error: ${e.type}", e)
+            throw Exception("Google Sign-In failed: ${e.message}")
         } catch (e: Exception) {
-            // Re-throw or handle specifically if needed
+            Log.e(TAG, "Unexpected error during Google Sign-In", e)
             throw e
         }
     }

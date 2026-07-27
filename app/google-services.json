@@ -14,19 +14,19 @@
       },
       "oauth_client": [
         {
-          "client_id": "1050502217992-25petclu4rbg8rsofkdova5ikkoh5e1c.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.dariusepure.caractivitylog",
-            "certificate_hash": "c10c6df2fb85fc2373f01da647f4f40ccb3f685c"
-          }
-        },
-        {
           "client_id": "1050502217992-785f9nkkrgcde27upm2s0qgjbds7797h.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.dariusepure.caractivitylog",
             "certificate_hash": "0890a1564fe3ee87cb7f8954e3c66622214f1f02"
+          }
+        },
+        {
+          "client_id": "1050502217992-v4m3grm2bte7ubhajb4argl3527u1kh1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dariusepure.caractivitylog",
+            "certificate_hash": "2a2bc6737597d8798df780eb6a25587e4e1d99e4"
           }
         },
         {
