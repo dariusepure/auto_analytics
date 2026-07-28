@@ -3,6 +3,8 @@ package com.dariusepure.caractivitylog.ui.cars
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dariusepure.caractivitylog.data.auth.AuthRepository
+import androidx.annotation.StringRes
+import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.data.cars.CarRepository
 import com.dariusepure.caractivitylog.domain.displayName
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,10 +19,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-enum class CarSortOrder(val label: String) {
-    DATE_ADDED("Default"),
-    BRAND("Brand (A-Z)"),
-    YEAR("Year (Newest)")
+enum class CarSortOrder(@StringRes val labelRes: Int) {
+    DATE_ADDED(R.string.sort_default),
+    BRAND(R.string.sort_brand),
+    YEAR(R.string.sort_year)
 }
 
 @HiltViewModel

@@ -64,6 +64,8 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
+import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -135,14 +137,14 @@ fun CarCard(
                     if (!car.isSynced) {
                         Icon(
                             imageVector = Icons.Default.Sync,
-                            contentDescription = "Pending Sync",
+                            contentDescription = null,
                             tint = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.size(16.dp)
                         )
                     } else {
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
-                            contentDescription = "Synced",
+                            contentDescription = null,
                             tint = Color(0xFF4CAF50), // Green
                             modifier = Modifier.size(14.dp)
                         )
@@ -150,7 +152,7 @@ fun CarCard(
                 }
                 Spacer(Modifier.height(4.dp))
                 
-                val summary = CarFormatters.getCarSummary(car)
+                val summary = CarFormatters.getCarSummary(context, car)
                 if (summary.isNotEmpty()) {
                     Text(
                         text = summary,
@@ -161,7 +163,7 @@ fun CarCard(
                 
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "Last update: ${car.updatedAt.toRelativeString()}",
+                    text = stringResource(R.string.car_last_update, car.updatedAt.toRelativeString(context)),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -170,7 +172,7 @@ fun CarCard(
             IconButton(onClick = onEditClick) {
                 Icon(
                     imageVector = Icons.Default.Edit,
-                    contentDescription = "Edit car",
+                    contentDescription = stringResource(R.string.car_edit_content_description),
                     tint = Color(0xFF2196F3) // Force Blue for Edit
                 )
             }
@@ -178,7 +180,7 @@ fun CarCard(
             IconButton(onClick = onDeleteClick) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete car",
+                    contentDescription = stringResource(R.string.car_delete_content_description),
                     tint = Color.Red
                 )
             }
@@ -248,13 +250,13 @@ private fun InnerCarListScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text("Your cars") },
+                title = { Text(stringResource(R.string.car_list_title)) },
                 actions = {
                     Box {
                         IconButton(onClick = { sortMenuExpanded = true }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.Sort,
-                                contentDescription = "Sort cars"
+                                contentDescription = null
                             )
                         }
                         DropdownMenu(
@@ -265,7 +267,7 @@ private fun InnerCarListScreen(
                                 DropdownMenuItem(
                                     text = { 
                                         Text(
-                                            text = order.label,
+                                            text = stringResource(order.labelRes),
                                             fontWeight = if (order == currentSortOrder) FontWeight.Bold else FontWeight.Normal
                                         ) 
                                     },
@@ -285,19 +287,19 @@ private fun InnerCarListScreen(
                     IconButton(onClick = onRecycleBinClick) {
                         Icon(
                             imageVector = Icons.Default.DeleteForever,
-                            contentDescription = "Recycle Bin"
+                            contentDescription = stringResource(R.string.recycle_bin_title)
                         )
                     }
                     IconButton(onClick = onThemeToggle) {
                         Icon(
                             imageVector = if (isDark) Icons.Default.LightMode else Icons.Default.DarkMode,
-                            contentDescription = "Toggle Theme"
+                            contentDescription = null
                         )
                     }
                     IconButton(onClick = onLogoutClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Logout,
-                            contentDescription = "Log out"
+                            contentDescription = null
                         )
                     }
                 }
@@ -307,7 +309,7 @@ private fun InnerCarListScreen(
             ExtendedFloatingActionButton(
                 onClick = onAddCarClick,
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                text = { Text("Add car") },
+                text = { Text(stringResource(R.string.car_add_button)) },
             )
         },
     ) { padding ->
@@ -318,12 +320,12 @@ private fun InnerCarListScreen(
                     value = searchQuery,
                     onValueChange = onSearchQueryChange,
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Search cars...") },
+                    placeholder = { Text(stringResource(R.string.car_list_search_placeholder)) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
                             IconButton(onClick = { onSearchQueryChange("") }) {
-                                Icon(Icons.Default.Clear, contentDescription = "Clear search")
+                                Icon(Icons.Default.Clear, contentDescription = null)
                             }
                         }
                     },
@@ -339,10 +341,10 @@ private fun InnerCarListScreen(
 
             Box(modifier = Modifier.weight(1f)) {
                 when (state) {
-                    CarListUiState.Loading -> LoadingState(label = "Loading your cars")
+                    CarListUiState.Loading -> LoadingState(label = stringResource(R.string.car_list_loading))
                     CarListUiState.Empty -> EmptyState(
-                        title = if (searchQuery.isEmpty()) "No cars yet" else "No cars found",
-                        subtitle = if (searchQuery.isEmpty()) "Tap Add car to get started." else "Try a different search term.",
+                        title = if (searchQuery.isEmpty()) stringResource(R.string.car_list_empty_title) else stringResource(R.string.car_list_no_results_title),
+                        subtitle = if (searchQuery.isEmpty()) stringResource(R.string.car_list_empty_subtitle) else stringResource(R.string.car_list_no_results_subtitle),
                         icon = Icons.Outlined.DirectionsCar,
                     )
                     is CarListUiState.Success -> LazyColumn(

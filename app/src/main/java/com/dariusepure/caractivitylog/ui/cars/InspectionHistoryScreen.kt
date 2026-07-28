@@ -29,7 +29,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
+import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -88,10 +89,10 @@ fun InspectionHistoryScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text("Inspection History") },
+                title = { Text(stringResource(R.string.inspection_history_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 }
             )
@@ -101,7 +102,7 @@ fun InspectionHistoryScreen(
                 onClick = { showAddDialog = true },
                 containerColor = MaterialTheme.colorScheme.primaryContainer
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Inspection")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.inspection_add_title))
             }
         }
     ) { padding ->
@@ -130,7 +131,7 @@ fun InspectionHistoryScreen(
                     if (s.inspections.isEmpty()) {
                         item {
                             Text(
-                                text = "No inspection records found.",
+                                text = stringResource(R.string.inspection_empty),
                                 style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier.padding(vertical = 16.dp)
                             )

@@ -16,6 +16,8 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
+import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -127,10 +129,10 @@ fun MileageHistoryScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text("Mileage History") },
+                title = { Text(stringResource(R.string.mileage_history_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 }
             )
@@ -140,7 +142,7 @@ fun MileageHistoryScreen(
                 onClick = { showAddMileageDialog = true },
                 containerColor = MaterialTheme.colorScheme.primaryContainer
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Mileage")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.mileage_add_title))
             }
         }
     ) { padding ->
@@ -200,7 +202,7 @@ fun MileageHistoryScreen(
                                 } else {
                                     Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(18.dp))
                                     Spacer(Modifier.width(4.dp))
-                                    Text("Scan Photo", textAlign = TextAlign.Center)
+                                    Text(stringResource(R.string.car_scan_photo), textAlign = TextAlign.Center)
                                 }
                             }
 
@@ -219,7 +221,7 @@ fun MileageHistoryScreen(
                                 } else {
                                     Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(18.dp))
                                     Spacer(Modifier.width(4.dp))
-                                    Text("Scan PDF", textAlign = TextAlign.Center)
+                                    Text(stringResource(R.string.car_scan_pdf), textAlign = TextAlign.Center)
                                 }
                             }
                         }
@@ -228,7 +230,7 @@ fun MileageHistoryScreen(
                     if (s.mileageLogs.isEmpty()) {
                         item {
                             Text(
-                                text = "No mileage records found.",
+                                text = stringResource(R.string.mileage_empty),
                                 style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier.padding(vertical = 16.dp)
                             )
@@ -261,11 +263,11 @@ fun ScannedMileageConfirmationDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Confirm Scanned Records") },
+        title = { Text(stringResource(R.string.mileage_confirm_scanned)) },
         text = {
             Column {
                 Text(
-                    "We found ${entries.size} mileage records. Please confirm which ones to add.",
+                    stringResource(R.string.mileage_scanned_subtitle, entries.size),
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
@@ -317,12 +319,12 @@ fun ScannedMileageConfirmationDialog(
                 onClick = { onConfirm(selectedEntries) },
                 enabled = selectedEntries.isNotEmpty()
             ) {
-                Text("Add Selected (${selectedEntries.size})")
+                Text(stringResource(R.string.common_apply_selected, selectedEntries.size))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.common_cancel))
             }
         }
     )

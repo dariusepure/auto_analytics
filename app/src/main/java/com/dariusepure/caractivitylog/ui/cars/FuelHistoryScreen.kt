@@ -20,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.res.stringResource
+import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,17 +51,17 @@ fun FuelHistoryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Fuel Consumption") },
+                title = { Text(stringResource(R.string.fuel_history_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 }
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { showAddDialog = true }) {
-                Icon(Icons.Default.Add, contentDescription = "Add Filling")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.fuel_add_title))
             }
         }
     ) { padding ->
@@ -106,7 +108,7 @@ fun FuelHistoryScreen(
                                     Icon(Icons.Default.Info, null, tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(20.dp))
                                     Spacer(Modifier.width(12.dp))
                                     Text(
-                                        text = "Add at least 2 'Full Tank' records to see average consumption.",
+                                        text = stringResource(R.string.fuel_add_full_tank_hint),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onTertiaryContainer
                                     )
@@ -116,7 +118,7 @@ fun FuelHistoryScreen(
 
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            text = "Filling History",
+                            text = stringResource(R.string.fuel_history_header),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -135,7 +137,7 @@ fun FuelHistoryScreen(
                                     tint = MaterialTheme.colorScheme.outline
                                 )
                                 Spacer(Modifier.height(16.dp))
-                                Text("No records yet. Add your first filling!", color = MaterialTheme.colorScheme.secondary)
+                                Text(stringResource(R.string.fuel_history_empty), color = MaterialTheme.colorScheme.secondary)
                             }
                         }
                     }
@@ -183,18 +185,18 @@ fun FuelStatsCard(stats: FuelStats, distUnit: String, consUnit: String) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 StatItem(
-                    label = "Avg Consumption", 
+                    label = stringResource(R.string.fuel_stats_avg), 
                     value = stats.avgConsumption?.let { String.format(Locale.getDefault(), "%.2f %s", it, consUnit) } ?: "-- $consUnit"
                 )
-                StatItem("Total Distance", "${stats.totalDistance.roundToInt()} $distUnit")
+                StatItem(stringResource(R.string.fuel_stats_total_dist), "${stats.totalDistance.roundToInt()} $distUnit")
             }
             Spacer(Modifier.height(16.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                StatItem("Total Fuel", String.format(Locale.getDefault(), "%.1f L", stats.totalLiters))
-                StatItem("Total Cost", String.format(Locale.getDefault(), "%.2f", stats.totalCost))
+                StatItem(stringResource(R.string.fuel_stats_total_fuel), String.format(Locale.getDefault(), "%.1f L", stats.totalLiters))
+                StatItem(stringResource(R.string.fuel_stats_total_cost), String.format(Locale.getDefault(), "%.2f", stats.totalCost))
             }
         }
     }
@@ -235,7 +237,7 @@ fun FuelLogItem(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = "${entry.log.liters} L • ${entry.log.cost} • ${if (entry.log.isFullTank) "Full Tank" else "Partial"}",
+                    text = "${entry.log.liters} L \u00B7 ${entry.log.cost} \u00B7 ${if (entry.log.isFullTank) stringResource(R.string.fuel_full_tank_label) else stringResource(R.string.fuel_partial_tank)}",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -291,7 +293,7 @@ fun AddFuelDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Filling") },
+        title = { Text(stringResource(R.string.fuel_add_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
@@ -302,7 +304,7 @@ fun AddFuelDialog(
                             errorMessage = null
                         }
                     },
-                    label = { Text("Mileage ($unit)") },
+                    label = { Text(stringResource(R.string.common_distance, unit)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
                     isError = errorMessage != null
@@ -320,14 +322,14 @@ fun AddFuelDialog(
                     OutlinedTextField(
                         value = liters,
                         onValueChange = { if (it.all { c -> c.isDigit() || c == '.' }) liters = it },
-                        label = { Text("Liters") },
+                        label = { Text(stringResource(R.string.fuel_liters_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         modifier = Modifier.weight(1f)
                     )
                     OutlinedTextField(
                         value = cost,
                         onValueChange = { if (it.all { c -> c.isDigit() || c == '.' }) cost = it },
-                        label = { Text("Total Cost") },
+                        label = { Text(stringResource(R.string.fuel_cost_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         modifier = Modifier.weight(1f)
                     )
@@ -335,14 +337,14 @@ fun AddFuelDialog(
                 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = isFullTank, onCheckedChange = { isFullTank = it })
-                    Text("Full Tank", modifier = Modifier.clickable { isFullTank = !isFullTank })
+                    Text(stringResource(R.string.fuel_full_tank_label), modifier = Modifier.clickable { isFullTank = !isFullTank })
                 }
 
                 OutlinedTextField(
                     value = dateFormat.format(selectedDate),
                     onValueChange = { },
                     readOnly = true,
-                    label = { Text("Date") },
+                    label = { Text(stringResource(R.string.common_date)) },
                     modifier = Modifier.fillMaxWidth().clickable { datePickerDialog.show() },
                     enabled = false,
                     colors = OutlinedTextFieldDefaults.colors(
@@ -371,11 +373,7 @@ fun AddFuelDialog(
 
                         if (conflict != null) {
                             val conflictDisplay = CarFormatters.fromCanonicalDistance(conflict.km, usesMiles)
-                            errorMessage = if (selectedDate.after(conflict.date)) {
-                                "Mileage cannot be less than ${conflictDisplay.roundToInt()} $unit recorded on ${dateFormat.format(conflict.date)}"
-                            } else {
-                                "Mileage cannot be more than ${conflictDisplay.roundToInt()} $unit recorded on ${dateFormat.format(conflict.date)}"
-                            }
+                            errorMessage = context.getString(R.string.fuel_mileage_conflict, dateFormat.format(conflict.date))
                         } else {
                             onConfirm(k, l, c, isFullTank, selectedDate)
                         }
@@ -383,11 +381,11 @@ fun AddFuelDialog(
                 },
                 enabled = km.isNotBlank() && liters.isNotBlank()
             ) {
-                Text("Add")
+                Text(stringResource(R.string.common_add))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
         }
     )
 }

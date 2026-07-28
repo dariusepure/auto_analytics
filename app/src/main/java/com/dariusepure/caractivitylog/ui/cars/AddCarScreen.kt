@@ -56,6 +56,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.res.stringResource
+import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -373,10 +375,10 @@ fun AddCarScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(if (carId == null) "Add New Car" else "Edit Car") },
+                title = { Text(if (carId == null) stringResource(R.string.car_add_title) else stringResource(R.string.car_edit_title)) },
                 navigationIcon = {
                     IconButton(onClick = handleBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 }
             )
@@ -409,19 +411,19 @@ fun AddCarScreen(
 
             // --- IDENTITY SECTION ---
             CollapsibleSection(
-                title = "Identity & Style",
+                title = stringResource(R.string.car_identity_section),
                 isExpanded = identityExpanded,
                 onToggle = { identityExpanded = !identityExpanded }
             ) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Car Title (Nickname)") },
+                    label = { Text(stringResource(R.string.car_title_label)) },
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                     singleLine = true,
                     placeholder = { 
                         val fallback = "$make $model".trim()
-                        Text(if (fallback.isNotBlank()) "Ex: $fallback" else "Ex: My Daily Driver") 
+                        Text(if (fallback.isNotBlank()) stringResource(R.string.car_title_placeholder, fallback) else stringResource(R.string.car_title_placeholder_fallback)) 
                     },
                     enabled = state !is AddCarState.Pending
                 )
@@ -445,7 +447,7 @@ fun AddCarScreen(
                         } else {
                             Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(18.dp))
                             Spacer(Modifier.width(4.dp))
-                            Text("Scan Photo", textAlign = TextAlign.Center)
+                            Text(stringResource(R.string.car_scan_photo), textAlign = TextAlign.Center)
                         }
                     }
 
@@ -464,7 +466,7 @@ fun AddCarScreen(
                         } else {
                             Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(18.dp))
                             Spacer(Modifier.width(4.dp))
-                            Text("Scan PDF", textAlign = TextAlign.Center)
+                            Text(stringResource(R.string.car_scan_pdf), textAlign = TextAlign.Center)
                         }
                     }
                 }
@@ -473,7 +475,7 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = make,
                         onValueChange = { make = it },
-                        label = { Text("Make") },
+                        label = { Text(stringResource(R.string.car_make_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         leadingIcon = {
                             val logoRes = BrandHelper.getLogoResource(context, make)
@@ -519,7 +521,7 @@ fun AddCarScreen(
                 OutlinedTextField(
                     value = model,
                     onValueChange = { model = it },
-                    label = { Text("Model") },
+                    label = { Text(stringResource(R.string.car_model_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     enabled = state !is AddCarState.Pending
@@ -530,7 +532,7 @@ fun AddCarScreen(
                 OutlinedTextField(
                     value = year,
                     onValueChange = { if (it.all { char -> char.isDigit() }) year = it },
-                    label = { Text("Year") },
+                    label = { Text(stringResource(R.string.car_year_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -544,7 +546,7 @@ fun AddCarScreen(
                         value = vehicleType,
                         onValueChange = { },
                         readOnly = true,
-                        label = { Text("Vehicle Type") },
+                        label = { Text(stringResource(R.string.car_vehicle_type_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
                             Icon(
@@ -580,7 +582,7 @@ fun AddCarScreen(
                 OutlinedTextField(
                     value = color,
                     onValueChange = { color = it.uppercase() },
-                    label = { Text("Color") },
+                    label = { Text(stringResource(R.string.car_color_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     enabled = state !is AddCarState.Pending
@@ -594,7 +596,7 @@ fun AddCarScreen(
                         val filtered = input.uppercase().filter { it.isLetterOrDigit() && it !in listOf('I', 'O', 'Q') }
                         if (filtered.length <= 17) vin = filtered
                     },
-                    label = { Text("VIN") },
+                    label = { Text(stringResource(R.string.car_vin_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     enabled = state !is AddCarState.Pending,
@@ -603,10 +605,10 @@ fun AddCarScreen(
                             if (vin.isNotEmpty()) {
                                 Text("${vin.length}/17")
                                 if (vin.length < 17) {
-                                    Text("Remaining: ${17 - vin.length} characters", color = MaterialTheme.colorScheme.secondary)
+                                    Text(stringResource(R.string.car_vin_remaining, 17 - vin.length), color = MaterialTheme.colorScheme.secondary)
                                 }
                             }
-                            Text("Letters I, O, Q are not allowed", style = MaterialTheme.typography.bodySmall)
+                            Text(stringResource(R.string.car_vin_invalid_chars), style = MaterialTheme.typography.bodySmall)
                         }
                     },
                     isError = vin.isNotEmpty() && vin.length != 17
@@ -617,7 +619,7 @@ fun AddCarScreen(
 
             // --- REGISTRATION SECTION ---
             CollapsibleSection(
-                title = "Registration",
+                title = stringResource(R.string.car_registration_section),
                 isExpanded = registrationExpanded,
                 onToggle = { registrationExpanded = !registrationExpanded }
             ) {
@@ -639,12 +641,12 @@ fun AddCarScreen(
                         Spacer(Modifier.width(8.dp))
                         Column {
                             Text(
-                                text = "Country",
+                                text = stringResource(R.string.car_country_label),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.secondary
                             )
                             Text(
-                                text = selectedCountry?.code ?: "Select",
+                                text = selectedCountry?.code ?: stringResource(R.string.car_select_country),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }
@@ -689,13 +691,13 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = licensePlate,
                         onValueChange = { licensePlate = it.uppercase() },
-                        label = { Text("License Plate (Optional)") },
+                        label = { Text(stringResource(R.string.car_license_plate_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         enabled = state !is AddCarState.Pending,
                         supportingText = {
                             selectedCountry?.plateHint?.let { hint ->
-                                Text("Ex: $hint", style = MaterialTheme.typography.bodySmall)
+                                Text(stringResource(R.string.car_license_plate_hint, hint), style = MaterialTheme.typography.bodySmall)
                             }
                         }
                     )
@@ -708,7 +710,7 @@ fun AddCarScreen(
                         value = manufacturingCountry,
                         onValueChange = { },
                         readOnly = true,
-                        label = { Text("Manufacturing Country") },
+                        label = { Text(stringResource(R.string.car_manufacturing_country_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
                             Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { manufacturingCountryExpanded = true })
@@ -744,7 +746,7 @@ fun AddCarScreen(
 
             // --- ENGINE SECTION ---
             CollapsibleSection(
-                title = "Engine & Performance",
+                title = stringResource(R.string.car_engine_section),
                 isExpanded = engineExpanded,
                 onToggle = { engineExpanded = !engineExpanded }
             ) {
@@ -752,7 +754,7 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = power,
                         onValueChange = { if (it.all { char -> char.isDigit() }) power = it },
-                        label = { Text("Power") },
+                        label = { Text(stringResource(R.string.car_power_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -764,7 +766,7 @@ fun AddCarScreen(
                             value = powerUnit,
                             onValueChange = { },
                             readOnly = true,
-                            label = { Text("Unit") },
+                            label = { Text(stringResource(R.string.common_unit)) },
                             trailingIcon = {
                                 Icon(
                                     Icons.Default.ArrowDropDown,
@@ -797,7 +799,7 @@ fun AddCarScreen(
                 OutlinedTextField(
                     value = torque,
                     onValueChange = { if (it.all { char -> char.isDigit() }) torque = it },
-                    label = { Text("Torque (Nm)") },
+                    label = { Text(stringResource(R.string.car_torque_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -809,7 +811,7 @@ fun AddCarScreen(
                 OutlinedTextField(
                     value = engineCode,
                     onValueChange = { engineCode = it.uppercase() },
-                    label = { Text("Engine Code") },
+                    label = { Text(stringResource(R.string.car_engine_code_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     enabled = state !is AddCarState.Pending
@@ -822,7 +824,7 @@ fun AddCarScreen(
                         value = engineLayout,
                         onValueChange = { },
                         readOnly = true,
-                        label = { Text("Engine Layout") },
+                        label = { Text(stringResource(R.string.car_engine_layout_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
                             Icon(
@@ -860,7 +862,7 @@ fun AddCarScreen(
                         value = cylinderLayout,
                         onValueChange = { },
                         readOnly = true,
-                        label = { Text("Cylinder Layout") },
+                        label = { Text(stringResource(R.string.car_cylinder_layout_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
                             Icon(
@@ -898,7 +900,7 @@ fun AddCarScreen(
                         value = emissionStandard,
                         onValueChange = { },
                         readOnly = true,
-                        label = { Text("Emission Standard") },
+                        label = { Text(stringResource(R.string.car_emission_standard_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
                             Icon(
@@ -936,7 +938,7 @@ fun AddCarScreen(
                         value = aspiration,
                         onValueChange = { },
                         readOnly = true,
-                        label = { Text("Engine Aspiration") },
+                        label = { Text(stringResource(R.string.car_aspiration_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
                             Icon(
@@ -972,7 +974,7 @@ fun AddCarScreen(
                 OutlinedTextField(
                     value = engineSize,
                     onValueChange = { engineSize = it },
-                    label = { Text("Engine Size (cc)") },
+                    label = { Text(stringResource(R.string.car_engine_size_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     enabled = state !is AddCarState.Pending
@@ -984,7 +986,7 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = numberOfCylinders,
                         onValueChange = { if (it.all { char -> char.isDigit() }) numberOfCylinders = it },
-                        label = { Text("Cylinders") },
+                        label = { Text(stringResource(R.string.car_cylinders_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -994,7 +996,7 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = valvesPerCylinder,
                         onValueChange = { if (it.all { char -> char.isDigit() }) valvesPerCylinder = it },
-                        label = { Text("Valves/Cyl") },
+                        label = { Text(stringResource(R.string.car_valves_per_cyl_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1004,7 +1006,7 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = topSpeed,
                         onValueChange = { if (it.all { char -> char.isDigit() }) topSpeed = it },
-                        label = { Text("Top Speed") },
+                        label = { Text(stringResource(R.string.car_top_speed_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1016,12 +1018,12 @@ fun AddCarScreen(
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = fuelType,
+                        value = getFuelTypeLabel(fuelType),
                         onValueChange = { 
                             fuelType = it 
                             fuelSystem = "" // Reset subtype when main type changes
                         },
-                        label = { Text("Fuel Type") },
+                        label = { Text(stringResource(R.string.car_fuel_type_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
                             Icon(
@@ -1037,7 +1039,7 @@ fun AddCarScreen(
                     ) {
                         fuelTypes.forEach { type ->
                             DropdownMenuItem(
-                                text = { Text(type) },
+                                text = { Text(getFuelTypeLabel(type)) },
                                 onClick = {
                                     fuelType = type
                                     fuelSystem = ""
@@ -1061,7 +1063,7 @@ fun AddCarScreen(
                         OutlinedTextField(
                             value = fuelSystem,
                             onValueChange = { fuelSystem = it },
-                            label = { Text(if (fuelType == "Diesel") "Fuel System" else "Injection System") },
+                            label = { Text(if (fuelType == "Diesel") stringResource(R.string.car_fuel_system_label) else stringResource(R.string.car_injection_system_label)) },
                             modifier = Modifier.fillMaxWidth(),
                             trailingIcon = {
                                 Icon(
@@ -1093,9 +1095,9 @@ fun AddCarScreen(
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Box(modifier = Modifier.weight(1.5f)) {
                         OutlinedTextField(
-                            value = gearboxType,
+                            value = getGearboxTypeLabel(gearboxType),
                             onValueChange = { gearboxType = it },
-                            label = { Text("Gearbox Type") },
+                            label = { Text(stringResource(R.string.car_gearbox_type_label)) },
                             modifier = Modifier.fillMaxWidth(),
                             trailingIcon = {
                                 Icon(
@@ -1111,7 +1113,7 @@ fun AddCarScreen(
                         ) {
                             gearboxTypes.forEach { type ->
                                 DropdownMenuItem(
-                                    text = { Text(type) },
+                                    text = { Text(getGearboxTypeLabel(type)) },
                                     onClick = {
                                         gearboxType = type
                                         gearboxTypeExpanded = false
@@ -1123,9 +1125,9 @@ fun AddCarScreen(
                     Spacer(Modifier.width(8.dp))
                     val isCvt = gearboxType == "CVT"
                     OutlinedTextField(
-                        value = if (isCvt) "N/A" else gears,
+                        value = if (isCvt) stringResource(R.string.common_not_applicable) else gears,
                         onValueChange = { if (!isCvt) gears = it },
-                        label = { Text("Gears") },
+                        label = { Text(stringResource(R.string.car_gears_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         enabled = state !is AddCarState.Pending && !isCvt
@@ -1140,7 +1142,7 @@ fun AddCarScreen(
                             value = frontSuspension,
                             onValueChange = { },
                             readOnly = true,
-                            label = { Text("Front Suspension") },
+                            label = { Text(stringResource(R.string.car_front_suspension_label)) },
                             modifier = Modifier.fillMaxWidth(),
                             trailingIcon = {
                                 Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { frontSuspensionExpanded = true })
@@ -1168,7 +1170,7 @@ fun AddCarScreen(
                             value = rearSuspension,
                             onValueChange = { },
                             readOnly = true,
-                            label = { Text("Rear Suspension") },
+                            label = { Text(stringResource(R.string.car_rear_suspension_label)) },
                             modifier = Modifier.fillMaxWidth(),
                             trailingIcon = {
                                 Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { rearSuspensionExpanded = true })
@@ -1198,7 +1200,7 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = fuelTankCapacity,
                         onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelTankCapacity = it },
-                        label = { Text("Fuel Tank Capacity (L)") },
+                        label = { Text(stringResource(R.string.car_fuel_tank_capacity_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -1211,7 +1213,7 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = batteryCapacity,
                         onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) batteryCapacity = it },
-                        label = { Text("Battery Capacity (kWh)") },
+                        label = { Text(stringResource(R.string.car_battery_capacity_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -1224,7 +1226,7 @@ fun AddCarScreen(
 
             // --- DIMENSIONS SECTION ---
             CollapsibleSection(
-                title = "Dimensions & Chassis",
+                title = stringResource(R.string.car_dimensions_section),
                 isExpanded = dimensionsExpanded,
                 onToggle = { dimensionsExpanded = !dimensionsExpanded }
             ) {
@@ -1232,7 +1234,7 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = length,
                         onValueChange = { if (it.all { char -> char.isDigit() }) length = it },
-                        label = { Text("Length") },
+                        label = { Text(stringResource(R.string.car_length_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1242,7 +1244,7 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = width,
                         onValueChange = { if (it.all { char -> char.isDigit() }) width = it },
-                        label = { Text("Width") },
+                        label = { Text(stringResource(R.string.car_width_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1252,7 +1254,7 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = height,
                         onValueChange = { if (it.all { char -> char.isDigit() }) height = it },
-                        label = { Text("Height") },
+                        label = { Text(stringResource(R.string.car_height_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1266,7 +1268,7 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = wheelbase,
                         onValueChange = { if (it.all { char -> char.isDigit() }) wheelbase = it },
-                        label = { Text("Wheelbase") },
+                        label = { Text(stringResource(R.string.car_wheelbase_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1276,7 +1278,7 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = trackWidth,
                         onValueChange = { if (it.all { char -> char.isDigit() }) trackWidth = it },
-                        label = { Text("Track Width") },
+                        label = { Text(stringResource(R.string.car_track_width_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1290,7 +1292,7 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = weight,
                         onValueChange = { if (it.all { char -> char.isDigit() }) weight = it },
-                        label = { Text("Weight (kg)") },
+                        label = { Text(stringResource(R.string.car_weight_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1300,7 +1302,7 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = numberOfSeats,
                         onValueChange = { if (it.all { char -> char.isDigit() }) numberOfSeats = it },
-                        label = { Text("Seats") },
+                        label = { Text(stringResource(R.string.car_seats_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1314,7 +1316,7 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = numberOfDoors,
                         onValueChange = { if (it.all { char -> char.isDigit() }) numberOfDoors = it },
-                        label = { Text("Doors") },
+                        label = { Text(stringResource(R.string.car_doors_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1324,7 +1326,7 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = bootSpace,
                         onValueChange = { if (it.all { char -> char.isDigit() }) bootSpace = it },
-                        label = { Text("Boot (L)") },
+                        label = { Text(stringResource(R.string.car_boot_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1335,7 +1337,7 @@ fun AddCarScreen(
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = "Tire Size",
+                    text = stringResource(R.string.car_tire_size_label),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
@@ -1344,7 +1346,7 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = tireWidth,
                         onValueChange = { if (it.all { char -> char.isDigit() }) tireWidth = it },
-                        label = { Text("Width") },
+                        label = { Text(stringResource(R.string.car_tire_width_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1354,7 +1356,7 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = tireAspectRatio,
                         onValueChange = { if (it.all { char -> char.isDigit() }) tireAspectRatio = it },
-                        label = { Text("Ratio") },
+                        label = { Text(stringResource(R.string.car_tire_ratio_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1364,7 +1366,7 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = tireDiameter,
                         onValueChange = { if (it.all { char -> char.isDigit() }) tireDiameter = it },
-                        label = { Text("Diam.") },
+                        label = { Text(stringResource(R.string.car_tire_diam_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1380,7 +1382,7 @@ fun AddCarScreen(
                             value = frontBrakes,
                             onValueChange = { },
                             readOnly = true,
-                            label = { Text("Front Brakes") },
+                            label = { Text(stringResource(R.string.car_front_brakes_label)) },
                             modifier = Modifier.fillMaxWidth(),
                             trailingIcon = {
                                 Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { frontBrakesExpanded = true })
@@ -1408,7 +1410,7 @@ fun AddCarScreen(
                             value = rearBrakes,
                             onValueChange = { },
                             readOnly = true,
-                            label = { Text("Rear Brakes") },
+                            label = { Text(stringResource(R.string.car_rear_brakes_label)) },
                             modifier = Modifier.fillMaxWidth(),
                             trailingIcon = {
                                 Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { rearBrakesExpanded = true })
@@ -1439,7 +1441,7 @@ fun AddCarScreen(
                         value = drivetrain,
                         onValueChange = { },
                         readOnly = true,
-                        label = { Text("Drivetrain") },
+                        label = { Text(stringResource(R.string.car_drivetrain_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
                             Icon(
@@ -1533,7 +1535,7 @@ fun AddCarScreen(
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 } else {
-                    Text("Save")
+                    Text(stringResource(R.string.common_save))
                 }
             }
         }
@@ -1546,30 +1548,31 @@ fun ScannedCarDataConfirmationDialog(
     onDismiss: () -> Unit,
     onConfirm: (ScannedCarData) -> Unit
 ) {
+    val context = LocalContext.current
     // We create a map of keys to values and labels for easy display
     val fields = remember(data) {
         val list = mutableListOf<Triple<String, String, String>>() // Label, Value, Key
-        data.make?.let { list.add(Triple("Make", it, "make")) }
-        data.model?.let { list.add(Triple("Model", it, "model")) }
-        data.vin?.let { list.add(Triple("VIN", it, "vin")) }
-        data.year?.let { list.add(Triple("Year", it.roundToInt().toString(), "year")) }
-        data.fuelType?.let { list.add(Triple("Fuel Type", it, "fuelType")) }
-        data.engineSize?.let { list.add(Triple("Engine Size", "${it.roundToInt()} cc", "engineSize")) }
-        data.power?.let { list.add(Triple("Power", "${it.roundToInt()} ${data.powerUnit ?: "hp"}", "power")) }
-        data.torque?.let { list.add(Triple("Torque", "${it.roundToInt()} Nm", "torque")) }
-        data.color?.let { list.add(Triple("Color", it, "color")) }
-        data.registrationPlate?.let { list.add(Triple("License Plate", it, "registrationPlate")) }
-        data.numberOfSeats?.let { list.add(Triple("Seats", it.roundToInt().toString(), "numberOfSeats")) }
-        data.numberOfDoors?.let { list.add(Triple("Doors", it.roundToInt().toString(), "numberOfDoors")) }
-        data.weight?.let { list.add(Triple("Weight", "${it.roundToInt()} kg", "weight")) }
-        data.engineCode?.let { list.add(Triple("Engine Code", it, "engineCode")) }
-        data.emissionStandard?.let { list.add(Triple("Emission Standard", it, "emissionStandard")) }
-        data.gearboxType?.let { list.add(Triple("Gearbox", it, "gearboxType")) }
-        data.drivetrain?.let { list.add(Triple("Drivetrain", it, "drivetrain")) }
-        data.engineLayout?.let { list.add(Triple("Engine Layout", it, "engineLayout")) }
-        data.cylinderLayout?.let { list.add(Triple("Cylinder Layout", it, "cylinderLayout")) }
-        data.fuelTankCapacity?.let { list.add(Triple("Fuel Tank", "$it L", "fuelTankCapacity")) }
-        data.topSpeed?.let { list.add(Triple("Top Speed", "${it.roundToInt()}", "topSpeed")) }
+        data.make?.let { list.add(Triple(context.getString(R.string.car_make_label), it, "make")) }
+        data.model?.let { list.add(Triple(context.getString(R.string.car_model_label), it, "model")) }
+        data.vin?.let { list.add(Triple(context.getString(R.string.car_vin_label), it, "vin")) }
+        data.year?.let { list.add(Triple(context.getString(R.string.car_year_label), it.roundToInt().toString(), "year")) }
+        data.fuelType?.let { list.add(Triple(context.getString(R.string.car_fuel_type_label), it, "fuelType")) }
+        data.engineSize?.let { list.add(Triple(context.getString(R.string.car_engine_size_label), "${it.roundToInt()} cc", "engineSize")) }
+        data.power?.let { list.add(Triple(context.getString(R.string.car_power_label), "${it.roundToInt()} ${data.powerUnit ?: "hp"}", "power")) }
+        data.torque?.let { list.add(Triple(context.getString(R.string.car_torque_label), "${it.roundToInt()} Nm", "torque")) }
+        data.color?.let { list.add(Triple(context.getString(R.string.car_color_label), it, "color")) }
+        data.registrationPlate?.let { list.add(Triple(context.getString(R.string.car_license_plate_label), it, "registrationPlate")) }
+        data.numberOfSeats?.let { list.add(Triple(context.getString(R.string.car_seats_label), it.roundToInt().toString(), "numberOfSeats")) }
+        data.numberOfDoors?.let { list.add(Triple(context.getString(R.string.car_doors_label), it.roundToInt().toString(), "numberOfDoors")) }
+        data.weight?.let { list.add(Triple(context.getString(R.string.car_weight_label), "${it.roundToInt()} kg", "weight")) }
+        data.engineCode?.let { list.add(Triple(context.getString(R.string.car_engine_code_label), it, "engineCode")) }
+        data.emissionStandard?.let { list.add(Triple(context.getString(R.string.car_emission_standard_label), it, "emissionStandard")) }
+        data.gearboxType?.let { list.add(Triple(context.getString(R.string.car_gearbox_type_label), it, "gearboxType")) }
+        data.drivetrain?.let { list.add(Triple(context.getString(R.string.car_drivetrain_label), it, "drivetrain")) }
+        data.engineLayout?.let { list.add(Triple(context.getString(R.string.car_engine_layout_label), it, "engineLayout")) }
+        data.cylinderLayout?.let { list.add(Triple(context.getString(R.string.car_cylinder_layout_label), it, "cylinderLayout")) }
+        data.fuelTankCapacity?.let { list.add(Triple(context.getString(R.string.car_fuel_tank_capacity_label), "$it L", "fuelTankCapacity")) }
+        data.topSpeed?.let { list.add(Triple(context.getString(R.string.car_top_speed_label), "${it.roundToInt()}", "topSpeed")) }
         list
     }
 
@@ -1577,11 +1580,11 @@ fun ScannedCarDataConfirmationDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Confirm Scanned Data") },
+        title = { Text(stringResource(R.string.car_confirm_scanned_data)) },
         text = {
             Column {
                 Text(
-                    "We found the following information. Select what you want to apply to the form.",
+                    stringResource(R.string.car_scanned_data_subtitle),
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
@@ -1658,15 +1661,35 @@ fun ScannedCarDataConfirmationDialog(
                 },
                 enabled = selectedKeys.isNotEmpty()
             ) {
-                Text("Apply Selected (${selectedKeys.size})")
+                Text(stringResource(R.string.common_apply_selected, selectedKeys.size))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.common_cancel))
             }
         }
     )
+}
+
+@Composable
+private fun getFuelTypeLabel(type: String): String = when (type) {
+    "Petrol" -> stringResource(R.string.fuel_petrol)
+    "Diesel" -> stringResource(R.string.fuel_diesel)
+    "Electric" -> stringResource(R.string.fuel_electric)
+    "Hybrid" -> stringResource(R.string.fuel_hybrid)
+    "LPG" -> stringResource(R.string.fuel_lpg)
+    else -> type
+}
+
+@Composable
+private fun getGearboxTypeLabel(type: String): String = when (type) {
+    "Manual" -> stringResource(R.string.gearbox_manual)
+    "Automatic" -> stringResource(R.string.gearbox_automatic)
+    "CVT" -> stringResource(R.string.gearbox_cvt)
+    "DCT" -> stringResource(R.string.gearbox_dct)
+    "AMT" -> stringResource(R.string.gearbox_amt)
+    else -> type
 }
 
 @Composable
@@ -1692,7 +1715,7 @@ private fun CollapsibleSection(
             )
             Icon(
                 imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                contentDescription = if (isExpanded) "Collapse" else "Expand",
+                contentDescription = if (isExpanded) stringResource(R.string.common_collapse) else stringResource(R.string.common_expand),
                 tint = MaterialTheme.colorScheme.primary
             )
         }

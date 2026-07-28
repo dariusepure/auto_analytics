@@ -65,17 +65,16 @@ fun EmptyState(
 
 /**
  * "just now" / "5m ago" / "3h ago" / "2d ago" / "Jul 12".
- * No teaching value, all boilerplate. Copy verbatim.
  */
-fun Date.toRelativeString(): String {
+fun Date.toRelativeString(context: android.content.Context): String {
     val nowMs = System.currentTimeMillis()
     val thenMs = this.time
     val diffMs = (nowMs - thenMs).coerceAtLeast(0L)
     return when {
-        diffMs < 60_000L -> "just now"
-        diffMs < 3_600_000L -> "${diffMs / 60_000L}m ago"
-        diffMs < 86_400_000L -> "${diffMs / 3_600_000L}h ago"
-        diffMs < 7 * 86_400_000L -> "${diffMs / 86_400_000L}d ago"
+        diffMs < 60_000L -> context.getString(com.dariusepure.caractivitylog.R.string.relative_just_now)
+        diffMs < 3_600_000L -> context.getString(com.dariusepure.caractivitylog.R.string.relative_minutes_ago, (diffMs / 60_000L).toInt())
+        diffMs < 86_400_000L -> context.getString(com.dariusepure.caractivitylog.R.string.relative_hours_ago, (diffMs / 3_600_000L).toInt())
+        diffMs < 7 * 86_400_000L -> context.getString(com.dariusepure.caractivitylog.R.string.relative_days_ago, (diffMs / 86_400_000L).toInt())
         else -> SimpleDateFormat("MMM d", Locale.getDefault()).format(this)
     }
 }

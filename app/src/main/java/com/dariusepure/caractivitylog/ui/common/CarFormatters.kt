@@ -27,7 +27,7 @@ object CarFormatters {
         return if (usesMiles) value / MILE_RATIO else value
     }
 
-    fun formatPower(car: Car): String {
+    fun formatPower(context: android.content.Context, car: Car): String {
         val hpValue: Int
         val kwValue: Int
         
@@ -39,39 +39,39 @@ object CarFormatters {
             kwValue = (car.power / 1.35962).roundToInt()
         }
         
-        return "$hpValue hp / $kwValue kw"
+        return context.getString(com.dariusepure.caractivitylog.R.string.formatter_power_dual, hpValue, kwValue)
     }
 
-    fun getCarSummary(car: Car): String {
+    fun getCarSummary(context: android.content.Context, car: Car): String {
         val details = mutableListOf<String>()
         if (car.year != 0) details.add(car.year.toString())
         if (car.power != 0) {
             val hp = if (car.powerUnit.lowercase() == "hp") car.power else (car.power * 1.35962).roundToInt()
-            details.add("$hp hp")
+            details.add(context.getString(com.dariusepure.caractivitylog.R.string.formatter_power_hp, hp))
         }
-        if (car.engineSize.isNotBlank()) details.add("${car.engineSize} cc")
+        if (car.engineSize.isNotBlank()) details.add(context.getString(com.dariusepure.caractivitylog.R.string.formatter_engine_size, car.engineSize))
         
         return details.joinToString(" \u00B7 ")
     }
 
     fun formatDate(date: Date): String = dateFormat.format(date)
 
-    fun getInspectionExpiryText(inspection: VehicleInspection?): String {
-        if (inspection == null) return "No inspection recorded"
-        return "Valid until ${formatDate(inspection.expiryDate)}"
+    fun getInspectionExpiryText(context: android.content.Context, inspection: VehicleInspection?): String {
+        if (inspection == null) return context.getString(com.dariusepure.caractivitylog.R.string.formatter_no_inspection)
+        return context.getString(com.dariusepure.caractivitylog.R.string.formatter_inspection_valid_until, formatDate(inspection.expiryDate))
     }
 
     fun isInspectionExpired(inspection: VehicleInspection?): Boolean {
         return inspection?.expiryDate?.before(Date()) ?: false
     }
 
-    fun formatDimensions(car: Car): String {
+    fun formatDimensions(context: android.content.Context, car: Car): String {
         val dims = mutableListOf<String>()
         if (car.length > 0 || car.width > 0 || car.height > 0) {
             dims.add("${car.length} x ${car.width} x ${car.height} mm")
         }
-        if (car.wheelbase > 0) dims.add("Wheelbase: ${car.wheelbase} mm")
-        if (car.trackWidth > 0) dims.add("Track Width: ${car.trackWidth} mm")
+        if (car.wheelbase > 0) dims.add(context.getString(com.dariusepure.caractivitylog.R.string.formatter_wheelbase, car.wheelbase))
+        if (car.trackWidth > 0) dims.add(context.getString(com.dariusepure.caractivitylog.R.string.formatter_track_width, car.trackWidth))
         
         return if (dims.isEmpty()) "-" else dims.joinToString("\n")
     }

@@ -1,0 +1,295 @@
+<resources>
+    <string name="app_name">Diário de Atividades do Carro</string>
+
+    <!-- Common -->
+    <string name="common_save">Salvar</string>
+    <string name="common_cancel">Cancelar</string>
+    <string name="common_add">Adicionar</string>
+    <string name="common_update">Atualizar</string>
+    <string name="common_delete">Excluir</string>
+    <string name="common_edit">Editar</string>
+    <string name="common_apply_selected">Aplicar seleção (%d)</string>
+    <string name="common_try_again">Tentar novamente</string>
+    <string name="common_loading">Carregando</string>
+    <string name="common_error_title">Algo deu errado</string>
+    <string name="common_date">Data</string>
+    <string name="common_distance">Distância (%s)</string>
+    <string name="common_unit">Unidade</string>
+    <string name="common_back">Voltar</string>
+    <string name="common_not_applicable">N/A</string>
+    <string name="common_collapse">Recolher</string>
+    <string name="common_expand">Expandir</string>
+
+    <!-- Units -->
+    <string name="unit_months">Meses</string>
+    <string name="unit_years">Anos</string>
+
+    <!-- Fuel Types -->
+    <string name="fuel_petrol">Gasolina</string>
+    <string name="fuel_diesel">Diesel</string>
+    <string name="fuel_electric">Elétrico</string>
+    <string name="fuel_hybrid">Híbrido</string>
+    <string name="fuel_lpg">GPL</string>
+
+    <!-- Gearbox Types -->
+    <string name="gearbox_manual">Manual</string>
+    <string name="gearbox_automatic">Automática</string>
+    <string name="gearbox_cvt">CVT</string>
+    <string name="gearbox_dct">DCT</string>
+    <string name="gearbox_amt">AMT</string>
+
+    <!-- Relative Time -->
+    <string name="relative_just_now">agora mesmo</string>
+    <string name="relative_minutes_ago">há %dm</string>
+    <string name="relative_hours_ago">há %dh</string>
+    <string name="relative_days_ago">há %dd</string>
+
+    <!-- Auth -->
+    <string name="auth_signin_title">Entrar</string>
+    <string name="auth_signup_title">Cadastrar-se</string>
+    <string name="auth_forgot_password_title">Esqueceu a senha?</string>
+    <string name="auth_reset_password_title">Redefinir senha</string>
+    <string name="auth_set_new_password_title">Definir nova senha</string>
+    <string name="auth_email_label">Email</string>
+    <string name="auth_password_label">Senha</string>
+    <string name="auth_confirm_password_label">Confirmar senha</string>
+    <string name="auth_new_password_label">Nova senha</string>
+    <string name="auth_confirm_new_password_label">Confirmar nova senha</string>
+    <string name="auth_full_name_label">Nome completo</string>
+    <string name="auth_username_label">ID de Usuário (Username)</string>
+    <string name="auth_signin_button">Entrar</string>
+    <string name="auth_signin_subtitle">Inicie sessão para retomar onde parou.</string>
+    <string name="auth_signup_button">Cadastrar</string>
+    <string name="auth_signup_subtitle">Junte-se ao Car Activity Log hoje mesmo.</string>
+    <string name="auth_forgot_password_subtitle">Introduza o seu endereço de e-mail e enviaremos um link para redefinir a sua palavra-passe.</string>
+    <string name="auth_reset_password_subtitle">Introduza e confirme a sua nova palavra-passe abaixo.</string>
+    <string name="auth_reset_password_success">Palavra-passe alterada com sucesso!</string>
+    <string name="auth_reset_password_instruction">Proteja a sua conta</string>
+    <string name="auth_reset_link_sent">Link de redefinição enviado! Por favor, verifique a sua caixa de entrada para continuar.</string>
+    <string name="auth_hide_password">Ocultar palavra-passe</string>
+    <string name="auth_show_password">Mostrar palavra-passe</string>
+
+    <!-- Sorting -->
+    <string name="sort_default">Padrão</string>
+    <string name="sort_brand">Marca (A-Z)</string>
+    <string name="sort_year">Ano (Mais recentes)</string>
+    <string name="auth_send_reset_link">Enviar link de redefinição</string>
+    <string name="auth_save_new_password">Salvar nova senha</string>
+    <string name="auth_back_to_signin">Voltar para entrar</string>
+    <string name="auth_continue_google">Continuar com Google</string>
+    <string name="auth_continue_offline">Continuar offline (Modo Convidado)</string>
+    <string name="auth_no_account">Não tem uma conta?</string>
+    <string name="auth_have_account">Já tem uma conta?</string>
+
+    <!-- Car List -->
+    <string name="car_list_title">Seus carros</string>
+    <string name="car_add_button">Adicionar carro</string>
+    <string name="car_list_search_placeholder">Buscar carros…</string>
+    <string name="car_list_empty_title">Ainda não há carros</string>
+    <string name="car_list_empty_subtitle">Toque em Adicionar carro para começar.</string>
+    <string name="car_list_no_results_title">Nenhum carro encontrado</string>
+    <string name="car_list_no_results_subtitle">Tente um termo de busca diferente.</string>
+    <string name="car_list_loading">Carregando seus carros…</string>
+    <string name="car_edit_content_description">Editar carro</string>
+    <string name="car_delete_content_description">Excluir carro</string>
+    <string name="car_last_update">Última atualização: %s</string>
+
+    <!-- Add/Edit Car -->
+    <string name="car_add_title">Adicionar novo carro</string>
+    <string name="car_edit_title">Editar carro</string>
+    <string name="car_identity_section">Identidade e Estilo</string>
+    <string name="car_registration_section">Registro</string>
+    <string name="car_engine_section">Motor e Desempenho</string>
+    <string name="car_dimensions_section">Dimensões e Chassi</string>
+    <string name="car_title_label">Título do carro (Apelido)</string>
+    <string name="car_title_placeholder">Ex: %s</string>
+    <string name="car_title_placeholder_fallback">Ex: Meu carro de uso diário</string>
+    <string name="car_scan_photo">Escanear foto</string>
+    <string name="car_scan_pdf">Escanear PDF</string>
+    <string name="car_make_label">Marca</string>
+    <string name="car_model_label">Modelo</string>
+    <string name="car_year_label">Ano</string>
+    <string name="car_vehicle_type_label">Tipo de veículo</string>
+    <string name="car_color_label">Cor</string>
+    <string name="car_vin_label">VIN</string>
+    <string name="car_vin_remaining">Restam: %d caracteres</string>
+    <string name="car_vin_invalid_chars">As letras I, O, Q não são permitidas</string>
+    <string name="car_license_plate_label">Placa (Opcional)</string>
+    <string name="car_license_plate_hint">Ex: %s</string>
+    <string name="car_manufacturing_country_label">País de fabricação</string>
+    <string name="car_power_label">Potência</string>
+    <string name="car_torque_label">Torque (Nm)</string>
+    <string name="car_engine_code_label">Código do motor</string>
+    <string name="car_engine_layout_label">Disposição do motor</string>
+    <string name="car_cylinder_layout_label">Configuração de cilindros</string>
+    <string name="car_emission_standard_label">Padrão de emissão</string>
+    <string name="car_aspiration_label">Aspiração do motor</string>
+    <string name="car_engine_size_label">Cilindrada (cc)</string>
+    <string name="car_cylinders_label">Cilindros</string>
+    <string name="car_valves_per_cyl_label">Válvulas/Cil</string>
+    <string name="car_top_speed_label">Velocidade máxima</string>
+    <string name="car_fuel_type_label">Tipo de combustível</string>
+    <string name="car_fuel_system_label">Sistema de combustível</string>
+    <string name="car_injection_system_label">Sistema de injeção</string>
+    <string name="car_gearbox_type_label">Tipo de caixa de câmbio</string>
+    <string name="car_gears_label">Marchas</string>
+    <string name="car_front_suspension_label">Suspensão dianteira</string>
+    <string name="car_rear_suspension_label">Suspensão traseira</string>
+    <string name="car_fuel_tank_capacity_label">Capacidade do tanque (L)</string>
+    <string name="car_battery_capacity_label">Capacidade da bateria (kWh)</string>
+    <string name="car_length_label">Comprimento</string>
+    <string name="car_width_label">Largura</string>
+    <string name="car_height_label">Altura</string>
+    <string name="car_wheelbase_label">Distância entre eixos</string>
+    <string name="car_track_width_label">Bitola</string>
+    <string name="car_weight_label">Peso (kg)</string>
+    <string name="car_seats_label">Assentos</string>
+    <string name="car_doors_label">Portas</string>
+    <string name="car_boot_label">Porta-malas (L)</string>
+    <string name="car_tire_size_label">Tamanho dos pneus</string>
+    <string name="car_tire_width_label">Largura</string>
+    <string name="car_tire_ratio_label">Perfil</string>
+    <string name="car_tire_diam_label">Diâm.</string>
+    <string name="car_front_brakes_label">Freios dianteiros</string>
+    <string name="car_rear_brakes_label">Freios traseiros</string>
+    <string name="car_drivetrain_label">Tração</string>
+    <string name="car_confirm_scanned_data">Confirmar dados escaneados</string>
+    <string name="car_scanned_data_subtitle">Encontramos as seguintes informações. Selecione o que deseja aplicar ao formulário.</string>
+
+    <!-- Car Details -->
+    <string name="car_details_title">Detalhes do carro</string>
+    <string name="car_technical_sheet">Ficha técnica</string>
+    <string name="car_technical_sheet_subtitle">Ver especificações completas</string>
+    <string name="car_mileage_history">Histórico de quilometragem</string>
+    <string name="car_mileage_history_subtitle">Ver e gerenciar registros</string>
+    <string name="car_inspection_title">Inspeção veicular (ITP)</string>
+    <string name="car_diagnosis_title">Chat de Diagnóstico AI</string>
+    <string name="car_diagnosis_subtitle">Receba conselhos de especialistas e relatórios de saúde</string>
+    <string name="car_fuel_consumption">Consumo de combustível</string>
+    <string name="car_fuel_consumption_subtitle">Rastreie abastecimentos e veja estatísticas</string>
+    <string name="car_generate_report">Gerar relatório PDF</string>
+    <string name="car_generate_report_subtitle">Exportar histórico do veículo para PDF</string>
+    <string name="car_report_success">Relatório salvo com sucesso</string>
+    <string name="car_report_failed">Falha ao salvar o relatório</string>
+
+    <!-- Mileage -->
+    <string name="mileage_history_title">Histórico de quilometragem</string>
+    <string name="mileage_add_title">Adicionar quilometragem</string>
+    <string name="mileage_edit_title">Editar quilometragem</string>
+    <string name="mileage_empty">Nenhum registro de quilometragem encontrado.</string>
+    <string name="mileage_edit_content_description">Editar quilometragem</string>
+    <string name="mileage_delete_content_description">Excluir quilometragem</string>
+    <string name="mileage_confirm_scanned">Confirmar registros escaneados</string>
+    <string name="mileage_scanned_subtitle">Encontramos %d registros de quilometragem. Confirme quais adicionar.</string>
+    <string name="mileage_conflict_less">Não pode ser inferior a %1$d %2$s (registrado em %3$s)</string>
+    <string name="mileage_conflict_more">Não puede ser superior a %1$d %2$s (registrado em %3$s)</string>
+
+    <!-- Inspection -->
+    <string name="inspection_history_title">Histórico de inspeções</string>
+    <string name="inspection_add_title">Adicionar inspeção veicular</string>
+    <string name="inspection_mileage_label">Quilometragem (%s)</string>
+    <string name="inspection_date_label">Data da inspeção</string>
+    <string name="inspection_validity_label">Validade</string>
+    <string name="inspection_empty">Nenhum registro de inspeção encontrado.</string>
+    <string name="inspection_edit_content_description">Editar inspeção</string>
+    <string name="inspection_delete_content_description">Excluir inspeção</string>
+    <string name="inspection_item_summary">Data da inspeção: %1$s \u00B7 %2$d %3$s</string>
+
+    <!-- Fuel -->
+    <string name="fuel_history_title">Consumo de combustível</string>
+    <string name="fuel_stats_avg">Consumo médio</string>
+    <string name="fuel_stats_total_dist">Distância total</string>
+    <string name="fuel_stats_total_fuel">Total de combustível</string>
+    <string name="fuel_stats_total_cost">Custo total</string>
+    <string name="fuel_add_full_tank_hint">Adicione pelo menos 2 registros de "Tanque cheio" para ver o consumo médio.</string>
+    <string name="fuel_history_header">Histórico de abastecimentos</string>
+    <string name="fuel_history_empty">Ainda não há registros. Adicione seu primeiro abastecimento!</string>
+    <string name="fuel_add_title">Adicionar abastecimento</string>
+    <string name="fuel_liters_label">Litros</string>
+    <string name="fuel_cost_label">Custo total</string>
+    <string name="fuel_full_tank_label">Tanque cheio</string>
+    <string name="fuel_partial_tank">Parcial</string>
+    <string name="fuel_mileage_conflict">Conflito de quilometragem com registros de %s</string>
+
+    <!-- Diagnosis -->
+    <string name="diagnosis_title">Diagnóstico AI - %s</string>
+    <string name="diagnosis_reset_chat">Redefinir chat</string>
+    <string name="diagnosis_is_thinking">AI está pensando…</string>
+    <string name="diagnosis_placeholder">Descreva o problema…</string>
+    <string name="diagnosis_send">Enviar</string>
+
+    <!-- Recycle Bin -->
+    <string name="recycle_bin_title">Lixeira</string>
+    <string name="recycle_bin_empty_title">A lixeira está vazia</string>
+    <string name="recycle_bin_empty_subtitle">Carros que você excluir aparecerão aqui.</string>
+    <string name="recycle_bin_delete_confirm_title">Excluir permanentemente?</string>
+    <string name="recycle_bin_delete_confirm_text">Esta ação não pode ser desfeita. Todos os dados de %s serão perdidos para sempre.</string>
+    <string name="recycle_bin_delete_forever">Excluir para sempre</string>
+    <string name="recycle_bin_deleted_on">Excluído em: %s</string>
+    <string name="recycle_bin_restore">Restaurar</string>
+
+    <!-- Formatters -->
+    <string name="formatter_power_dual">%1$d cv / %2$d kw</string>
+    <string name="formatter_power_hp">%d cv</string>
+    <string name="formatter_engine_size">%s cc</string>
+    <string name="formatter_no_inspection">Nenhuma inspeção registrada</string>
+    <string name="formatter_inspection_valid_until">Válido até %s</string>
+    <string name="formatter_wheelbase">Distância entre eixos: %d mm</string>
+    <string name="formatter_track_width">Bitola: %d mm</string>
+    <string name="formatter_valves_total">%1$d (%2$d por cilindro)</string>
+
+    <!-- PDF -->
+    <string name="pdf_title">Relatório de histórico do veículo</string>
+    <string name="pdf_section_general">Informações gerais</string>
+    <string name="pdf_section_engine">Motor e desempenho</string>
+    <string name="pdf_section_dimensions">Dimensões e peso</string>
+    <string name="pdf_section_drivetrain">Tração e chassi</string>
+    <string name="pdf_section_wheels">Rodas e interior</string>
+    <string name="pdf_section_mileage">Histórico de quilometragem</string>
+    <string name="pdf_section_inspections">Inspeções veiculares (ITP)</string>
+    <string name="pdf_section_fuel">Consumo de combustível</string>
+    <string name="pdf_valid_until">Válido até: %s</string>
+    <string name="pdf_field_name">Nome</string>
+    <string name="pdf_field_make">Marca</string>
+    <string name="pdf_field_model">Modelo</string>
+    <string name="pdf_field_year">Ano</string>
+    <string name="pdf_field_vin">VIN</string>
+    <string name="pdf_field_license_plate">Placa</string>
+    <string name="pdf_field_country">País</string>
+    <string name="pdf_field_color">Cor</string>
+    <string name="pdf_field_vehicle_type">Tipo de veículo</string>
+    <string name="pdf_field_manufacturing_country">País de fabricação</string>
+    <string name="pdf_field_engine_size">Cilindrada</string>
+    <string name="pdf_field_engine_code">Código do motor</string>
+    <string name="pdf_field_power">Potência</string>
+    <string name="pdf_field_torque">Torque</string>
+    <string name="pdf_field_fuel_type">Tipo de combustível</string>
+    <string name="pdf_field_fuel_system">Sistema de combustível</string>
+    <string name="pdf_field_aspiration">Aspiração</string>
+    <string name="pdf_field_emission_standard">Padrão de emissão</string>
+    <string name="pdf_field_top_speed">Velocidade máxima</string>
+    <string name="pdf_field_cylinders">Cilindros</string>
+    <string name="pdf_field_valves_per_cylinder">Válvulas por cilindro</string>
+    <string name="pdf_field_engine_layout">Disposição do motor</string>
+    <string name="pdf_field_cylinder_layout">Configuração de cilindros</string>
+    <string name="pdf_field_length">Comprimento</string>
+    <string name="pdf_field_width">Largura</string>
+    <string name="pdf_field_height">Altura</string>
+    <string name="pdf_field_wheelbase">Distância entre eixos</string>
+    <string name="pdf_field_track_width">Bitola</string>
+    <string name="pdf_field_weight">Peso</string>
+    <string name="pdf_field_boot_space">Espaço porta-malas</string>
+    <string name="pdf_field_fuel_tank_capacity">Capacidade tanque</string>
+    <string name="pdf_field_battery_capacity">Capacidade bateria</string>
+    <string name="pdf_field_drivetrain">Tração</string>
+    <string name="pdf_field_gearbox_type">Tipo de caixa</string>
+    <string name="pdf_field_gears">Marchas</string>
+    <string name="pdf_field_front_suspension">Suspensão dianteira</string>
+    <string name="pdf_field_rear_suspension">Suspensio traseira</string>
+    <string name="pdf_field_front_brakes">Freios dianteiros</string>
+    <string name="pdf_field_rear_brakes">Freios traseiros</string>
+    <string name="pdf_field_tires">Pneus</string>
+    <string name="pdf_field_seats">Número de assentos</string>
+    <string name="pdf_field_doors">Número de portas</string>
+
+</resources>

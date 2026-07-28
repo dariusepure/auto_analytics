@@ -14,6 +14,8 @@ import androidx.compose.material.icons.outlined.DirectionsCar
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
+import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -44,10 +46,10 @@ fun RecycleBinScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Recycle Bin") },
+                title = { Text(stringResource(R.string.recycle_bin_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 }
             )
@@ -55,10 +57,10 @@ fun RecycleBinScreen(
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             when (state) {
-                RecycleBinUiState.Loading -> LoadingState(label = "Loading recycle bin")
+                RecycleBinUiState.Loading -> LoadingState(label = stringResource(R.string.common_loading))
                 RecycleBinUiState.Empty -> EmptyState(
-                    title = "Recycle bin is empty",
-                    subtitle = "Cars you delete will appear here.",
+                    title = stringResource(R.string.recycle_bin_empty_title),
+                    subtitle = stringResource(R.string.recycle_bin_empty_subtitle),
                     icon = Icons.Outlined.DirectionsCar
                 )
                 is RecycleBinUiState.Success -> {
@@ -98,8 +100,8 @@ fun DeletedCarCard(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete Permanently?") },
-            text = { Text("This action cannot be undone. All data for ${car.displayName} will be lost forever.") },
+            title = { Text(stringResource(R.string.recycle_bin_delete_confirm_title)) },
+            text = { Text(stringResource(R.string.recycle_bin_delete_confirm_text, car.displayName)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -108,12 +110,12 @@ fun DeletedCarCard(
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
                 ) {
-                    Text("Delete Forever")
+                    Text(stringResource(R.string.recycle_bin_delete_forever))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.common_cancel))
                 }
             }
         )
@@ -168,7 +170,7 @@ fun DeletedCarCard(
                 } ?: "Unknown"
 
                 Text(
-                    text = "Deleted on: $deletedAtStr",
+                    text = stringResource(R.string.recycle_bin_deleted_on, deletedAtStr),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -177,7 +179,7 @@ fun DeletedCarCard(
             IconButton(onClick = onRestore) {
                 Icon(
                     imageVector = Icons.Default.Restore,
-                    contentDescription = "Restore",
+                    contentDescription = stringResource(R.string.recycle_bin_restore),
                     tint = Color(0xFF4CAF50)
                 )
             }
@@ -185,7 +187,7 @@ fun DeletedCarCard(
             IconButton(onClick = { showDeleteDialog = true }) {
                 Icon(
                     imageVector = Icons.Default.DeleteForever,
-                    contentDescription = "Delete Permanently",
+                    contentDescription = stringResource(R.string.recycle_bin_delete_forever),
                     tint = MaterialTheme.colorScheme.error
                 )
             }

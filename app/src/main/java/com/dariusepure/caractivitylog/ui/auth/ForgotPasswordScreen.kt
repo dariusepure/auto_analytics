@@ -33,6 +33,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
+import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,12 +56,12 @@ fun ForgotPasswordScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text("Reset Password") },
+                title = { Text(stringResource(R.string.auth_reset_password_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.common_back)
                         )
                     }
                 }
@@ -83,14 +85,14 @@ fun ForgotPasswordScreen(
             )
             
             Text(
-                text = "Forgot your password?",
+                text = stringResource(R.string.auth_forgot_password_title),
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 24.dp),
             )
             
             Text(
-                text = "Enter your email address and we'll send you a link to reset your password.",
+                text = stringResource(R.string.auth_forgot_password_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -112,7 +114,7 @@ fun ForgotPasswordScreen(
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
-                    label = { Text("Email") },
+                    label = { Text(stringResource(R.string.auth_email_label)) },
                     singleLine = true,
                     enabled = !submitting,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -135,7 +137,7 @@ fun ForgotPasswordScreen(
                             color = MaterialTheme.colorScheme.onPrimary,
                         )
                     } else {
-                        Text("Send Reset Link")
+                        Text(stringResource(R.string.auth_send_reset_link))
                     }
                 }
             }
@@ -154,7 +156,7 @@ private fun SuccessBanner(
         modifier = modifier.fillMaxWidth(),
     ) {
         Text(
-            text = "Reset link sent! Please check your email inbox to proceed.",
+            text = stringResource(R.string.auth_reset_link_sent),
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(16.dp),
             textAlign = TextAlign.Center

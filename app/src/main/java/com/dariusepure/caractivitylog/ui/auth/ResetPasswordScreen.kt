@@ -36,6 +36,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
+import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -63,12 +65,12 @@ fun ResetPasswordScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text("Set New Password") },
+                title = { Text(stringResource(R.string.auth_set_new_password_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.common_back)
                         )
                     }
                 }
@@ -92,14 +94,14 @@ fun ResetPasswordScreen(
             )
             
             Text(
-                text = "Secure your account",
+                text = stringResource(R.string.auth_reset_password_instruction),
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 24.dp),
             )
             
             Text(
-                text = "Please enter and confirm your new password below.",
+                text = stringResource(R.string.auth_reset_password_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -118,7 +120,7 @@ fun ResetPasswordScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Password changed successfully!",
+                            text = stringResource(R.string.auth_reset_password_success),
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Center
                         )
@@ -126,7 +128,7 @@ fun ResetPasswordScreen(
                             onClick = onSuccess,
                             modifier = Modifier.padding(top = 16.dp)
                         ) {
-                            Text("Back to Sign In")
+                            Text(stringResource(R.string.auth_back_to_signin))
                         }
                     }
                 }
@@ -150,7 +152,7 @@ fun ResetPasswordScreen(
                 OutlinedTextField(
                     value = newPassword,
                     onValueChange = { newPassword = it },
-                    label = { Text("New Password") },
+                    label = { Text(stringResource(R.string.auth_new_password_label)) },
                     singleLine = true,
                     enabled = !submitting,
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -167,7 +169,7 @@ fun ResetPasswordScreen(
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
-                    label = { Text("Confirm New Password") },
+                    label = { Text(stringResource(R.string.auth_confirm_new_password_label)) },
                     singleLine = true,
                     enabled = !submitting,
                     visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -194,7 +196,7 @@ fun ResetPasswordScreen(
                             color = MaterialTheme.colorScheme.onPrimary,
                         )
                     } else {
-                        Text("Save New Password")
+                        Text(stringResource(R.string.auth_save_new_password))
                     }
                 }
             }

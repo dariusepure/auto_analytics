@@ -38,6 +38,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.res.stringResource
+import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.layout.ContentScale
@@ -93,9 +95,9 @@ fun CarDetailsScreen(
                 } ?: false
                 
                 if (success) {
-                    Toast.makeText(context, "Report saved successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.car_report_success), Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(context, "Failed to save report", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.car_report_failed), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -120,10 +122,10 @@ fun CarDetailsScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text("Car Details") },
+                title = { Text(stringResource(R.string.car_details_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 }
             )
@@ -185,11 +187,11 @@ fun CarDetailsScreen(
                                 Spacer(Modifier.width(12.dp))
                                 Column {
                                     Text(
-                                        text = "Technical Sheet",
+                                        text = stringResource(R.string.car_technical_sheet),
                                         style = MaterialTheme.typography.titleMedium
                                     )
                                     Text(
-                                        text = "View full specifications",
+                                        text = stringResource(R.string.car_technical_sheet_subtitle),
                                         style = MaterialTheme.typography.bodySmall
                                     )
                                 }
@@ -213,11 +215,11 @@ fun CarDetailsScreen(
                                 Spacer(Modifier.width(12.dp))
                                 Column {
                                     Text(
-                                        text = "Mileage History",
+                                        text = stringResource(R.string.car_mileage_history),
                                         style = MaterialTheme.typography.titleMedium
                                     )
                                     Text(
-                                        text = "View and manage records",
+                                        text = stringResource(R.string.car_mileage_history_subtitle),
                                         style = MaterialTheme.typography.bodySmall
                                     )
                                 }
@@ -244,11 +246,11 @@ fun CarDetailsScreen(
                                 Spacer(Modifier.width(12.dp))
                                 Column {
                                     Text(
-                                        text = "Vehicle Inspection (ITP)",
+                                        text = stringResource(R.string.car_inspection_title),
                                         style = MaterialTheme.typography.titleMedium
                                     )
                                     Text(
-                                        text = CarFormatters.getInspectionExpiryText(latestInspection),
+                                        text = CarFormatters.getInspectionExpiryText(context, latestInspection),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = if (isExpired) {
                                             MaterialTheme.colorScheme.error
@@ -280,11 +282,11 @@ fun CarDetailsScreen(
                                 Spacer(Modifier.width(12.dp))
                                 Column {
                                     Text(
-                                        text = "AI Diagnosis Chat",
+                                        text = stringResource(R.string.car_diagnosis_title),
                                         style = MaterialTheme.typography.titleMedium
                                     )
                                     Text(
-                                        text = "Get expert advice and health reports",
+                                        text = stringResource(R.string.car_diagnosis_subtitle),
                                         style = MaterialTheme.typography.bodySmall
                                     )
                                 }
@@ -311,11 +313,11 @@ fun CarDetailsScreen(
                                 Spacer(Modifier.width(12.dp))
                                 Column {
                                     Text(
-                                        text = "Fuel Consumption",
+                                        text = stringResource(R.string.car_fuel_consumption),
                                         style = MaterialTheme.typography.titleMedium
                                     )
                                     Text(
-                                        text = "Track fillings and view stats",
+                                        text = stringResource(R.string.car_fuel_consumption_subtitle),
                                         style = MaterialTheme.typography.bodySmall
                                     )
                                 }
@@ -342,11 +344,11 @@ fun CarDetailsScreen(
                                 Spacer(Modifier.width(12.dp))
                                 Column {
                                     Text(
-                                        text = "Generate PDF Report",
+                                        text = stringResource(R.string.car_generate_report),
                                         style = MaterialTheme.typography.titleMedium
                                     )
                                     Text(
-                                        text = "Export vehicle history to PDF",
+                                        text = stringResource(R.string.car_generate_report_subtitle),
                                         style = MaterialTheme.typography.bodySmall
                                     )
                                 }
@@ -397,7 +399,7 @@ fun AddMileageDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (existingLog == null) "Add Mileage" else "Edit Mileage") },
+        title = { Text(if (existingLog == null) stringResource(R.string.mileage_add_title) else stringResource(R.string.mileage_edit_title)) },
         text = {
             Column {
                 OutlinedTextField(
@@ -408,7 +410,7 @@ fun AddMileageDialog(
                             errorMessage = null
                         }
                     },
-                    label = { Text("Distance ($unit)") },
+                    label = { Text(stringResource(R.string.common_distance, unit)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
                     isError = errorMessage != null
@@ -428,13 +430,13 @@ fun AddMileageDialog(
                     value = dateFormat.format(selectedDate),
                     onValueChange = { },
                     readOnly = true,
-                    label = { Text("Date") },
+                    label = { Text(stringResource(R.string.common_date)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { datePickerDialog.show() },
                     trailingIcon = {
                         IconButton(onClick = { datePickerDialog.show() }) {
-                            Icon(imageVector = Icons.Default.Add, contentDescription = "Select Date")
+                            Icon(imageVector = Icons.Default.Add, contentDescription = null)
                         }
                     },
                     enabled = false,
@@ -464,9 +466,9 @@ fun AddMileageDialog(
                         if (conflict != null) {
                             val conflictDisplay = CarFormatters.fromCanonicalDistance(conflict.km, unit == "mi")
                             errorMessage = if (selectedDate.after(conflict.date)) {
-                                "Cannot be less than ${conflictDisplay.roundToInt()} $unit (recorded on ${dateFormat.format(conflict.date)})"
+                                context.getString(R.string.mileage_conflict_less, conflictDisplay.roundToInt(), unit, dateFormat.format(conflict.date))
                             } else {
-                                "Cannot be more than ${conflictDisplay.roundToInt()} $unit (recorded on ${dateFormat.format(conflict.date)})"
+                                context.getString(R.string.mileage_conflict_more, conflictDisplay.roundToInt(), unit, dateFormat.format(conflict.date))
                             }
                         } else {
                             onConfirm(inputVal, selectedDate)
@@ -475,12 +477,12 @@ fun AddMileageDialog(
                 },
                 enabled = km.isNotBlank()
             ) {
-                Text(if (existingLog == null) "Add" else "Update")
+                Text(if (existingLog == null) stringResource(R.string.common_add) else stringResource(R.string.common_update))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.common_cancel))
             }
         }
     )
@@ -521,13 +523,13 @@ fun AddInspectionDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Vehicle Inspection") },
+        title = { Text(stringResource(R.string.inspection_add_title)) },
         text = {
             Column {
                 OutlinedTextField(
                     value = km,
                     onValueChange = { if (it.all { char -> char.isDigit() }) km = it },
-                    label = { Text("Mileage (km)") },
+                    label = { Text(stringResource(R.string.inspection_mileage_label, unit)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -538,7 +540,7 @@ fun AddInspectionDialog(
                     value = dateFormat.format(selectedDate),
                     onValueChange = { },
                     readOnly = true,
-                    label = { Text("Inspection Date") },
+                    label = { Text(stringResource(R.string.inspection_date_label)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { datePickerDialog.show() },
@@ -562,7 +564,7 @@ fun AddInspectionDialog(
                     OutlinedTextField(
                         value = durationValue,
                         onValueChange = { if (it.all { char -> char.isDigit() }) durationValue = it },
-                        label = { Text("Validity") },
+                        label = { Text(stringResource(R.string.inspection_validity_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f)
                     )
@@ -572,7 +574,7 @@ fun AddInspectionDialog(
                             value = durationUnit.name.lowercase().replaceFirstChar { it.uppercase() },
                             onValueChange = { },
                             readOnly = true,
-                            label = { Text("Unit") },
+                            label = { Text(stringResource(R.string.common_unit)) },
                             trailingIcon = {
                                 IconButton(onClick = { unitExpanded = true }) {
                                     Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = null)
@@ -593,7 +595,7 @@ fun AddInspectionDialog(
                         ) {
                             InspectionDurationUnit.entries.forEach { unit ->
                                 DropdownMenuItem(
-                                    text = { Text(unit.name.lowercase().replaceFirstChar { it.uppercase() }) },
+                                    text = { Text(stringResource(unit.labelRes)) },
                                     onClick = {
                                         durationUnit = unit
                                         unitExpanded = false
@@ -621,12 +623,12 @@ fun AddInspectionDialog(
                 },
                 enabled = km.isNotBlank() && durationValue.isNotBlank()
             ) {
-                Text("Save")
+                Text(stringResource(R.string.common_save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.common_cancel))
             }
         }
     )

@@ -6,9 +6,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -18,17 +18,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.dariusepure.caractivitylog.ui.AppNavigation
 import com.dariusepure.caractivitylog.ui.MainViewModel
 import com.dariusepure.caractivitylog.ui.Screen
 import com.dariusepure.caractivitylog.ui.theme.CarActivityLogTheme
 import com.dariusepure.caractivitylog.ui.theme.ThemeViewModel
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
@@ -40,8 +39,8 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
-            val viewModel: MainViewModel = viewModel()
-            val themeViewModel: ThemeViewModel = viewModel()
+            val viewModel: MainViewModel = hiltViewModel()
+            val themeViewModel: ThemeViewModel = hiltViewModel()
             
             val isDarkMode by themeViewModel.isDarkMode.collectAsState()
             val signedIn by viewModel.signedIn.collectAsState()

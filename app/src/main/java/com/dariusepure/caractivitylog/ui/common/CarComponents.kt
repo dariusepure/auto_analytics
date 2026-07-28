@@ -17,6 +17,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.dariusepure.caractivitylog.R
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
 import kotlin.math.roundToInt
 import androidx.compose.ui.unit.dp
@@ -52,7 +55,7 @@ fun MileageItem(
         IconButton(onClick = onEditClick) {
             Icon(
                 imageVector = Icons.Default.Edit,
-                contentDescription = "Edit mileage",
+                contentDescription = stringResource(R.string.mileage_edit_content_description),
                 tint = Color(0xFF2196F3)
             )
         }
@@ -60,7 +63,7 @@ fun MileageItem(
         IconButton(onClick = onDeleteClick) {
             Icon(
                 imageVector = Icons.Default.Delete,
-                contentDescription = "Delete mileage",
+                contentDescription = stringResource(R.string.mileage_delete_content_description),
                 tint = Color.Red
             )
         }
@@ -74,6 +77,7 @@ fun InspectionItem(
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
+    val context = LocalContext.current
     val isExpired = CarFormatters.isInspectionExpired(inspection)
     
     Row(
@@ -84,12 +88,12 @@ fun InspectionItem(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = CarFormatters.getInspectionExpiryText(inspection),
+                text = CarFormatters.getInspectionExpiryText(context, inspection),
                 style = MaterialTheme.typography.bodyLarge,
                 color = if (isExpired) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "Inspection date: ${CarFormatters.formatDate(inspection.date)} \u00B7 ${inspection.mileage.roundToInt()} $unit",
+                text = stringResource(R.string.inspection_item_summary, CarFormatters.formatDate(inspection.date), inspection.mileage.roundToInt(), unit),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -98,7 +102,7 @@ fun InspectionItem(
         IconButton(onClick = onEditClick) {
             Icon(
                 imageVector = Icons.Default.Edit,
-                contentDescription = "Edit inspection",
+                contentDescription = stringResource(R.string.inspection_edit_content_description),
                 tint = Color(0xFF2196F3)
             )
         }
@@ -106,7 +110,7 @@ fun InspectionItem(
         IconButton(onClick = onDeleteClick) {
             Icon(
                 imageVector = Icons.Default.Delete,
-                contentDescription = "Delete inspection",
+                contentDescription = stringResource(R.string.inspection_delete_content_description),
                 tint = Color.Red
             )
         }

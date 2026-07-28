@@ -21,6 +21,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.dariusepure.caractivitylog.R
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -40,6 +43,7 @@ fun TechnicalSheetScreen(
     viewModel: CarDetailsViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     LaunchedEffect(carId) {
         viewModel.loadCarData(carId)
@@ -49,10 +53,10 @@ fun TechnicalSheetScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text("Technical Sheet") },
+                title = { Text(stringResource(R.string.car_technical_sheet)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 }
             )
@@ -63,10 +67,10 @@ fun TechnicalSheetScreen(
             is CarDetailsUiState.Error -> ErrorState(message = s.message, onRetry = { viewModel.loadCarData(carId) })
             is CarDetailsUiState.Success -> {
                 val car = s.car
-                val powerText = CarFormatters.formatPower(car)
+                val powerText = CarFormatters.formatPower(context, car)
                 val totalValves = car.numberOfCylinders * car.valvesPerCylinder
                 val valvesText = if (totalValves > 0) {
-                    "$totalValves (${car.valvesPerCylinder} per cylinder)"
+                    stringResource(R.string.formatter_valves_total, totalValves, car.valvesPerCylinder)
                 } else "-"
                 
                 val country = europeanCountries.find { it.code == car.plateCountry }
@@ -94,69 +98,69 @@ fun TechnicalSheetScreen(
                     
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    TechnicalCategory(title = "Identity & Style") {
+                    TechnicalCategory(title = stringResource(R.string.car_identity_section)) {
                         SpecificationCard(
                             specifications = listOf(
-                                "Make" to car.make,
-                                "Model" to car.model,
-                                "Vehicle Type" to car.vehicleType,
-                                "Year" to car.year.takeIf { it != 0 }?.toString().orEmpty(),
-                                "Color" to car.color,
-                                "License Plate" to car.licensePlate,
-                                "Plate Country" to (country?.let { "${it.flag} ${it.name}" } ?: car.plateCountry),
-                                "VIN" to car.vin,
-                                "Manufacturing Country" to (europeanCountries.find { it.name == car.manufacturingCountry }?.let { "${it.flag} ${it.name}" } ?: car.manufacturingCountry)
+                                stringResource(R.string.car_make_label) to car.make,
+                                stringResource(R.string.car_model_label) to car.model,
+                                stringResource(R.string.car_vehicle_type_label) to car.vehicleType,
+                                stringResource(R.string.car_year_label) to car.year.takeIf { it != 0 }?.toString().orEmpty(),
+                                stringResource(R.string.car_color_label) to car.color,
+                                stringResource(R.string.car_license_plate_label) to car.licensePlate,
+                                stringResource(R.string.car_plate_country_label) to (country?.let { "${it.flag} ${it.name}" } ?: car.plateCountry),
+                                stringResource(R.string.car_vin_label) to car.vin,
+                                stringResource(R.string.car_manufacturing_country_label) to (europeanCountries.find { it.name == car.manufacturingCountry }?.let { "${it.flag} ${it.name}" } ?: car.manufacturingCountry)
                             )
                         )
                     }
 
-                    TechnicalCategory(title = "Engine & Performance") {
+                    TechnicalCategory(title = stringResource(R.string.car_engine_section)) {
                         SpecificationCard(
                             specifications = listOf(
-                                "Power" to powerText,
-                                "Torque" to if (car.torque > 0) "${car.torque} Nm" else "",
-                                "Top Speed" to topSpeedText,
-                                "Aspiration" to car.aspiration,
-                                "Cylinders" to car.numberOfCylinders.takeIf { it != 0 }?.toString().orEmpty(),
-                                "Valves" to valvesText,
-                                "Engine Size" to if (car.engineSize.isNotBlank()) "${car.engineSize} cc" else "",
-                                "Fuel Type" to car.fuelType,
-                                "Injection System" to car.fuelSystem,
-                                "Engine Code" to car.engineCode,
-                                "Engine Layout" to car.engineLayout,
-                                "Cylinder Layout" to car.cylinderLayout,
-                                "Emission Standard" to car.emissionStandard
+                                stringResource(R.string.car_power_label) to powerText,
+                                stringResource(R.string.car_torque_label) to if (car.torque > 0) "${car.torque} Nm" else "",
+                                stringResource(R.string.car_top_speed_label) to topSpeedText,
+                                stringResource(R.string.car_aspiration_label) to car.aspiration,
+                                stringResource(R.string.car_cylinders_label) to car.numberOfCylinders.takeIf { it != 0 }?.toString().orEmpty(),
+                                stringResource(R.string.car_valves_label) to valvesText,
+                                stringResource(R.string.car_engine_size_label) to if (car.engineSize.isNotBlank()) "${car.engineSize} cc" else "",
+                                stringResource(R.string.car_fuel_type_label) to car.fuelType,
+                                stringResource(R.string.car_injection_system_label) to car.fuelSystem,
+                                stringResource(R.string.car_engine_code_label) to car.engineCode,
+                                stringResource(R.string.car_engine_layout_label) to car.engineLayout,
+                                stringResource(R.string.car_cylinder_layout_label) to car.cylinderLayout,
+                                stringResource(R.string.car_emission_standard_label) to car.emissionStandard
                             )
                         )
                     }
 
-                    TechnicalCategory(title = "Transmission & Chassis") {
+                    TechnicalCategory(title = stringResource(R.string.car_transmission_section)) {
                         SpecificationCard(
                             specifications = listOf(
-                                "Gearbox Type" to car.gearboxType,
-                                "Number of Gears" to car.gears,
-                                "Drivetrain" to car.drivetrain,
-                                "Front Suspension" to car.frontSuspension,
-                                "Rear Suspension" to car.rearSuspension,
-                                "Front Brakes" to car.frontBrakes,
-                                "Rear Brakes" to car.rearBrakes
+                                stringResource(R.string.car_gearbox_type_label) to car.gearboxType,
+                                stringResource(R.string.car_gears_count_label) to car.gears,
+                                stringResource(R.string.car_drivetrain_label) to car.drivetrain,
+                                stringResource(R.string.car_front_suspension_label) to car.frontSuspension,
+                                stringResource(R.string.car_rear_suspension_label) to car.rearSuspension,
+                                stringResource(R.string.car_front_brakes_label) to car.frontBrakes,
+                                stringResource(R.string.car_rear_brakes_label) to car.rearBrakes
                             )
                         )
                     }
 
-                    TechnicalCategory(title = "Dimensions & Capacity") {
+                    TechnicalCategory(title = stringResource(R.string.car_dimensions_capacity_section)) {
                         SpecificationCard(
                             specifications = listOf(
-                                "Dimensions (LxWxH)" to CarFormatters.formatDimensions(car),
-                                "Wheelbase" to if (car.wheelbase > 0) "${car.wheelbase} mm" else "",
-                                "Track Width" to if (car.trackWidth > 0) "${car.trackWidth} mm" else "",
-                                "Weight" to if (car.weight > 0) "${car.weight} kg" else "",
-                                "Seats" to car.numberOfSeats.takeIf { it != 0 }?.toString().orEmpty(),
-                                "Doors" to car.numberOfDoors.takeIf { it != 0 }?.toString().orEmpty(),
-                                "Boot Space" to if (car.bootSpace > 0) "${car.bootSpace} L" else "",
-                                "Fuel Tank" to if (car.fuelTankCapacity > 0) "${car.fuelTankCapacity} L" else "",
-                                "Battery Capacity" to if (car.batteryCapacity > 0) "${car.batteryCapacity} kWh" else "",
-                                "Tire Size" to tireSizeText
+                                stringResource(R.string.car_dimensions_lxwxh) to CarFormatters.formatDimensions(context, car),
+                                stringResource(R.string.car_wheelbase_label) to if (car.wheelbase > 0) "${car.wheelbase} mm" else "",
+                                stringResource(R.string.car_track_width_label) to if (car.trackWidth > 0) "${car.trackWidth} mm" else "",
+                                stringResource(R.string.car_weight_label) to if (car.weight > 0) "${car.weight} kg" else "",
+                                stringResource(R.string.car_seats_label) to car.numberOfSeats.takeIf { it != 0 }?.toString().orEmpty(),
+                                stringResource(R.string.car_doors_label) to car.numberOfDoors.takeIf { it != 0 }?.toString().orEmpty(),
+                                stringResource(R.string.car_boot_label) to if (car.bootSpace > 0) "${car.bootSpace} L" else "",
+                                stringResource(R.string.car_fuel_tank_label) to if (car.fuelTankCapacity > 0) "${car.fuelTankCapacity} L" else "",
+                                stringResource(R.string.car_battery_capacity_label) to if (car.batteryCapacity > 0) "${car.batteryCapacity} kWh" else "",
+                                stringResource(R.string.car_tire_size_label) to tireSizeText
                             )
                         )
                     }

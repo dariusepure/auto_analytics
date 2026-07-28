@@ -1,0 +1,295 @@
+<resources>
+    <string name="app_name">Jurnal Activitate Mașină</string>
+
+    <!-- Common -->
+    <string name="common_save">Salvează</string>
+    <string name="common_cancel">Anulează</string>
+    <string name="common_add">Adaugă</string>
+    <string name="common_update">Actualizează</string>
+    <string name="common_delete">Șterge</string>
+    <string name="common_edit">Editează</string>
+    <string name="common_apply_selected">Aplică selecția (%d)</string>
+    <string name="common_try_again">Încearcă din nou</string>
+    <string name="common_loading">Se încarcă</string>
+    <string name="common_error_title">Ceva nu a mers bine</string>
+    <string name="common_date">Data</string>
+    <string name="common_distance">Distanță (%s)</string>
+    <string name="common_unit">Unitate</string>
+    <string name="common_back">Înapoi</string>
+    <string name="common_not_applicable">N/A</string>
+    <string name="common_collapse">Restrânge</string>
+    <string name="common_expand">Extinde</string>
+
+    <!-- Units -->
+    <string name="unit_months">Luni</string>
+    <string name="unit_years">Ani</string>
+
+    <!-- Fuel Types -->
+    <string name="fuel_petrol">Benzină</string>
+    <string name="fuel_diesel">Motorină</string>
+    <string name="fuel_electric">Electric</string>
+    <string name="fuel_hybrid">Hibrid</string>
+    <string name="fuel_lpg">GPL</string>
+
+    <!-- Gearbox Types -->
+    <string name="gearbox_manual">Manuală</string>
+    <string name="gearbox_automatic">Automată</string>
+    <string name="gearbox_cvt">CVT</string>
+    <string name="gearbox_dct">DCT</string>
+    <string name="gearbox_amt">AMT</string>
+
+    <!-- Relative Time -->
+    <string name="relative_just_now">acum</string>
+    <string name="relative_minutes_ago">acum %dm</string>
+    <string name="relative_hours_ago">acum %dh</string>
+    <string name="relative_days_ago">acum %dd</string>
+
+    <!-- Auth -->
+    <string name="auth_signin_title">Autentificare</string>
+    <string name="auth_signup_title">Înregistrare</string>
+    <string name="auth_forgot_password_title">Ai uitat parola?</string>
+    <string name="auth_reset_password_title">Resetează parola</string>
+    <string name="auth_set_new_password_title">Setează parolă nouă</string>
+    <string name="auth_email_label">Email</string>
+    <string name="auth_password_label">Parolă</string>
+    <string name="auth_confirm_password_label">Confirmă parola</string>
+    <string name="auth_new_password_label">Parolă nouă</string>
+    <string name="auth_confirm_new_password_label">Confirmă parola nouă</string>
+    <string name="auth_full_name_label">Nume complet</string>
+    <string name="auth_username_label">ID Utilizator (Username)</string>
+    <string name="auth_signin_button">Autentificare</string>
+    <string name="auth_signin_subtitle">Autentifică-te pentru a continua de unde ai rămas.</string>
+    <string name="auth_signup_button">Înregistrare</string>
+    <string name="auth_signup_subtitle">Alătură-te Jurnalului de Activitate al Mașinii astăzi.</string>
+    <string name="auth_forgot_password_subtitle">Introdu adresa de email și îți vom trimite un link pentru resetarea parolei.</string>
+    <string name="auth_reset_password_subtitle">Te rugăm să introduci și să confirmi noua parolă mai jos.</string>
+    <string name="auth_reset_password_success">Parola a fost schimbată cu succes!</string>
+    <string name="auth_reset_password_instruction">Securizează-ți contul</string>
+    <string name="auth_reset_link_sent">Link-ul de resetare a fost trimis! Te rugăm să verifici adresa de email pentru a continua.</string>
+    <string name="auth_hide_password">Ascunde parola</string>
+    <string name="auth_show_password">Afișează parola</string>
+
+    <!-- Sorting -->
+    <string name="sort_default">Implicit</string>
+    <string name="sort_brand">Marcă (A-Z)</string>
+    <string name="sort_year">An (Cele mai noi)</string>
+    <string name="auth_send_reset_link">Trimite link de resetare</string>
+    <string name="auth_save_new_password">Salvează parola nouă</string>
+    <string name="auth_back_to_signin">Înapoi la autentificare</string>
+    <string name="auth_continue_google">Continuă cu Google</string>
+    <string name="auth_continue_offline">Continuă Offline (Mod Guest)</string>
+    <string name="auth_no_account">Nu ai cont?</string>
+    <string name="auth_have_account">Ai deja un cont?</string>
+
+    <!-- Car List -->
+    <string name="car_list_title">Mașinile tale</string>
+    <string name="car_add_button">Adaugă mașină</string>
+    <string name="car_list_search_placeholder">Caută mașini…</string>
+    <string name="car_list_empty_title">Nicio mașină încă</string>
+    <string name="car_list_empty_subtitle">Apasă pe Adaugă mașină pentru a începe.</string>
+    <string name="car_list_no_results_title">Nicio mașină găsită</string>
+    <string name="car_list_no_results_subtitle">Încearcă un alt termen de căutare.</string>
+    <string name="car_list_loading">Se încarcă mașinile…</string>
+    <string name="car_edit_content_description">Editează mașina</string>
+    <string name="car_delete_content_description">Șterge mașina</string>
+    <string name="car_last_update">Ultima actualizare: %s</string>
+
+    <!-- Add/Edit Car -->
+    <string name="car_add_title">Adaugă mașină nouă</string>
+    <string name="car_edit_title">Editează mașina</string>
+    <string name="car_identity_section">Identitate și stil</string>
+    <string name="car_registration_section">Înregistrare</string>
+    <string name="car_engine_section">Motor și performanță</string>
+    <string name="car_dimensions_section">Dimensiuni și șasiu</string>
+    <string name="car_title_label">Titlu mașină (Pseudonim)</string>
+    <string name="car_title_placeholder">Ex: %s</string>
+    <string name="car_title_placeholder_fallback">Ex: Mașina mea zilnică</string>
+    <string name="car_scan_photo">Scanează foto</string>
+    <string name="car_scan_pdf">Scanează PDF</string>
+    <string name="car_make_label">Marcă</string>
+    <string name="car_model_label">Model</string>
+    <string name="car_year_label">An</string>
+    <string name="car_vehicle_type_label">Tip vehicul</string>
+    <string name="car_color_label">Culoare</string>
+    <string name="car_vin_label">VIN</string>
+    <string name="car_vin_remaining">Rămase: %d caractere</string>
+    <string name="car_vin_invalid_chars">Literele I, O, Q nu sunt permise</string>
+    <string name="car_license_plate_label">Număr înmatriculare (Opțional)</string>
+    <string name="car_license_plate_hint">Ex: %s</string>
+    <string name="car_manufacturing_country_label">Țara de fabricație</string>
+    <string name="car_power_label">Putere</string>
+    <string name="car_torque_label">Cuplu (Nm)</string>
+    <string name="car_engine_code_label">Cod motor</string>
+    <string name="car_engine_layout_label">Dispunere motor</string>
+    <string name="car_cylinder_layout_label">Configurație cilindri</string>
+    <string name="car_emission_standard_label">Normă de poluare</string>
+    <string name="car_aspiration_label">Aspirație motor</string>
+    <string name="car_engine_size_label">Capacitate cilindrică (cc)</string>
+    <string name="car_cylinders_label">Cilindri</string>
+    <string name="car_valves_per_cyl_label">Valve/Cil</string>
+    <string name="car_top_speed_label">Viteză maximă</string>
+    <string name="car_fuel_type_label">Tip combustibil</string>
+    <string name="car_fuel_system_label">Sistem combustibil</string>
+    <string name="car_injection_system_label">Sistem de injecție</string>
+    <string name="car_gearbox_type_label">Tip cutie de viteze</string>
+    <string name="car_gears_label">Trepte</string>
+    <string name="car_front_suspension_label">Suspensie față</string>
+    <string name="car_rear_suspension_label">Suspensie spate</string>
+    <string name="car_fuel_tank_capacity_label">Capacitate rezervor (L)</string>
+    <string name="car_battery_capacity_label">Capacitate baterie (kWh)</string>
+    <string name="car_length_label">Lungime</string>
+    <string name="car_width_label">Lățime</string>
+    <string name="car_height_label">Înălțime</string>
+    <string name="car_wheelbase_label">Ampatament</string>
+    <string name="car_track_width_label">Ecartament</string>
+    <string name="car_weight_label">Greutate (kg)</string>
+    <string name="car_seats_label">Locuri</string>
+    <string name="car_doors_label">Uși</string>
+    <string name="car_boot_label">Portbagaj (L)</string>
+    <string name="car_tire_size_label">Dimensiune anvelope</string>
+    <string name="car_tire_width_label">Lățime</string>
+    <string name="car_tire_ratio_label">Raport</string>
+    <string name="car_tire_diam_label">Diam.</string>
+    <string name="car_front_brakes_label">Frâne față</string>
+    <string name="car_rear_brakes_label">Frâne spate</string>
+    <string name="car_drivetrain_label">Tracțiune</string>
+    <string name="car_confirm_scanned_data">Confirmă datele scanate</string>
+    <string name="car_scanned_data_subtitle">Am găsit următoarele informații. Selectează ce dorești să aplici în formular.</string>
+
+    <!-- Car Details -->
+    <string name="car_details_title">Detalii mașină</string>
+    <string name="car_technical_sheet">Fișă tehnică</string>
+    <string name="car_technical_sheet_subtitle">Vezi specificațiile complete</string>
+    <string name="car_mileage_history">Istoric kilometraj</string>
+    <string name="car_mileage_history_subtitle">Vezi și gestionează înregistrările</string>
+    <string name="car_inspection_title">Inspecție Tehnică Periodică (ITP)</string>
+    <string name="car_diagnosis_title">Chat Diagnoză AI</string>
+    <string name="car_diagnosis_subtitle">Obține sfaturi expert și rapoarte de stare</string>
+    <string name="car_fuel_consumption">Consum combustibil</string>
+    <string name="car_fuel_consumption_subtitle">Urmărește alimentările și vezi statistici</string>
+    <string name="car_generate_report">Generează raport PDF</string>
+    <string name="car_generate_report_subtitle">Exportă istoricul vehiculului în PDF</string>
+    <string name="car_report_success">Raport salvat cu succes</string>
+    <string name="car_report_failed">Eșec la salvarea raportului</string>
+
+    <!-- Mileage -->
+    <string name="mileage_history_title">Istoric kilometraj</string>
+    <string name="mileage_add_title">Adaugă kilometraj</string>
+    <string name="mileage_edit_title">Editează kilometraj</string>
+    <string name="mileage_empty">Nu s-au găsit înregistrări de kilometraj.</string>
+    <string name="mileage_edit_content_description">Editează kilometrajul</string>
+    <string name="mileage_delete_content_description">Șterge kilometrajul</string>
+    <string name="mileage_confirm_scanned">Confirmă înregistrările scanate</string>
+    <string name="mileage_scanned_subtitle">Am găsit %d înregistrări de kilometraj. Te rugăm să confirmi care să fie adăugate.</string>
+    <string name="mileage_conflict_less">Nu poate fi mai mic decât %1$d %2$s (înregistrat la data de %3$s)</string>
+    <string name="mileage_conflict_more">Nu poate fi mai mare decât %1$d %2$s (înregistrat la data de %3$s)</string>
+
+    <!-- Inspection -->
+    <string name="inspection_history_title">Istoric inspecții</string>
+    <string name="inspection_add_title">Adaugă inspecție tehnică</string>
+    <string name="inspection_mileage_label">Kilometraj (%s)</string>
+    <string name="inspection_date_label">Data inspecției</string>
+    <string name="inspection_validity_label">Valabilitate</string>
+    <string name="inspection_empty">Nu s-au găsit înregistrări de inspecție.</string>
+    <string name="inspection_edit_content_description">Editează inspecția</string>
+    <string name="inspection_delete_content_description">Șterge inspecția</string>
+    <string name="inspection_item_summary">Data inspecției: %1$s \u00B7 %2$d %3$s</string>
+
+    <!-- Fuel -->
+    <string name="fuel_history_title">Consum combustibil</string>
+    <string name="fuel_stats_avg">Consum mediu</string>
+    <string name="fuel_stats_total_dist">Distanță totală</string>
+    <string name="fuel_stats_total_fuel">Total combustibil</string>
+    <string name="fuel_stats_total_cost">Cost total</string>
+    <string name="fuel_add_full_tank_hint">Adaugă cel puțin 2 înregistrări cu „Rezervor plin” pentru a vedea consumul mediu.</string>
+    <string name="fuel_history_header">Istoric alimentări</string>
+    <string name="fuel_history_empty">Nicio înregistrare încă. Adaugă prima alimentare!</string>
+    <string name="fuel_add_title">Adaugă alimentare</string>
+    <string name="fuel_liters_label">Litri</string>
+    <string name="fuel_cost_label">Cost total</string>
+    <string name="fuel_full_tank_label">Rezervor plin</string>
+    <string name="fuel_partial_tank">Parțial</string>
+    <string name="fuel_mileage_conflict">Conflict de kilometraj cu înregistrările din %s</string>
+
+    <!-- Diagnosis -->
+    <string name="diagnosis_title">Diagnoză AI - %s</string>
+    <string name="diagnosis_reset_chat">Resetează chat-ul</string>
+    <string name="diagnosis_is_thinking">AI se gândește…</string>
+    <string name="diagnosis_placeholder">Descrie problema…</string>
+    <string name="diagnosis_send">Trimite</string>
+
+    <!-- Recycle Bin -->
+    <string name="recycle_bin_title">Coș de reciclare</string>
+    <string name="recycle_bin_empty_title">Coșul de reciclare este gol</string>
+    <string name="recycle_bin_empty_subtitle">Mașinile șterse vor apărea aici.</string>
+    <string name="recycle_bin_delete_confirm_title">Ștergi definitiv?</string>
+    <string name="recycle_bin_delete_confirm_text">Această acțiune nu poate fi anulată. Toate datele pentru %s vor fi pierdute definitiv.</string>
+    <string name="recycle_bin_delete_forever">Șterge definitiv</string>
+    <string name="recycle_bin_deleted_on">Șters la: %s</string>
+    <string name="recycle_bin_restore">Restaurează</string>
+
+    <!-- Formatters -->
+    <string name="formatter_power_dual">%1$d cp / %2$d kw</string>
+    <string name="formatter_power_hp">%d cp</string>
+    <string name="formatter_engine_size">%s cc</string>
+    <string name="formatter_no_inspection">Nicio inspecție înregistrată</string>
+    <string name="formatter_inspection_valid_until">Valabil până la %s</string>
+    <string name="formatter_wheelbase">Ampatament: %d mm</string>
+    <string name="formatter_track_width">Ecartament: %d mm</string>
+    <string name="formatter_valves_total">%1$d (%2$d per cilindru)</string>
+
+    <!-- PDF -->
+    <string name="pdf_title">Raport istoric vehicul</string>
+    <string name="pdf_section_general">Informații generale</string>
+    <string name="pdf_section_engine">Motor și performanță</string>
+    <string name="pdf_section_dimensions">Dimensiuni și greutate</string>
+    <string name="pdf_section_drivetrain">Transmisie și șasiu</string>
+    <string name="pdf_section_wheels">Roți și interior</string>
+    <string name="pdf_section_mileage">Istoric kilometraj</string>
+    <string name="pdf_section_inspections">Inspecții tehnice (ITP)</string>
+    <string name="pdf_section_fuel">Consum combustibil</string>
+    <string name="pdf_valid_until">Valabil până la: %s</string>
+    <string name="pdf_field_name">Nume</string>
+    <string name="pdf_field_make">Marcă</string>
+    <string name="pdf_field_model">Model</string>
+    <string name="pdf_field_year">An</string>
+    <string name="pdf_field_vin">VIN</string>
+    <string name="pdf_field_license_plate">Număr înmatriculare</string>
+    <string name="pdf_field_country">Țara</string>
+    <string name="pdf_field_color">Culoare</string>
+    <string name="pdf_field_vehicle_type">Tip vehicul</string>
+    <string name="pdf_field_manufacturing_country">Țara de fabricație</string>
+    <string name="pdf_field_engine_size">Capacitate cilindrică</string>
+    <string name="pdf_field_engine_code">Cod motor</string>
+    <string name="pdf_field_power">Putere</string>
+    <string name="pdf_field_torque">Cuplu</string>
+    <string name="pdf_field_fuel_type">Tip combustibil</string>
+    <string name="pdf_field_fuel_system">Sistem combustibil</string>
+    <string name="pdf_field_aspiration">Aspirație</string>
+    <string name="pdf_field_emission_standard">Normă de poluare</string>
+    <string name="pdf_field_top_speed">Viteză maximă</string>
+    <string name="pdf_field_cylinders">Cilindri</string>
+    <string name="pdf_field_valves_per_cylinder">Valve pe cilindru</string>
+    <string name="pdf_field_engine_layout">Dispunere motor</string>
+    <string name="pdf_field_cylinder_layout">Configurație cilindri</string>
+    <string name="pdf_field_length">Lungime</string>
+    <string name="pdf_field_width">Lățime</string>
+    <string name="pdf_field_height">Înălțime</string>
+    <string name="pdf_field_wheelbase">Ampatament</string>
+    <string name="pdf_field_track_width">Ecartament</string>
+    <string name="pdf_field_weight">Greutate</string>
+    <string name="pdf_field_boot_space">Portbagaj</string>
+    <string name="pdf_field_fuel_tank_capacity">Capacitate rezervor</string>
+    <string name="pdf_field_battery_capacity">Capacitate baterie</string>
+    <string name="pdf_field_drivetrain">Tracțiune</string>
+    <string name="pdf_field_gearbox_type">Tip cutie de viteze</string>
+    <string name="pdf_field_gears">Trepte</string>
+    <string name="pdf_field_front_suspension">Suspensie față</string>
+    <string name="pdf_field_rear_suspension">Suspensie spate</string>
+    <string name="pdf_field_front_brakes">Frâne față</string>
+    <string name="pdf_field_rear_brakes">Frâne spate</string>
+    <string name="pdf_field_tires">Anvelope</string>
+    <string name="pdf_field_seats">Număr de locuri</string>
+    <string name="pdf_field_doors">Număr de uși</string>
+
+</resources>

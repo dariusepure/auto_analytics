@@ -16,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.res.stringResource
+import com.dariusepure.caractivitylog.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,15 +45,15 @@ fun DiagnosisScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("AI Diagnosis - ${state.carName}") },
+                title = { Text(stringResource(R.string.diagnosis_title, state.carName)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 },
                 actions = {
                     IconButton(onClick = { viewModel.resetConversation() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Reset Chat")
+                        Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.diagnosis_reset_chat))
                     }
                 }
             )
@@ -78,7 +80,7 @@ fun DiagnosisScreen(
                 if (state.isTyping) {
                     item {
                         Text(
-                            "AI is thinking...",
+                            stringResource(R.string.diagnosis_is_thinking),
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(8.dp),
                             color = MaterialTheme.colorScheme.primary
@@ -101,7 +103,7 @@ fun DiagnosisScreen(
                     TextField(
                         value = inputText,
                         onValueChange = { inputText = it },
-                        placeholder = { Text("Describe the problem...") },
+                        placeholder = { Text(stringResource(R.string.diagnosis_placeholder)) },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(24.dp),
                         colors = TextFieldDefaults.colors(
@@ -119,7 +121,7 @@ fun DiagnosisScreen(
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.Send, 
-                            contentDescription = "Send",
+                            contentDescription = stringResource(R.string.diagnosis_send),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }

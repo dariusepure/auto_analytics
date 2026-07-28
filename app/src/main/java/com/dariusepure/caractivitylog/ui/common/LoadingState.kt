@@ -13,13 +13,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+import androidx.compose.ui.res.stringResource
+import com.dariusepure.caractivitylog.R
+
 /**
  * Loading spinner + optional caption. Centered in the available space.
  */
 @Composable
 fun LoadingState(
     modifier: Modifier = Modifier,
-    label: String = "Loading",
+    label: String = stringResource(R.string.common_loading),
 ) {
     Column(
         modifier = modifier.fillMaxSize(),

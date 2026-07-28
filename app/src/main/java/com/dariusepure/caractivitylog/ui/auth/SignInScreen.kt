@@ -1,6 +1,7 @@
 package com.dariusepure.caractivitylog.ui.auth
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,6 +32,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.dariusepure.caractivitylog.R
+import com.dariusepure.caractivitylog.ui.common.LanguageSelector
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -72,7 +76,19 @@ fun SignInScreen(
         if (signedIn) onSignedIn()
     }
 
-    Scaffold(modifier = modifier) { innerPadding ->
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                contentAlignment = Alignment.TopEnd
+            ) {
+                LanguageSelector()
+            }
+        }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -89,13 +105,13 @@ fun SignInScreen(
                 modifier = Modifier.size(64.dp),
             )
             Text(
-                text = "Car Activity Log",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.displaySmall,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 16.dp),
             )
             Text(
-                text = "Sign in to pick up where you left off.",
+                text = stringResource(R.string.auth_signin_subtitle),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -112,7 +128,7 @@ fun SignInScreen(
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email") },
+                label = { Text(stringResource(R.string.auth_email_label)) },
                 singleLine = true,
                 enabled = !submitting,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -123,7 +139,7 @@ fun SignInScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                label = { Text(stringResource(R.string.auth_password_label)) },
                 singleLine = true,
                 enabled = !submitting,
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -132,7 +148,7 @@ fun SignInScreen(
                         Icons.Filled.Visibility
                     else Icons.Filled.VisibilityOff
 
-                    val description = if (passwordVisible) "Hide password" else "Show password"
+                    val description = if (passwordVisible) stringResource(R.string.auth_hide_password) else stringResource(R.string.auth_show_password)
 
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(imageVector = image, description)
@@ -149,7 +165,7 @@ fun SignInScreen(
                 enabled = !submitting,
                 modifier = Modifier.align(Alignment.End)
             ) {
-                Text("Forgot Password?")
+                Text(stringResource(R.string.auth_forgot_password_title))
             }
 
             Button(
@@ -166,7 +182,7 @@ fun SignInScreen(
                         color = MaterialTheme.colorScheme.onPrimary,
                     )
                 } else {
-                    Text("Sign in")
+                    Text(stringResource(R.string.auth_signin_button))
                 }
             }
 
@@ -177,7 +193,7 @@ fun SignInScreen(
                     .fillMaxWidth()
                     .padding(top = 12.dp),
             ) {
-                Text("Continue with Google")
+                Text(stringResource(R.string.auth_continue_google))
             }
 
             TextButton(
@@ -187,19 +203,19 @@ fun SignInScreen(
                     .fillMaxWidth()
                     .padding(top = 8.dp),
             ) {
-                Text("Continue Offline (Guest Mode)")
+                Text(stringResource(R.string.auth_continue_offline))
             }
 
             Row(
                 modifier = Modifier.padding(top = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Don't have an account?")
+                Text(stringResource(R.string.auth_no_account))
                 TextButton(
                     onClick = onSignUpClick,
                     enabled = !submitting
                 ) {
-                    Text("Sign up")
+                    Text(stringResource(R.string.auth_signup_button))
                 }
             }
         }

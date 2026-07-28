@@ -16,6 +16,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.unit.dp
 
 /**
@@ -40,7 +42,7 @@ fun ErrorState(
         )
         Spacer(Modifier.height(12.dp))
         Text(
-            text = "Something went wrong",
+            text = stringResource(R.string.common_error_title),
             style = MaterialTheme.typography.titleMedium,
         )
         Spacer(Modifier.height(4.dp))
@@ -50,6 +52,6 @@ fun ErrorState(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(Modifier.height(16.dp))
-        Button(onClick = onRetry) { Text("Try again") }
+        Button(onClick = onRetry) { Text(stringResource(R.string.common_try_again)) }
     }
 }

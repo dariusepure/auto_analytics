@@ -30,6 +30,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.res.stringResource
+import com.dariusepure.caractivitylog.R
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.IconButton
@@ -81,13 +83,13 @@ fun SignUpScreen(
                 modifier = Modifier.size(64.dp),
             )
             Text(
-                text = "Create Account",
+                text = stringResource(R.string.auth_signup_title),
                 style = MaterialTheme.typography.displaySmall,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 16.dp),
             )
             Text(
-                text = "Join Car Activity Log today.",
+                text = stringResource(R.string.auth_signup_subtitle),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -112,7 +114,7 @@ fun SignUpScreen(
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email") },
+                label = { Text(stringResource(R.string.auth_email_label)) },
                 singleLine = true,
                 enabled = !submitting,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -121,7 +123,7 @@ fun SignUpScreen(
             OutlinedTextField(
                 value = fullName,
                 onValueChange = { fullName = it },
-                label = { Text("Full Name") },
+                label = { Text(stringResource(R.string.auth_full_name_label)) },
                 singleLine = true,
                 enabled = !submitting,
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
@@ -129,7 +131,7 @@ fun SignUpScreen(
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
-                label = { Text("User ID (Username)") },
+                label = { Text(stringResource(R.string.auth_username_label)) },
                 singleLine = true,
                 enabled = !submitting,
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
@@ -137,7 +139,7 @@ fun SignUpScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                label = { Text(stringResource(R.string.auth_password_label)) },
                 singleLine = true,
                 enabled = !submitting,
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -156,7 +158,7 @@ fun SignUpScreen(
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
-                label = { Text("Confirm Password") },
+                label = { Text(stringResource(R.string.auth_confirm_password_label)) },
                 singleLine = true,
                 enabled = !submitting,
                 visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -189,7 +191,7 @@ fun SignUpScreen(
                         color = MaterialTheme.colorScheme.onPrimary,
                     )
                 } else {
-                    Text("Sign up")
+                    Text(stringResource(R.string.auth_signup_button))
                 }
             }
 
@@ -197,9 +199,9 @@ fun SignUpScreen(
                 modifier = Modifier.padding(top = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Already have an account?")
+                Text(stringResource(R.string.auth_have_account))
                 TextButton(onClick = onBackToSignIn) {
-                    Text("Sign in")
+                    Text(stringResource(R.string.auth_signin_button))
                 }
             }
         }
