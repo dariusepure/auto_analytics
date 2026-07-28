@@ -49,6 +49,8 @@ fun SignUpScreen(
     val submitting = state == SignUpState.Pending
 
     var email by rememberSaveable { mutableStateOf("") }
+    var fullName by rememberSaveable { mutableStateOf("") }
+    var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var confirmPassword by rememberSaveable { mutableStateOf("") }
 
@@ -111,6 +113,22 @@ fun SignUpScreen(
                 modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
             )
             OutlinedTextField(
+                value = fullName,
+                onValueChange = { fullName = it },
+                label = { Text("Full Name") },
+                singleLine = true,
+                enabled = !submitting,
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+            )
+            OutlinedTextField(
+                value = username,
+                onValueChange = { username = it },
+                label = { Text("User ID (Username)") },
+                singleLine = true,
+                enabled = !submitting,
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+            )
+            OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Password") },
@@ -134,9 +152,10 @@ fun SignUpScreen(
 
             Button(
                 onClick = {
-                    viewModel.onSignUp(email, password, confirmPassword)
+                    viewModel.onSignUp(email, password, confirmPassword, fullName, username)
                 },
-                enabled = !submitting && email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank(),
+                enabled = !submitting && email.isNotBlank() && password.isNotBlank() && 
+                        confirmPassword.isNotBlank() && fullName.isNotBlank() && username.isNotBlank(),
                 modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
             ) {
                 if (submitting) {

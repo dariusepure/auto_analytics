@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dariusepure.caractivitylog.data.auth.AuthRepository
 import com.dariusepure.caractivitylog.data.cars.CarRepository
+import com.dariusepure.caractivitylog.domain.displayName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -31,17 +32,32 @@ class CarListViewModel @Inject constructor(
     private val _sortOrder = MutableStateFlow(CarSortOrder.DATE_ADDED)
     val sortOrder = _sortOrder.asStateFlow()
 
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery = _searchQuery.asStateFlow()
+
     val state: StateFlow<CarListUiState> = combine(
         carRepository.cars,
-        _sortOrder
-    ) { cars, order ->
+        _sortOrder,
+        _searchQuery
+    ) { cars, order, query ->
         if (cars.isEmpty()) {
             CarListUiState.Empty
         } else {
+            val filteredCars = if (query.isBlank()) {
+                cars
+            } else {
+                cars.filter { car ->
+                    car.make.contains(query, ignoreCase = true) ||
+                            car.model.contains(query, ignoreCase = true) ||
+                            car.displayName.contains(query, ignoreCase = true) ||
+                            car.licensePlate.contains(query, ignoreCase = true)
+                }
+            }
+
             val sortedCars = when (order) {
-                CarSortOrder.DATE_ADDED -> cars // Default repo order (desc by update)
-                CarSortOrder.BRAND -> cars.sortedBy { it.make }
-                CarSortOrder.YEAR -> cars.sortedByDescending { it.year }
+                CarSortOrder.DATE_ADDED -> filteredCars
+                CarSortOrder.BRAND -> filteredCars.sortedBy { it.make }
+                CarSortOrder.YEAR -> filteredCars.sortedByDescending { it.year }
             }
             CarListUiState.Success(sortedCars)
         }
@@ -57,6 +73,10 @@ class CarListViewModel @Inject constructor(
 
     fun onSortOrderChanged(order: CarSortOrder) {
         _sortOrder.value = order
+    }
+
+    fun onSearchQueryChanged(query: String) {
+        _searchQuery.value = query
     }
 
     fun onDeleteCar(carId: String) {

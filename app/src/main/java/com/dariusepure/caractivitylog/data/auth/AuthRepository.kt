@@ -11,6 +11,7 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -25,6 +26,7 @@ import javax.inject.Singleton
 @Singleton
 class AuthRepository @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
+    private val firestore: FirebaseFirestore,
     @ApplicationContext private val context: Context
 ) {
     private val sharedPrefs = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
@@ -52,18 +54,44 @@ class AuthRepository @Inject constructor(
     val isGuestMode: Boolean
         get() = _isGuestMode.value
 
+    fun getUserId(): String? {
+        return if (_isGuestMode.value) "guest_user" else firebaseAuth.currentUser?.uid
+    }
+
     fun setGuestMode(enabled: Boolean) {
         sharedPrefs.edit().putBoolean("is_guest_mode", enabled).apply()
         _isGuestMode.value = enabled
     }
 
-    fun getUserId(): String? {
-        return firebaseAuth.currentUser?.uid ?: if (_isGuestMode.value) "guest_user" else null
+    suspend fun isUsernameAvailable(username: String): Boolean {
+        if (username.isBlank()) return false
+        val doc = firestore.collection("usernames").document(username.lowercase()).get().await()
+        return !doc.exists()
     }
 
-    suspend fun signUp(email: String, password: String) {
-        firebaseAuth.createUserWithEmailAndPassword(email, password)
-            .await()
+    suspend fun signUp(email: String, password: String, fullName: String, username: String) {
+        val usernameLower = username.lowercase()
+        
+        // Double check username availability
+        if (!isUsernameAvailable(usernameLower)) {
+            throw Exception("Username is already taken")
+        }
+
+        val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+        val uid = authResult.user?.uid ?: throw Exception("Failed to get user ID")
+
+        val user = FirestoreUser(
+            id = uid,
+            fullName = fullName,
+            username = username,
+            email = email
+        )
+
+        // Use a batch to ensure both documents are created
+        firestore.runBatch { batch ->
+            batch.set(firestore.collection("users").document(uid), user)
+            batch.set(firestore.collection("usernames").document(usernameLower), mapOf("uid" to uid))
+        }.await()
     }
 
     suspend fun signIn(email: String, password: String) {

@@ -18,6 +18,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.DarkMode
@@ -45,6 +47,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -194,6 +199,7 @@ fun CarListScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val sortOrder by viewModel.sortOrder.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val isDarkMode by themeViewModel.isDarkMode.collectAsStateWithLifecycle()
     val systemDark = androidx.compose.foundation.isSystemInDarkTheme()
     val currentDark = isDarkMode ?: systemDark
@@ -210,6 +216,8 @@ fun CarListScreen(
         },
         onThemeToggle = { themeViewModel.toggleTheme(currentDark) },
         onSortOrderChange = { viewModel.onSortOrderChanged(it) },
+        onSearchQueryChange = { viewModel.onSearchQueryChanged(it) },
+        searchQuery = searchQuery,
         currentSortOrder = sortOrder,
         isDark = currentDark,
         state = state
@@ -227,6 +235,8 @@ private fun InnerCarListScreen(
     onLogoutClick: () -> Unit,
     onThemeToggle: () -> Unit,
     onSortOrderChange: (CarSortOrder) -> Unit,
+    onSearchQueryChange: (String) -> Unit,
+    searchQuery: String,
     currentSortOrder: CarSortOrder,
     isDark: Boolean,
     state: CarListUiState,
@@ -301,32 +311,59 @@ private fun InnerCarListScreen(
             )
         },
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
-            when (state) {
-                CarListUiState.Loading -> LoadingState(label = "Loading your cars")
-                CarListUiState.Empty -> EmptyState(
-                    title = "No cars yet",
-                    subtitle = "Tap Add car to get started.",
-                    icon = Icons.Outlined.DirectionsCar,
+        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            // Search Bar
+            Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                TextField(
+                    value = searchQuery,
+                    onValueChange = onSearchQueryChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("Search cars...") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { onSearchQueryChange("") }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Clear search")
+                            }
+                        }
+                    },
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.medium,
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent
+                    )
                 )
-                is CarListUiState.Success -> LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    items(state.cars, key = { it.id }) { car ->
-                        CarCard(
-                            car = car,
-                            onClick = { onCarClick(car.id) },
-                            onEditClick = { onEditCarClick(car.id) },
-                            onDeleteClick = { onDeleteCar(car.id) }
-                        )
+            }
+
+            Box(modifier = Modifier.weight(1f)) {
+                when (state) {
+                    CarListUiState.Loading -> LoadingState(label = "Loading your cars")
+                    CarListUiState.Empty -> EmptyState(
+                        title = if (searchQuery.isEmpty()) "No cars yet" else "No cars found",
+                        subtitle = if (searchQuery.isEmpty()) "Tap Add car to get started." else "Try a different search term.",
+                        icon = Icons.Outlined.DirectionsCar,
+                    )
+                    is CarListUiState.Success -> LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        items(state.cars, key = { it.id }) { car ->
+                            CarCard(
+                                car = car,
+                                onClick = { onCarClick(car.id) },
+                                onEditClick = { onEditCarClick(car.id) },
+                                onDeleteClick = { onDeleteCar(car.id) }
+                            )
+                        }
                     }
+                    is CarListUiState.Error -> ErrorState(
+                        message = state.message,
+                        onRetry = { },
+                    )
                 }
-                is CarListUiState.Error -> ErrorState(
-                    message = state.message,
-                    onRetry = { },
-                )
             }
         }
     }
