@@ -9,6 +9,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.dariusepure.caractivitylog.ui.auth.SignInScreen
 import com.dariusepure.caractivitylog.ui.auth.SignUpScreen
+import com.dariusepure.caractivitylog.ui.auth.ForgotPasswordScreen
+import com.dariusepure.caractivitylog.ui.auth.ResetPasswordScreen
 import com.dariusepure.caractivitylog.ui.cars.AddCarScreen
 import com.dariusepure.caractivitylog.ui.cars.CarDetailsScreen
 import com.dariusepure.caractivitylog.ui.cars.CarListScreen
@@ -25,6 +27,10 @@ import com.dariusepure.caractivitylog.ui.theme.ThemeViewModel
 sealed class Screen(val route: String) {
     data object SignIn : Screen("signin")
     data object SignUp : Screen("signup")
+    data object ForgotPassword : Screen("forgotpassword")
+    data object ResetPassword : Screen("resetpassword?oobCode={oobCode}") {
+        fun createRoute(oobCode: String) = "resetpassword?oobCode=$oobCode"
+    }
     data object CarList : Screen("carlist")
     data object CarDetails : Screen("cardetails/{carId}") {
         fun createRoute(carId: String) = "cardetails/$carId"
@@ -72,6 +78,9 @@ fun AppNavigation(
                 },
                 onSignUpClick = {
                     navController.navigate(Screen.SignUp.route)
+                },
+                onForgotPasswordClick = {
+                    navController.navigate(Screen.ForgotPassword.route)
                 }
             )
         }
@@ -83,6 +92,27 @@ fun AppNavigation(
                     }
                 },
                 onBackToSignIn = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(Screen.ForgotPassword.route) {
+            ForgotPasswordScreen(
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(Screen.ResetPassword.route) { backStackEntry ->
+            val oobCode = backStackEntry.arguments?.getString("oobCode") ?: ""
+            ResetPasswordScreen(
+                oobCode = oobCode,
+                onSuccess = {
+                    navController.navigate(Screen.SignIn.route) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                    }
+                },
+                onBack = {
                     navController.popBackStack()
                 }
             )

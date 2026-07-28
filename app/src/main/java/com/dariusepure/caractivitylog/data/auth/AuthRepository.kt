@@ -12,6 +12,7 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.ActionCodeSettings
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -154,5 +155,23 @@ class AuthRepository @Inject constructor(
 
     fun signOut() {
         firebaseAuth.signOut()
+    }
+
+    suspend fun sendPasswordResetEmail(email: String) {
+        val actionCodeSettings = ActionCodeSettings.newBuilder()
+            .setUrl("https://caractivitylog.page.link/reset")
+            .setHandleCodeInApp(true)
+            .setAndroidPackageName(
+                "com.dariusepure.caractivitylog",
+                true,
+                "1"
+            )
+            .build()
+        
+        firebaseAuth.sendPasswordResetEmail(email, actionCodeSettings).await()
+    }
+
+    suspend fun confirmPasswordReset(oobCode: String, newPassword: String) {
+        firebaseAuth.confirmPasswordReset(oobCode, newPassword).await()
     }
 }
