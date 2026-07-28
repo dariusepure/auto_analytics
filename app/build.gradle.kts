@@ -174,6 +174,11 @@ dependencies {
     // Image loading
     implementation(libs.coil.compose)
 
+    // Charts
+    implementation(libs.vico.compose)
+    implementation(libs.vico.compose.m3)
+    implementation(libs.vico.core)
+
     // Testing (minimal for the starter, expanded later if needed)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

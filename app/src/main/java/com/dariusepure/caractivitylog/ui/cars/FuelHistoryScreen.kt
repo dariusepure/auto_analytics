@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.domain.MileageLog
+import com.dariusepure.caractivitylog.ui.common.ConsumptionLineChart
 import com.dariusepure.caractivitylog.ui.common.CarFormatters
 import com.dariusepure.caractivitylog.ui.common.ErrorState
 import com.dariusepure.caractivitylog.ui.common.LoadingState
@@ -81,6 +82,17 @@ fun FuelHistoryScreen(
                     item {
                         FuelStatsCard(s.stats, distUnit, consUnit)
                         
+                        if (s.logs.any { it.consumption != null }) {
+                            val chartData = s.logs.mapNotNull { 
+                                if (it.consumption != null) it.log.date to it.consumption else null 
+                            }
+                            ConsumptionLineChart(
+                                data = chartData,
+                                unit = consUnit,
+                                modifier = Modifier.padding(vertical = 16.dp)
+                            )
+                        }
+
                         if (s.stats.avgConsumption == null && s.logs.isNotEmpty()) {
                             Surface(
                                 color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f),

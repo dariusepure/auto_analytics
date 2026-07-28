@@ -25,6 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.domain.ScannedMileageEntry
+import com.dariusepure.caractivitylog.ui.common.MileageLineChart
 import com.dariusepure.caractivitylog.ui.common.CarFormatters
 import com.dariusepure.caractivitylog.ui.common.ErrorState
 import com.dariusepure.caractivitylog.ui.common.LoadingState
@@ -164,6 +165,20 @@ fun MileageHistoryScreen(
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.secondary
                         )
+                        Spacer(Modifier.height(8.dp))
+
+                        if (s.mileageLogs.size >= 2) {
+                            val chartData = s.mileageLogs.map { 
+                                val displayKm = CarFormatters.fromCanonicalDistance(it.km, country?.usesMiles == true)
+                                it.date to displayKm 
+                            }
+                            MileageLineChart(
+                                data = chartData,
+                                unit = unitLabel,
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
+                        }
+
                         Spacer(Modifier.height(16.dp))
                         
                         Row(
