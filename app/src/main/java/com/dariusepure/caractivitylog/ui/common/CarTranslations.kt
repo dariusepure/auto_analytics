@@ -1,0 +1,107 @@
+package com.dariusepure.caractivitylog.ui.common
+
+import android.content.Context
+import com.dariusepure.caractivitylog.R
+
+object CarTranslations {
+    fun getFuelTypeLabel(context: Context, type: String): String = when (type) {
+        "Petrol" -> context.getString(R.string.fuel_petrol)
+        "Diesel" -> context.getString(R.string.fuel_diesel)
+        "Electric" -> context.getString(R.string.fuel_electric)
+        "Hybrid" -> context.getString(R.string.fuel_hybrid)
+        "LPG" -> context.getString(R.string.fuel_lpg)
+        else -> type
+    }
+
+    fun getGearboxTypeLabel(context: Context, type: String): String = when (type) {
+        "Manual" -> context.getString(R.string.gearbox_manual)
+        "Automatic" -> context.getString(R.string.gearbox_automatic)
+        "CVT" -> context.getString(R.string.gearbox_cvt)
+        "DCT" -> context.getString(R.string.gearbox_dct)
+        "AMT" -> context.getString(R.string.gearbox_amt)
+        else -> type
+    }
+
+    fun getEngineLayoutLabel(context: Context, layout: String): String = when (layout) {
+        "Transverse" -> context.getString(R.string.engine_layout_transverse)
+        "Longitudinal" -> context.getString(R.string.engine_layout_longitudinal)
+        else -> layout
+    }
+
+    fun getCylinderLayoutLabel(context: Context, layout: String): String = when (layout) {
+        "Inline" -> context.getString(R.string.cylinder_layout_inline)
+        "V" -> context.getString(R.string.cylinder_layout_v)
+        "W" -> context.getString(R.string.cylinder_layout_w)
+        "Boxer" -> context.getString(R.string.cylinder_layout_boxer)
+        else -> layout
+    }
+
+    fun getAspirationLabel(context: Context, option: String): String = when (option) {
+        "Naturally Aspirated" -> context.getString(R.string.aspiration_naturally_aspirated)
+        "Turbocharged" -> context.getString(R.string.aspiration_turbocharged)
+        "Supercharged" -> context.getString(R.string.aspiration_supercharged)
+        "Twin-Turbo" -> context.getString(R.string.aspiration_twin_turbo)
+        "Quad-Turbo" -> context.getString(R.string.aspiration_quad_turbo)
+        "Electric" -> context.getString(R.string.aspiration_electric)
+        else -> option
+    }
+
+    fun getFuelSystemLabel(context: Context, option: String): String = when (option) {
+        "Carburetor" -> context.getString(R.string.fuel_system_carburetor)
+        "Multi Point Injection" -> context.getString(R.string.fuel_system_multi_point_injection)
+        "Direct Injection" -> context.getString(R.string.fuel_system_direct_injection)
+        "Injection Pump" -> context.getString(R.string.fuel_system_injection_pump)
+        "Pumpe Duse" -> context.getString(R.string.fuel_system_pumpe_duse)
+        "Common Rail" -> context.getString(R.string.fuel_system_common_rail)
+        else -> option
+    }
+
+    fun getSuspensionLabel(context: Context, option: String): String = when (option) {
+        "MacPherson" -> context.getString(R.string.suspension_macpherson)
+        "Double Wishbone" -> context.getString(R.string.suspension_double_wishbone)
+        "Multi-link" -> context.getString(R.string.suspension_multi_link)
+        "Torsion Beam" -> context.getString(R.string.suspension_torsion_beam)
+        "Solid Axle" -> context.getString(R.string.suspension_solid_axle)
+        else -> option
+    }
+
+    fun getBrakesLabel(context: Context, option: String): String = when (option) {
+        "Ventilated Discs" -> context.getString(R.string.brakes_ventilated_discs)
+        "Solid Discs" -> context.getString(R.string.brakes_solid_discs)
+        "Drums" -> context.getString(R.string.brakes_drums)
+        "Ceramic Discs" -> context.getString(R.string.brakes_ceramic_discs)
+        else -> option
+    }
+
+    fun getDrivetrainLabel(context: Context, option: String): String = when (option) {
+        "FWD" -> context.getString(R.string.drivetrain_fwd)
+        "RWD" -> context.getString(R.string.drivetrain_rwd)
+        "AWD" -> context.getString(R.string.drivetrain_awd)
+        "4WD" -> context.getString(R.string.drivetrain_4wd)
+        else -> option
+    }
+
+    fun getEmissionStandardLabel(context: Context, standard: String): String = when (standard) {
+        "Non-Euro" -> context.getString(R.string.emission_none)
+        "Euro 1" -> context.getString(R.string.emission_euro1)
+        "Euro 2" -> context.getString(R.string.emission_euro2)
+        "Euro 3" -> context.getString(R.string.emission_euro3)
+        "Euro 4" -> context.getString(R.string.emission_euro4)
+        "Euro 5" -> context.getString(R.string.emission_euro5)
+        "Euro 6" -> context.getString(R.string.emission_euro6)
+        else -> standard
+    }
+
+    fun getVehicleTypeLabel(context: Context, type: String): String = when (type) {
+        "Saloon" -> context.getString(R.string.vehicle_type_saloon)
+        "Estate" -> context.getString(R.string.vehicle_type_estate)
+        "Hatchback" -> context.getString(R.string.vehicle_type_hatchback)
+        "MPV" -> context.getString(R.string.vehicle_type_mpv)
+        "SUV" -> context.getString(R.string.vehicle_type_suv)
+        "Coupe" -> context.getString(R.string.vehicle_type_coupe)
+        "Convertible" -> context.getString(R.string.vehicle_type_convertible)
+        "Van" -> context.getString(R.string.vehicle_type_van)
+        "Pickup" -> context.getString(R.string.vehicle_type_pickup)
+        else -> type
+    }
+}

@@ -38,6 +38,71 @@
     <string name="gearbox_dct">DCT</string>
     <string name="gearbox_amt">AMT</string>
 
+    <!-- Engine Layouts -->
+    <string name="engine_layout_transverse">Transversal</string>
+    <string name="engine_layout_longitudinal">Longitudinal</string>
+
+    <!-- Cylinder Layouts -->
+    <string name="cylinder_layout_inline">În linie</string>
+    <string name="cylinder_layout_v">V</string>
+    <string name="cylinder_layout_w">W</string>
+    <string name="cylinder_layout_boxer">Boxer</string>
+
+    <!-- Aspiration -->
+    <string name="aspiration_naturally_aspirated">Aspirat Natural</string>
+    <string name="aspiration_turbocharged">Turbo</string>
+    <string name="aspiration_supercharged">Supercharged</string>
+    <string name="aspiration_twin_turbo">Twin-Turbo</string>
+    <string name="aspiration_quad_turbo">Quad-Turbo</string>
+    <string name="aspiration_electric">Electric</string>
+
+    <!-- Brake Options -->
+    <string name="brakes_ventilated_discs">Discuri ventilate</string>
+    <string name="brakes_solid_discs">Discuri pline</string>
+    <string name="brakes_drums">Tamburi</string>
+    <string name="brakes_ceramic_discs">Discuri ceramice</string>
+
+    <!-- Suspension Options -->
+    <string name="suspension_macpherson">MacPherson</string>
+    <string name="suspension_double_wishbone">Brațe duble (Double Wishbone)</string>
+    <string name="suspension_multi_link">Multi-link</string>
+    <string name="suspension_torsion_beam">Punte torsionată</string>
+    <string name="suspension_solid_axle">Punte rigidă</string>
+
+    <!-- Vehicle Types -->
+    <string name="vehicle_type_saloon">Sedan</string>
+    <string name="vehicle_type_estate">Break</string>
+    <string name="vehicle_type_hatchback">Hatchback</string>
+    <string name="vehicle_type_mpv">Monovolum (MPV)</string>
+    <string name="vehicle_type_suv">SUV</string>
+    <string name="vehicle_type_coupe">Coupe</string>
+    <string name="vehicle_type_convertible">Decapotabilă</string>
+    <string name="vehicle_type_van">Dubă (Van)</string>
+    <string name="vehicle_type_pickup">Pickup</string>
+
+    <!-- Emission Standards -->
+    <string name="emission_none">Non-Euro</string>
+    <string name="emission_euro1">Euro 1</string>
+    <string name="emission_euro2">Euro 2</string>
+    <string name="emission_euro3">Euro 3</string>
+    <string name="emission_euro4">Euro 4</string>
+    <string name="emission_euro5">Euro 5</string>
+    <string name="emission_euro6">Euro 6</string>
+
+    <!-- Fuel Systems -->
+    <string name="fuel_system_carburetor">Carburator</string>
+    <string name="fuel_system_multi_point_injection">Injecție Multi-punct (MPI)</string>
+    <string name="fuel_system_direct_injection">Injecție Directă</string>
+    <string name="fuel_system_injection_pump">Pompă de injecție</string>
+    <string name="fuel_system_pumpe_duse">Pumpe Duse (PD)</string>
+    <string name="fuel_system_common_rail">Common Rail</string>
+
+    <!-- Drivetrain -->
+    <string name="drivetrain_fwd">Tracțiune față (FWD)</string>
+    <string name="drivetrain_rwd">Tracțiune spate (RWD)</string>
+    <string name="drivetrain_awd">Tracțiune integrală (AWD)</string>
+    <string name="drivetrain_4wd">Tracțiune 4x4 (4WD)</string>
+
     <!-- Relative Time -->
     <string name="relative_just_now">acum</string>
     <string name="relative_minutes_ago">acum %dm</string>

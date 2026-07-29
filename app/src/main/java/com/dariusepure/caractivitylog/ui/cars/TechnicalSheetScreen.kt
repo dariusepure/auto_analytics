@@ -29,6 +29,7 @@ import kotlin.math.roundToInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.ui.common.CarFormatters
+import com.dariusepure.caractivitylog.ui.common.CarTranslations
 import com.dariusepure.caractivitylog.ui.common.ErrorState
 import com.dariusepure.caractivitylog.ui.common.LoadingState
 import com.dariusepure.caractivitylog.ui.common.SpecificationCard
@@ -103,7 +104,7 @@ fun TechnicalSheetScreen(
                             specifications = listOf(
                                 stringResource(R.string.car_make_label) to car.make,
                                 stringResource(R.string.car_model_label) to car.model,
-                                stringResource(R.string.car_vehicle_type_label) to car.vehicleType,
+                                stringResource(R.string.car_vehicle_type_label) to CarTranslations.getVehicleTypeLabel(context, car.vehicleType),
                                 stringResource(R.string.car_year_label) to car.year.takeIf { it != 0 }?.toString().orEmpty(),
                                 stringResource(R.string.car_color_label) to car.color,
                                 stringResource(R.string.car_license_plate_label) to car.licensePlate,
@@ -120,16 +121,16 @@ fun TechnicalSheetScreen(
                                 stringResource(R.string.car_power_label) to powerText,
                                 stringResource(R.string.car_torque_label) to if (car.torque > 0) "${car.torque} Nm" else "",
                                 stringResource(R.string.car_top_speed_label) to topSpeedText,
-                                stringResource(R.string.car_aspiration_label) to car.aspiration,
+                                stringResource(R.string.car_aspiration_label) to CarTranslations.getAspirationLabel(context, car.aspiration),
                                 stringResource(R.string.car_cylinders_label) to car.numberOfCylinders.takeIf { it != 0 }?.toString().orEmpty(),
                                 stringResource(R.string.car_valves_label) to valvesText,
                                 stringResource(R.string.car_engine_size_label) to if (car.engineSize.isNotBlank()) "${car.engineSize} cc" else "",
-                                stringResource(R.string.car_fuel_type_label) to car.fuelType,
-                                stringResource(R.string.car_injection_system_label) to car.fuelSystem,
+                                stringResource(R.string.car_fuel_type_label) to CarTranslations.getFuelTypeLabel(context, car.fuelType),
+                                stringResource(R.string.car_injection_system_label) to CarTranslations.getFuelSystemLabel(context, car.fuelSystem),
                                 stringResource(R.string.car_engine_code_label) to car.engineCode,
-                                stringResource(R.string.car_engine_layout_label) to car.engineLayout,
-                                stringResource(R.string.car_cylinder_layout_label) to car.cylinderLayout,
-                                stringResource(R.string.car_emission_standard_label) to car.emissionStandard
+                                stringResource(R.string.car_engine_layout_label) to CarTranslations.getEngineLayoutLabel(context, car.engineLayout),
+                                stringResource(R.string.car_cylinder_layout_label) to CarTranslations.getCylinderLayoutLabel(context, car.cylinderLayout),
+                                stringResource(R.string.car_emission_standard_label) to CarTranslations.getEmissionStandardLabel(context, car.emissionStandard)
                             )
                         )
                     }
@@ -137,13 +138,13 @@ fun TechnicalSheetScreen(
                     TechnicalCategory(title = stringResource(R.string.car_transmission_section)) {
                         SpecificationCard(
                             specifications = listOf(
-                                stringResource(R.string.car_gearbox_type_label) to car.gearboxType,
+                                stringResource(R.string.car_gearbox_type_label) to CarTranslations.getGearboxTypeLabel(context, car.gearboxType),
                                 stringResource(R.string.car_gears_count_label) to car.gears,
-                                stringResource(R.string.car_drivetrain_label) to car.drivetrain,
-                                stringResource(R.string.car_front_suspension_label) to car.frontSuspension,
-                                stringResource(R.string.car_rear_suspension_label) to car.rearSuspension,
-                                stringResource(R.string.car_front_brakes_label) to car.frontBrakes,
-                                stringResource(R.string.car_rear_brakes_label) to car.rearBrakes
+                                stringResource(R.string.car_drivetrain_label) to CarTranslations.getDrivetrainLabel(context, car.drivetrain),
+                                stringResource(R.string.car_front_suspension_label) to CarTranslations.getSuspensionLabel(context, car.frontSuspension),
+                                stringResource(R.string.car_rear_suspension_label) to CarTranslations.getSuspensionLabel(context, car.rearSuspension),
+                                stringResource(R.string.car_front_brakes_label) to CarTranslations.getBrakesLabel(context, car.frontBrakes),
+                                stringResource(R.string.car_rear_brakes_label) to CarTranslations.getBrakesLabel(context, car.rearBrakes)
                             )
                         )
                     }

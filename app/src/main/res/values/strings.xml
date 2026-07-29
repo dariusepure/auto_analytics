@@ -38,6 +38,71 @@
     <string name="gearbox_dct">DCT</string>
     <string name="gearbox_amt">AMT</string>
 
+    <!-- Engine Layouts -->
+    <string name="engine_layout_transverse">Transverse</string>
+    <string name="engine_layout_longitudinal">Longitudinal</string>
+
+    <!-- Cylinder Layouts -->
+    <string name="cylinder_layout_inline">Inline</string>
+    <string name="cylinder_layout_v">V</string>
+    <string name="cylinder_layout_w">W</string>
+    <string name="cylinder_layout_boxer">Boxer</string>
+
+    <!-- Aspiration -->
+    <string name="aspiration_naturally_aspirated">Naturally Aspirated</string>
+    <string name="aspiration_turbocharged">Turbocharged</string>
+    <string name="aspiration_supercharged">Supercharged</string>
+    <string name="aspiration_twin_turbo">Twin-Turbo</string>
+    <string name="aspiration_quad_turbo">Quad-Turbo</string>
+    <string name="aspiration_electric">Electric</string>
+
+    <!-- Brake Options -->
+    <string name="brakes_ventilated_discs">Ventilated Discs</string>
+    <string name="brakes_solid_discs">Solid Discs</string>
+    <string name="brakes_drums">Drums</string>
+    <string name="brakes_ceramic_discs">Ceramic Discs</string>
+
+    <!-- Suspension Options -->
+    <string name="suspension_macpherson">MacPherson</string>
+    <string name="suspension_double_wishbone">Double Wishbone</string>
+    <string name="suspension_multi_link">Multi-link</string>
+    <string name="suspension_torsion_beam">Torsion Beam</string>
+    <string name="suspension_solid_axle">Solid Axle</string>
+
+    <!-- Vehicle Types -->
+    <string name="vehicle_type_saloon">Saloon</string>
+    <string name="vehicle_type_estate">Estate</string>
+    <string name="vehicle_type_hatchback">Hatchback</string>
+    <string name="vehicle_type_mpv">MPV</string>
+    <string name="vehicle_type_suv">SUV</string>
+    <string name="vehicle_type_coupe">Coupe</string>
+    <string name="vehicle_type_convertible">Convertible</string>
+    <string name="vehicle_type_van">Van</string>
+    <string name="vehicle_type_pickup">Pickup</string>
+
+    <!-- Emission Standards -->
+    <string name="emission_none">Non-Euro</string>
+    <string name="emission_euro1">Euro 1</string>
+    <string name="emission_euro2">Euro 2</string>
+    <string name="emission_euro3">Euro 3</string>
+    <string name="emission_euro4">Euro 4</string>
+    <string name="emission_euro5">Euro 5</string>
+    <string name="emission_euro6">Euro 6</string>
+
+    <!-- Fuel Systems -->
+    <string name="fuel_system_carburetor">Carburetor</string>
+    <string name="fuel_system_multi_point_injection">Multi Point Injection</string>
+    <string name="fuel_system_direct_injection">Direct Injection</string>
+    <string name="fuel_system_injection_pump">Injection Pump</string>
+    <string name="fuel_system_pumpe_duse">Pumpe Duse</string>
+    <string name="fuel_system_common_rail">Common Rail</string>
+
+    <!-- Drivetrain -->
+    <string name="drivetrain_fwd">FWD</string>
+    <string name="drivetrain_rwd">RWD</string>
+    <string name="drivetrain_awd">AWD</string>
+    <string name="drivetrain_4wd">4WD</string>
+
     <!-- Relative Time -->
     <string name="relative_just_now">just now</string>
     <string name="relative_minutes_ago">%dm ago</string>

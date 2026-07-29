@@ -83,6 +83,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.ui.text.font.FontWeight
 import com.dariusepure.caractivitylog.domain.ScannedCarData
 import com.dariusepure.caractivitylog.ui.common.CarFormatters
+import com.dariusepure.caractivitylog.ui.common.CarTranslations
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -543,7 +544,7 @@ fun AddCarScreen(
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = vehicleType,
+                        value = getVehicleTypeLabel(context, vehicleType),
                         onValueChange = { },
                         readOnly = true,
                         label = { Text(stringResource(R.string.car_vehicle_type_label)) },
@@ -567,7 +568,7 @@ fun AddCarScreen(
                     ) {
                         vehicleTypes.forEach { type ->
                             DropdownMenuItem(
-                                text = { Text(type) },
+                                text = { Text(getVehicleTypeLabel(context, type)) },
                                 onClick = {
                                     vehicleType = type
                                     vehicleTypeExpanded = false
@@ -821,7 +822,7 @@ fun AddCarScreen(
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = engineLayout,
+                        value = getEngineLayoutLabel(context, engineLayout),
                         onValueChange = { },
                         readOnly = true,
                         label = { Text(stringResource(R.string.car_engine_layout_label)) },
@@ -845,7 +846,7 @@ fun AddCarScreen(
                     ) {
                         engineLayouts.forEach { layout ->
                             DropdownMenuItem(
-                                text = { Text(layout) },
+                                text = { Text(getEngineLayoutLabel(context, layout)) },
                                 onClick = {
                                     engineLayout = layout
                                     engineLayoutExpanded = false
@@ -859,7 +860,7 @@ fun AddCarScreen(
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = cylinderLayout,
+                        value = getCylinderLayoutLabel(context, cylinderLayout),
                         onValueChange = { },
                         readOnly = true,
                         label = { Text(stringResource(R.string.car_cylinder_layout_label)) },
@@ -883,7 +884,7 @@ fun AddCarScreen(
                     ) {
                         cylinderLayouts.forEach { layout ->
                             DropdownMenuItem(
-                                text = { Text(layout) },
+                                text = { Text(getCylinderLayoutLabel(context, layout)) },
                                 onClick = {
                                     cylinderLayout = layout
                                     cylinderLayoutExpanded = false
@@ -897,7 +898,7 @@ fun AddCarScreen(
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = emissionStandard,
+                        value = getEmissionStandardLabel(context, emissionStandard),
                         onValueChange = { },
                         readOnly = true,
                         label = { Text(stringResource(R.string.car_emission_standard_label)) },
@@ -921,7 +922,7 @@ fun AddCarScreen(
                     ) {
                         emissionStandards.forEach { standard ->
                             DropdownMenuItem(
-                                text = { Text(standard) },
+                                text = { Text(getEmissionStandardLabel(context, standard)) },
                                 onClick = {
                                     emissionStandard = standard
                                     emissionStandardExpanded = false
@@ -935,7 +936,7 @@ fun AddCarScreen(
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = aspiration,
+                        value = getAspirationLabel(context, aspiration),
                         onValueChange = { },
                         readOnly = true,
                         label = { Text(stringResource(R.string.car_aspiration_label)) },
@@ -959,7 +960,7 @@ fun AddCarScreen(
                     ) {
                         aspirationOptions.forEach { option ->
                             DropdownMenuItem(
-                                text = { Text(option) },
+                                text = { Text(getAspirationLabel(context, option)) },
                                 onClick = {
                                     aspiration = option
                                     aspirationExpanded = false
@@ -1018,7 +1019,7 @@ fun AddCarScreen(
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = getFuelTypeLabel(fuelType),
+                        value = getFuelTypeLabel(context, fuelType),
                         onValueChange = { 
                             fuelType = it 
                             fuelSystem = "" // Reset subtype when main type changes
@@ -1039,7 +1040,7 @@ fun AddCarScreen(
                     ) {
                         fuelTypes.forEach { type ->
                             DropdownMenuItem(
-                                text = { Text(getFuelTypeLabel(type)) },
+                                text = { Text(getFuelTypeLabel(context, type)) },
                                 onClick = {
                                     fuelType = type
                                     fuelSystem = ""
@@ -1061,7 +1062,7 @@ fun AddCarScreen(
 
                     Box(modifier = Modifier.fillMaxWidth()) {
                         OutlinedTextField(
-                            value = fuelSystem,
+                            value = getFuelSystemLabel(context, fuelSystem),
                             onValueChange = { fuelSystem = it },
                             label = { Text(if (fuelType == "Diesel") stringResource(R.string.car_fuel_system_label) else stringResource(R.string.car_injection_system_label)) },
                             modifier = Modifier.fillMaxWidth(),
@@ -1079,7 +1080,7 @@ fun AddCarScreen(
                         ) {
                             fuelSystemOptions.forEach { option ->
                                 DropdownMenuItem(
-                                    text = { Text(option) },
+                                    text = { Text(getFuelSystemLabel(context, option)) },
                                     onClick = {
                                         fuelSystem = option
                                         fuelSystemExpanded = false
@@ -1095,7 +1096,7 @@ fun AddCarScreen(
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Box(modifier = Modifier.weight(1.5f)) {
                         OutlinedTextField(
-                            value = getGearboxTypeLabel(gearboxType),
+                            value = getGearboxTypeLabel(context, gearboxType),
                             onValueChange = { gearboxType = it },
                             label = { Text(stringResource(R.string.car_gearbox_type_label)) },
                             modifier = Modifier.fillMaxWidth(),
@@ -1113,7 +1114,7 @@ fun AddCarScreen(
                         ) {
                             gearboxTypes.forEach { type ->
                                 DropdownMenuItem(
-                                    text = { Text(getGearboxTypeLabel(type)) },
+                                    text = { Text(getGearboxTypeLabel(context, type)) },
                                     onClick = {
                                         gearboxType = type
                                         gearboxTypeExpanded = false
@@ -1139,7 +1140,7 @@ fun AddCarScreen(
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Box(modifier = Modifier.weight(1f)) {
                         OutlinedTextField(
-                            value = frontSuspension,
+                            value = getSuspensionLabel(context, frontSuspension),
                             onValueChange = { },
                             readOnly = true,
                             label = { Text(stringResource(R.string.car_front_suspension_label)) },
@@ -1155,7 +1156,7 @@ fun AddCarScreen(
                         ) {
                             frontSuspensionOptions.forEach { option ->
                                 DropdownMenuItem(
-                                    text = { Text(option) },
+                                    text = { Text(getSuspensionLabel(context, option)) },
                                     onClick = {
                                         frontSuspension = option
                                         frontSuspensionExpanded = false
@@ -1167,7 +1168,7 @@ fun AddCarScreen(
                     Spacer(Modifier.width(8.dp))
                     Box(modifier = Modifier.weight(1f)) {
                         OutlinedTextField(
-                            value = rearSuspension,
+                            value = getSuspensionLabel(context, rearSuspension),
                             onValueChange = { },
                             readOnly = true,
                             label = { Text(stringResource(R.string.car_rear_suspension_label)) },
@@ -1183,7 +1184,7 @@ fun AddCarScreen(
                         ) {
                             rearSuspensionOptions.forEach { option ->
                                 DropdownMenuItem(
-                                    text = { Text(option) },
+                                    text = { Text(getSuspensionLabel(context, option)) },
                                     onClick = {
                                         rearSuspension = option
                                         rearSuspensionExpanded = false
@@ -1379,7 +1380,7 @@ fun AddCarScreen(
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Box(modifier = Modifier.weight(1f)) {
                         OutlinedTextField(
-                            value = frontBrakes,
+                            value = getBrakesLabel(context, frontBrakes),
                             onValueChange = { },
                             readOnly = true,
                             label = { Text(stringResource(R.string.car_front_brakes_label)) },
@@ -1395,7 +1396,7 @@ fun AddCarScreen(
                         ) {
                             brakeOptions.forEach { option ->
                                 DropdownMenuItem(
-                                    text = { Text(option) },
+                                    text = { Text(getBrakesLabel(context, option)) },
                                     onClick = {
                                         frontBrakes = option
                                         frontBrakesExpanded = false
@@ -1407,7 +1408,7 @@ fun AddCarScreen(
                     Spacer(Modifier.width(8.dp))
                     Box(modifier = Modifier.weight(1f)) {
                         OutlinedTextField(
-                            value = rearBrakes,
+                            value = getBrakesLabel(context, rearBrakes),
                             onValueChange = { },
                             readOnly = true,
                             label = { Text(stringResource(R.string.car_rear_brakes_label)) },
@@ -1423,7 +1424,7 @@ fun AddCarScreen(
                         ) {
                             brakeOptions.forEach { option ->
                                 DropdownMenuItem(
-                                    text = { Text(option) },
+                                    text = { Text(getBrakesLabel(context, option)) },
                                     onClick = {
                                         rearBrakes = option
                                         rearBrakesExpanded = false
@@ -1438,7 +1439,7 @@ fun AddCarScreen(
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = drivetrain,
+                        value = getDrivetrainLabel(context, drivetrain),
                         onValueChange = { },
                         readOnly = true,
                         label = { Text(stringResource(R.string.car_drivetrain_label)) },
@@ -1462,7 +1463,7 @@ fun AddCarScreen(
                     ) {
                         drivetrainOptions.forEach { option ->
                             DropdownMenuItem(
-                                text = { Text(option) },
+                                text = { Text(getDrivetrainLabel(context, option)) },
                                 onClick = {
                                     drivetrain = option
                                     drivetrainExpanded = false
@@ -1556,7 +1557,7 @@ fun ScannedCarDataConfirmationDialog(
         data.model?.let { list.add(Triple(context.getString(R.string.car_model_label), it, "model")) }
         data.vin?.let { list.add(Triple(context.getString(R.string.car_vin_label), it, "vin")) }
         data.year?.let { list.add(Triple(context.getString(R.string.car_year_label), it.roundToInt().toString(), "year")) }
-        data.fuelType?.let { list.add(Triple(context.getString(R.string.car_fuel_type_label), it, "fuelType")) }
+        data.fuelType?.let { list.add(Triple(context.getString(R.string.car_fuel_type_label), getFuelTypeLabel(context, it), "fuelType")) }
         data.engineSize?.let { list.add(Triple(context.getString(R.string.car_engine_size_label), "${it.roundToInt()} cc", "engineSize")) }
         data.power?.let { list.add(Triple(context.getString(R.string.car_power_label), "${it.roundToInt()} ${data.powerUnit ?: "hp"}", "power")) }
         data.torque?.let { list.add(Triple(context.getString(R.string.car_torque_label), "${it.roundToInt()} Nm", "torque")) }
@@ -1566,11 +1567,11 @@ fun ScannedCarDataConfirmationDialog(
         data.numberOfDoors?.let { list.add(Triple(context.getString(R.string.car_doors_label), it.roundToInt().toString(), "numberOfDoors")) }
         data.weight?.let { list.add(Triple(context.getString(R.string.car_weight_label), "${it.roundToInt()} kg", "weight")) }
         data.engineCode?.let { list.add(Triple(context.getString(R.string.car_engine_code_label), it, "engineCode")) }
-        data.emissionStandard?.let { list.add(Triple(context.getString(R.string.car_emission_standard_label), it, "emissionStandard")) }
-        data.gearboxType?.let { list.add(Triple(context.getString(R.string.car_gearbox_type_label), it, "gearboxType")) }
-        data.drivetrain?.let { list.add(Triple(context.getString(R.string.car_drivetrain_label), it, "drivetrain")) }
-        data.engineLayout?.let { list.add(Triple(context.getString(R.string.car_engine_layout_label), it, "engineLayout")) }
-        data.cylinderLayout?.let { list.add(Triple(context.getString(R.string.car_cylinder_layout_label), it, "cylinderLayout")) }
+        data.emissionStandard?.let { list.add(Triple(context.getString(R.string.car_emission_standard_label), getEmissionStandardLabel(context, it), "emissionStandard")) }
+        data.gearboxType?.let { list.add(Triple(context.getString(R.string.car_gearbox_type_label), getGearboxTypeLabel(context, it), "gearboxType")) }
+        data.drivetrain?.let { list.add(Triple(context.getString(R.string.car_drivetrain_label), getDrivetrainLabel(context, it), "drivetrain")) }
+        data.engineLayout?.let { list.add(Triple(context.getString(R.string.car_engine_layout_label), getEngineLayoutLabel(context, it), "engineLayout")) }
+        data.cylinderLayout?.let { list.add(Triple(context.getString(R.string.car_cylinder_layout_label), getCylinderLayoutLabel(context, it), "cylinderLayout")) }
         data.fuelTankCapacity?.let { list.add(Triple(context.getString(R.string.car_fuel_tank_capacity_label), "$it L", "fuelTankCapacity")) }
         data.topSpeed?.let { list.add(Triple(context.getString(R.string.car_top_speed_label), "${it.roundToInt()}", "topSpeed")) }
         list
@@ -1672,25 +1673,17 @@ fun ScannedCarDataConfirmationDialog(
     )
 }
 
-@Composable
-private fun getFuelTypeLabel(type: String): String = when (type) {
-    "Petrol" -> stringResource(R.string.fuel_petrol)
-    "Diesel" -> stringResource(R.string.fuel_diesel)
-    "Electric" -> stringResource(R.string.fuel_electric)
-    "Hybrid" -> stringResource(R.string.fuel_hybrid)
-    "LPG" -> stringResource(R.string.fuel_lpg)
-    else -> type
-}
-
-@Composable
-private fun getGearboxTypeLabel(type: String): String = when (type) {
-    "Manual" -> stringResource(R.string.gearbox_manual)
-    "Automatic" -> stringResource(R.string.gearbox_automatic)
-    "CVT" -> stringResource(R.string.gearbox_cvt)
-    "DCT" -> stringResource(R.string.gearbox_dct)
-    "AMT" -> stringResource(R.string.gearbox_amt)
-    else -> type
-}
+private fun getFuelTypeLabel(context: android.content.Context, type: String): String = CarTranslations.getFuelTypeLabel(context, type)
+private fun getGearboxTypeLabel(context: android.content.Context, type: String): String = CarTranslations.getGearboxTypeLabel(context, type)
+private fun getEngineLayoutLabel(context: android.content.Context, layout: String): String = CarTranslations.getEngineLayoutLabel(context, layout)
+private fun getCylinderLayoutLabel(context: android.content.Context, layout: String): String = CarTranslations.getCylinderLayoutLabel(context, layout)
+private fun getAspirationLabel(context: android.content.Context, option: String): String = CarTranslations.getAspirationLabel(context, option)
+private fun getFuelSystemLabel(context: android.content.Context, option: String): String = CarTranslations.getFuelSystemLabel(context, option)
+private fun getSuspensionLabel(context: android.content.Context, option: String): String = CarTranslations.getSuspensionLabel(context, option)
+private fun getBrakesLabel(context: android.content.Context, option: String): String = CarTranslations.getBrakesLabel(context, option)
+private fun getDrivetrainLabel(context: android.content.Context, option: String): String = CarTranslations.getDrivetrainLabel(context, option)
+private fun getEmissionStandardLabel(context: android.content.Context, standard: String): String = CarTranslations.getEmissionStandardLabel(context, standard)
+private fun getVehicleTypeLabel(context: android.content.Context, type: String): String = CarTranslations.getVehicleTypeLabel(context, type)
 
 @Composable
 private fun CollapsibleSection(

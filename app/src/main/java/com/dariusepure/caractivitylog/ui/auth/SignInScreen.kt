@@ -78,7 +78,19 @@ fun SignInScreen(
         if (signedIn) onSignedIn()
     }
 
-    Scaffold(modifier = modifier) { innerPadding ->
+    Scaffold(
+        modifier = modifier,
+        bottomBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                LanguageSelector()
+            }
+        }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -208,9 +220,6 @@ fun SignInScreen(
                     Text(stringResource(R.string.auth_signup_button))
                 }
             }
-
-            Spacer(Modifier.height(32.dp))
-            LanguageSelector()
         }
     }
 }
