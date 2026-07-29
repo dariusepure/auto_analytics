@@ -194,22 +194,12 @@ fun CarDetailsScreen(
                                         }
                                     }
                                 } else {
-                                    val logoRes = BrandHelper.getLogoResource(context, car.make)
-                                    if (logoRes != 0) {
-                                        Image(
-                                            painter = painterResource(id = logoRes),
-                                            contentDescription = car.make,
-                                            modifier = Modifier.size(44.dp),
-                                            contentScale = ContentScale.Fit
-                                        )
-                                    } else {
-                                        Icon(
-                                            imageVector = Icons.Outlined.DirectionsCar,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(32.dp),
-                                            tint = MaterialTheme.colorScheme.primary
-                                        )
-                                    }
+                                    Icon(
+                                        imageVector = Icons.Outlined.DirectionsCar,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(36.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
                                 }
                             }
                             

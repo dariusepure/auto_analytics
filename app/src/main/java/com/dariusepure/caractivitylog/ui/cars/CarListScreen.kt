@@ -129,21 +129,11 @@ fun CarCard(
                         contentScale = ContentScale.Crop
                     )
                 } else {
-                    val logoRes = BrandHelper.getLogoResource(context, car.make)
-                    if (logoRes != 0) {
-                        Image(
-                            painter = painterResource(id = logoRes),
-                            contentDescription = car.make,
-                            modifier = Modifier.size(44.dp),
-                            contentScale = ContentScale.Fit
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Outlined.DirectionsCar,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Outlined.DirectionsCar,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
             
@@ -251,22 +241,12 @@ fun CarGridCard(
                         contentScale = ContentScale.Crop
                     )
                 } else {
-                    val logoRes = BrandHelper.getLogoResource(context, car.make)
-                    if (logoRes != 0) {
-                        Image(
-                            painter = painterResource(id = logoRes),
-                            contentDescription = car.make,
-                            modifier = Modifier.size(56.dp),
-                            contentScale = ContentScale.Fit
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Outlined.DirectionsCar,
-                            contentDescription = null,
-                            modifier = Modifier.size(40.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Outlined.DirectionsCar,
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
             

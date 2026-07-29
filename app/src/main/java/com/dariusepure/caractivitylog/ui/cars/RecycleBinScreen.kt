@@ -91,7 +91,6 @@ fun DeletedCarCard(
     onRestore: () -> Unit,
     onDeletePermanently: () -> Unit
 ) {
-    val context = LocalContext.current
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     if (showDeleteDialog) {
@@ -121,21 +120,11 @@ fun DeletedCarCard(
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
-                val logoRes = BrandHelper.getLogoResource(context, car.make)
-                if (logoRes != 0) {
-                    Image(
-                        painter = painterResource(id = logoRes),
-                        contentDescription = car.make,
-                        modifier = Modifier.size(44.dp),
-                        contentScale = ContentScale.Fit
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Outlined.DirectionsCar,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Outlined.DirectionsCar,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
 
             Spacer(Modifier.width(16.dp))

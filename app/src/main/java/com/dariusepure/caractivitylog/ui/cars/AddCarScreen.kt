@@ -479,17 +479,7 @@ fun AddCarScreen(
                         label = { Text(stringResource(R.string.car_make_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         leadingIcon = {
-                            val logoRes = BrandHelper.getLogoResource(context, make)
-                            if (logoRes != 0) {
-                                Image(
-                                    painter = painterResource(id = logoRes),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(32.dp),
-                                    contentScale = ContentScale.Fit
-                                )
-                            } else {
-                                Icon(Icons.Outlined.DirectionsCar, null, modifier = Modifier.size(24.dp))
-                            }
+                            Icon(Icons.Outlined.DirectionsCar, null, modifier = Modifier.size(24.dp))
                         },
                         trailingIcon = {
                             Icon(
