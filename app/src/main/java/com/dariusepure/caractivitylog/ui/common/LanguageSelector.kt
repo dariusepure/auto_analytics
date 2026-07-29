@@ -20,12 +20,7 @@ data class Language(
 
 val supportedLanguages = listOf(
     Language("English", "en", "🇺🇸"),
-    Language("Română", "ro", "🇷🇴"),
-    Language("Deutsch", "de", "🇩🇪"),
-    Language("Français", "fr", "🇫🇷"),
-    Language("Español", "es", "🇪🇸"),
-    Language("Italiano", "it", "🇮🇹"),
-    Language("Português", "pt", "🇵🇹")
+    Language("Română", "ro", "🇷🇴")
 )
 
 @Composable
