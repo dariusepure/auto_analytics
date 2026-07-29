@@ -230,9 +230,9 @@
     <string name="car_technical_sheet_subtitle">Vezi specificațiile complete</string>
     <string name="car_mileage_history">Istoric kilometraj</string>
     <string name="car_mileage_history_subtitle">Vezi și gestionează înregistrările</string>
-    <string name="car_inspection_title">Inspecție Tehnică Periodică (ITP)</string>
-    <string name="car_insurance_title">Asigurare (RCA)</string>
-    <string name="car_vignette_title">Vinietă (Rovinietă)</string>
+    <string name="car_inspection_title">ITP</string>
+    <string name="car_insurance_title">RCA</string>
+    <string name="car_vignette_title">Rovinietă</string>
     <string name="car_diagnosis_title">Chat Diagnoză AI</string>
     <string name="car_diagnosis_subtitle">Obține sfaturi expert și rapoarte de stare</string>
     <string name="car_fuel_consumption">Consum combustibil</string>
@@ -274,13 +274,13 @@
     <string name="mileage_conflict_more">Nu poate fi mai mare decât %1$d %2$s (înregistrat la data de %3$s)</string>
 
     <!-- Inspection -->
-    <string name="inspection_history_title">Istoric inspecții</string>
-    <string name="inspection_add_title">Adaugă inspecție tehnică</string>
-    <string name="insurance_history_title">Istoric asigurări</string>
-    <string name="insurance_add_title">Adaugă poliță asigurare</string>
+    <string name="inspection_history_title">Istoric ITP</string>
+    <string name="inspection_add_title">Adaugă ITP</string>
+    <string name="insurance_history_title">Istoric RCA</string>
+    <string name="insurance_add_title">Adaugă poliță RCA</string>
     <string name="insurance_provider_label">Asigurător</string>
-    <string name="vignette_history_title">Istoric viniete</string>
-    <string name="vignette_add_title">Adaugă vinietă</string>
+    <string name="vignette_history_title">Istoric Rovinietă</string>
+    <string name="vignette_add_title">Adaugă Rovinietă</string>
     <string name="vignette_country_label">Țara</string>
     <string name="common_cost_label">Cost (Opțional)</string>
     <string name="inspection_mileage_label">Kilometraj (%s)</string>
@@ -344,7 +344,7 @@
     <string name="pdf_section_drivetrain">Transmisie și șasiu</string>
     <string name="pdf_section_wheels">Roți și interior</string>
     <string name="pdf_section_mileage">Istoric kilometraj</string>
-    <string name="pdf_section_inspections">Inspecții tehnice (ITP)</string>
+    <string name="pdf_section_inspections">ITP</string>
     <string name="pdf_section_fuel">Consum combustibil</string>
     <string name="pdf_valid_until">Valabil până la: %s</string>
     <string name="pdf_field_name">Nume</string>

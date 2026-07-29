@@ -230,8 +230,8 @@
     <string name="car_technical_sheet_subtitle">View full specifications</string>
     <string name="car_mileage_history">Mileage History</string>
     <string name="car_mileage_history_subtitle">View and manage records</string>
-    <string name="car_inspection_title">Vehicle Inspection (ITP)</string>
-    <string name="car_insurance_title">Insurance (RCA)</string>
+    <string name="car_inspection_title">Technical Inspection</string>
+    <string name="car_insurance_title">Insurance</string>
     <string name="car_vignette_title">Vignette</string>
     <string name="car_diagnosis_title">AI Diagnosis Chat</string>
     <string name="car_diagnosis_subtitle">Get expert advice and health reports</string>
@@ -274,8 +274,8 @@
     <string name="mileage_conflict_more">Cannot be more than %d %s (recorded on %s)</string>
 
     <!-- Inspection -->
-    <string name="inspection_history_title">Inspection History</string>
-    <string name="inspection_add_title">Add Vehicle Inspection</string>
+    <string name="inspection_history_title">Technical Inspection History</string>
+    <string name="inspection_add_title">Add Technical Inspection</string>
     <string name="insurance_history_title">Insurance History</string>
     <string name="insurance_add_title">Add Insurance Policy</string>
     <string name="insurance_provider_label">Insurance Provider</string>
@@ -344,7 +344,7 @@
     <string name="pdf_section_drivetrain">Drivetrain &amp; Chassis</string>
     <string name="pdf_section_wheels">Wheels &amp; Interior</string>
     <string name="pdf_section_mileage">Mileage History</string>
-    <string name="pdf_section_inspections">Vehicle Inspections (ITP)</string>
+    <string name="pdf_section_inspections">Technical Inspections</string>
     <string name="pdf_section_fuel">Fuel Consumption</string>
     <string name="pdf_valid_until">Valid until: %s</string>
     <string name="pdf_field_name">Name</string>

@@ -1,10 +1,13 @@
 package com.dariusepure.caractivitylog.ui.cars
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dariusepure.caractivitylog.data.cars.CarRepository
 import com.dariusepure.caractivitylog.domain.Car
+import com.dariusepure.caractivitylog.util.LocalImageHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -22,7 +25,8 @@ sealed interface RecycleBinUiState {
 
 @HiltViewModel
 class RecycleBinViewModel @Inject constructor(
-    private val carRepository: CarRepository
+    private val carRepository: CarRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     val state: StateFlow<RecycleBinUiState> = carRepository.deletedCars
@@ -53,6 +57,7 @@ class RecycleBinViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 carRepository.permanentlyDeleteCar(carId)
+                LocalImageHelper.deleteCarImage(context, carId)
             } catch (e: Exception) {
                 // Handle error
             }

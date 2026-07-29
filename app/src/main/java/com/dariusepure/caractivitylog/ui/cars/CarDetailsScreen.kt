@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -29,9 +30,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.domain.*
 import com.dariusepure.caractivitylog.ui.common.*
+import com.dariusepure.caractivitylog.util.LocalImageHelper
 import com.dariusepure.caractivitylog.util.PdfReportGenerator
 import java.text.SimpleDateFormat
 import java.util.*
@@ -56,6 +59,30 @@ fun CarDetailsScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    var imageRefreshKey by remember { mutableStateOf(0) }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            if (LocalImageHelper.saveCarImage(context, carId, it)) {
+                imageRefreshKey++
+            }
+        }
+    }
+
+    var showImageDeleteDialog by remember { mutableStateOf(false) }
+
+    if (showImageDeleteDialog) {
+        DeleteConfirmationDialog(
+            onConfirm = {
+                LocalImageHelper.deleteCarImage(context, carId)
+                imageRefreshKey++
+                showImageDeleteDialog = false
+            },
+            onDismiss = { showImageDeleteDialog = false }
+        )
+    }
 
     val pdfLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/pdf"),
@@ -127,24 +154,66 @@ fun CarDetailsScreen(
                     item {
                         Spacer(Modifier.height(8.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            val logoRes = BrandHelper.getLogoResource(context, car.make)
-                            if (logoRes != 0) {
-                                Image(
-                                    painter = painterResource(id = logoRes),
-                                    contentDescription = car.make,
-                                    modifier = Modifier.size(64.dp),
-                                    contentScale = ContentScale.Fit
-                                )
-                                Spacer(Modifier.width(16.dp))
-                            } else {
-                                Icon(
-                                    imageVector = Icons.Outlined.DirectionsCar,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(64.dp),
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                                Spacer(Modifier.width(16.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(64.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                                    .clickable { imagePickerLauncher.launch("image/*") },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                val localImage = remember(car.id, imageRefreshKey) { 
+                                    LocalImageHelper.getCarImageFile(context, car.id) 
+                                }
+                                
+                                if (localImage != null) {
+                                    AsyncImage(
+                                        model = localImage,
+                                        contentDescription = null,
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                    // Small delete overlay
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(4.dp),
+                                        contentAlignment = Alignment.TopEnd
+                                    ) {
+                                        Surface(
+                                            modifier = Modifier.size(16.dp).clickable { showImageDeleteDialog = true },
+                                            color = MaterialTheme.colorScheme.error,
+                                            shape = CircleShape
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Close,
+                                                null,
+                                                modifier = Modifier.padding(2.dp),
+                                                tint = Color.White
+                                            )
+                                        }
+                                    }
+                                } else {
+                                    val logoRes = BrandHelper.getLogoResource(context, car.make)
+                                    if (logoRes != 0) {
+                                        Image(
+                                            painter = painterResource(id = logoRes),
+                                            contentDescription = car.make,
+                                            modifier = Modifier.size(44.dp),
+                                            contentScale = ContentScale.Fit
+                                        )
+                                    } else {
+                                        Icon(
+                                            imageVector = Icons.Outlined.DirectionsCar,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(32.dp),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                }
                             }
+                            
+                            Spacer(Modifier.width(16.dp))
                             Column {
                                 Text(
                                     text = car.displayName,
@@ -165,7 +234,7 @@ fun CarDetailsScreen(
 
                     // Bento Row 1: Technical & Mileage
                     item {
-                        Row(modifier = Modifier.fillMaxWidth().height(160.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(modifier = Modifier.fillMaxWidth().height(180.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             BentoCard(
                                 onClick = onTechnicalSheetClick,
                                 modifier = Modifier.weight(1.2f).fillMaxHeight()
@@ -180,7 +249,10 @@ fun CarDetailsScreen(
                                 onClick = onMileageClick,
                                 modifier = Modifier.weight(1f).fillMaxHeight()
                             ) {
-                                Icon(Icons.Default.Add, null, tint = MaterialTheme.colorScheme.primary)
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Speed, null, tint = MaterialTheme.colorScheme.primary)
+                                    Icon(Icons.Default.Add, null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary)
+                                }
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.car_mileage_history), style = MaterialTheme.typography.titleMedium)
                                 val latestMileage = s.mileageLogs.maxByOrNull { it.date }
@@ -196,7 +268,7 @@ fun CarDetailsScreen(
 
                     // Bento Row 2: ITP, RCA, Vignette (Squares)
                     item {
-                        Row(modifier = Modifier.fillMaxWidth().height(120.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(modifier = Modifier.fillMaxWidth().height(140.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             val latestInspection = s.inspections.maxByOrNull { it.date }
                             val isItpExpired = CarFormatters.isInspectionExpired(latestInspection)
                             val itpDays = latestInspection?.let { (it.expiryDate.time - Date().time) / (1000 * 60 * 60 * 24) } ?: -1
@@ -208,7 +280,7 @@ fun CarDetailsScreen(
                             ) {
                                 Icon(Icons.Default.AssignmentTurnedIn, null)
                                 Spacer(Modifier.weight(1f))
-                                Text("ITP", style = MaterialTheme.typography.titleSmall)
+                                Text(stringResource(R.string.car_inspection_title), style = MaterialTheme.typography.titleSmall)
                                 StatusBadge(
                                     label = if (isItpExpired) "Expired" else if (itpDays < 14) "Soon" else "OK",
                                     color = if (isItpExpired) MaterialTheme.colorScheme.error else if (itpDays < 14) Color(0xFFFF9800) else Color(0xFF4CAF50)
@@ -226,7 +298,7 @@ fun CarDetailsScreen(
                             ) {
                                 Icon(Icons.Default.Security, null)
                                 Spacer(Modifier.weight(1f))
-                                Text("RCA", style = MaterialTheme.typography.titleSmall)
+                                Text(stringResource(R.string.car_insurance_title), style = MaterialTheme.typography.titleSmall)
                                 StatusBadge(
                                     label = if (isRcaExpired) "Expired" else if (rcaDays < 14) "Soon" else "OK",
                                     color = if (isRcaExpired) MaterialTheme.colorScheme.error else if (rcaDays < 14) Color(0xFFFF9800) else Color(0xFF4CAF50)
@@ -242,9 +314,9 @@ fun CarDetailsScreen(
                                 modifier = Modifier.weight(1f).fillMaxHeight(),
                                 containerColor = if (isVigExpired) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainer
                             ) {
-                                Icon(Icons.Default.Build, null)
+                                Icon(Icons.Default.ConfirmationNumber, null)
                                 Spacer(Modifier.weight(1f))
-                                Text("Vignette", style = MaterialTheme.typography.titleSmall)
+                                Text(stringResource(R.string.car_vignette_title), style = MaterialTheme.typography.titleSmall)
                                 StatusBadge(
                                     label = if (isVigExpired) "Expired" else if (vigDays < 14) "Soon" else "OK",
                                     color = if (isVigExpired) MaterialTheme.colorScheme.error else if (vigDays < 14) Color(0xFFFF9800) else Color(0xFF4CAF50)
@@ -255,12 +327,15 @@ fun CarDetailsScreen(
 
                     // Bento Row 3: Fuel & Tires
                     item {
-                        Row(modifier = Modifier.fillMaxWidth().height(140.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(modifier = Modifier.fillMaxWidth().height(160.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             BentoCard(
                                 onClick = onFuelClick,
                                 modifier = Modifier.weight(1f).fillMaxHeight()
                             ) {
-                                Icon(Icons.Default.LocalGasStation, null, tint = MaterialTheme.colorScheme.primary)
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Speed, null, tint = MaterialTheme.colorScheme.primary)
+                                    Icon(Icons.Default.LocalGasStation, null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary)
+                                }
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.car_fuel_consumption), style = MaterialTheme.typography.titleMedium)
                                 Text(stringResource(R.string.car_fuel_consumption_subtitle), style = MaterialTheme.typography.bodySmall)
@@ -285,7 +360,7 @@ fun CarDetailsScreen(
 
                     // Tires & Diagnosis (Full Width)
                     item {
-                        Row(modifier = Modifier.fillMaxWidth().height(120.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(modifier = Modifier.fillMaxWidth().height(140.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             val activeTires = s.tireSets.find { it.isActive }
                             BentoCard(
                                 onClick = onTireClick,

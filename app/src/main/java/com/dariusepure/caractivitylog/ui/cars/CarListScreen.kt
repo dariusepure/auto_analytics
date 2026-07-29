@@ -78,6 +78,7 @@ import com.dariusepure.caractivitylog.ui.common.LoadingState
 import com.dariusepure.caractivitylog.ui.common.DeleteConfirmationDialog
 import com.dariusepure.caractivitylog.ui.common.LanguageSelector
 import com.dariusepure.caractivitylog.ui.common.toRelativeString
+import com.dariusepure.caractivitylog.util.LocalImageHelper
 import com.dariusepure.caractivitylog.domain.displayName
 
 @Composable
@@ -102,25 +103,36 @@ fun CarCard(
         ) {
             Box(
                 modifier = Modifier
-                    .size(56.dp) // Increased box size from 48dp
+                    .size(56.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
-                val logoRes = BrandHelper.getLogoResource(context, car.make)
-                if (logoRes != 0) {
-                    Image(
-                        painter = painterResource(id = logoRes),
-                        contentDescription = car.make,
-                        modifier = Modifier.size(44.dp), // Increased logo size from 32dp
-                        contentScale = ContentScale.Fit
+                val localImage = remember(car.id) { LocalImageHelper.getCarImageFile(context, car.id) }
+                
+                if (localImage != null) {
+                    AsyncImage(
+                        model = localImage,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
                     )
                 } else {
-                    Icon(
-                        imageVector = Icons.Outlined.DirectionsCar,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    val logoRes = BrandHelper.getLogoResource(context, car.make)
+                    if (logoRes != 0) {
+                        Image(
+                            painter = painterResource(id = logoRes),
+                            contentDescription = car.make,
+                            modifier = Modifier.size(44.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Outlined.DirectionsCar,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
             
