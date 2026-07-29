@@ -21,6 +21,8 @@ import com.dariusepure.caractivitylog.ui.cars.TechnicalSheetScreen
 import com.dariusepure.caractivitylog.ui.cars.DiagnosisScreen
 import com.dariusepure.caractivitylog.ui.cars.FuelHistoryScreen
 import com.dariusepure.caractivitylog.ui.cars.RecycleBinScreen
+import com.dariusepure.caractivitylog.ui.cars.InsuranceHistoryScreen
+import com.dariusepure.caractivitylog.ui.cars.VignetteHistoryScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dariusepure.caractivitylog.ui.theme.ThemeViewModel
 
@@ -40,6 +42,12 @@ sealed class Screen(val route: String) {
     }
     data object InspectionHistory : Screen("inspectionhistory/{carId}") {
         fun createRoute(carId: String) = "inspectionhistory/$carId"
+    }
+    data object InsuranceHistory : Screen("insurancehistory/{carId}") {
+        fun createRoute(carId: String) = "insurancehistory/$carId"
+    }
+    data object VignetteHistory : Screen("vignettehistory/{carId}") {
+        fun createRoute(carId: String) = "vignettehistory/$carId"
     }
     data object AddCar : Screen("addcar")
     data object TechnicalSheet : Screen("technicalsheet/{carId}") {
@@ -150,6 +158,12 @@ fun AppNavigation(
                 onInspectionClick = {
                     navController.navigate(Screen.InspectionHistory.createRoute(carId))
                 },
+                onInsuranceClick = {
+                    navController.navigate(Screen.InsuranceHistory.createRoute(carId))
+                },
+                onVignetteClick = {
+                    navController.navigate(Screen.VignetteHistory.createRoute(carId))
+                },
                 onTechnicalSheetClick = {
                     navController.navigate(Screen.TechnicalSheet.createRoute(carId))
                 },
@@ -171,6 +185,20 @@ fun AppNavigation(
         composable(Screen.InspectionHistory.route) { backStackEntry ->
             val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
             InspectionHistoryScreen(
+                carId = carId,
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.InsuranceHistory.route) { backStackEntry ->
+            val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
+            InsuranceHistoryScreen(
+                carId = carId,
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.VignetteHistory.route) { backStackEntry ->
+            val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
+            VignetteHistoryScreen(
                 carId = carId,
                 onBack = { navController.popBackStack() }
             )

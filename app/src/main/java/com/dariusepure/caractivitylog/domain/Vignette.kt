@@ -1,16 +1,15 @@
 package com.dariusepure.caractivitylog.domain
 
-import androidx.annotation.StringRes
-import com.dariusepure.caractivitylog.R
 import java.util.Calendar
 import java.util.Date
 
-data class VehicleInspection(
+data class Vignette(
     val id: String = "",
     val date: Date = Date(),
-    val mileage: Double = 0.0,
     val durationValue: Int = 1,
-    val durationUnit: InspectionDurationUnit = InspectionDurationUnit.YEARS
+    val durationUnit: InspectionDurationUnit = InspectionDurationUnit.MONTHS,
+    val country: String = "",
+    val cost: Double = 0.0
 ) {
     val expiryDate: Date
         get() {
@@ -23,8 +22,4 @@ data class VehicleInspection(
             }
             return calendar.time
         }
-}
-
-enum class InspectionDurationUnit(@StringRes val labelRes: Int) {
-    DAYS(R.string.unit_days), MONTHS(R.string.unit_months), YEARS(R.string.unit_years)
 }

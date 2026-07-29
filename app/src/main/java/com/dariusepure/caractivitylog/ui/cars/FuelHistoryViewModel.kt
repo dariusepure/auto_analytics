@@ -159,6 +159,12 @@ class FuelHistoryViewModel @Inject constructor(
         }
     }
 
+    fun updateFuelLog(carId: String, log: FuelLog) {
+        viewModelScope.launch {
+            carRepository.updateFuelLog(carId, log)
+        }
+    }
+
     fun deleteFuelLog(carId: String, log: FuelLog) {
         viewModelScope.launch {
             carRepository.deleteFuelLog(carId, log)

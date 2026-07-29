@@ -33,7 +33,32 @@ object NotificationHelper {
             daysLeft < 0 -> "Your ITP for $carName has expired!"
             else -> "Your ITP for $carName expires in $daysLeft days."
         }
+        showNotification(context, carName.hashCode() + 1, title, message)
+    }
 
+    fun showInsuranceNotification(context: Context, carName: String, daysLeft: Int) {
+        val title = "Insurance Expiration Alert"
+        val message = when {
+            daysLeft == 1 -> "Your Insurance for $carName expires tomorrow!"
+            daysLeft == 0 -> "Your Insurance for $carName expires today!"
+            daysLeft < 0 -> "Your Insurance for $carName has expired!"
+            else -> "Your Insurance for $carName expires in $daysLeft days."
+        }
+        showNotification(context, carName.hashCode() + 2, title, message)
+    }
+
+    fun showVignetteNotification(context: Context, carName: String, daysLeft: Int) {
+        val title = "Vignette Expiration Alert"
+        val message = when {
+            daysLeft == 1 -> "Your Vignette for $carName expires tomorrow!"
+            daysLeft == 0 -> "Your Vignette for $carName expires today!"
+            daysLeft < 0 -> "Your Vignette for $carName has expired!"
+            else -> "Your Vignette for $carName expires in $daysLeft days."
+        }
+        showNotification(context, carName.hashCode() + 3, title, message)
+    }
+
+    private fun showNotification(context: Context, notificationId: Int, title: String, message: String) {
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(title)
@@ -43,10 +68,10 @@ object NotificationHelper {
 
         try {
             with(NotificationManagerCompat.from(context)) {
-                notify(carName.hashCode(), builder.build())
+                notify(notificationId, builder.build())
             }
         } catch (e: SecurityException) {
-            // Permission not granted, can't show notification
+            // Permission not granted
         }
     }
 }

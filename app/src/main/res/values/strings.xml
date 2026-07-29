@@ -21,6 +21,7 @@
     <string name="common_expand">Expand</string>
 
     <!-- Units -->
+    <string name="unit_days">Days</string>
     <string name="unit_months">Months</string>
     <string name="unit_years">Years</string>
 
@@ -228,6 +229,8 @@
     <string name="car_mileage_history">Mileage History</string>
     <string name="car_mileage_history_subtitle">View and manage records</string>
     <string name="car_inspection_title">Vehicle Inspection (ITP)</string>
+    <string name="car_insurance_title">Insurance (RCA)</string>
+    <string name="car_vignette_title">Vignette</string>
     <string name="car_diagnosis_title">AI Diagnosis Chat</string>
     <string name="car_diagnosis_subtitle">Get expert advice and health reports</string>
     <string name="car_fuel_consumption">Fuel Consumption</string>
@@ -252,10 +255,19 @@
     <!-- Inspection -->
     <string name="inspection_history_title">Inspection History</string>
     <string name="inspection_add_title">Add Vehicle Inspection</string>
+    <string name="insurance_history_title">Insurance History</string>
+    <string name="insurance_add_title">Add Insurance Policy</string>
+    <string name="insurance_provider_label">Insurance Provider</string>
+    <string name="vignette_history_title">Vignette History</string>
+    <string name="vignette_add_title">Add Vignette</string>
+    <string name="vignette_country_label">Country</string>
+    <string name="common_cost_label">Cost (Optional)</string>
     <string name="inspection_mileage_label">Mileage (%s)</string>
     <string name="inspection_date_label">Inspection Date</string>
     <string name="inspection_validity_label">Validity</string>
     <string name="inspection_empty">No inspection records found.</string>
+    <string name="insurance_empty">No insurance records found.</string>
+    <string name="vignette_empty">No vignette records found.</string>
     <string name="inspection_edit_content_description">Edit inspection</string>
     <string name="inspection_delete_content_description">Delete inspection</string>
     <string name="inspection_item_summary">Inspection date: %s \u00B7 %d %s</string>

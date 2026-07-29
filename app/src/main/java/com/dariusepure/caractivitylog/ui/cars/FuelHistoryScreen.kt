@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.outlined.DirectionsCar
@@ -43,6 +44,7 @@ fun FuelHistoryScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showAddDialog by remember { mutableStateOf(false) }
+    var editingLog by remember { mutableStateOf<com.dariusepure.caractivitylog.domain.FuelLog?>(null) }
 
     LaunchedEffect(carId) {
         viewModel.loadData(carId)
@@ -148,6 +150,7 @@ fun FuelHistoryScreen(
                             distUnit = distUnit,
                             consUnit = consUnit,
                             usesMiles = usesMiles,
+                            onEdit = { editingLog = entry.log },
                             onDelete = { viewModel.deleteFuelLog(carId, entry.log) }
                         )
                     }
@@ -155,16 +158,33 @@ fun FuelHistoryScreen(
                     item { Spacer(Modifier.height(80.dp)) }
                 }
 
-                if (showAddDialog) {
+                if (showAddDialog || editingLog != null) {
                     AddFuelDialog(
                         unit = distUnit,
                         usesMiles = usesMiles,
+                        existingLog = editingLog,
                         existingLogs = s.mileageLogs,
-                        onDismiss = { showAddDialog = false },
+                        onDismiss = { 
+                            showAddDialog = false
+                            editingLog = null
+                        },
                         onConfirm = { kmInput, liters, cost, isFull, date ->
                             val kmCanonical = CarFormatters.toCanonicalDistance(kmInput, usesMiles)
-                            viewModel.addFuelLog(carId, kmCanonical, liters, cost, isFull, date)
+                            
+                            val logToEdit = editingLog
+                            if (logToEdit != null) {
+                                viewModel.updateFuelLog(carId, logToEdit.copy(
+                                    km = kmCanonical,
+                                    liters = liters,
+                                    cost = cost,
+                                    isFullTank = isFull,
+                                    date = date
+                                ))
+                            } else {
+                                viewModel.addFuelLog(carId, kmCanonical, liters, cost, isFull, date)
+                            }
                             showAddDialog = false
+                            editingLog = null
                         }
                     )
                 }
@@ -216,6 +236,7 @@ fun FuelLogItem(
     distUnit: String,
     consUnit: String,
     usesMiles: Boolean,
+    onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
@@ -252,6 +273,13 @@ fun FuelLogItem(
                     Text(consUnit, style = MaterialTheme.typography.labelSmall)
                 }
             }
+            IconButton(onClick = onEdit) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    null,
+                    tint = androidx.compose.ui.graphics.Color(0xFF2196F3)
+                )
+            }
             IconButton(onClick = onDelete) {
                 Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.error)
             }
@@ -263,20 +291,24 @@ fun FuelLogItem(
 fun AddFuelDialog(
     unit: String,
     usesMiles: Boolean,
+    existingLog: com.dariusepure.caractivitylog.domain.FuelLog? = null,
     existingLogs: List<MileageLog> = emptyList(),
     onDismiss: () -> Unit,
     onConfirm: (Double, Double, Double, Boolean, Date) -> Unit
 ) {
-    var km by remember { mutableStateOf("") }
-    var liters by remember { mutableStateOf("") }
-    var cost by remember { mutableStateOf("") }
-    var isFullTank by remember { mutableStateOf(true) }
-    var selectedDate by remember { mutableStateOf(Date()) }
+    var km by remember { 
+        mutableStateOf(existingLog?.let { CarFormatters.fromCanonicalDistance(it.km, usesMiles).roundToInt().toString() } ?: "") 
+    }
+    var liters by remember { mutableStateOf(existingLog?.liters?.toString() ?: "") }
+    var cost by remember { mutableStateOf(existingLog?.cost?.toString() ?: "") }
+    var isFullTank by remember { mutableStateOf(existingLog?.isFullTank ?: true) }
+    var selectedDate by remember { mutableStateOf(existingLog?.date ?: Date()) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     
     val context = LocalContext.current
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
     val calendar = Calendar.getInstance()
+    calendar.time = selectedDate
 
     val datePickerDialog = DatePickerDialog(
         context,
@@ -293,7 +325,7 @@ fun AddFuelDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.fuel_add_title)) },
+        title = { Text(if (existingLog == null) stringResource(R.string.fuel_add_title) else stringResource(R.string.common_edit)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
@@ -366,13 +398,13 @@ fun AddFuelDialog(
                         val canonicalInput = CarFormatters.toCanonicalDistance(k, usesMiles)
                         
                         val conflict = existingLogs.find { log ->
+                            if (log.id == existingLog?.mileageLogId) return@find false
                             val kmBackwards = selectedDate.after(log.date) && canonicalInput < log.km
                             val dateBackwards = selectedDate.before(log.date) && canonicalInput > log.km
                             kmBackwards || dateBackwards
                         }
 
                         if (conflict != null) {
-                            val conflictDisplay = CarFormatters.fromCanonicalDistance(conflict.km, usesMiles)
                             errorMessage = context.getString(R.string.fuel_mileage_conflict, dateFormat.format(conflict.date))
                         } else {
                             onConfirm(k, l, c, isFullTank, selectedDate)
@@ -381,7 +413,7 @@ fun AddFuelDialog(
                 },
                 enabled = km.isNotBlank() && liters.isNotBlank()
             ) {
-                Text(stringResource(R.string.common_add))
+                Text(if (existingLog == null) stringResource(R.string.common_add) else stringResource(R.string.common_update))
             }
         },
         dismissButton = {

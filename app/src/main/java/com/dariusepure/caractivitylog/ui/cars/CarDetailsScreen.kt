@@ -67,6 +67,8 @@ fun CarDetailsScreen(
     onBack: () -> Unit,
     onMileageClick: () -> Unit,
     onInspectionClick: () -> Unit,
+    onInsuranceClick: () -> Unit,
+    onVignetteClick: () -> Unit,
     onTechnicalSheetClick: () -> Unit,
     onDiagnosisClick: () -> Unit,
     onFuelClick: () -> Unit,
@@ -257,6 +259,70 @@ fun CarDetailsScreen(
                                         } else {
                                             MaterialTheme.colorScheme.onSurfaceVariant
                                         }
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(Modifier.height(12.dp))
+
+                        val latestInsurance = s.insurances.maxByOrNull { it.date }
+                        val isInsuredExpired = latestInsurance?.expiryDate?.before(Date()) ?: false
+
+                        Card(
+                            onClick = onInsuranceClick,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.Add, contentDescription = null)
+                                Spacer(Modifier.width(12.dp))
+                                Column {
+                                    Text(
+                                        text = stringResource(R.string.car_insurance_title),
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    Text(
+                                        text = if (latestInsurance != null) context.getString(R.string.formatter_inspection_valid_until, CarFormatters.formatDate(latestInsurance.expiryDate)) else stringResource(R.string.insurance_empty),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = if (isInsuredExpired) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(Modifier.height(12.dp))
+
+                        val latestVignette = s.vignettes.maxByOrNull { it.date }
+                        val isVignetteExpired = latestVignette?.expiryDate?.before(Date()) ?: false
+
+                        Card(
+                            onClick = onVignetteClick,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.Add, contentDescription = null)
+                                Spacer(Modifier.width(12.dp))
+                                Column {
+                                    Text(
+                                        text = stringResource(R.string.car_vignette_title),
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    Text(
+                                        text = if (latestVignette != null) context.getString(R.string.formatter_inspection_valid_until, CarFormatters.formatDate(latestVignette.expiryDate)) else stringResource(R.string.vignette_empty),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = if (isVignetteExpired) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }

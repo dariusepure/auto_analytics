@@ -21,6 +21,7 @@
     <string name="common_expand">Extinde</string>
 
     <!-- Units -->
+    <string name="unit_days">Zile</string>
     <string name="unit_months">Luni</string>
     <string name="unit_years">Ani</string>
 
@@ -228,6 +229,8 @@
     <string name="car_mileage_history">Istoric kilometraj</string>
     <string name="car_mileage_history_subtitle">Vezi și gestionează înregistrările</string>
     <string name="car_inspection_title">Inspecție Tehnică Periodică (ITP)</string>
+    <string name="car_insurance_title">Asigurare (RCA)</string>
+    <string name="car_vignette_title">Vinietă (Rovinietă)</string>
     <string name="car_diagnosis_title">Chat Diagnoză AI</string>
     <string name="car_diagnosis_subtitle">Obține sfaturi expert și rapoarte de stare</string>
     <string name="car_fuel_consumption">Consum combustibil</string>
@@ -252,10 +255,19 @@
     <!-- Inspection -->
     <string name="inspection_history_title">Istoric inspecții</string>
     <string name="inspection_add_title">Adaugă inspecție tehnică</string>
+    <string name="insurance_history_title">Istoric asigurări</string>
+    <string name="insurance_add_title">Adaugă poliță asigurare</string>
+    <string name="insurance_provider_label">Asigurător</string>
+    <string name="vignette_history_title">Istoric viniete</string>
+    <string name="vignette_add_title">Adaugă vinietă</string>
+    <string name="vignette_country_label">Țara</string>
+    <string name="common_cost_label">Cost (Opțional)</string>
     <string name="inspection_mileage_label">Kilometraj (%s)</string>
     <string name="inspection_date_label">Data inspecției</string>
     <string name="inspection_validity_label">Valabilitate</string>
     <string name="inspection_empty">Nu s-au găsit înregistrări de inspecție.</string>
+    <string name="insurance_empty">Nu s-au găsit înregistrări de asigurare.</string>
+    <string name="vignette_empty">Nu s-au găsit înregistrări de vinietă.</string>
     <string name="inspection_edit_content_description">Editează inspecția</string>
     <string name="inspection_delete_content_description">Șterge inspecția</string>
     <string name="inspection_item_summary">Data inspecției: %1$s \u00B7 %2$d %3$s</string>

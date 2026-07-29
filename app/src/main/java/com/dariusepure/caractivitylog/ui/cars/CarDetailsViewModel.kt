@@ -9,6 +9,8 @@ import com.dariusepure.caractivitylog.data.cars.CarRepository
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.FuelLog
 import com.dariusepure.caractivitylog.domain.MileageLog
+import com.dariusepure.caractivitylog.domain.Insurance
+import com.dariusepure.caractivitylog.domain.Vignette
 import com.dariusepure.caractivitylog.domain.ScannedMileageEntry
 import com.dariusepure.caractivitylog.domain.VehicleInspection
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,6 +35,8 @@ sealed class CarDetailsUiState {
         val car: Car,
         val mileageLogs: List<MileageLog>,
         val inspections: List<VehicleInspection>,
+        val insurances: List<Insurance> = emptyList(),
+        val vignettes: List<Vignette> = emptyList(),
         val fuelLogs: List<FuelLog> = emptyList(),
         val isScanning: Boolean = false
     ) : CarDetailsUiState()
@@ -60,15 +64,31 @@ class CarDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = CarDetailsUiState.Loading
             try {
-                combine(
-                    carRepository.getCarFlow(carId),
-                    carRepository.getMileageLogs(carId),
-                    carRepository.getInspections(carId),
-                    carRepository.getFuelLogs(carId)
-                ) { car, logs, inspections, fuelLogs ->
+                val carFlow = carRepository.getCarFlow(carId)
+                val mileageFlow = carRepository.getMileageLogs(carId)
+                val inspectionsFlow = carRepository.getInspections(carId)
+                val insurancesFlow = carRepository.getInsurances(carId)
+                val vignettesFlow = carRepository.getVignettes(carId)
+                val fuelLogsFlow = carRepository.getFuelLogs(carId)
+
+                kotlinx.coroutines.flow.combine(
+                    carFlow,
+                    mileageFlow,
+                    inspectionsFlow,
+                    insurancesFlow,
+                    vignettesFlow,
+                    fuelLogsFlow
+                ) { args: Array<Any?> ->
+                    val car = args[0] as? Car
+                    val logs = args[1] as List<MileageLog>
+                    val inspections = args[2] as List<VehicleInspection>
+                    val insurances = args[3] as List<Insurance>
+                    val vignettes = args[4] as List<Vignette>
+                    val fuelLogs = args[5] as List<FuelLog>
+
                     if (car != null) {
                         val currentScanning = (_state.value as? CarDetailsUiState.Success)?.isScanning ?: false
-                        CarDetailsUiState.Success(car, logs, inspections, fuelLogs, currentScanning)
+                        CarDetailsUiState.Success(car, logs, inspections, insurances, vignettes, fuelLogs, currentScanning)
                     } else {
                         CarDetailsUiState.Error("Car not found")
                     }
@@ -204,6 +224,66 @@ class CarDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 carRepository.deleteInspection(carId, inspectionId)
+            } catch (e: Exception) {
+                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+            }
+        }
+    }
+
+    fun addInsurance(carId: String, insurance: Insurance) {
+        viewModelScope.launch {
+            try {
+                carRepository.addInsurance(carId, insurance)
+            } catch (e: Exception) {
+                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+            }
+        }
+    }
+
+    fun updateInsurance(carId: String, insurance: Insurance) {
+        viewModelScope.launch {
+            try {
+                carRepository.updateInsurance(carId, insurance)
+            } catch (e: Exception) {
+                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+            }
+        }
+    }
+
+    fun deleteInsurance(carId: String, insuranceId: String) {
+        viewModelScope.launch {
+            try {
+                carRepository.deleteInsurance(carId, insuranceId)
+            } catch (e: Exception) {
+                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+            }
+        }
+    }
+
+    fun addVignette(carId: String, vignette: Vignette) {
+        viewModelScope.launch {
+            try {
+                carRepository.addVignette(carId, vignette)
+            } catch (e: Exception) {
+                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+            }
+        }
+    }
+
+    fun updateVignette(carId: String, vignette: Vignette) {
+        viewModelScope.launch {
+            try {
+                carRepository.updateVignette(carId, vignette)
+            } catch (e: Exception) {
+                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+            }
+        }
+    }
+
+    fun deleteVignette(carId: String, vignetteId: String) {
+        viewModelScope.launch {
+            try {
+                carRepository.deleteVignette(carId, vignetteId)
             } catch (e: Exception) {
                 _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
             }

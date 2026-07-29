@@ -334,6 +334,142 @@ class CarRepository @Inject constructor(
             .await()
     }
 
+    fun getInsurances(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.Insurance>> = callbackFlow {
+        checkNetwork()
+        val uid = authRepository.getUserId() ?: run {
+            trySend(emptyList())
+            close()
+            return@callbackFlow
+        }
+
+        val listener = firestore.collection("users")
+            .document(uid)
+            .collection("cars")
+            .document(carId)
+            .collection("insurances")
+            .orderBy("date", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshots, exception ->
+                if (exception != null) {
+                    close(exception)
+                    return@addSnapshotListener
+                }
+
+                val results = snapshots
+                    ?.toObjects(FirestoreInsurance::class.java)
+                    ?.map { it.fromFirebase() } ?: emptyList()
+
+                trySend(results)
+            }
+
+        awaitClose { listener.remove() }
+    }
+
+    suspend fun addInsurance(carId: String, insurance: com.dariusepure.caractivitylog.domain.Insurance) {
+        checkNetwork()
+        val uid = getUid()
+        firestore.collection("users")
+            .document(uid)
+            .collection("cars")
+            .document(carId)
+            .collection("insurances")
+            .add(insurance.toFirebase())
+            .await()
+    }
+
+    suspend fun updateInsurance(carId: String, insurance: com.dariusepure.caractivitylog.domain.Insurance) {
+        checkNetwork()
+        val uid = getUid()
+        firestore.collection("users")
+            .document(uid)
+            .collection("cars")
+            .document(carId)
+            .collection("insurances")
+            .document(insurance.id)
+            .set(insurance.toFirebase())
+            .await()
+    }
+
+    suspend fun deleteInsurance(carId: String, insuranceId: String) {
+        checkNetwork()
+        val uid = getUid()
+        firestore.collection("users")
+            .document(uid)
+            .collection("cars")
+            .document(carId)
+            .collection("insurances")
+            .document(insuranceId)
+            .delete()
+            .await()
+    }
+
+    fun getVignettes(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.Vignette>> = callbackFlow {
+        checkNetwork()
+        val uid = authRepository.getUserId() ?: run {
+            trySend(emptyList())
+            close()
+            return@callbackFlow
+        }
+
+        val listener = firestore.collection("users")
+            .document(uid)
+            .collection("cars")
+            .document(carId)
+            .collection("vignettes")
+            .orderBy("date", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshots, exception ->
+                if (exception != null) {
+                    close(exception)
+                    return@addSnapshotListener
+                }
+
+                val results = snapshots
+                    ?.toObjects(FirestoreVignette::class.java)
+                    ?.map { it.fromFirebase() } ?: emptyList()
+
+                trySend(results)
+            }
+
+        awaitClose { listener.remove() }
+    }
+
+    suspend fun addVignette(carId: String, vignette: com.dariusepure.caractivitylog.domain.Vignette) {
+        checkNetwork()
+        val uid = getUid()
+        firestore.collection("users")
+            .document(uid)
+            .collection("cars")
+            .document(carId)
+            .collection("vignettes")
+            .add(vignette.toFirebase())
+            .await()
+    }
+
+    suspend fun updateVignette(carId: String, vignette: com.dariusepure.caractivitylog.domain.Vignette) {
+        checkNetwork()
+        val uid = getUid()
+        firestore.collection("users")
+            .document(uid)
+            .collection("cars")
+            .document(carId)
+            .collection("vignettes")
+            .document(vignette.id)
+            .set(vignette.toFirebase())
+            .await()
+    }
+
+    suspend fun deleteVignette(carId: String, vignetteId: String) {
+        checkNetwork()
+        val uid = getUid()
+        firestore.collection("users")
+            .document(uid)
+            .collection("cars")
+            .document(carId)
+            .collection("vignettes")
+            .document(vignetteId)
+            .delete()
+            .await()
+    }
+
     fun getDiagnosisMessages(carId: String): Flow<List<ChatMessage>> = callbackFlow {
         checkNetwork()
         val uid = authRepository.getUserId() ?: run {
@@ -435,6 +571,20 @@ class CarRepository @Inject constructor(
         firestore.runBatch { batch ->
             batch.set(fuelLogRef, fuelLog.toFirebase())
             batch.set(mileageLogRef, mileageLog.toFirebase())
+        }.await()
+    }
+
+    suspend fun updateFuelLog(carId: String, log: com.dariusepure.caractivitylog.domain.FuelLog) {
+        checkNetwork()
+        val uid = getUid()
+        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
+        
+        firestore.runBatch { batch ->
+            batch.set(carRef.collection("fuel_logs").document(log.id), log.toFirebase())
+            if (log.mileageLogId.isNotEmpty()) {
+                val mileageLog = MileageLog(id = log.mileageLogId, km = log.km, date = log.date)
+                batch.set(carRef.collection("mileage").document(log.mileageLogId), mileageLog.toFirebase())
+            }
         }.await()
     }
 

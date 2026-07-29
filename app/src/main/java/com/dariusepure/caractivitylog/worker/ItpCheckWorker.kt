@@ -30,18 +30,36 @@ class ItpCheckWorker @AssistedInject constructor(
         try {
             val cars = carRepository.cars.first()
             for (car in cars) {
-                val inspections = carRepository.getInspections(car.id).first()
-                val latestInspection = inspections.maxByOrNull { it.date } ?: continue
-                
-                val expiryDate = latestInspection.expiryDate
                 val today = Calendar.getInstance().time
-                
-                val diffInMillis = expiryDate.time - today.time
-                val daysLeft = TimeUnit.MILLISECONDS.toDays(diffInMillis).toInt()
 
-                // Check thresholds: 30 days, 7 days, 1 day, 0 days, or expired
-                if (daysLeft in listOf(30, 7, 1, 0) || (daysLeft < 0 && daysLeft > -7)) {
-                    NotificationHelper.showItpNotification(applicationContext, car.displayName, daysLeft)
+                // 1. ITP Check
+                val inspections = carRepository.getInspections(car.id).first()
+                val latestInspection = inspections.maxByOrNull { it.date }
+                if (latestInspection != null) {
+                    val daysLeft = TimeUnit.MILLISECONDS.toDays(latestInspection.expiryDate.time - today.time).toInt()
+                    if (daysLeft in listOf(30, 7, 1, 0) || (daysLeft < 0 && daysLeft > -7)) {
+                        NotificationHelper.showItpNotification(applicationContext, car.displayName, daysLeft)
+                    }
+                }
+
+                // 2. Insurance Check
+                val insurances = carRepository.getInsurances(car.id).first()
+                val latestInsurance = insurances.maxByOrNull { it.date }
+                if (latestInsurance != null) {
+                    val daysLeft = TimeUnit.MILLISECONDS.toDays(latestInsurance.expiryDate.time - today.time).toInt()
+                    if (daysLeft in listOf(30, 7, 1, 0) || (daysLeft < 0 && daysLeft > -7)) {
+                        NotificationHelper.showInsuranceNotification(applicationContext, car.displayName, daysLeft)
+                    }
+                }
+
+                // 3. Vignette Check
+                val vignettes = carRepository.getVignettes(car.id).first()
+                val latestVignette = vignettes.maxByOrNull { it.date }
+                if (latestVignette != null) {
+                    val daysLeft = TimeUnit.MILLISECONDS.toDays(latestVignette.expiryDate.time - today.time).toInt()
+                    if (daysLeft in listOf(7, 1, 0) || (daysLeft < 0 && daysLeft > -3)) { // Thresholds shorter for vignettes usually
+                        NotificationHelper.showVignetteNotification(applicationContext, car.displayName, daysLeft)
+                    }
                 }
             }
             return ListenableWorker.Result.success()

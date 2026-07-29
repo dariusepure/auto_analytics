@@ -25,6 +25,9 @@ import kotlin.math.roundToInt
 import androidx.compose.ui.unit.dp
 import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.domain.VehicleInspection
+import com.dariusepure.caractivitylog.domain.Insurance
+import com.dariusepure.caractivitylog.domain.Vignette
+import java.util.Date
 
 @Composable
 fun MileageItem(
@@ -111,6 +114,106 @@ fun InspectionItem(
             Icon(
                 imageVector = Icons.Default.Delete,
                 contentDescription = stringResource(R.string.inspection_delete_content_description),
+                tint = Color.Red
+            )
+        }
+    }
+}
+
+@Composable
+fun InsuranceItem(
+    insurance: Insurance,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    val context = LocalContext.current
+    val isExpired = insurance.expiryDate.before(Date())
+    
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = context.getString(R.string.formatter_inspection_valid_until, CarFormatters.formatDate(insurance.expiryDate)),
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (isExpired) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+            )
+            val details = mutableListOf<String>()
+            if (insurance.provider.isNotBlank()) details.add(insurance.provider)
+            if (insurance.cost > 0) details.add("${insurance.cost}")
+            
+            Text(
+                text = details.joinToString(" \u00B7 "),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        IconButton(onClick = onEditClick) {
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = stringResource(R.string.common_edit),
+                tint = Color(0xFF2196F3)
+            )
+        }
+        
+        IconButton(onClick = onDeleteClick) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = stringResource(R.string.common_delete),
+                tint = Color.Red
+            )
+        }
+    }
+}
+
+@Composable
+fun VignetteItem(
+    vignette: Vignette,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    val context = LocalContext.current
+    val isExpired = vignette.expiryDate.before(Date())
+    
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = context.getString(R.string.formatter_inspection_valid_until, CarFormatters.formatDate(vignette.expiryDate)),
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (isExpired) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+            )
+            val details = mutableListOf<String>()
+            if (vignette.country.isNotBlank()) details.add(vignette.country)
+            if (vignette.cost > 0) details.add("${vignette.cost}")
+            
+            Text(
+                text = details.joinToString(" \u00B7 "),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        IconButton(onClick = onEditClick) {
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = stringResource(R.string.common_edit),
+                tint = Color(0xFF2196F3)
+            )
+        }
+        
+        IconButton(onClick = onDeleteClick) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = stringResource(R.string.common_delete),
                 tint = Color.Red
             )
         }
