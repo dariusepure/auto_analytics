@@ -161,6 +161,8 @@
     <string name="car_delete_content_description">Delete car</string>
     <string name="car_last_update">Last update: %s</string>
     <string name="car_move_to_recycle_bin_msg">This car will be moved to the recycle bin.</string>
+    <string name="car_view_mode_list">Switch to List</string>
+    <string name="car_view_mode_grid">Switch to Grid</string>
 
     <!-- Add/Edit Car -->
     <string name="car_add_title">Add New Car</string>

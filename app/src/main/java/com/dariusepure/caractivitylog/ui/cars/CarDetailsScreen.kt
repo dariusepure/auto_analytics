@@ -237,9 +237,10 @@ fun CarDetailsScreen(
                         Row(modifier = Modifier.fillMaxWidth().height(180.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             BentoCard(
                                 onClick = onTechnicalSheetClick,
-                                modifier = Modifier.weight(1.2f).fillMaxHeight()
+                                modifier = Modifier.weight(1.2f).fillMaxHeight(),
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
                             ) {
-                                Icon(Icons.Default.Description, null, tint = MaterialTheme.colorScheme.primary)
+                                Icon(Icons.Default.Description, null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.car_technical_sheet), style = MaterialTheme.typography.titleMedium)
                                 Text(stringResource(R.string.car_technical_sheet_subtitle), style = MaterialTheme.typography.bodySmall)
@@ -247,11 +248,12 @@ fun CarDetailsScreen(
                             
                             BentoCard(
                                 onClick = onMileageClick,
-                                modifier = Modifier.weight(1f).fillMaxHeight()
+                                modifier = Modifier.weight(1f).fillMaxHeight(),
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.Speed, null, tint = MaterialTheme.colorScheme.primary)
-                                    Icon(Icons.Default.Add, null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary)
+                                    Icon(Icons.Default.Speed, null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
+                                    Icon(Icons.Default.Add, null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
                                 }
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.car_mileage_history), style = MaterialTheme.typography.titleMedium)
@@ -276,9 +278,9 @@ fun CarDetailsScreen(
                             BentoCard(
                                 onClick = onInspectionClick,
                                 modifier = Modifier.weight(1f).fillMaxHeight(),
-                                containerColor = if (isItpExpired) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainer
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
                             ) {
-                                Icon(Icons.Default.AssignmentTurnedIn, null)
+                                Icon(Icons.Default.AssignmentTurnedIn, null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.car_inspection_title), style = MaterialTheme.typography.titleSmall)
                                 StatusBadge(
@@ -294,9 +296,9 @@ fun CarDetailsScreen(
                             BentoCard(
                                 onClick = onInsuranceClick,
                                 modifier = Modifier.weight(1f).fillMaxHeight(),
-                                containerColor = if (isRcaExpired) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainer
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
                             ) {
-                                Icon(Icons.Default.Security, null)
+                                Icon(Icons.Default.Security, null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.car_insurance_title), style = MaterialTheme.typography.titleSmall)
                                 StatusBadge(
@@ -312,9 +314,9 @@ fun CarDetailsScreen(
                             BentoCard(
                                 onClick = onVignetteClick,
                                 modifier = Modifier.weight(1f).fillMaxHeight(),
-                                containerColor = if (isVigExpired) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainer
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
                             ) {
-                                Icon(Icons.Default.ConfirmationNumber, null)
+                                Icon(Icons.Default.ConfirmationNumber, null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.car_vignette_title), style = MaterialTheme.typography.titleSmall)
                                 StatusBadge(
@@ -330,11 +332,12 @@ fun CarDetailsScreen(
                         Row(modifier = Modifier.fillMaxWidth().height(160.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             BentoCard(
                                 onClick = onFuelClick,
-                                modifier = Modifier.weight(1f).fillMaxHeight()
+                                modifier = Modifier.weight(1f).fillMaxHeight(),
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.Speed, null, tint = MaterialTheme.colorScheme.primary)
-                                    Icon(Icons.Default.LocalGasStation, null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary)
+                                    Icon(Icons.Default.Speed, null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
+                                    Icon(Icons.Default.LocalGasStation, null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
                                 }
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.car_fuel_consumption), style = MaterialTheme.typography.titleMedium)
@@ -343,9 +346,10 @@ fun CarDetailsScreen(
                             
                             BentoCard(
                                 onClick = onServiceClick,
-                                modifier = Modifier.weight(1f).fillMaxHeight()
+                                modifier = Modifier.weight(1f).fillMaxHeight(),
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
                             ) {
-                                Icon(Icons.Default.Build, null, tint = MaterialTheme.colorScheme.primary)
+                                Icon(Icons.Default.Build, null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.service_history_title), style = MaterialTheme.typography.titleMedium)
                                 val latestService = s.maintenanceLogs.maxByOrNull { it.date }
@@ -364,9 +368,10 @@ fun CarDetailsScreen(
                             val activeTires = s.tireSets.find { it.isActive }
                             BentoCard(
                                 onClick = onTireClick,
-                                modifier = Modifier.weight(1f).fillMaxHeight()
+                                modifier = Modifier.weight(1f).fillMaxHeight(),
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
                             ) {
-                                Icon(Icons.Default.DirectionsCar, null, tint = MaterialTheme.colorScheme.primary)
+                                Icon(Icons.Default.DirectionsCar, null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.tire_management_title), style = MaterialTheme.typography.titleMedium)
                                 Text(
@@ -377,9 +382,10 @@ fun CarDetailsScreen(
 
                             BentoCard(
                                 onClick = onDiagnosisClick,
-                                modifier = Modifier.weight(1f).fillMaxHeight()
+                                modifier = Modifier.weight(1f).fillMaxHeight(),
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
                             ) {
-                                Icon(Icons.Default.Psychology, null, tint = MaterialTheme.colorScheme.primary)
+                                Icon(Icons.Default.Psychology, null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.car_diagnosis_title), style = MaterialTheme.typography.titleSmall)
                                 Text(stringResource(R.string.car_diagnosis_subtitle), style = MaterialTheme.typography.bodySmall, maxLines = 1)
@@ -525,7 +531,11 @@ fun AddMileageDialog(
                         }
                     }
                 },
-                enabled = km.isNotBlank()
+                enabled = km.isNotBlank(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             ) {
                 Text(if (existingLog == null) stringResource(R.string.common_add) else stringResource(R.string.common_update))
             }
@@ -707,7 +717,11 @@ fun AddInspectionDialog(
                         )
                     }
                 },
-                enabled = km.isNotBlank() && durationValue.isNotBlank()
+                enabled = km.isNotBlank() && durationValue.isNotBlank(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             ) {
                 Text(stringResource(R.string.common_save))
             }

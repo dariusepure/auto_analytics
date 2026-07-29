@@ -161,6 +161,8 @@
     <string name="car_delete_content_description">Șterge mașina</string>
     <string name="car_last_update">Ultima actualizare: %s</string>
     <string name="car_move_to_recycle_bin_msg">Această mașină va fi mutată în coșul de reciclare.</string>
+    <string name="car_view_mode_list">Schimbă în listă</string>
+    <string name="car_view_mode_grid">Schimbă în grilă</string>
 
     <!-- Add/Edit Car -->
     <string name="car_add_title">Adaugă mașină nouă</string>
