@@ -680,4 +680,78 @@ class CarRepository @Inject constructor(
             }
         }.await()
     }
+
+    fun getMaintenanceLogs(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.Maintenance>> = callbackFlow {
+        checkNetwork()
+        val uid = authRepository.getUserId() ?: run {
+            trySend(emptyList())
+            close()
+            return@callbackFlow
+        }
+
+        val listener = firestore.collection("users")
+            .document(uid)
+            .collection("cars")
+            .document(carId)
+            .collection("maintenance")
+            .orderBy("date", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshots, exception ->
+                if (exception != null) {
+                    close(exception)
+                    return@addSnapshotListener
+                }
+
+                val results = snapshots
+                    ?.toObjects(FirestoreMaintenance::class.java)
+                    ?.map { it.fromFirebase() } ?: emptyList()
+
+                trySend(results)
+            }
+
+        awaitClose { listener.remove() }
+    }
+
+    suspend fun addMaintenanceLog(carId: String, log: com.dariusepure.caractivitylog.domain.Maintenance) {
+        checkNetwork()
+        val uid = getUid()
+        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
+        
+        val maintenanceRef = carRef.collection("maintenance").document()
+        val mileageLogRef = carRef.collection("mileage").document()
+
+        val mileageLog = MileageLog(id = mileageLogRef.id, km = log.km, date = log.date)
+        val maintenanceLog = log.copy(id = maintenanceRef.id, mileageLogId = mileageLogRef.id)
+
+        firestore.runBatch { batch ->
+            batch.set(maintenanceRef, maintenanceLog.toFirebase())
+            batch.set(mileageLogRef, mileageLog.toFirebase())
+        }.await()
+    }
+
+    suspend fun updateMaintenanceLog(carId: String, log: com.dariusepure.caractivitylog.domain.Maintenance) {
+        checkNetwork()
+        val uid = getUid()
+        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
+        
+        firestore.runBatch { batch ->
+            batch.set(carRef.collection("maintenance").document(log.id), log.toFirebase())
+            if (log.mileageLogId.isNotEmpty()) {
+                val mileageLog = MileageLog(id = log.mileageLogId, km = log.km, date = log.date)
+                batch.set(carRef.collection("mileage").document(log.mileageLogId), mileageLog.toFirebase())
+            }
+        }.await()
+    }
+
+    suspend fun deleteMaintenanceLog(carId: String, log: com.dariusepure.caractivitylog.domain.Maintenance) {
+        checkNetwork()
+        val uid = getUid()
+        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
+        
+        firestore.runBatch { batch ->
+            batch.delete(carRef.collection("maintenance").document(log.id))
+            if (log.mileageLogId.isNotEmpty()) {
+                batch.delete(carRef.collection("mileage").document(log.mileageLogId))
+            }
+        }.await()
+    }
 }

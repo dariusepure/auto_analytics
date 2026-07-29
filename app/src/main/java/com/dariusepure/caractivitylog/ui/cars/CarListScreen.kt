@@ -75,6 +75,7 @@ import com.dariusepure.caractivitylog.ui.common.CarCardSkeleton
 import com.dariusepure.caractivitylog.ui.common.EmptyState
 import com.dariusepure.caractivitylog.ui.common.ErrorState
 import com.dariusepure.caractivitylog.ui.common.LoadingState
+import com.dariusepure.caractivitylog.ui.common.LanguageSelector
 import com.dariusepure.caractivitylog.ui.common.toRelativeString
 import com.dariusepure.caractivitylog.domain.displayName
 
@@ -303,6 +304,7 @@ private fun InnerCarListScreen(
                             contentDescription = null
                         )
                     }
+                    LanguageSelector()
                 }
             )
         },

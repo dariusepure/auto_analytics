@@ -50,6 +50,7 @@ fun CarDetailsScreen(
     onDiagnosisClick: () -> Unit,
     onFuelClick: () -> Unit,
     onTireClick: () -> Unit,
+    onServiceClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CarDetailsViewModel = hiltViewModel()
 ) {
@@ -64,7 +65,7 @@ fun CarDetailsScreen(
                     try {
                         context.contentResolver.openOutputStream(it)?.use { os ->
                             PdfReportGenerator.generateReport(
-                                context, s.car, s.mileageLogs, s.inspections, s.fuelLogs, s.tireSets, os
+                                context, s.car, s.mileageLogs, s.inspections, s.fuelLogs, s.tireSets, s.maintenanceLogs, os
                             )
                         }
                         true
@@ -265,6 +266,26 @@ fun CarDetailsScreen(
                                 Text(stringResource(R.string.car_fuel_consumption_subtitle), style = MaterialTheme.typography.bodySmall)
                             }
                             
+                            BentoCard(
+                                onClick = onServiceClick,
+                                modifier = Modifier.weight(1f).fillMaxHeight()
+                            ) {
+                                Icon(Icons.Default.Build, null, tint = MaterialTheme.colorScheme.primary)
+                                Spacer(Modifier.weight(1f))
+                                Text(stringResource(R.string.service_history_title), style = MaterialTheme.typography.titleMedium)
+                                val latestService = s.maintenanceLogs.maxByOrNull { it.date }
+                                Text(
+                                    text = latestService?.description ?: stringResource(R.string.service_empty),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    maxLines = 1
+                                )
+                            }
+                        }
+                    }
+
+                    // Tires & Diagnosis (Full Width)
+                    item {
+                        Row(modifier = Modifier.fillMaxWidth().height(120.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             val activeTires = s.tireSets.find { it.isActive }
                             BentoCard(
                                 onClick = onTireClick,
@@ -278,22 +299,15 @@ fun CarDetailsScreen(
                                     style = MaterialTheme.typography.bodySmall
                                 )
                             }
-                        }
-                    }
 
-                    // Diagnosis (Full Width)
-                    item {
-                        BentoCard(
-                            onClick = onDiagnosisClick,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Psychology, null, modifier = Modifier.size(32.dp), tint = MaterialTheme.colorScheme.primary)
-                                Spacer(Modifier.width(16.dp))
-                                Column {
-                                    Text(stringResource(R.string.car_diagnosis_title), style = MaterialTheme.typography.titleMedium)
-                                    Text(stringResource(R.string.car_diagnosis_subtitle), style = MaterialTheme.typography.bodySmall)
-                                }
+                            BentoCard(
+                                onClick = onDiagnosisClick,
+                                modifier = Modifier.weight(1f).fillMaxHeight()
+                            ) {
+                                Icon(Icons.Default.Psychology, null, tint = MaterialTheme.colorScheme.primary)
+                                Spacer(Modifier.weight(1f))
+                                Text(stringResource(R.string.car_diagnosis_title), style = MaterialTheme.typography.titleSmall)
+                                Text(stringResource(R.string.car_diagnosis_subtitle), style = MaterialTheme.typography.bodySmall, maxLines = 1)
                             }
                         }
                     }

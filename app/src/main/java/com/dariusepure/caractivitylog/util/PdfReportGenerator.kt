@@ -10,6 +10,7 @@ import com.dariusepure.caractivitylog.domain.FuelLog
 import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.domain.VehicleInspection
 import com.dariusepure.caractivitylog.domain.TireSet
+import com.dariusepure.caractivitylog.domain.Maintenance
 import com.dariusepure.caractivitylog.domain.displayName
 import java.io.OutputStream
 import java.text.SimpleDateFormat
@@ -29,6 +30,7 @@ object PdfReportGenerator {
         inspections: List<VehicleInspection>,
         fuelLogs: List<FuelLog>,
         tireSets: List<TireSet>,
+        maintenanceLogs: List<Maintenance>,
         outputStream: OutputStream
     ) {
         val pdfDocument = PdfDocument()
@@ -189,6 +191,25 @@ object PdfReportGenerator {
                     drawText("${context.getString(com.dariusepure.caractivitylog.R.string.tire_storage_label)}: ${tireSet.storageLocation}", MARGIN + 40f, 10f)
                 }
                 yPosition += 5f
+            }
+        }
+
+        // 10. Maintenance Logs
+        if (maintenanceLogs.isNotEmpty()) {
+            drawSectionTitle(context.getString(com.dariusepure.caractivitylog.R.string.pdf_section_service))
+            maintenanceLogs.sortedByDescending { it.date }.forEach { log ->
+                val country = europeanCountries.find { it.code == car.plateCountry }
+                val unit = if (country?.usesMiles == true) "mi" else "km"
+                drawText(
+                    context.getString(
+                        com.dariusepure.caractivitylog.R.string.pdf_service_entry,
+                        dateFormat.format(log.date),
+                        log.description,
+                        log.km.toInt(),
+                        unit
+                    ),
+                    MARGIN + 20f, 12f
+                )
             }
         }
 

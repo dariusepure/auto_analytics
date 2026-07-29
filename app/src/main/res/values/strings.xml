@@ -406,4 +406,15 @@
     <string name="pdf_section_tire_sets">Tire Sets</string>
     <string name="pdf_tire_set_entry">%1$s %2$s (%3$s) \u00B7 %4$d/%5$d R%6$d \u00B7 DOT %7$s</string>
     <string name="pdf_active_tag">(Active)</string>
+    <string name="pdf_section_service">Service &amp; Maintenance</string>
+    <string name="pdf_service_entry">%1$s: %2$s at %3$d %4$s</string>
+    <!-- Service -->
+    <string name="service_history_title">Service History</string>
+    <string name="service_add_title">Add Service Record</string>
+    <string name="service_edit_title">Edit Service Record</string>
+    <string name="service_description_label">Description (What was fixed?)</string>
+    <string name="service_description_placeholder">Ex: Oil change and filters</string>
+    <string name="service_mileage_label">Mileage (%s)</string>
+    <string name="service_empty">No service records found.</string>
+    <string name="service_delete_confirm">Are you sure you want to delete this service record? The associated mileage entry will also be removed.</string>
 </resources>
