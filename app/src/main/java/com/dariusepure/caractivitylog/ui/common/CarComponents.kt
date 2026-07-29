@@ -25,13 +25,61 @@ import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
 import kotlin.math.roundToInt
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.domain.VehicleInspection
 import com.dariusepure.caractivitylog.domain.Insurance
 import com.dariusepure.caractivitylog.domain.Vignette
 import com.dariusepure.caractivitylog.domain.TireSet
 import java.util.Date
+
+@Composable
+fun StatusBadge(
+    label: String,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        color = color.copy(alpha = 0.15f),
+        contentColor = color,
+        shape = RoundedCornerShape(8.dp),
+        modifier = modifier
+    ) {
+        Text(
+            text = label.uppercase(),
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.5.sp
+            ),
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+        )
+    }
+}
+
+@Composable
+fun BentoCard(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            content = content
+        )
+    }
+}
 
 @Composable
 fun MileageItem(

@@ -71,6 +71,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.dariusepure.caractivitylog.domain.Car
+import com.dariusepure.caractivitylog.ui.common.CarCardSkeleton
 import com.dariusepure.caractivitylog.ui.common.EmptyState
 import com.dariusepure.caractivitylog.ui.common.ErrorState
 import com.dariusepure.caractivitylog.ui.common.LoadingState
@@ -341,7 +342,13 @@ private fun InnerCarListScreen(
 
             Box(modifier = Modifier.weight(1f)) {
                 when (state) {
-                    CarListUiState.Loading -> LoadingState(label = stringResource(R.string.car_list_loading))
+                    CarListUiState.Loading -> LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(5) { CarCardSkeleton() }
+                    }
                     CarListUiState.Empty -> EmptyState(
                         title = if (searchQuery.isEmpty()) stringResource(R.string.car_list_empty_title) else stringResource(R.string.car_list_no_results_title),
                         subtitle = if (searchQuery.isEmpty()) stringResource(R.string.car_list_empty_subtitle) else stringResource(R.string.car_list_no_results_subtitle),
