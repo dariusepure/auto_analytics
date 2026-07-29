@@ -27,10 +27,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.displayName
-import com.dariusepure.caractivitylog.ui.common.CarFormatters
-import com.dariusepure.caractivitylog.ui.common.EmptyState
-import com.dariusepure.caractivitylog.ui.common.ErrorState
-import com.dariusepure.caractivitylog.ui.common.LoadingState
+import com.dariusepure.caractivitylog.ui.common.*
 import com.dariusepure.caractivitylog.ui.cars.BrandHelper
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -98,26 +95,12 @@ fun DeletedCarCard(
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text(stringResource(R.string.recycle_bin_delete_confirm_title)) },
-            text = { Text(stringResource(R.string.recycle_bin_delete_confirm_text, car.displayName)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onDeletePermanently()
-                        showDeleteDialog = false
-                    },
-                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                ) {
-                    Text(stringResource(R.string.recycle_bin_delete_forever))
-                }
+        DeleteConfirmationDialog(
+            onConfirm = {
+                onDeletePermanently()
+                showDeleteDialog = false
             },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text(stringResource(R.string.common_cancel))
-                }
-            }
+            onDismiss = { showDeleteDialog = false }
         )
     }
 

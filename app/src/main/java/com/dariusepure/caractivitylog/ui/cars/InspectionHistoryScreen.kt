@@ -35,10 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dariusepure.caractivitylog.ui.common.CarFormatters
-import com.dariusepure.caractivitylog.ui.common.LoadingState
-import com.dariusepure.caractivitylog.ui.common.ErrorState
-import com.dariusepure.caractivitylog.ui.common.InspectionItem
+import com.dariusepure.caractivitylog.ui.common.*
 import com.dariusepure.caractivitylog.domain.VehicleInspection
 import com.dariusepure.caractivitylog.domain.displayName
 import java.text.SimpleDateFormat
@@ -56,18 +53,32 @@ fun InspectionHistoryScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showAddDialog by remember { mutableStateOf(false) }
     var editingInspection by remember { mutableStateOf<VehicleInspection?>(null) }
+    var inspectionToDelete by remember { mutableStateOf<VehicleInspection?>(null) }
 
     LaunchedEffect(carId) {
         viewModel.loadCarData(carId)
     }
 
+    if (inspectionToDelete != null) {
+        DeleteConfirmationDialog(
+            onConfirm = {
+                viewModel.deleteInspection(carId, inspectionToDelete!!.id)
+                inspectionToDelete = null
+            },
+            onDismiss = { inspectionToDelete = null }
+        )
+    }
+
     if (showAddDialog || editingInspection != null) {
-        val car = (state as? CarDetailsUiState.Success)?.car
+        val successState = state as? CarDetailsUiState.Success
+        val car = successState?.car
+        val existingLogs = successState?.mileageLogs ?: emptyList()
         val country = europeanCountries.find { it.code == car?.plateCountry }
         val unitLabel = if (country?.usesMiles == true) "mi" else "km"
         
         AddInspectionDialog(
             existingInspection = editingInspection,
+            existingLogs = existingLogs,
             unit = unitLabel,
             onDismiss = { 
                 showAddDialog = false
@@ -146,7 +157,7 @@ fun InspectionHistoryScreen(
                                 inspection = inspection.copy(mileage = displayMileage),
                                 unit = unitLabel,
                                 onEditClick = { editingInspection = inspection },
-                                onDeleteClick = { viewModel.deleteInspection(carId, inspection.id) }
+                                onDeleteClick = { inspectionToDelete = inspection }
                             )
                             HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                         }

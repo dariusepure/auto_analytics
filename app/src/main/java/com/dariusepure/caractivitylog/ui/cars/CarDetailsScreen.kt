@@ -466,6 +466,7 @@ fun AddMileageDialog(
 @Composable
 fun AddInspectionDialog(
     existingInspection: VehicleInspection? = null,
+    existingLogs: List<MileageLog> = emptyList(),
     unit: String = "km",
     onDismiss: () -> Unit,
     onConfirm: (VehicleInspection) -> Unit
@@ -477,6 +478,7 @@ fun AddInspectionDialog(
     var durationValue by remember { mutableStateOf(existingInspection?.durationValue?.toString() ?: "1") }
     var durationUnit by remember { mutableStateOf(existingInspection?.durationUnit ?: InspectionDurationUnit.YEARS) }
     var unitExpanded by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     val context = LocalContext.current
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
@@ -503,11 +505,26 @@ fun AddInspectionDialog(
             Column {
                 OutlinedTextField(
                     value = km,
-                    onValueChange = { if (it.all { char -> char.isDigit() }) km = it },
+                    onValueChange = { 
+                        if (it.all { char -> char.isDigit() }) {
+                            km = it
+                            errorMessage = null
+                        }
+                    },
                     label = { Text(stringResource(R.string.inspection_mileage_label, unit)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = errorMessage != null
                 )
+
+                if (errorMessage != null) {
+                    Text(
+                        text = errorMessage!!,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -586,15 +603,34 @@ fun AddInspectionDialog(
             Button(
                 onClick = {
                     val inputVal = km.toDoubleOrNull() ?: 0.0
-                    val canonicalValue = CarFormatters.toCanonicalDistance(inputVal, unit == "mi")
-                    onConfirm(
-                        VehicleInspection(
-                            date = selectedDate,
-                            mileage = canonicalValue,
-                            durationValue = durationValue.toIntOrNull() ?: 1,
-                            durationUnit = durationUnit
+                    val canonicalInput = CarFormatters.toCanonicalDistance(inputVal, unit == "mi")
+                    
+                    val conflict = existingLogs.find { log ->
+                        // If we are editing, ignore the associated mileage entry? 
+                        // VehicleInspection doesn't store mileageLogId yet, but maybe we should check by date/value if it matches exactly?
+                        // For now just general check.
+                        val kmBackwards = selectedDate.after(log.date) && canonicalInput < log.km
+                        val dateBackwards = selectedDate.before(log.date) && canonicalInput > log.km
+                        kmBackwards || dateBackwards
+                    }
+
+                    if (conflict != null) {
+                        val conflictDisplay = CarFormatters.fromCanonicalDistance(conflict.km, unit == "mi")
+                        errorMessage = if (selectedDate.after(conflict.date)) {
+                            context.getString(R.string.mileage_conflict_less, conflictDisplay.roundToInt(), unit, dateFormat.format(conflict.date))
+                        } else {
+                            context.getString(R.string.mileage_conflict_more, conflictDisplay.roundToInt(), unit, dateFormat.format(conflict.date))
+                        }
+                    } else {
+                        onConfirm(
+                            VehicleInspection(
+                                date = selectedDate,
+                                mileage = canonicalInput,
+                                durationValue = durationValue.toIntOrNull() ?: 1,
+                                durationUnit = durationUnit
+                            )
                         )
-                    )
+                    }
                 },
                 enabled = km.isNotBlank() && durationValue.isNotBlank()
             ) {

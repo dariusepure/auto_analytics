@@ -17,9 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dariusepure.caractivitylog.ui.common.LoadingState
-import com.dariusepure.caractivitylog.ui.common.ErrorState
-import com.dariusepure.caractivitylog.ui.common.InsuranceItem
+import com.dariusepure.caractivitylog.ui.common.*
 import com.dariusepure.caractivitylog.domain.Insurance
 import com.dariusepure.caractivitylog.domain.InspectionDurationUnit
 import com.dariusepure.caractivitylog.domain.displayName
@@ -37,9 +35,20 @@ fun InsuranceHistoryScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showAddDialog by remember { mutableStateOf(false) }
     var editingInsurance by remember { mutableStateOf<Insurance?>(null) }
+    var insuranceToDelete by remember { mutableStateOf<Insurance?>(null) }
 
     LaunchedEffect(carId) {
         viewModel.loadCarData(carId)
+    }
+
+    if (insuranceToDelete != null) {
+        DeleteConfirmationDialog(
+            onConfirm = {
+                viewModel.deleteInsurance(carId, insuranceToDelete!!.id)
+                insuranceToDelete = null
+            },
+            onDismiss = { insuranceToDelete = null }
+        )
     }
 
     if (showAddDialog || editingInsurance != null) {
@@ -117,7 +126,7 @@ fun InsuranceHistoryScreen(
                             InsuranceItem(
                                 insurance = insurance,
                                 onEditClick = { editingInsurance = insurance },
-                                onDeleteClick = { viewModel.deleteInsurance(carId, insurance.id) }
+                                onDeleteClick = { insuranceToDelete = insurance }
                             )
                             HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                         }

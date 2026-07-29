@@ -1,5 +1,6 @@
 package com.dariusepure.caractivitylog.ui.cars
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,9 +21,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.domain.Maintenance
 import com.dariusepure.caractivitylog.domain.displayName
-import com.dariusepure.caractivitylog.ui.common.CarFormatters
-import com.dariusepure.caractivitylog.ui.common.ErrorState
-import com.dariusepure.caractivitylog.ui.common.LoadingState
+import com.dariusepure.caractivitylog.ui.common.*
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -44,9 +44,12 @@ fun ServiceHistoryScreen(
     }
 
     if (showAddDialog || editingRecord != null) {
+        val successState = state as? CarDetailsUiState.Success
+        val existingLogs = successState?.mileageLogs ?: emptyList()
         AddServiceDialog(
             existingRecord = editingRecord,
-            unit = (state as? CarDetailsUiState.Success)?.let { s ->
+            existingLogs = existingLogs,
+            unit = successState?.let { s ->
                 val country = europeanCountries.find { it.code == s.car.plateCountry }
                 if (country?.usesMiles == true) "mi" else "km"
             } ?: "km",
@@ -67,26 +70,12 @@ fun ServiceHistoryScreen(
     }
 
     if (recordToDelete != null) {
-        AlertDialog(
-            onDismissRequest = { recordToDelete = null },
-            title = { Text(stringResource(R.string.common_delete)) },
-            text = { Text(stringResource(R.string.service_delete_confirm)) },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        viewModel.deleteMaintenance(carId, recordToDelete!!)
-                        recordToDelete = null
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) {
-                    Text(stringResource(R.string.common_delete))
-                }
+        DeleteConfirmationDialog(
+            onConfirm = {
+                viewModel.deleteMaintenance(carId, recordToDelete!!)
+                recordToDelete = null
             },
-            dismissButton = {
-                TextButton(onClick = { recordToDelete = null }) {
-                    Text(stringResource(R.string.common_cancel))
-                }
-            }
+            onDismiss = { recordToDelete = null }
         )
     }
 
@@ -188,6 +177,7 @@ fun ServiceItem(
 @Composable
 fun AddServiceDialog(
     existingRecord: Maintenance? = null,
+    existingLogs: List<com.dariusepure.caractivitylog.domain.MileageLog> = emptyList(),
     unit: String = "km",
     onDismiss: () -> Unit,
     onConfirm: (Maintenance) -> Unit
@@ -196,6 +186,26 @@ fun AddServiceDialog(
     var km by remember { mutableStateOf(existingRecord?.km?.roundToInt()?.toString() ?: "") }
     var cost by remember { mutableStateOf(existingRecord?.cost?.takeIf { it > 0 }?.toString() ?: "") }
     var date by remember { mutableStateOf(existingRecord?.date ?: Date()) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
+    
+    val calendar = Calendar.getInstance()
+    calendar.time = date
+
+    val datePickerDialog = android.app.DatePickerDialog(
+        context,
+        { _, year, month, dayOfMonth ->
+            val newCalendar = Calendar.getInstance()
+            newCalendar.set(year, month, dayOfMonth)
+            date = newCalendar.time
+            errorMessage = null
+        },
+        calendar.get(Calendar.YEAR),
+        calendar.get(Calendar.MONTH),
+        calendar.get(Calendar.DAY_OF_MONTH)
+    )
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -211,11 +221,26 @@ fun AddServiceDialog(
                 )
                 OutlinedTextField(
                     value = km,
-                    onValueChange = { if (it.all { char -> char.isDigit() }) km = it },
+                    onValueChange = { 
+                        if (it.all { char -> char.isDigit() }) {
+                            km = it
+                            errorMessage = null
+                        }
+                    },
                     label = { Text(stringResource(R.string.service_mileage_label, unit)) },
                     modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                    isError = errorMessage != null
                 )
+                
+                if (errorMessage != null) {
+                    Text(
+                        text = errorMessage!!,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+
                 OutlinedTextField(
                     value = cost,
                     onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) cost = it },
@@ -223,19 +248,53 @@ fun AddServiceDialog(
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
                 )
+
+                OutlinedTextField(
+                    value = dateFormat.format(date),
+                    onValueChange = { },
+                    readOnly = true,
+                    label = { Text(stringResource(R.string.common_date)) },
+                    modifier = Modifier.fillMaxWidth().clickable { datePickerDialog.show() },
+                    enabled = false,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledBorderColor = MaterialTheme.colorScheme.outline,
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                )
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    onConfirm(
-                        Maintenance(
-                            description = description,
-                            km = km.toDoubleOrNull() ?: 0.0,
-                            cost = cost.toDoubleOrNull() ?: 0.0,
-                            date = date
+                    val k = km.toDoubleOrNull() ?: 0.0
+                    val usesMiles = unit == "mi"
+                    val canonicalInput = CarFormatters.toCanonicalDistance(k, usesMiles)
+                    
+                    val conflict = existingLogs.find { log ->
+                        if (log.id == existingRecord?.mileageLogId) return@find false
+                        val kmBackwards = date.after(log.date) && canonicalInput < log.km
+                        val dateBackwards = date.before(log.date) && canonicalInput > log.km
+                        kmBackwards || dateBackwards
+                    }
+
+                    if (conflict != null) {
+                        val conflictDisplay = CarFormatters.fromCanonicalDistance(conflict.km, usesMiles)
+                        errorMessage = if (date.after(conflict.date)) {
+                            context.getString(R.string.mileage_conflict_less, conflictDisplay.roundToInt(), unit, dateFormat.format(conflict.date))
+                        } else {
+                            context.getString(R.string.mileage_conflict_more, conflictDisplay.roundToInt(), unit, dateFormat.format(conflict.date))
+                        }
+                    } else {
+                        onConfirm(
+                            Maintenance(
+                                description = description,
+                                km = k,
+                                cost = cost.toDoubleOrNull() ?: 0.0,
+                                date = date
+                            )
                         )
-                    )
+                    }
                 },
                 enabled = description.isNotBlank() && km.isNotBlank()
             ) {

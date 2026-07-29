@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
+import com.dariusepure.caractivitylog.ui.common.DeleteConfirmationDialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,10 +30,21 @@ fun DiagnosisScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var inputText by remember { mutableStateOf("") }
+    var showResetDialog by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
 
     LaunchedEffect(carId) {
         viewModel.loadCarData(carId)
+    }
+
+    if (showResetDialog) {
+        DeleteConfirmationDialog(
+            onConfirm = {
+                viewModel.resetConversation()
+                showResetDialog = false
+            },
+            onDismiss = { showResetDialog = false }
+        )
     }
 
     // Auto-scroll to latest message
@@ -52,7 +64,7 @@ fun DiagnosisScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { viewModel.resetConversation() }) {
+                    IconButton(onClick = { showResetDialog = true }) {
                         Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.diagnosis_reset_chat))
                     }
                 }

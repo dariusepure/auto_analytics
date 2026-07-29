@@ -7,6 +7,7 @@
     <string name="common_add">Adaugă</string>
     <string name="common_update">Actualizează</string>
     <string name="common_delete">Șterge</string>
+    <string name="common_delete_permanently">Șterge definitiv</string>
     <string name="common_edit">Editează</string>
     <string name="common_apply_selected">Aplică selecția (%d)</string>
     <string name="common_try_again">Încearcă din nou</string>
@@ -159,6 +160,7 @@
     <string name="car_edit_content_description">Editează mașina</string>
     <string name="car_delete_content_description">Șterge mașina</string>
     <string name="car_last_update">Ultima actualizare: %s</string>
+    <string name="car_move_to_recycle_bin_msg">Această mașină va fi mutată în coșul de reciclare.</string>
 
     <!-- Add/Edit Car -->
     <string name="car_add_title">Adaugă mașină nouă</string>
@@ -407,4 +409,5 @@
     <string name="service_mileage_label">Kilometraj (%s)</string>
     <string name="service_empty">Nu s-au găsit înregistrări de service.</string>
     <string name="service_delete_confirm">Ești sigur că vrei să ștergi această înregistrare? Kilometrajul asociat va fi de asemenea șters.</string>
+    <string name="common_permanent_delete_msg">Această acțiune nu poate fi anulată.</string>
 </resources>

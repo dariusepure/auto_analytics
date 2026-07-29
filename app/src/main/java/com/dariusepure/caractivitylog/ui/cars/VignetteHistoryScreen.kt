@@ -17,9 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dariusepure.caractivitylog.ui.common.LoadingState
-import com.dariusepure.caractivitylog.ui.common.ErrorState
-import com.dariusepure.caractivitylog.ui.common.VignetteItem
+import com.dariusepure.caractivitylog.ui.common.*
 import com.dariusepure.caractivitylog.domain.Vignette
 import com.dariusepure.caractivitylog.domain.InspectionDurationUnit
 import com.dariusepure.caractivitylog.domain.displayName
@@ -37,9 +35,20 @@ fun VignetteHistoryScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showAddDialog by remember { mutableStateOf(false) }
     var editingVignette by remember { mutableStateOf<Vignette?>(null) }
+    var vignetteToDelete by remember { mutableStateOf<Vignette?>(null) }
 
     LaunchedEffect(carId) {
         viewModel.loadCarData(carId)
+    }
+
+    if (vignetteToDelete != null) {
+        DeleteConfirmationDialog(
+            onConfirm = {
+                viewModel.deleteVignette(carId, vignetteToDelete!!.id)
+                vignetteToDelete = null
+            },
+            onDismiss = { vignetteToDelete = null }
+        )
     }
 
     if (showAddDialog || editingVignette != null) {
@@ -117,7 +126,7 @@ fun VignetteHistoryScreen(
                             VignetteItem(
                                 vignette = vignette,
                                 onEditClick = { editingVignette = vignette },
-                                onDeleteClick = { viewModel.deleteVignette(carId, vignette.id) }
+                                onDeleteClick = { vignetteToDelete = vignette }
                             )
                             HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                         }

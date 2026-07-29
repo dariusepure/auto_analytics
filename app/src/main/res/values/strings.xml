@@ -7,6 +7,7 @@
     <string name="common_add">Add</string>
     <string name="common_update">Update</string>
     <string name="common_delete">Delete</string>
+    <string name="common_delete_permanently">Delete Permanently</string>
     <string name="common_edit">Edit</string>
     <string name="common_apply_selected">Apply Selected (%d)</string>
     <string name="common_try_again">Try again</string>
@@ -159,6 +160,7 @@
     <string name="car_edit_content_description">Edit car</string>
     <string name="car_delete_content_description">Delete car</string>
     <string name="car_last_update">Last update: %s</string>
+    <string name="car_move_to_recycle_bin_msg">This car will be moved to the recycle bin.</string>
 
     <!-- Add/Edit Car -->
     <string name="car_add_title">Add New Car</string>
@@ -417,4 +419,5 @@
     <string name="service_mileage_label">Mileage (%s)</string>
     <string name="service_empty">No service records found.</string>
     <string name="service_delete_confirm">Are you sure you want to delete this service record? The associated mileage entry will also be removed.</string>
+    <string name="common_permanent_delete_msg">This action cannot be undone.</string>
 </resources>

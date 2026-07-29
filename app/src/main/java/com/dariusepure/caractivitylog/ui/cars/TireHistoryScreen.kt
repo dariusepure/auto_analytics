@@ -17,9 +17,7 @@ import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dariusepure.caractivitylog.ui.common.LoadingState
-import com.dariusepure.caractivitylog.ui.common.ErrorState
-import com.dariusepure.caractivitylog.ui.common.TireSetItem
+import com.dariusepure.caractivitylog.ui.common.*
 import com.dariusepure.caractivitylog.domain.TireSet
 import com.dariusepure.caractivitylog.domain.TireSeason
 import com.dariusepure.caractivitylog.domain.displayName
@@ -36,9 +34,20 @@ fun TireHistoryScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showAddDialog by remember { mutableStateOf(false) }
     var editingTireSet by remember { mutableStateOf<TireSet?>(null) }
+    var tireSetToDelete by remember { mutableStateOf<TireSet?>(null) }
 
     LaunchedEffect(carId) {
         viewModel.loadCarData(carId)
+    }
+
+    if (tireSetToDelete != null) {
+        DeleteConfirmationDialog(
+            onConfirm = {
+                viewModel.deleteTireSet(carId, tireSetToDelete!!.id)
+                tireSetToDelete = null
+            },
+            onDismiss = { tireSetToDelete = null }
+        )
     }
 
     if (showAddDialog || editingTireSet != null) {
@@ -116,7 +125,7 @@ fun TireHistoryScreen(
                             TireSetItem(
                                 tireSet = tireSet,
                                 onEditClick = { editingTireSet = tireSet },
-                                onDeleteClick = { viewModel.deleteTireSet(carId, tireSet.id) }
+                                onDeleteClick = { tireSetToDelete = tireSet }
                             )
                             HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                         }

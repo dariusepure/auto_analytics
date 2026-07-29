@@ -75,6 +75,7 @@ import com.dariusepure.caractivitylog.ui.common.CarCardSkeleton
 import com.dariusepure.caractivitylog.ui.common.EmptyState
 import com.dariusepure.caractivitylog.ui.common.ErrorState
 import com.dariusepure.caractivitylog.ui.common.LoadingState
+import com.dariusepure.caractivitylog.ui.common.DeleteConfirmationDialog
 import com.dariusepure.caractivitylog.ui.common.LanguageSelector
 import com.dariusepure.caractivitylog.ui.common.toRelativeString
 import com.dariusepure.caractivitylog.domain.displayName
@@ -247,6 +248,21 @@ private fun InnerCarListScreen(
     modifier: Modifier = Modifier,
 ) {
     var sortMenuExpanded by remember { mutableStateOf(false) }
+    var carToDelete by remember { mutableStateOf<String?>(null) }
+
+    if (carToDelete != null) {
+        DeleteConfirmationDialog(
+            onConfirm = {
+                onDeleteCar(carToDelete!!)
+                carToDelete = null
+            },
+            onDismiss = { carToDelete = null },
+            title = stringResource(R.string.common_delete),
+            message = stringResource(R.string.car_move_to_recycle_bin_msg),
+            confirmText = stringResource(R.string.common_delete),
+            isPermanent = false
+        )
+    }
 
     Scaffold(
         modifier = modifier,
@@ -366,7 +382,7 @@ private fun InnerCarListScreen(
                                 car = car,
                                 onClick = { onCarClick(car.id) },
                                 onEditClick = { onEditCarClick(car.id) },
-                                onDeleteClick = { onDeleteCar(car.id) }
+                                onDeleteClick = { carToDelete = car.id }
                             )
                         }
                     }

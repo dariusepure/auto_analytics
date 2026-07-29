@@ -27,10 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.domain.MileageLog
-import com.dariusepure.caractivitylog.ui.common.ConsumptionLineChart
-import com.dariusepure.caractivitylog.ui.common.CarFormatters
-import com.dariusepure.caractivitylog.ui.common.ErrorState
-import com.dariusepure.caractivitylog.ui.common.LoadingState
+import com.dariusepure.caractivitylog.ui.common.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -45,9 +42,20 @@ fun FuelHistoryScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showAddDialog by remember { mutableStateOf(false) }
     var editingLog by remember { mutableStateOf<com.dariusepure.caractivitylog.domain.FuelLog?>(null) }
+    var logToDelete by remember { mutableStateOf<com.dariusepure.caractivitylog.domain.FuelLog?>(null) }
 
     LaunchedEffect(carId) {
         viewModel.loadData(carId)
+    }
+
+    if (logToDelete != null) {
+        DeleteConfirmationDialog(
+            onConfirm = {
+                viewModel.deleteFuelLog(carId, logToDelete!!)
+                logToDelete = null
+            },
+            onDismiss = { logToDelete = null }
+        )
     }
 
     Scaffold(
@@ -85,17 +93,6 @@ fun FuelHistoryScreen(
                 ) {
                     item {
                         FuelStatsCard(s.stats, distUnit, consUnit)
-                        
-                        if (s.logs.any { it.consumption != null }) {
-                            val chartData = s.logs.mapNotNull { 
-                                if (it.consumption != null) it.log.date to it.consumption else null 
-                            }
-                            ConsumptionLineChart(
-                                data = chartData,
-                                unit = consUnit,
-                                modifier = Modifier.padding(vertical = 16.dp)
-                            )
-                        }
 
                         if (s.stats.avgConsumption == null && s.logs.isNotEmpty()) {
                             Surface(
@@ -151,7 +148,7 @@ fun FuelHistoryScreen(
                             consUnit = consUnit,
                             usesMiles = usesMiles,
                             onEdit = { editingLog = entry.log },
-                            onDelete = { viewModel.deleteFuelLog(carId, entry.log) }
+                            onDelete = { logToDelete = entry.log }
                         )
                     }
                     

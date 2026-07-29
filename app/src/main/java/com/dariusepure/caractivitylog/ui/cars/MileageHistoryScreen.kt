@@ -27,11 +27,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.domain.ScannedMileageEntry
-import com.dariusepure.caractivitylog.ui.common.MileageLineChart
-import com.dariusepure.caractivitylog.ui.common.CarFormatters
-import com.dariusepure.caractivitylog.ui.common.ErrorState
-import com.dariusepure.caractivitylog.ui.common.LoadingState
-import com.dariusepure.caractivitylog.ui.common.MileageItem
+import com.dariusepure.caractivitylog.ui.common.*
 import com.dariusepure.caractivitylog.domain.displayName
 import java.util.Date
 import kotlin.math.roundToInt
@@ -49,6 +45,7 @@ fun MileageHistoryScreen(
     
     var showAddMileageDialog by remember { mutableStateOf(false) }
     var editingMileageLog by remember { mutableStateOf<MileageLog?>(null) }
+    var logToDelete by remember { mutableStateOf<MileageLog?>(null) }
     var scannedEntries by remember { mutableStateOf<List<ScannedMileageEntry>>(emptyList()) }
 
     val photoLauncher = rememberLauncherForActivityResult(
@@ -91,6 +88,16 @@ fun MileageHistoryScreen(
                 viewModel.addBatchMileage(carId, selectedEntries)
                 scannedEntries = emptyList()
             }
+        )
+    }
+
+    if (logToDelete != null) {
+        DeleteConfirmationDialog(
+            onConfirm = {
+                viewModel.deleteMileage(carId, logToDelete!!.id)
+                logToDelete = null
+            },
+            onDismiss = { logToDelete = null }
         )
     }
 
@@ -242,7 +249,7 @@ fun MileageHistoryScreen(
                                 log = log.copy(km = displayValue),
                                 unit = unitLabel,
                                 onEditClick = { editingMileageLog = log },
-                                onDeleteClick = { viewModel.deleteMileage(carId, log.id) }
+                                onDeleteClick = { logToDelete = log }
                             )
                             HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                         }
