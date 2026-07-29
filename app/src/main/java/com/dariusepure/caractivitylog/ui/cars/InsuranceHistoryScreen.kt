@@ -85,7 +85,8 @@ fun InsuranceHistoryScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showAddDialog = true },
-                containerColor = MaterialTheme.colorScheme.primaryContainer
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.insurance_add_title))
             }
@@ -270,7 +271,11 @@ fun AddInsuranceDialog(
                         )
                     )
                 },
-                enabled = durationValue.isNotBlank() && provider.isNotBlank()
+                enabled = durationValue.isNotBlank() && provider.isNotBlank(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             ) {
                 Text(stringResource(R.string.common_save))
             }

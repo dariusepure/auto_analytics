@@ -46,6 +46,8 @@ fun ServiceHistoryScreen(
     if (showAddDialog || editingRecord != null) {
         val successState = state as? CarDetailsUiState.Success
         val existingLogs = successState?.mileageLogs ?: emptyList()
+        val carAccentColor = successState?.car?.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
+
         AddServiceDialog(
             existingRecord = editingRecord,
             existingLogs = existingLogs,
@@ -53,6 +55,8 @@ fun ServiceHistoryScreen(
                 val country = europeanCountries.find { it.code == s.car.plateCountry }
                 if (country?.usesMiles == true) "mi" else "km"
             } ?: "km",
+            accentColor = carAccentColor,
+            onAccentColor = Color.White,
             onDismiss = {
                 showAddDialog = false
                 editingRecord = null
@@ -92,7 +96,11 @@ fun ServiceHistoryScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAddDialog = true }) {
+            FloatingActionButton(
+                onClick = { showAddDialog = true },
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            ) {
                 Icon(Icons.Default.Add, contentDescription = null)
             }
         }
@@ -179,6 +187,8 @@ fun AddServiceDialog(
     existingRecord: Maintenance? = null,
     existingLogs: List<com.dariusepure.caractivitylog.domain.MileageLog> = emptyList(),
     unit: String = "km",
+    accentColor: Color = MaterialTheme.colorScheme.primary,
+    onAccentColor: Color = MaterialTheme.colorScheme.onPrimary,
     onDismiss: () -> Unit,
     onConfirm: (Maintenance) -> Unit
 ) {
@@ -296,7 +306,11 @@ fun AddServiceDialog(
                         )
                     }
                 },
-                enabled = description.isNotBlank() && km.isNotBlank()
+                enabled = description.isNotBlank() && km.isNotBlank(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = accentColor,
+                    contentColor = onAccentColor
+                )
             ) {
                 Text(stringResource(R.string.common_save))
             }

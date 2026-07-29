@@ -2,6 +2,10 @@ package com.dariusepure.caractivitylog.ui.cars
 
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.platform.LocalContext
@@ -144,6 +148,7 @@ fun AddCarScreen(
     var tireWidth by remember { mutableStateOf("") }
     var tireAspectRatio by remember { mutableStateOf("") }
     var tireDiameter by remember { mutableStateOf("") }
+    var accentColor by remember { mutableStateOf<Long?>(null) }
     var fuelTankCapacity by remember { mutableStateOf("") }
     var batteryCapacity by remember { mutableStateOf("") }
     var drivetrain by remember { mutableStateOf("") }
@@ -296,7 +301,8 @@ fun AddCarScreen(
                 bootSpace = bootSpace,
                 tireWidth = tireWidth,
                 tireAspectRatio = tireAspectRatio,
-                tireDiameter = tireDiameter
+                tireDiameter = tireDiameter,
+                accentColor = accentColor
             )
         } else {
             onBack()
@@ -350,6 +356,7 @@ fun AddCarScreen(
                 tireWidth = car.tireWidth.takeIf { it != 0 }?.toString() ?: ""
                 tireAspectRatio = car.tireAspectRatio.takeIf { it != 0 }?.toString() ?: ""
                 tireDiameter = car.tireDiameter.takeIf { it != 0 }?.toString() ?: ""
+                accentColor = car.accentColor
                 
                 fuelTankCapacity = car.fuelTankCapacity.takeIf { it != 0.0 }?.toString() ?: ""
                 batteryCapacity = car.batteryCapacity.takeIf { it != 0.0 }?.toString() ?: ""
@@ -578,6 +585,51 @@ fun AddCarScreen(
                     singleLine = true,
                     enabled = state !is AddCarState.Pending
                 )
+
+                Spacer(Modifier.height(16.dp))
+                
+                Text(
+                    text = "Accent Color", // TODO: Localize
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+                
+                val accentColors = listOf(
+                    0xFF2196F3, // Blue
+                    0xFFF44336, // Red
+                    0xFF4CAF50, // Green
+                    0xFFFF9800, // Orange
+                    0xFF9C27B0, // Purple
+                    0xFFE91E63, // Pink
+                    0xFF00BCD4, // Cyan
+                    0xFF795548  // Brown
+                )
+                
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    accentColors.forEach { colorHex ->
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(Color(colorHex))
+                                .clickable { accentColor = colorHex }
+                                .let { 
+                                    if (accentColor == colorHex) it.border(2.dp, MaterialTheme.colorScheme.primary, CircleShape) 
+                                    else it 
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (accentColor == colorHex) {
+                                Icon(Icons.Default.Check, null, modifier = Modifier.size(20.dp), tint = Color.White)
+                            }
+                        }
+                    }
+                }
 
                 Spacer(Modifier.height(8.dp))
 
@@ -1513,17 +1565,22 @@ fun AddCarScreen(
                         tireDiameter = tireDiameter,
                         aspiration = aspiration,
                         frontBrakes = frontBrakes,
-                        rearBrakes = rearBrakes
+                        rearBrakes = rearBrakes,
+                        accentColor = accentColor
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = (name.isNotBlank() || (make.isNotBlank() && model.isNotBlank())) && state !is AddCarState.Pending
+                enabled = (name.isNotBlank() || (make.isNotBlank() && model.isNotBlank())) && state !is AddCarState.Pending,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             ) {
                 if (state is AddCarState.Pending) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
                         strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 } else {
                     Text(stringResource(R.string.common_save))

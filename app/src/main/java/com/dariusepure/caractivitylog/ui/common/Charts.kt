@@ -3,10 +3,12 @@ package com.dariusepure.caractivitylog.ui.common
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
@@ -86,25 +88,28 @@ fun MileageLineChart(
 
     val dateFormatter = remember { SimpleDateFormat("dd/MM/yy", Locale.getDefault()) }
 
-    CartesianChartHost(
-        chart = rememberCartesianChart(
-            rememberLineCartesianLayer(),
-            startAxis = VerticalAxis.rememberStart(
-                title = unit
+    // Encapsulate the chart in a custom MaterialTheme to override the primary color to Blue
+    MaterialTheme(colorScheme = MaterialTheme.colorScheme.copy(primary = Color(0xFF2196F3))) {
+        CartesianChartHost(
+            chart = rememberCartesianChart(
+                rememberLineCartesianLayer(),
+                startAxis = VerticalAxis.rememberStart(
+                    title = unit,
+                ),
+                bottomAxis = HorizontalAxis.rememberBottom(
+                    valueFormatter = { _, value, _ ->
+                        val index = value.toInt()
+                        if (index in sortedData.indices) {
+                            dateFormatter.format(sortedData[index].first)
+                        } else ""
+                    }
+                )
             ),
-            bottomAxis = HorizontalAxis.rememberBottom(
-                valueFormatter = { _, value, _ ->
-                    val index = value.toInt()
-                    if (index in sortedData.indices) {
-                        dateFormatter.format(sortedData[index].first)
-                    } else ""
-                }
-            )
-        ),
-        modelProducer = modelProducer,
-        modifier = modifier
-            .fillMaxWidth()
-            .height(200.dp)
-            .padding(8.dp)
-    )
+            modelProducer = modelProducer,
+            modifier = modifier
+                .fillMaxWidth()
+                .height(220.dp)
+                .padding(16.dp)
+        )
+    }
 }

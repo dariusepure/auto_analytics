@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.unit.dp
@@ -82,9 +83,11 @@ fun TireHistoryScreen(
             )
         },
         floatingActionButton = {
+            val carAccentColor = (state as? CarDetailsUiState.Success)?.car?.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
             FloatingActionButton(
                 onClick = { showAddDialog = true },
-                containerColor = MaterialTheme.colorScheme.primaryContainer
+                containerColor = carAccentColor,
+                contentColor = Color.White
             ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.tire_add_title))
             }
@@ -274,7 +277,11 @@ fun AddTireSetDialog(
                         )
                     )
                 },
-                enabled = brand.isNotBlank() && width.isNotBlank()
+                enabled = brand.isNotBlank() && width.isNotBlank(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             ) {
                 Text(stringResource(R.string.common_save))
             }

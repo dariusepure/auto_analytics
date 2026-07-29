@@ -70,7 +70,11 @@ fun FuelHistoryScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAddDialog = true }) {
+            FloatingActionButton(
+                onClick = { showAddDialog = true },
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.fuel_add_title))
             }
         }
@@ -83,6 +87,7 @@ fun FuelHistoryScreen(
                 val usesMiles = country?.usesMiles == true
                 val distUnit = if (usesMiles) "mi" else "km"
                 val consUnit = if (usesMiles) "mpg" else "L/100km"
+                val carAccentColor = s.car.accentColor?.let { androidx.compose.ui.graphics.Color(it) } ?: androidx.compose.ui.graphics.Color(0xFF2196F3)
 
                 LazyColumn(
                     modifier = Modifier
@@ -161,6 +166,8 @@ fun FuelHistoryScreen(
                         usesMiles = usesMiles,
                         existingLog = editingLog,
                         existingLogs = s.mileageLogs,
+                        accentColor = carAccentColor,
+                        onAccentColor = androidx.compose.ui.graphics.Color.White,
                         onDismiss = { 
                             showAddDialog = false
                             editingLog = null
@@ -290,6 +297,8 @@ fun AddFuelDialog(
     usesMiles: Boolean,
     existingLog: com.dariusepure.caractivitylog.domain.FuelLog? = null,
     existingLogs: List<MileageLog> = emptyList(),
+    accentColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.primary,
+    onAccentColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onPrimary,
     onDismiss: () -> Unit,
     onConfirm: (Double, Double, Double, Boolean, Date) -> Unit
 ) {
@@ -408,7 +417,11 @@ fun AddFuelDialog(
                         }
                     }
                 },
-                enabled = km.isNotBlank() && liters.isNotBlank()
+                enabled = km.isNotBlank() && liters.isNotBlank(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = accentColor,
+                    contentColor = onAccentColor
+                )
             ) {
                 Text(if (existingLog == null) stringResource(R.string.common_add) else stringResource(R.string.common_update))
             }

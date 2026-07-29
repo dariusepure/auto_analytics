@@ -125,6 +125,10 @@ fun CarDetailsScreen(
         viewModel.loadCarData(carId)
     }
 
+    val carAccentColor = (state as? CarDetailsUiState.Success)?.car?.accentColor?.let { Color(it) } 
+        ?: Color(0xFF2196F3) // Default light blue
+    val carOnAccentColor = Color.White
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -228,9 +232,9 @@ fun CarDetailsScreen(
                             BentoCard(
                                 onClick = onTechnicalSheetClick,
                                 modifier = Modifier.weight(1.2f).fillMaxHeight(),
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                                containerColor = carAccentColor.copy(alpha = 0.15f)
                             ) {
-                                Icon(Icons.Default.Description, null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
+                                Icon(Icons.Default.Description, null, modifier = Modifier.size(44.dp), tint = carAccentColor)
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.car_technical_sheet), style = MaterialTheme.typography.titleMedium)
                                 Text(stringResource(R.string.car_technical_sheet_subtitle), style = MaterialTheme.typography.bodySmall)
@@ -239,11 +243,11 @@ fun CarDetailsScreen(
                             BentoCard(
                                 onClick = onMileageClick,
                                 modifier = Modifier.weight(1f).fillMaxHeight(),
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                                containerColor = carAccentColor.copy(alpha = 0.15f)
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.Speed, null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
-                                    Icon(Icons.Default.Add, null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                                    Icon(Icons.Default.Speed, null, modifier = Modifier.size(44.dp), tint = carAccentColor)
+                                    Icon(Icons.Default.Add, null, modifier = Modifier.size(20.dp), tint = carAccentColor)
                                 }
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.car_mileage_history), style = MaterialTheme.typography.titleMedium)
@@ -268,9 +272,9 @@ fun CarDetailsScreen(
                             BentoCard(
                                 onClick = onInspectionClick,
                                 modifier = Modifier.weight(1f).fillMaxHeight(),
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                                containerColor = carAccentColor.copy(alpha = 0.15f)
                             ) {
-                                Icon(Icons.Default.AssignmentTurnedIn, null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
+                                Icon(Icons.Default.AssignmentTurnedIn, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.car_inspection_title), style = MaterialTheme.typography.titleSmall)
                                 StatusBadge(
@@ -286,9 +290,9 @@ fun CarDetailsScreen(
                             BentoCard(
                                 onClick = onInsuranceClick,
                                 modifier = Modifier.weight(1f).fillMaxHeight(),
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                                containerColor = carAccentColor.copy(alpha = 0.15f)
                             ) {
-                                Icon(Icons.Default.Security, null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
+                                Icon(Icons.Default.Security, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.car_insurance_title), style = MaterialTheme.typography.titleSmall)
                                 StatusBadge(
@@ -304,9 +308,9 @@ fun CarDetailsScreen(
                             BentoCard(
                                 onClick = onVignetteClick,
                                 modifier = Modifier.weight(1f).fillMaxHeight(),
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                                containerColor = carAccentColor.copy(alpha = 0.15f)
                             ) {
-                                Icon(Icons.Default.ConfirmationNumber, null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
+                                Icon(Icons.Default.ConfirmationNumber, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.car_vignette_title), style = MaterialTheme.typography.titleSmall)
                                 StatusBadge(
@@ -317,17 +321,17 @@ fun CarDetailsScreen(
                         }
                     }
 
-                    // Bento Row 3: Fuel & Tires
+                    // Bento Row 3: Fuel & Service
                     item {
                         Row(modifier = Modifier.fillMaxWidth().height(160.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             BentoCard(
                                 onClick = onFuelClick,
                                 modifier = Modifier.weight(1f).fillMaxHeight(),
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                                containerColor = carAccentColor.copy(alpha = 0.15f)
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.Speed, null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
-                                    Icon(Icons.Default.LocalGasStation, null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                                    Icon(Icons.Default.Speed, null, modifier = Modifier.size(44.dp), tint = carAccentColor)
+                                    Icon(Icons.Default.LocalGasStation, null, modifier = Modifier.size(20.dp), tint = carAccentColor)
                                 }
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.car_fuel_consumption), style = MaterialTheme.typography.titleMedium)
@@ -337,9 +341,9 @@ fun CarDetailsScreen(
                             BentoCard(
                                 onClick = onServiceClick,
                                 modifier = Modifier.weight(1f).fillMaxHeight(),
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                                containerColor = carAccentColor.copy(alpha = 0.15f)
                             ) {
-                                Icon(Icons.Default.Build, null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
+                                Icon(Icons.Default.Build, null, modifier = Modifier.size(44.dp), tint = carAccentColor)
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.service_history_title), style = MaterialTheme.typography.titleMedium)
                                 val latestService = s.maintenanceLogs.maxByOrNull { it.date }
@@ -359,9 +363,9 @@ fun CarDetailsScreen(
                             BentoCard(
                                 onClick = onTireClick,
                                 modifier = Modifier.weight(1f).fillMaxHeight(),
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                                containerColor = carAccentColor.copy(alpha = 0.15f)
                             ) {
-                                Icon(Icons.Default.DirectionsCar, null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
+                                Icon(Icons.Default.DirectionsCar, null, modifier = Modifier.size(44.dp), tint = carAccentColor)
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.tire_management_title), style = MaterialTheme.typography.titleMedium)
                                 Text(
@@ -373,9 +377,9 @@ fun CarDetailsScreen(
                             BentoCard(
                                 onClick = onDiagnosisClick,
                                 modifier = Modifier.weight(1f).fillMaxHeight(),
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                                containerColor = carAccentColor.copy(alpha = 0.15f)
                             ) {
-                                Icon(Icons.Default.Psychology, null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
+                                Icon(Icons.Default.Psychology, null, modifier = Modifier.size(44.dp), tint = carAccentColor)
                                 Spacer(Modifier.weight(1f))
                                 Text(stringResource(R.string.car_diagnosis_title), style = MaterialTheme.typography.titleSmall)
                                 Text(stringResource(R.string.car_diagnosis_subtitle), style = MaterialTheme.typography.bodySmall, maxLines = 1)
@@ -391,14 +395,14 @@ fun CarDetailsScreen(
                                 pdfLauncher.launch(fileName) 
                             },
                             modifier = Modifier.fillMaxWidth(),
-                            containerColor = MaterialTheme.colorScheme.primaryContainer
+                            containerColor = carAccentColor
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Description, null, modifier = Modifier.size(32.dp))
+                                Icon(Icons.Default.Description, null, modifier = Modifier.size(32.dp), tint = carOnAccentColor)
                                 Spacer(Modifier.width(16.dp))
                                 Column {
-                                    Text(stringResource(R.string.car_generate_report), style = MaterialTheme.typography.titleMedium)
-                                    Text(stringResource(R.string.car_generate_report_subtitle), style = MaterialTheme.typography.bodySmall)
+                                    Text(stringResource(R.string.car_generate_report), style = MaterialTheme.typography.titleMedium, color = carOnAccentColor)
+                                    Text(stringResource(R.string.car_generate_report_subtitle), style = MaterialTheme.typography.bodySmall, color = carOnAccentColor.copy(alpha = 0.7f))
                                 }
                             }
                         }
@@ -416,6 +420,8 @@ fun AddMileageDialog(
     existingLog: MileageLog? = null,
     existingLogs: List<MileageLog> = emptyList(),
     unit: String = "km",
+    accentColor: Color = MaterialTheme.colorScheme.primary,
+    onAccentColor: Color = MaterialTheme.colorScheme.onPrimary,
     onDismiss: () -> Unit,
     onConfirm: (Double, Date) -> Unit
 ) {
@@ -523,8 +529,8 @@ fun AddMileageDialog(
                 },
                 enabled = km.isNotBlank(),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    containerColor = accentColor,
+                    contentColor = onAccentColor
                 )
             ) {
                 Text(if (existingLog == null) stringResource(R.string.common_add) else stringResource(R.string.common_update))
@@ -543,6 +549,8 @@ fun AddInspectionDialog(
     existingInspection: VehicleInspection? = null,
     existingLogs: List<MileageLog> = emptyList(),
     unit: String = "km",
+    accentColor: Color = MaterialTheme.colorScheme.primary,
+    onAccentColor: Color = MaterialTheme.colorScheme.onPrimary,
     onDismiss: () -> Unit,
     onConfirm: (VehicleInspection) -> Unit
 ) {
@@ -681,9 +689,6 @@ fun AddInspectionDialog(
                     val canonicalInput = CarFormatters.toCanonicalDistance(inputVal, unit == "mi")
                     
                     val conflict = existingLogs.find { log ->
-                        // If we are editing, ignore the associated mileage entry? 
-                        // VehicleInspection doesn't store mileageLogId yet, but maybe we should check by date/value if it matches exactly?
-                        // For now just general check.
                         val kmBackwards = selectedDate.after(log.date) && canonicalInput < log.km
                         val dateBackwards = selectedDate.before(log.date) && canonicalInput > log.km
                         kmBackwards || dateBackwards
@@ -709,8 +714,8 @@ fun AddInspectionDialog(
                 },
                 enabled = km.isNotBlank() && durationValue.isNotBlank(),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    containerColor = accentColor,
+                    contentColor = onAccentColor
                 )
             ) {
                 Text(stringResource(R.string.common_save))

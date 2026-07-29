@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -75,11 +76,14 @@ fun InspectionHistoryScreen(
         val existingLogs = successState?.mileageLogs ?: emptyList()
         val country = europeanCountries.find { it.code == car?.plateCountry }
         val unitLabel = if (country?.usesMiles == true) "mi" else "km"
+        val carAccentColor = car?.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
         
         AddInspectionDialog(
             existingInspection = editingInspection,
             existingLogs = existingLogs,
             unit = unitLabel,
+            accentColor = carAccentColor,
+            onAccentColor = Color.White,
             onDismiss = { 
                 showAddDialog = false
                 editingInspection = null
@@ -109,9 +113,11 @@ fun InspectionHistoryScreen(
             )
         },
         floatingActionButton = {
+            val carAccentColor = (state as? CarDetailsUiState.Success)?.car?.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
             FloatingActionButton(
                 onClick = { showAddDialog = true },
-                containerColor = MaterialTheme.colorScheme.primaryContainer
+                containerColor = carAccentColor,
+                contentColor = Color.White
             ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.inspection_add_title))
             }

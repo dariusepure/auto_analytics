@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.Modifier
@@ -107,11 +108,14 @@ fun MileageHistoryScreen(
         val car = successState?.car
         val country = europeanCountries.find { it.code == car?.plateCountry }
         val unitLabel = if (country?.usesMiles == true) "mi" else "km"
+        val carAccentColor = car?.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
 
         AddMileageDialog(
             existingLog = editingMileageLog,
             existingLogs = existingLogs,
             unit = unitLabel,
+            accentColor = carAccentColor,
+            onAccentColor = Color.White,
             onDismiss = { 
                 showAddMileageDialog = false
                 editingMileageLog = null
@@ -145,9 +149,11 @@ fun MileageHistoryScreen(
             )
         },
         floatingActionButton = {
+            val carAccentColor = (state as? CarDetailsUiState.Success)?.car?.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
             FloatingActionButton(
                 onClick = { showAddMileageDialog = true },
-                containerColor = MaterialTheme.colorScheme.primaryContainer
+                containerColor = carAccentColor,
+                contentColor = Color.White
             ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.mileage_add_title))
             }
@@ -160,6 +166,7 @@ fun MileageHistoryScreen(
                 val car = s.car
                 val country = europeanCountries.find { it.code == car.plateCountry }
                 val unitLabel = if (country?.usesMiles == true) "mi" else "km"
+                val carAccentColor = car.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
 
                 LazyColumn(
                     modifier = Modifier
@@ -198,13 +205,17 @@ fun MileageHistoryScreen(
                                 onClick = { photoLauncher.launch("image/*") },
                                 modifier = Modifier.weight(1f),
                                 enabled = !s.isScanning,
-                                contentPadding = PaddingValues(horizontal = 8.dp)
+                                contentPadding = PaddingValues(horizontal = 8.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = carAccentColor,
+                                    contentColor = Color.White
+                                )
                             ) {
                                 if (s.isScanning) {
                                     CircularProgressIndicator(
                                         modifier = Modifier.size(20.dp),
                                         strokeWidth = 2.dp,
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                        color = Color.White
                                     )
                                 } else {
                                     Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(18.dp))
@@ -217,13 +228,17 @@ fun MileageHistoryScreen(
                                 onClick = { pdfLauncher.launch("application/pdf") },
                                 modifier = Modifier.weight(1f),
                                 enabled = !s.isScanning,
-                                contentPadding = PaddingValues(horizontal = 8.dp)
+                                contentPadding = PaddingValues(horizontal = 8.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = carAccentColor,
+                                    contentColor = Color.White
+                                )
                             ) {
                                 if (s.isScanning) {
                                     CircularProgressIndicator(
                                         modifier = Modifier.size(20.dp),
                                         strokeWidth = 2.dp,
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                        color = Color.White
                                     )
                                 } else {
                                     Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(18.dp))

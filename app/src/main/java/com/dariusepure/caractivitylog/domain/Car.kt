@@ -49,6 +49,7 @@ data class Car(
     val tireWidth: Int = 0,
     val tireAspectRatio: Int = 0,
     val tireDiameter: Int = 0,
+    val accentColor: Long? = null,
     val createdAt: Date = Date(),
     val updatedAt: Date = Date(),
     val activityCount: Int = 0,

@@ -146,7 +146,8 @@ class AddCarViewModel @Inject constructor(
         bootSpace: String,
         tireWidth: String,
         tireAspectRatio: String,
-        tireDiameter: String
+        tireDiameter: String,
+        accentColor: Long? = null
     ) {
         if (name.isBlank() && (make.isBlank() || model.isBlank())) {
             _state.value = AddCarState.Error("Please provide at least a Title or Brand & Model")
@@ -229,6 +230,7 @@ class AddCarViewModel @Inject constructor(
                     tireWidth = tireWidth.toDoubleOrNull()?.roundToInt() ?: 0,
                     tireAspectRatio = tireAspectRatio.toDoubleOrNull()?.roundToInt() ?: 0,
                     tireDiameter = tireDiameter.toDoubleOrNull()?.roundToInt() ?: 0,
+                    accentColor = accentColor,
                     updatedAt = Date()
                 )
 
