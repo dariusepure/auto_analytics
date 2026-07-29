@@ -11,6 +11,7 @@ import com.dariusepure.caractivitylog.domain.FuelLog
 import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.domain.Insurance
 import com.dariusepure.caractivitylog.domain.Vignette
+import com.dariusepure.caractivitylog.domain.TireSet
 import com.dariusepure.caractivitylog.domain.ScannedMileageEntry
 import com.dariusepure.caractivitylog.domain.VehicleInspection
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,6 +38,7 @@ sealed class CarDetailsUiState {
         val inspections: List<VehicleInspection>,
         val insurances: List<Insurance> = emptyList(),
         val vignettes: List<Vignette> = emptyList(),
+        val tireSets: List<TireSet> = emptyList(),
         val fuelLogs: List<FuelLog> = emptyList(),
         val isScanning: Boolean = false
     ) : CarDetailsUiState()
@@ -69,14 +71,17 @@ class CarDetailsViewModel @Inject constructor(
                 val inspectionsFlow = carRepository.getInspections(carId)
                 val insurancesFlow = carRepository.getInsurances(carId)
                 val vignettesFlow = carRepository.getVignettes(carId)
+                val tireSetsFlow = carRepository.getTireSets(carId)
                 val fuelLogsFlow = carRepository.getFuelLogs(carId)
 
+                @Suppress("UNCHECKED_CAST")
                 kotlinx.coroutines.flow.combine(
                     carFlow,
                     mileageFlow,
                     inspectionsFlow,
                     insurancesFlow,
                     vignettesFlow,
+                    tireSetsFlow,
                     fuelLogsFlow
                 ) { args: Array<Any?> ->
                     val car = args[0] as? Car
@@ -84,11 +89,12 @@ class CarDetailsViewModel @Inject constructor(
                     val inspections = args[2] as List<VehicleInspection>
                     val insurances = args[3] as List<Insurance>
                     val vignettes = args[4] as List<Vignette>
-                    val fuelLogs = args[5] as List<FuelLog>
+                    val tireSets = args[5] as List<TireSet>
+                    val fuelLogs = args[6] as List<FuelLog>
 
                     if (car != null) {
                         val currentScanning = (_state.value as? CarDetailsUiState.Success)?.isScanning ?: false
-                        CarDetailsUiState.Success(car, logs, inspections, insurances, vignettes, fuelLogs, currentScanning)
+                        CarDetailsUiState.Success(car, logs, inspections, insurances, vignettes, tireSets, fuelLogs, currentScanning)
                     } else {
                         CarDetailsUiState.Error("Car not found")
                     }
@@ -284,6 +290,36 @@ class CarDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 carRepository.deleteVignette(carId, vignetteId)
+            } catch (e: Exception) {
+                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+            }
+        }
+    }
+
+    fun addTireSet(carId: String, tireSet: TireSet) {
+        viewModelScope.launch {
+            try {
+                carRepository.addTireSet(carId, tireSet)
+            } catch (e: Exception) {
+                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+            }
+        }
+    }
+
+    fun updateTireSet(carId: String, tireSet: TireSet) {
+        viewModelScope.launch {
+            try {
+                carRepository.updateTireSet(carId, tireSet)
+            } catch (e: Exception) {
+                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+            }
+        }
+    }
+
+    fun deleteTireSet(carId: String, tireSetId: String) {
+        viewModelScope.launch {
+            try {
+                carRepository.deleteTireSet(carId, tireSetId)
             } catch (e: Exception) {
                 _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
             }

@@ -240,6 +240,25 @@
     <string name="car_report_success">Report saved successfully</string>
     <string name="car_report_failed">Failed to save report</string>
 
+    <!-- Tires -->
+    <string name="tire_management_title">Tire Management</string>
+    <string name="tire_add_title">Add Tire Set</string>
+    <string name="tire_edit_title">Edit Tire Set</string>
+    <string name="tire_empty">No tire sets found.</string>
+    <string name="tire_season_label">Season</string>
+    <string name="tire_season_summer">Summer</string>
+    <string name="tire_season_winter">Winter</string>
+    <string name="tire_season_all_season">All-Season</string>
+    <string name="tire_brand_label">Brand</string>
+    <string name="tire_model_label">Model</string>
+    <string name="tire_dot_label">DOT (WeekYear)</string>
+    <string name="tire_storage_label">Storage Location</string>
+    <string name="tire_active_label">Currently on vehicle</string>
+    <string name="tire_on_vehicle">On Vehicle</string>
+    <string name="tire_in_storage">In Storage</string>
+    <string name="tire_summary">%1$s %2$s \u00B7 %3$d/%4$d R%5$d</string>
+    <string name="tire_notes_label">Notes (Optional)</string>
+
     <!-- Mileage -->
     <string name="mileage_history_title">Mileage History</string>
     <string name="mileage_add_title">Add Mileage</string>
@@ -384,4 +403,7 @@
     <string name="pdf_mileage_entry">%1$s: %2$d %3$s</string>
     <string name="pdf_inspection_entry">%1$s - Mileage: %2$d %3$s</string>
     <string name="pdf_fuel_entry">%1$s: %2$.1fL at %3$d %4$s</string>
+    <string name="pdf_section_tire_sets">Tire Sets</string>
+    <string name="pdf_tire_set_entry">%1$s %2$s (%3$s) \u00B7 %4$d/%5$d R%6$d \u00B7 DOT %7$s</string>
+    <string name="pdf_active_tag">(Active)</string>
 </resources>

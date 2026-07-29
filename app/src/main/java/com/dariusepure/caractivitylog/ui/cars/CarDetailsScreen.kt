@@ -72,6 +72,7 @@ fun CarDetailsScreen(
     onTechnicalSheetClick: () -> Unit,
     onDiagnosisClick: () -> Unit,
     onFuelClick: () -> Unit,
+    onTireClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CarDetailsViewModel = hiltViewModel()
 ) {
@@ -86,7 +87,7 @@ fun CarDetailsScreen(
                     try {
                         context.contentResolver.openOutputStream(it)?.use { os ->
                             PdfReportGenerator.generateReport(
-                                context, s.car, s.mileageLogs, s.inspections, s.fuelLogs, os
+                                context, s.car, s.mileageLogs, s.inspections, s.fuelLogs, s.tireSets, os
                             )
                         }
                         true
@@ -323,6 +324,36 @@ fun CarDetailsScreen(
                                         text = if (latestVignette != null) context.getString(R.string.formatter_inspection_valid_until, CarFormatters.formatDate(latestVignette.expiryDate)) else stringResource(R.string.vignette_empty),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = if (isVignetteExpired) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(Modifier.height(12.dp))
+
+                        val activeTires = s.tireSets.find { it.isActive }
+
+                        Card(
+                            onClick = onTireClick,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.Add, contentDescription = null)
+                                Spacer(Modifier.width(12.dp))
+                                Column {
+                                    Text(
+                                        text = stringResource(R.string.tire_management_title),
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    Text(
+                                        text = if (activeTires != null) stringResource(R.string.tire_summary, activeTires.brand, activeTires.model, activeTires.width, activeTires.ratio, activeTires.diameter) else stringResource(R.string.tire_empty),
+                                        style = MaterialTheme.typography.bodySmall
                                     )
                                 }
                             }

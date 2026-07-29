@@ -2,8 +2,10 @@ package com.dariusepure.caractivitylog.ui.common
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -13,6 +15,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,6 +30,7 @@ import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.domain.VehicleInspection
 import com.dariusepure.caractivitylog.domain.Insurance
 import com.dariusepure.caractivitylog.domain.Vignette
+import com.dariusepure.caractivitylog.domain.TireSet
 import java.util.Date
 
 @Composable
@@ -200,6 +204,77 @@ fun VignetteItem(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+        }
+
+        IconButton(onClick = onEditClick) {
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = stringResource(R.string.common_edit),
+                tint = Color(0xFF2196F3)
+            )
+        }
+        
+        IconButton(onClick = onDeleteClick) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = stringResource(R.string.common_delete),
+                tint = Color.Red
+            )
+        }
+    }
+}
+
+@Composable
+fun TireSetItem(
+    tireSet: TireSet,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    val context = LocalContext.current
+    
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = stringResource(tireSet.season.labelRes),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                if (tireSet.isActive) {
+                    Spacer(Modifier.width(8.dp))
+                    Surface(
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        shape = MaterialTheme.shapes.extraSmall
+                    ) {
+                        Text(
+                            text = stringResource(R.string.tire_on_vehicle),
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
+            Text(
+                text = stringResource(R.string.tire_summary, tireSet.brand, tireSet.model, tireSet.width, tireSet.ratio, tireSet.diameter),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            val subDetails = mutableListOf<String>()
+            if (tireSet.dot.isNotBlank()) subDetails.add("DOT ${tireSet.dot}")
+            if (tireSet.storageLocation.isNotBlank()) subDetails.add(tireSet.storageLocation)
+            
+            if (subDetails.isNotEmpty()) {
+                Text(
+                    text = subDetails.joinToString(" \u00B7 "),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
 
         IconButton(onClick = onEditClick) {

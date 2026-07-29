@@ -9,6 +9,7 @@ import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.FuelLog
 import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.domain.VehicleInspection
+import com.dariusepure.caractivitylog.domain.TireSet
 import com.dariusepure.caractivitylog.domain.displayName
 import java.io.OutputStream
 import java.text.SimpleDateFormat
@@ -27,6 +28,7 @@ object PdfReportGenerator {
         mileageLogs: List<MileageLog>,
         inspections: List<VehicleInspection>,
         fuelLogs: List<FuelLog>,
+        tireSets: List<TireSet>,
         outputStream: OutputStream
     ) {
         val pdfDocument = PdfDocument()
@@ -161,6 +163,32 @@ object PdfReportGenerator {
                 val country = europeanCountries.find { it.code == car.plateCountry }
                 val unit = if (country?.usesMiles == true) "mi" else "km"
                 drawText(context.getString(com.dariusepure.caractivitylog.R.string.pdf_fuel_entry, dateFormat.format(log.date), log.liters, log.km.toInt(), unit), MARGIN + 20f, 12f)
+            }
+        }
+
+        // 9. Tire Sets
+        if (tireSets.isNotEmpty()) {
+            drawSectionTitle(context.getString(com.dariusepure.caractivitylog.R.string.pdf_section_tire_sets))
+            tireSets.sortedByDescending { it.isActive }.forEach { tireSet ->
+                val activeTag = if (tireSet.isActive) " " + context.getString(com.dariusepure.caractivitylog.R.string.pdf_active_tag) else ""
+                val seasonStr = context.getString(tireSet.season.labelRes)
+                
+                val text = context.getString(
+                    com.dariusepure.caractivitylog.R.string.pdf_tire_set_entry,
+                    tireSet.brand,
+                    tireSet.model,
+                    seasonStr,
+                    tireSet.width,
+                    tireSet.ratio,
+                    tireSet.diameter,
+                    tireSet.dot.ifBlank { "-" }
+                ) + activeTag
+                
+                drawText(text, MARGIN + 20f, 12f, tireSet.isActive)
+                if (tireSet.storageLocation.isNotBlank()) {
+                    drawText("${context.getString(com.dariusepure.caractivitylog.R.string.tire_storage_label)}: ${tireSet.storageLocation}", MARGIN + 40f, 10f)
+                }
+                yPosition += 5f
             }
         }
 

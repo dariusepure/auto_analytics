@@ -470,6 +470,86 @@ class CarRepository @Inject constructor(
             .await()
     }
 
+    fun getTireSets(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.TireSet>> = callbackFlow {
+        checkNetwork()
+        val uid = authRepository.getUserId() ?: run {
+            trySend(emptyList())
+            close()
+            return@callbackFlow
+        }
+
+        val listener = firestore.collection("users")
+            .document(uid)
+            .collection("cars")
+            .document(carId)
+            .collection("tire_sets")
+            .orderBy("isActive", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshots, exception ->
+                if (exception != null) {
+                    close(exception)
+                    return@addSnapshotListener
+                }
+
+                val results = snapshots
+                    ?.toObjects(FirestoreTireSet::class.java)
+                    ?.map { it.fromFirebase() } ?: emptyList()
+
+                trySend(results)
+            }
+
+        awaitClose { listener.remove() }
+    }
+
+    suspend fun addTireSet(carId: String, tireSet: com.dariusepure.caractivitylog.domain.TireSet) {
+        checkNetwork()
+        val uid = getUid()
+        
+        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
+        val tireSetRef = carRef.collection("tire_sets").document()
+        
+        if (tireSet.isActive) {
+            val otherSets = carRef.collection("tire_sets").whereEqualTo("isActive", true).get().await()
+            firestore.runBatch { batch ->
+                otherSets.documents.forEach { batch.update(it.reference, "isActive", false) }
+                batch.set(tireSetRef, tireSet.copy(id = tireSetRef.id).toFirebase())
+            }.await()
+        } else {
+            tireSetRef.set(tireSet.copy(id = tireSetRef.id).toFirebase()).await()
+        }
+    }
+
+    suspend fun updateTireSet(carId: String, tireSet: com.dariusepure.caractivitylog.domain.TireSet) {
+        checkNetwork()
+        val uid = getUid()
+        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
+        val tireSetRef = carRef.collection("tire_sets").document(tireSet.id)
+        
+        if (tireSet.isActive) {
+            val otherSets = carRef.collection("tire_sets").whereEqualTo("isActive", true).get().await()
+            firestore.runBatch { batch ->
+                otherSets.documents.forEach { 
+                    if (it.id != tireSet.id) batch.update(it.reference, "isActive", false) 
+                }
+                batch.set(tireSetRef, tireSet.toFirebase())
+            }.await()
+        } else {
+            tireSetRef.set(tireSet.toFirebase()).await()
+        }
+    }
+
+    suspend fun deleteTireSet(carId: String, tireSetId: String) {
+        checkNetwork()
+        val uid = getUid()
+        firestore.collection("users")
+            .document(uid)
+            .collection("cars")
+            .document(carId)
+            .collection("tire_sets")
+            .document(tireSetId)
+            .delete()
+            .await()
+    }
+
     fun getDiagnosisMessages(carId: String): Flow<List<ChatMessage>> = callbackFlow {
         checkNetwork()
         val uid = authRepository.getUserId() ?: run {
