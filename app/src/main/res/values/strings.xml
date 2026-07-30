@@ -135,6 +135,9 @@
     <string name="auth_reset_link_sent">Reset link sent! Please check your email inbox to proceed.</string>
     <string name="auth_hide_password">Hide password</string>
     <string name="auth_show_password">Show password</string>
+    <string name="auth_logout">Logout</string>
+    <string name="theme_light_mode">Light Mode</string>
+    <string name="theme_dark_mode">Dark Mode</string>
 
     <!-- Sorting -->
     <string name="sort_default">Default</string>

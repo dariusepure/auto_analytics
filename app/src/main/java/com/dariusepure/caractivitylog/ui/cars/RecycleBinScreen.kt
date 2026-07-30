@@ -85,6 +85,7 @@ fun RecycleBinScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeletedCarCard(
     car: Car,
@@ -148,20 +149,42 @@ fun DeletedCarCard(
                 )
             }
 
-            IconButton(onClick = onRestore) {
-                Icon(
-                    imageVector = Icons.Default.Restore,
-                    contentDescription = stringResource(R.string.recycle_bin_restore),
-                    tint = Color(0xFF4CAF50)
-                )
+            val restoreTooltipState = rememberTooltipState()
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                tooltip = {
+                    PlainTooltip {
+                        Text(stringResource(R.string.recycle_bin_restore))
+                    }
+                },
+                state = restoreTooltipState
+            ) {
+                IconButton(onClick = onRestore) {
+                    Icon(
+                        imageVector = Icons.Default.Restore,
+                        contentDescription = stringResource(R.string.recycle_bin_restore),
+                        tint = Color(0xFF4CAF50)
+                    )
+                }
             }
 
-            IconButton(onClick = { showDeleteDialog = true }) {
-                Icon(
-                    imageVector = Icons.Default.DeleteForever,
-                    contentDescription = stringResource(R.string.recycle_bin_delete_forever),
-                    tint = MaterialTheme.colorScheme.error
-                )
+            val deleteTooltipState = rememberTooltipState()
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                tooltip = {
+                    PlainTooltip {
+                        Text(stringResource(R.string.common_delete_permanently))
+                    }
+                },
+                state = deleteTooltipState
+            ) {
+                IconButton(onClick = { showDeleteDialog = true }) {
+                    Icon(
+                        imageVector = Icons.Default.DeleteForever,
+                        contentDescription = stringResource(R.string.recycle_bin_delete_forever),
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
             }
         }
     }

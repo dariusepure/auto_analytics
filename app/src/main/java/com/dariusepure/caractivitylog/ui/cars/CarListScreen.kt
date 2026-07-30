@@ -92,6 +92,7 @@ import com.dariusepure.caractivitylog.ui.common.toRelativeString
 import com.dariusepure.caractivitylog.util.LocalImageHelper
 import com.dariusepure.caractivitylog.domain.displayName
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarCard(
     car: Car,
@@ -185,25 +186,48 @@ fun CarCard(
                 )
             }
             
-            IconButton(onClick = onEditClick) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = stringResource(R.string.car_edit_content_description),
-                    tint = Color(0xFF2196F3) // Force Blue for Edit
-                )
+            val editTooltipState = rememberTooltipState()
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                tooltip = {
+                    PlainTooltip {
+                        Text(stringResource(R.string.common_edit))
+                    }
+                },
+                state = editTooltipState
+            ) {
+                IconButton(onClick = onEditClick) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = stringResource(R.string.car_edit_content_description),
+                        tint = Color(0xFF2196F3) // Force Blue for Edit
+                    )
+                }
             }
             
-            IconButton(onClick = onDeleteClick) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = stringResource(R.string.car_delete_content_description),
-                    tint = Color.Red
-                )
+            val deleteTooltipState = rememberTooltipState()
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                tooltip = {
+                    PlainTooltip {
+                        Text(stringResource(R.string.common_delete))
+                    }
+                },
+                state = deleteTooltipState
+            ) {
+                IconButton(onClick = onDeleteClick) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = stringResource(R.string.car_delete_content_description),
+                        tint = Color.Red
+                    )
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarGridCard(
     car: Car,
@@ -275,22 +299,44 @@ fun CarGridCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                IconButton(onClick = onEditClick, modifier = Modifier.size(32.dp)) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = stringResource(R.string.car_edit_content_description),
-                        tint = Color(0xFF2196F3),
-                        modifier = Modifier.size(20.dp)
-                    )
+                val editTooltipState = rememberTooltipState()
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    tooltip = {
+                        PlainTooltip {
+                            Text(stringResource(R.string.common_edit))
+                        }
+                    },
+                    state = editTooltipState
+                ) {
+                    IconButton(onClick = onEditClick, modifier = Modifier.size(32.dp)) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.car_edit_content_description),
+                            tint = Color(0xFF2196F3),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
                 
-                IconButton(onClick = onDeleteClick, modifier = Modifier.size(32.dp)) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = stringResource(R.string.car_delete_content_description),
-                        tint = Color.Red,
-                        modifier = Modifier.size(20.dp)
-                    )
+                val deleteTooltipState = rememberTooltipState()
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    tooltip = {
+                        PlainTooltip {
+                            Text(stringResource(R.string.common_delete))
+                        }
+                    },
+                    state = deleteTooltipState
+                ) {
+                    IconButton(onClick = onDeleteClick, modifier = Modifier.size(32.dp)) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = stringResource(R.string.car_delete_content_description),
+                            tint = Color.Red,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             }
         }
@@ -395,11 +441,18 @@ private fun InnerCarListScreen(
                         )
                     }
                     Box {
-                        IconButton(onClick = { sortMenuExpanded = true }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.Sort,
-                                contentDescription = null
-                            )
+                        val sortTooltipState = rememberTooltipState()
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                            tooltip = { PlainTooltip { Text(stringResource(R.string.common_expand)) } },
+                            state = sortTooltipState
+                        ) {
+                            IconButton(onClick = { sortMenuExpanded = true }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.Sort,
+                                    contentDescription = null
+                                )
+                            }
                         }
                         DropdownMenu(
                             expanded = sortMenuExpanded,
@@ -426,23 +479,46 @@ private fun InnerCarListScreen(
                             }
                         }
                     }
-                    IconButton(onClick = onRecycleBinClick) {
-                        Icon(
-                            imageVector = Icons.Default.DeleteForever,
-                            contentDescription = stringResource(R.string.recycle_bin_title)
-                        )
+                    val binTooltipState = rememberTooltipState()
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text(stringResource(R.string.recycle_bin_title)) } },
+                        state = binTooltipState
+                    ) {
+                        IconButton(onClick = onRecycleBinClick) {
+                            Icon(
+                                imageVector = Icons.Default.DeleteForever,
+                                contentDescription = stringResource(R.string.recycle_bin_title)
+                            )
+                        }
                     }
-                    IconButton(onClick = onThemeToggle) {
-                        Icon(
-                            imageVector = if (isDark) Icons.Default.LightMode else Icons.Default.DarkMode,
-                            contentDescription = null
-                        )
+
+                    val themeTooltipState = rememberTooltipState()
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text(stringResource(if (isDark) R.string.theme_light_mode else R.string.theme_dark_mode)) } },
+                        state = themeTooltipState
+                    ) {
+                        IconButton(onClick = onThemeToggle) {
+                            Icon(
+                                imageVector = if (isDark) Icons.Default.LightMode else Icons.Default.DarkMode,
+                                contentDescription = null
+                            )
+                        }
                     }
-                    IconButton(onClick = onLogoutClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Logout,
-                            contentDescription = null
-                        )
+
+                    val logoutTooltipState = rememberTooltipState()
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text(stringResource(R.string.auth_logout)) } },
+                        state = logoutTooltipState
+                    ) {
+                        IconButton(onClick = onLogoutClick) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.Logout,
+                                contentDescription = null
+                            )
+                        }
                     }
                     LanguageSelector()
                 }

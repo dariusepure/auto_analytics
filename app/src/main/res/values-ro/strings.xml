@@ -135,6 +135,9 @@
     <string name="auth_reset_link_sent">Link-ul de resetare a fost trimis! Te rugăm să verifici adresa de email pentru a continua.</string>
     <string name="auth_hide_password">Ascunde parola</string>
     <string name="auth_show_password">Afișează parola</string>
+    <string name="auth_logout">Deconectare</string>
+    <string name="theme_light_mode">Mod Luminos</string>
+    <string name="theme_dark_mode">Mod Întunecat</string>
 
     <!-- Sorting -->
     <string name="sort_default">Implicit</string>

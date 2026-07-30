@@ -234,6 +234,7 @@ fun StatItem(label: String, value: String) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FuelLogItem(
     entry: FuelLogWithConsumption,
@@ -277,15 +278,39 @@ fun FuelLogItem(
                     Text(consUnit, style = MaterialTheme.typography.labelSmall)
                 }
             }
-            IconButton(onClick = onEdit) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    null,
-                    tint = androidx.compose.ui.graphics.Color(0xFF2196F3)
-                )
+            
+            val editTooltipState = rememberTooltipState()
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                tooltip = {
+                    PlainTooltip {
+                        Text(stringResource(R.string.common_edit))
+                    }
+                },
+                state = editTooltipState
+            ) {
+                IconButton(onClick = onEdit) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        null,
+                        tint = androidx.compose.ui.graphics.Color(0xFF2196F3)
+                    )
+                }
             }
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.error)
+            
+            val deleteTooltipState = rememberTooltipState()
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                tooltip = {
+                    PlainTooltip {
+                        Text(stringResource(R.string.common_delete))
+                    }
+                },
+                state = deleteTooltipState
+            ) {
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.error)
+                }
             }
         }
     }

@@ -147,6 +147,7 @@ fun ServiceHistoryScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServiceItem(
     record: Maintenance,
@@ -173,11 +174,35 @@ fun ServiceItem(
                 )
             }
         }
-        IconButton(onClick = onEdit) {
-            Icon(Icons.Default.Edit, null, tint = Color(0xFF2196F3))
+        
+        val editTooltipState = rememberTooltipState()
+        TooltipBox(
+            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+            tooltip = {
+                PlainTooltip {
+                    Text(stringResource(R.string.common_edit))
+                }
+            },
+            state = editTooltipState
+        ) {
+            IconButton(onClick = onEdit) {
+                Icon(Icons.Default.Edit, null, tint = Color(0xFF2196F3))
+            }
         }
-        IconButton(onClick = onDelete) {
-            Icon(Icons.Default.Delete, null, tint = Color.Red)
+        
+        val deleteTooltipState = rememberTooltipState()
+        TooltipBox(
+            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+            tooltip = {
+                PlainTooltip {
+                    Text(stringResource(R.string.common_delete))
+                }
+            },
+            state = deleteTooltipState
+        ) {
+            IconButton(onClick = onDelete) {
+                Icon(Icons.Default.Delete, null, tint = Color.Red)
+            }
         }
     }
 }
