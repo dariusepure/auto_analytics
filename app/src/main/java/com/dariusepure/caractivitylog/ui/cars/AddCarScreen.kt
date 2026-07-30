@@ -152,6 +152,12 @@ fun AddCarScreen(
     var tireAspectRatio by remember { mutableStateOf("") }
     var tireDiameter by remember { mutableStateOf("") }
     var accentColor by remember { mutableStateOf<Long?>(null) }
+
+    LaunchedEffect(make) {
+        if (make.isNotBlank()) {
+            accentColor = BrandHelper.getBrandColor(make)
+        }
+    }
     var fuelTankCapacity by remember { mutableStateOf("") }
     var batteryCapacity by remember { mutableStateOf("") }
     var drivetrain by remember { mutableStateOf("") }
@@ -587,51 +593,6 @@ fun AddCarScreen(
                 )
 
                 Spacer(Modifier.height(16.dp))
-                
-                Text(
-                    text = stringResource(R.string.car_accent_color),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.secondary
-                )
-                
-                val accentColors = listOf(
-                    0xFF2196F3, // Blue
-                    0xFFF44336, // Red
-                    0xFF4CAF50, // Green
-                    0xFFFF9800, // Orange
-                    0xFF9C27B0, // Purple
-                    0xFFE91E63, // Pink
-                    0xFF00BCD4, // Cyan
-                    0xFF795548  // Brown
-                )
-                
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    accentColors.forEach { colorHex ->
-                        Box(
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clip(CircleShape)
-                                .background(Color(colorHex))
-                                .clickable { accentColor = colorHex }
-                                .let { 
-                                    if (accentColor == colorHex) it.border(2.dp, MaterialTheme.colorScheme.primary, CircleShape) 
-                                    else it 
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (accentColor == colorHex) {
-                                Icon(Icons.Default.Check, null, modifier = Modifier.size(20.dp), tint = Color.White)
-                            }
-                        }
-                    }
-                }
-
-                Spacer(Modifier.height(8.dp))
 
                 OutlinedTextField(
                     value = vin,
