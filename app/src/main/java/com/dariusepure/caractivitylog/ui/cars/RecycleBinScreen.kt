@@ -117,22 +117,6 @@ fun DeletedCarCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.DirectionsCar,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Spacer(Modifier.width(16.dp))
-
             Column(modifier = Modifier.weight(1f)) {
                 AutoSizeText(
                     text = car.displayName,

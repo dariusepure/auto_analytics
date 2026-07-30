@@ -206,7 +206,7 @@ fun AddCarScreen(
             data = pendingScannedData!!,
             onDismiss = { pendingScannedData = null },
             onConfirm = { selectedData ->
-                selectedData.make?.let { make = it }
+                selectedData.make?.let { make = it.uppercase() }
                 selectedData.model?.let { model = it }
                 selectedData.vin?.let { vin = it.uppercase() }
                 selectedData.year?.let { year = it.roundToInt().toString() }
@@ -1571,8 +1571,6 @@ private fun ScanButton(
                 color = MaterialTheme.colorScheme.onPrimary
             )
         } else {
-            Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(4.dp))
             Text(label, textAlign = TextAlign.Center)
         }
     }

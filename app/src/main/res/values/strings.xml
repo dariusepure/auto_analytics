@@ -180,8 +180,8 @@
     <string name="car_title_label">Car Title (Nickname)</string>
     <string name="car_title_placeholder">Ex: %s</string>
     <string name="car_title_placeholder_fallback">Ex: My Daily Driver</string>
-    <string name="car_scan_photo">Scan Photo</string>
-    <string name="car_scan_pdf">Scan PDF</string>
+    <string name="car_scan_photo">Import Photo</string>
+    <string name="car_scan_pdf">Import PDF</string>
     <string name="car_make_label">Make</string>
     <string name="car_model_label">Model</string>
     <string name="car_year_label">Year</string>

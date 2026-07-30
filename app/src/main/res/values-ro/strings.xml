@@ -180,8 +180,8 @@
     <string name="car_title_label">Titlu mașină (Pseudonim)</string>
     <string name="car_title_placeholder">Ex: %s</string>
     <string name="car_title_placeholder_fallback">Ex: Mașina mea zilnică</string>
-    <string name="car_scan_photo">Scanează foto</string>
-    <string name="car_scan_pdf">Scanează PDF</string>
+    <string name="car_scan_photo">Importă foto</string>
+    <string name="car_scan_pdf">Importă PDF</string>
     <string name="car_make_label">Marcă</string>
     <string name="car_model_label">Model</string>
     <string name="car_year_label">An</string>

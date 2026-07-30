@@ -116,32 +116,6 @@ fun CarCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
-            ) {
-                val localImage = remember(car.id) { LocalImageHelper.getCarImageFile(context, car.id) }
-                if (localImage != null) {
-                    AsyncImage(
-                        model = localImage,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Outlined.DirectionsCar,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-            
-            Spacer(Modifier.width(16.dp))
-
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     AutoSizeText(
@@ -178,13 +152,6 @@ fun CarCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.car_last_update, car.updatedAt.toRelativeString(context)),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
             }
             
             val editTooltipState = rememberTooltipState()
@@ -237,7 +204,6 @@ fun CarGridCard(
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
@@ -249,33 +215,6 @@ fun CarGridCard(
                 .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
-            ) {
-                val localImage = remember(car.id) { LocalImageHelper.getCarImageFile(context, car.id) }
-                if (localImage != null) {
-                    AsyncImage(
-                        model = localImage,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Outlined.DirectionsCar,
-                        contentDescription = null,
-                        modifier = Modifier.size(40.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-            
-            Spacer(Modifier.height(12.dp))
-
             AutoSizeText(
                 text = car.displayName,
                 style = MaterialTheme.typography.titleMedium,

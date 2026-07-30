@@ -39,6 +39,7 @@ import coil.compose.AsyncImage
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.domain.*
 import com.dariusepure.caractivitylog.ui.common.AutoSizeText
+import com.dariusepure.caractivitylog.ui.common.toRelativeString
 import com.dariusepure.caractivitylog.ui.common.*
 import com.dariusepure.caractivitylog.util.LocalImageHelper
 import com.dariusepure.caractivitylog.util.PdfReportGenerator
@@ -179,7 +180,7 @@ fun CarDetailsScreen(
                                     context = context
                                 )
                                 Spacer(Modifier.width(24.dp))
-                                CarHeaderText(car = car)
+                                CarHeaderText(car = car, context = context)
                             }
                         } else {
                             Column {
@@ -198,7 +199,7 @@ fun CarDetailsScreen(
                                         context = context
                                     )
                                     Spacer(Modifier.width(16.dp))
-                                    CarHeaderText(car = car)
+                                    CarHeaderText(car = car, context = context)
                                 }
                                 Spacer(modifier = Modifier.height(12.dp))
                             }
@@ -929,7 +930,7 @@ private fun CarHeaderPhoto(
 }
 
 @Composable
-private fun CarHeaderText(car: Car) {
+private fun CarHeaderText(car: Car, context: android.content.Context) {
     Column {
         AutoSizeText(
             text = car.displayName,
@@ -943,5 +944,10 @@ private fun CarHeaderText(car: Car) {
                 color = MaterialTheme.colorScheme.secondary
             )
         }
+        Text(
+            text = stringResource(R.string.car_last_update, car.updatedAt.toRelativeString(context)),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }

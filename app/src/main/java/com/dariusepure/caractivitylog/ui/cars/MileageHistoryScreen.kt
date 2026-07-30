@@ -218,8 +218,6 @@ fun MileageHistoryScreen(
                                         color = Color.White
                                     )
                                 } else {
-                                    Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(18.dp))
-                                    Spacer(Modifier.width(4.dp))
                                     Text(stringResource(R.string.car_scan_photo), textAlign = TextAlign.Center)
                                 }
                             }
@@ -241,8 +239,6 @@ fun MileageHistoryScreen(
                                         color = Color.White
                                     )
                                 } else {
-                                    Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(18.dp))
-                                    Spacer(Modifier.width(4.dp))
                                     Text(stringResource(R.string.car_scan_pdf), textAlign = TextAlign.Center)
                                 }
                             }
