@@ -59,15 +59,12 @@ fun CarDetailsScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    var imageRefreshKey by remember { mutableStateOf(0) }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         uri?.let {
-            if (LocalImageHelper.saveCarImage(context, carId, it)) {
-                imageRefreshKey++
-            }
+            viewModel.uploadImage(carId, it)
         }
     }
 
@@ -76,8 +73,7 @@ fun CarDetailsScreen(
     if (showImageDeleteDialog) {
         DeleteConfirmationDialog(
             onConfirm = {
-                LocalImageHelper.deleteCarImage(context, carId)
-                imageRefreshKey++
+                viewModel.removeImage(carId)
                 showImageDeleteDialog = false
             },
             onDismiss = { showImageDeleteDialog = false }
@@ -163,16 +159,18 @@ fun CarDetailsScreen(
                                     .size(64.dp)
                                     .clip(CircleShape)
                                     .background(MaterialTheme.colorScheme.surfaceVariant)
-                                    .clickable { imagePickerLauncher.launch("image/*") },
+                                    .clickable { if (!s.isUploading) imagePickerLauncher.launch("image/*") },
                                 contentAlignment = Alignment.Center
                             ) {
-                                val localImage = remember(car.id, imageRefreshKey) { 
-                                    LocalImageHelper.getCarImageFile(context, car.id) 
-                                }
-                                
-                                if (localImage != null) {
+                                if (s.isUploading) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(24.dp),
+                                        strokeWidth = 2.dp,
+                                        color = carAccentColor
+                                    )
+                                } else if (car.imageUrl != null) {
                                     AsyncImage(
-                                        model = localImage,
+                                        model = car.imageUrl,
                                         contentDescription = null,
                                         modifier = Modifier.fillMaxSize(),
                                         contentScale = ContentScale.Crop
@@ -202,7 +200,7 @@ fun CarDetailsScreen(
                                         imageVector = Icons.Outlined.DirectionsCar,
                                         contentDescription = null,
                                         modifier = Modifier.size(36.dp),
-                                        tint = MaterialTheme.colorScheme.primary
+                                        tint = carAccentColor
                                     )
                                 }
                             }

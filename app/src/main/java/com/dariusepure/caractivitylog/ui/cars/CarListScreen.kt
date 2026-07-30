@@ -89,7 +89,6 @@ import com.dariusepure.caractivitylog.ui.common.LoadingState
 import com.dariusepure.caractivitylog.ui.common.DeleteConfirmationDialog
 import com.dariusepure.caractivitylog.ui.common.LanguageSelector
 import com.dariusepure.caractivitylog.ui.common.toRelativeString
-import com.dariusepure.caractivitylog.util.LocalImageHelper
 import com.dariusepure.caractivitylog.domain.displayName
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -120,11 +119,9 @@ fun CarCard(
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
-                val localImage = remember(car.id) { LocalImageHelper.getCarImageFile(context, car.id) }
-                
-                if (localImage != null) {
+                if (car.imageUrl != null) {
                     AsyncImage(
-                        model = localImage,
+                        model = car.imageUrl,
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -236,7 +233,6 @@ fun CarGridCard(
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
@@ -255,11 +251,9 @@ fun CarGridCard(
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
-                val localImage = remember(car.id) { LocalImageHelper.getCarImageFile(context, car.id) }
-                
-                if (localImage != null) {
+                if (car.imageUrl != null) {
                     AsyncImage(
-                        model = localImage,
+                        model = car.imageUrl,
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -427,30 +421,44 @@ private fun InnerCarListScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.car_list_title)) },
                 actions = {
-                    IconButton(
-                        onClick = {
-                            onViewModeChange(
-                                if (currentViewMode == CarListViewMode.LIST) CarListViewMode.GRID
-                                else CarListViewMode.LIST
+                    val viewModeTooltipState = rememberTooltipState()
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                        tooltip = {
+                            PlainTooltip {
+                                Text(
+                                    if (currentViewMode == CarListViewMode.LIST) stringResource(R.string.car_view_mode_grid)
+                                    else stringResource(R.string.car_view_mode_list)
+                                )
+                            }
+                        },
+                        state = viewModeTooltipState
+                    ) {
+                        IconButton(
+                            onClick = {
+                                onViewModeChange(
+                                    if (currentViewMode == CarListViewMode.LIST) CarListViewMode.GRID
+                                    else CarListViewMode.LIST
+                                )
+                            }
+                        ) {
+                            Icon(
+                                imageVector = if (currentViewMode == CarListViewMode.LIST) Icons.Default.GridView else Icons.AutoMirrored.Filled.List,
+                                contentDescription = if (currentViewMode == CarListViewMode.LIST) stringResource(R.string.car_view_mode_grid) else stringResource(R.string.car_view_mode_list)
                             )
                         }
-                    ) {
-                        Icon(
-                            imageVector = if (currentViewMode == CarListViewMode.LIST) Icons.Default.GridView else Icons.AutoMirrored.Filled.List,
-                            contentDescription = if (currentViewMode == CarListViewMode.LIST) stringResource(R.string.car_view_mode_grid) else stringResource(R.string.car_view_mode_list)
-                        )
                     }
                     Box {
                         val sortTooltipState = rememberTooltipState()
                         TooltipBox(
                             positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                            tooltip = { PlainTooltip { Text(stringResource(R.string.common_expand)) } },
+                            tooltip = { PlainTooltip { Text(stringResource(R.string.common_sort)) } },
                             state = sortTooltipState
                         ) {
                             IconButton(onClick = { sortMenuExpanded = true }) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.Sort,
-                                    contentDescription = null
+                                    contentDescription = stringResource(R.string.common_sort)
                                 )
                             }
                         }

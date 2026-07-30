@@ -9,8 +9,10 @@ import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
+import com.dariusepure.caractivitylog.R
 
 data class Language(
     val name: String,
@@ -23,6 +25,7 @@ val supportedLanguages = listOf(
     Language("Română", "ro", "🇷🇴")
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LanguageSelector(
     modifier: Modifier = Modifier
@@ -32,12 +35,23 @@ fun LanguageSelector(
     val currentLocale = if (!locales.isEmpty) locales.get(0)?.language ?: "en" else "en"
 
     Box(modifier = modifier) {
-        IconButton(onClick = { expanded = true }) {
-            Icon(
-                imageVector = Icons.Outlined.Language,
-                contentDescription = "Change Language",
-                tint = MaterialTheme.colorScheme.primary
-            )
+        val tooltipState = rememberTooltipState()
+        TooltipBox(
+            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+            tooltip = {
+                PlainTooltip {
+                    Text(stringResource(R.string.common_language))
+                }
+            },
+            state = tooltipState
+        ) {
+            IconButton(onClick = { expanded = true }) {
+                Icon(
+                    imageVector = Icons.Outlined.Language,
+                    contentDescription = stringResource(R.string.common_language),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         }
 
         DropdownMenu(

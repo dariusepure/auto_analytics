@@ -20,6 +20,8 @@
     <string name="common_not_applicable">N/A</string>
     <string name="common_collapse">Restrânge</string>
     <string name="common_expand">Extinde</string>
+    <string name="common_language">Limbă</string>
+    <string name="common_sort">Sortare</string>
 
     <!-- Units -->
     <string name="unit_days">Zile</string>
@@ -166,6 +168,7 @@
     <string name="car_move_to_recycle_bin_msg">Această mașină va fi mutată în coșul de reciclare.</string>
     <string name="car_view_mode_list">Schimbă în listă</string>
     <string name="car_view_mode_grid">Schimbă în grilă</string>
+    <string name="car_accent_color">Culoare accent</string>
 
     <!-- Add/Edit Car -->
     <string name="car_add_title">Adaugă mașină nouă</string>

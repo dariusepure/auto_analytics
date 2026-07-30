@@ -589,7 +589,7 @@ fun AddCarScreen(
                 Spacer(Modifier.height(16.dp))
                 
                 Text(
-                    text = "Accent Color", // TODO: Localize
+                    text = stringResource(R.string.car_accent_color),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.secondary
                 )

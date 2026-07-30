@@ -42,7 +42,8 @@ sealed class CarDetailsUiState {
         val tireSets: List<TireSet> = emptyList(),
         val fuelLogs: List<FuelLog> = emptyList(),
         val maintenanceLogs: List<Maintenance> = emptyList(),
-        val isScanning: Boolean = false
+        val isScanning: Boolean = false,
+        val isUploading: Boolean = false
     ) : CarDetailsUiState()
     data class Error(val message: String) : CarDetailsUiState()
 }
@@ -98,8 +99,10 @@ class CarDetailsViewModel @Inject constructor(
                     val maintenance = args[7] as List<Maintenance>
 
                     if (car != null) {
-                        val currentScanning = (_state.value as? CarDetailsUiState.Success)?.isScanning ?: false
-                        CarDetailsUiState.Success(car, logs, inspections, insurances, vignettes, tireSets, fuelLogs, maintenance, currentScanning)
+                        val currentState = _state.value as? CarDetailsUiState.Success
+                        val currentScanning = currentState?.isScanning ?: false
+                        val currentUploading = currentState?.isUploading ?: false
+                        CarDetailsUiState.Success(car, logs, inspections, insurances, vignettes, tireSets, fuelLogs, maintenance, currentScanning, currentUploading)
                     } else {
                         CarDetailsUiState.Error("Car not found")
                     }
@@ -357,6 +360,36 @@ class CarDetailsViewModel @Inject constructor(
                 carRepository.deleteMaintenanceLog(carId, log)
             } catch (e: Exception) {
                 _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+            }
+        }
+    }
+
+    fun uploadImage(carId: String, uri: Uri) {
+        val currentState = _state.value as? CarDetailsUiState.Success ?: return
+        _state.value = currentState.copy(isUploading = true)
+        
+        viewModelScope.launch {
+            try {
+                carRepository.uploadCarImage(carId, uri)
+                _state.value = (_state.value as? CarDetailsUiState.Success)?.copy(isUploading = false) ?: return@launch
+            } catch (e: Exception) {
+                _state.value = currentState.copy(isUploading = false)
+                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Upload failed: ${e.localizedMessage}"))
+            }
+        }
+    }
+
+    fun removeImage(carId: String) {
+        val currentState = _state.value as? CarDetailsUiState.Success ?: return
+        _state.value = currentState.copy(isUploading = true)
+        
+        viewModelScope.launch {
+            try {
+                carRepository.deleteCarImage(carId)
+                _state.value = (_state.value as? CarDetailsUiState.Success)?.copy(isUploading = false) ?: return@launch
+            } catch (e: Exception) {
+                _state.value = currentState.copy(isUploading = false)
+                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Delete failed: ${e.localizedMessage}"))
             }
         }
     }
