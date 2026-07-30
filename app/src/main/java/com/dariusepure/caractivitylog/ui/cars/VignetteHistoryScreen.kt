@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.Modifier
@@ -83,10 +84,11 @@ fun VignetteHistoryScreen(
             )
         },
         floatingActionButton = {
+            val carAccentColor = (state as? CarDetailsUiState.Success)?.car?.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
             FloatingActionButton(
                 onClick = { showAddDialog = true },
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                containerColor = carAccentColor,
+                contentColor = Color.White
             ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.vignette_add_title))
             }
@@ -123,9 +125,11 @@ fun VignetteHistoryScreen(
                             )
                         }
                     } else {
+                        val carAccentColor = s.car.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
                         items(s.vignettes) { vignette ->
                             VignetteItem(
                                 vignette = vignette,
+                                accentColor = carAccentColor,
                                 onEditClick = { editingVignette = vignette },
                                 onDeleteClick = { vignetteToDelete = vignette }
                             )

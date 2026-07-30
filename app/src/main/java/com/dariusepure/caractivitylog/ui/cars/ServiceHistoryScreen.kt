@@ -109,6 +109,8 @@ fun ServiceHistoryScreen(
             CarDetailsUiState.Loading -> LoadingState()
             is CarDetailsUiState.Error -> ErrorState(s.message, onRetry = { viewModel.loadCarData(carId) })
             is CarDetailsUiState.Success -> {
+                val carAccentColor = s.car.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
+                
                 LazyColumn(
                     modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -135,6 +137,7 @@ fun ServiceHistoryScreen(
                             ServiceItem(
                                 record = record,
                                 unit = europeanCountries.find { it.code == s.car.plateCountry }?.let { if (it.usesMiles) "mi" else "km" } ?: "km",
+                                accentColor = carAccentColor,
                                 onEdit = { editingRecord = record },
                                 onDelete = { recordToDelete = record }
                             )
@@ -152,6 +155,7 @@ fun ServiceHistoryScreen(
 fun ServiceItem(
     record: Maintenance,
     unit: String,
+    accentColor: Color = Color(0xFF2196F3),
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -186,7 +190,7 @@ fun ServiceItem(
             state = editTooltipState
         ) {
             IconButton(onClick = onEdit) {
-                Icon(Icons.Default.Edit, null, tint = Color(0xFF2196F3))
+                Icon(Icons.Default.Edit, null, tint = accentColor)
             }
         }
         

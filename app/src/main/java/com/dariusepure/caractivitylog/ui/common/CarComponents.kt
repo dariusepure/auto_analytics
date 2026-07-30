@@ -126,6 +126,7 @@ fun BentoCard(
 fun MileageItem(
     log: MileageLog,
     unit: String,
+    accentColor: Color = Color(0xFF2196F3),
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -162,7 +163,7 @@ fun MileageItem(
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = stringResource(R.string.mileage_edit_content_description),
-                    tint = Color(0xFF2196F3)
+                    tint = accentColor
                 )
             }
         }
@@ -193,6 +194,7 @@ fun MileageItem(
 fun InspectionItem(
     inspection: VehicleInspection,
     unit: String = "km",
+    accentColor: Color = Color(0xFF2196F3),
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -232,7 +234,7 @@ fun InspectionItem(
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = stringResource(R.string.inspection_edit_content_description),
-                    tint = Color(0xFF2196F3)
+                    tint = accentColor
                 )
             }
         }
@@ -262,6 +264,7 @@ fun InspectionItem(
 @Composable
 fun InsuranceItem(
     insurance: Insurance,
+    accentColor: Color = Color(0xFF2196F3),
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -305,7 +308,7 @@ fun InsuranceItem(
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = stringResource(R.string.common_edit),
-                    tint = Color(0xFF2196F3)
+                    tint = accentColor
                 )
             }
         }
@@ -335,6 +338,7 @@ fun InsuranceItem(
 @Composable
 fun VignetteItem(
     vignette: Vignette,
+    accentColor: Color = Color(0xFF2196F3),
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -378,7 +382,7 @@ fun VignetteItem(
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = stringResource(R.string.common_edit),
-                    tint = Color(0xFF2196F3)
+                    tint = accentColor
                 )
             }
         }
@@ -408,6 +412,7 @@ fun VignetteItem(
 @Composable
 fun TireSetItem(
     tireSet: TireSet,
+    accentColor: Color = Color(0xFF2196F3),
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -472,7 +477,7 @@ fun TireSetItem(
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = stringResource(R.string.common_edit),
-                    tint = Color(0xFF2196F3)
+                    tint = accentColor
                 )
             }
         }

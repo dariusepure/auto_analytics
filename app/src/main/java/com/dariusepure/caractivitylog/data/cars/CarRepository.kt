@@ -13,13 +13,6 @@ import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.ui.cars.ChatMessage
 import com.dariusepure.caractivitylog.data.auth.AuthRepository
-import com.google.firebase.storage.FirebaseStorage
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.net.Uri
-import dagger.hilt.android.qualifiers.ApplicationContext
-import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -27,9 +20,7 @@ import javax.inject.Singleton
 class CarRepository @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
-    private val storage: FirebaseStorage,
-    private val authRepository: AuthRepository,
-    @ApplicationContext private val context: Context
+    private val authRepository: AuthRepository
 ) {
     private fun getUid(): String {
         return authRepository.getUserId() ?: throw Exception("Utilizatorul nu este logat!")
@@ -193,101 +184,12 @@ class CarRepository @Inject constructor(
         checkNetwork()
         val uid = getUid()
         
-        // 1. Delete Firestore document
         firestore.collection("users")
             .document(uid)
             .collection("cars")
             .document(carId)
             .delete()
             .await()
-            
-        // 2. Delete from Cloud Storage
-        try {
-            storage.reference.child("users/$uid/cars/$carId/photo.jpg").delete().await()
-        } catch (e: Exception) {
-            // Ignore if image doesn't exist
-        }
-    }
-
-    suspend fun uploadCarImage(carId: String, uri: Uri): String {
-        checkNetwork()
-        val uid = getUid()
-        val storageRef = storage.reference.child("users/$uid/cars/$carId/photo.jpg")
-
-        // 1. Compress Image
-        val compressedData = compressImage(uri) ?: throw Exception("Failed to process image")
-
-        // 2. Upload to Storage
-        storageRef.putBytes(compressedData).await()
-
-        // 3. Get Download URL
-        val downloadUrl = storageRef.downloadUrl.await().toString()
-
-        // 4. Update Firestore
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .update("imageUrl", downloadUrl)
-            .await()
-
-        return downloadUrl
-    }
-
-    suspend fun deleteCarImage(carId: String) {
-        checkNetwork()
-        val uid = getUid()
-        
-        // 1. Remove from Storage
-        try {
-            storage.reference.child("users/$uid/cars/$carId/photo.jpg").delete().await()
-        } catch (e: Exception) {
-            // Ignore if already deleted
-        }
-
-        // 2. Clear from Firestore
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .update("imageUrl", null)
-            .await()
-    }
-
-    private fun compressImage(uri: Uri): ByteArray? {
-        return try {
-            val inputStream = context.contentResolver.openInputStream(uri)
-            val originalBitmap = BitmapFactory.decodeStream(inputStream) ?: return null
-            
-            // Resize if too large (max 1280px)
-            val maxDimension = 1280
-            val width = originalBitmap.width
-            val height = originalBitmap.height
-            val (newWidth, newHeight) = if (width > height) {
-                if (width > maxDimension) {
-                    val ratio = maxDimension.toFloat() / width
-                    (maxDimension to (height * ratio).toInt())
-                } else width to height
-            } else {
-                if (height > maxDimension) {
-                    val ratio = maxDimension.toFloat() / height
-                    ((width * ratio).toInt() to maxDimension)
-                } else width to height
-            }
-
-            val resizedBitmap = if (newWidth != width || newHeight != height) {
-                Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, true)
-            } else {
-                originalBitmap
-            }
-
-            val outputStream = ByteArrayOutputStream()
-            resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 75, outputStream)
-            outputStream.toByteArray()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
     }
 
     fun getMileageLogs(carId: String): Flow<List<MileageLog>> = callbackFlow {

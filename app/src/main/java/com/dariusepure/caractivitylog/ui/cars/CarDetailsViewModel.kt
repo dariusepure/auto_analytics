@@ -15,6 +15,7 @@ import com.dariusepure.caractivitylog.domain.TireSet
 import com.dariusepure.caractivitylog.domain.Maintenance
 import com.dariusepure.caractivitylog.domain.ScannedMileageEntry
 import com.dariusepure.caractivitylog.domain.VehicleInspection
+import com.dariusepure.caractivitylog.util.LocalImageHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -364,29 +365,34 @@ class CarDetailsViewModel @Inject constructor(
         }
     }
 
-    fun uploadImage(carId: String, uri: Uri) {
+    fun uploadImage(context: android.content.Context, carId: String, uri: Uri) {
         val currentState = _state.value as? CarDetailsUiState.Success ?: return
         _state.value = currentState.copy(isUploading = true)
         
         viewModelScope.launch {
             try {
-                carRepository.uploadCarImage(carId, uri)
-                _state.value = (_state.value as? CarDetailsUiState.Success)?.copy(isUploading = false) ?: return@launch
+                if (LocalImageHelper.saveCarImage(context, carId, uri)) {
+                    _state.value = (_state.value as? CarDetailsUiState.Success)?.copy(isUploading = false) ?: return@launch
+                    _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Photo saved locally"))
+                } else {
+                    throw Exception("Failed to save image")
+                }
             } catch (e: Exception) {
                 _state.value = currentState.copy(isUploading = false)
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Upload failed: ${e.localizedMessage}"))
+                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Save failed: ${e.localizedMessage}"))
             }
         }
     }
 
-    fun removeImage(carId: String) {
+    fun removeImage(context: android.content.Context, carId: String) {
         val currentState = _state.value as? CarDetailsUiState.Success ?: return
         _state.value = currentState.copy(isUploading = true)
         
         viewModelScope.launch {
             try {
-                carRepository.deleteCarImage(carId)
+                LocalImageHelper.deleteCarImage(context, carId)
                 _state.value = (_state.value as? CarDetailsUiState.Success)?.copy(isUploading = false) ?: return@launch
+                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Photo removed"))
             } catch (e: Exception) {
                 _state.value = currentState.copy(isUploading = false)
                 _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Delete failed: ${e.localizedMessage}"))

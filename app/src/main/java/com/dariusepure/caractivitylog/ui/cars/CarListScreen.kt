@@ -89,6 +89,7 @@ import com.dariusepure.caractivitylog.ui.common.LoadingState
 import com.dariusepure.caractivitylog.ui.common.DeleteConfirmationDialog
 import com.dariusepure.caractivitylog.ui.common.LanguageSelector
 import com.dariusepure.caractivitylog.ui.common.toRelativeString
+import com.dariusepure.caractivitylog.util.LocalImageHelper
 import com.dariusepure.caractivitylog.domain.displayName
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -119,9 +120,10 @@ fun CarCard(
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
-                if (car.imageUrl != null) {
+                val localImage = remember(car.id) { LocalImageHelper.getCarImageFile(context, car.id) }
+                if (localImage != null) {
                     AsyncImage(
-                        model = car.imageUrl,
+                        model = localImage,
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -233,6 +235,7 @@ fun CarGridCard(
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
@@ -251,9 +254,10 @@ fun CarGridCard(
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
-                if (car.imageUrl != null) {
+                val localImage = remember(car.id) { LocalImageHelper.getCarImageFile(context, car.id) }
+                if (localImage != null) {
                     AsyncImage(
-                        model = car.imageUrl,
+                        model = localImage,
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -274,7 +278,6 @@ fun CarGridCard(
                 text = car.displayName,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
                 textAlign = TextAlign.Center
             )
             

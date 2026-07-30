@@ -278,8 +278,8 @@
     <string name="mileage_delete_content_description">Delete mileage</string>
     <string name="mileage_confirm_scanned">Confirm Scanned Records</string>
     <string name="mileage_scanned_subtitle">We found %d mileage records. Please confirm which ones to add.</string>
-    <string name="mileage_conflict_less">Cannot be less than %d %s (recorded on %s)</string>
-    <string name="mileage_conflict_more">Cannot be more than %d %s (recorded on %s)</string>
+    <string name="mileage_conflict_less">Cannot be less than %d&#160;%s (recorded on %s)</string>
+    <string name="mileage_conflict_more">Cannot be more than %d&#160;%s (recorded on %s)</string>
 
     <!-- Inspection -->
     <string name="inspection_history_title">Technical Inspection History</string>
@@ -299,7 +299,7 @@
     <string name="vignette_empty">No vignette records found.</string>
     <string name="inspection_edit_content_description">Edit inspection</string>
     <string name="inspection_delete_content_description">Delete inspection</string>
-    <string name="inspection_item_summary">Inspection date: %s \u00B7 %d %s</string>
+    <string name="inspection_item_summary">Inspection date: %s \u00B7 %d&#160;%s</string>
 
     <!-- Fuel -->
     <string name="fuel_history_title">Fuel Consumption</string>
@@ -335,14 +335,14 @@
     <string name="recycle_bin_restore">Restore</string>
 
     <!-- Formatters -->
-    <string name="formatter_power_dual">%1$d hp / %2$d kw</string>
-    <string name="formatter_power_hp">%d hp</string>
-    <string name="formatter_engine_size">%s cc</string>
+    <string name="formatter_power_dual">%1$d&#160;hp / %2$d&#160;kw</string>
+    <string name="formatter_power_hp">%d&#160;hp</string>
+    <string name="formatter_engine_size">%s&#160;cc</string>
     <string name="formatter_no_inspection">No inspection recorded</string>
     <string name="formatter_inspection_valid_until">Valid until %s</string>
-    <string name="formatter_wheelbase">Wheelbase: %d mm</string>
-    <string name="formatter_track_width">Track Width: %d mm</string>
-    <string name="formatter_valves_total">%1$d (%2$d per cylinder)</string>
+    <string name="formatter_wheelbase">Wheelbase: %d&#160;mm</string>
+    <string name="formatter_track_width">Track Width: %d&#160;mm</string>
+    <string name="formatter_valves_total">%1$d (%2$d&#160;per cylinder)</string>
 
     <!-- PDF -->
     <string name="pdf_title">Vehicle History Report</string>
@@ -428,4 +428,9 @@
     <string name="service_empty">No service records found.</string>
     <string name="service_delete_confirm">Are you sure you want to delete this service record? The associated mileage entry will also be removed.</string>
     <string name="common_permanent_delete_msg">This action cannot be undone.</string>
+    <string name="photo_upload_success">Photo uploaded successfully</string>
+    <string name="photo_upload_failed">Upload failed: %s</string>
+    <string name="photo_delete_success">Photo removed</string>
+    <string name="photo_delete_failed">Failed to remove photo</string>
+    <string name="photo_choose_label">Choose from Gallery</string>
 </resources>

@@ -78,7 +78,7 @@ fun TechnicalSheetScreen(
                 val usesMiles = country?.usesMiles == true
                 val speedUnit = if (usesMiles) "mph" else "km/h"
                 val displayTopSpeed = CarFormatters.fromCanonicalSpeed(car.topSpeed, usesMiles)
-                val topSpeedText = if (displayTopSpeed > 0) "${displayTopSpeed.roundToInt()} $speedUnit" else "-"
+                val topSpeedText = if (displayTopSpeed > 0) "${displayTopSpeed.roundToInt()}\u00A0$speedUnit" else "-"
                 
                 val tireSizeText = if (car.tireWidth > 0 && car.tireAspectRatio > 0 && car.tireDiameter > 0) {
                     "${car.tireWidth}/${car.tireAspectRatio} R${car.tireDiameter}"
@@ -119,12 +119,12 @@ fun TechnicalSheetScreen(
                         SpecificationCard(
                             specifications = listOf(
                                 stringResource(R.string.car_power_label) to powerText,
-                                stringResource(R.string.car_torque_label) to if (car.torque > 0) "${car.torque} Nm" else "",
+                                stringResource(R.string.car_torque_label) to if (car.torque > 0) "${car.torque}\u00A0Nm" else "",
                                 stringResource(R.string.car_top_speed_label) to topSpeedText,
                                 stringResource(R.string.car_aspiration_label) to CarTranslations.getAspirationLabel(context, car.aspiration),
                                 stringResource(R.string.car_cylinders_label) to car.numberOfCylinders.takeIf { it != 0 }?.toString().orEmpty(),
                                 stringResource(R.string.car_valves_label) to valvesText,
-                                stringResource(R.string.car_engine_size_label) to if (car.engineSize.isNotBlank()) "${car.engineSize} cc" else "",
+                                stringResource(R.string.car_engine_size_label) to if (car.engineSize.isNotBlank()) "${car.engineSize}\u00A0cc" else "",
                                 stringResource(R.string.car_fuel_type_label) to CarTranslations.getFuelTypeLabel(context, car.fuelType),
                                 stringResource(R.string.car_injection_system_label) to CarTranslations.getFuelSystemLabel(context, car.fuelSystem),
                                 stringResource(R.string.car_engine_code_label) to car.engineCode,
@@ -153,14 +153,14 @@ fun TechnicalSheetScreen(
                         SpecificationCard(
                             specifications = listOf(
                                 stringResource(R.string.car_dimensions_lxwxh) to CarFormatters.formatDimensions(context, car),
-                                stringResource(R.string.car_wheelbase_label) to if (car.wheelbase > 0) "${car.wheelbase} mm" else "",
-                                stringResource(R.string.car_track_width_label) to if (car.trackWidth > 0) "${car.trackWidth} mm" else "",
-                                stringResource(R.string.car_weight_label) to if (car.weight > 0) "${car.weight} kg" else "",
+                                stringResource(R.string.car_wheelbase_label) to if (car.wheelbase > 0) "${car.wheelbase}\u00A0mm" else "",
+                                stringResource(R.string.car_track_width_label) to if (car.trackWidth > 0) "${car.trackWidth}\u00A0mm" else "",
+                                stringResource(R.string.car_weight_label) to if (car.weight > 0) "${car.weight}\u00A0kg" else "",
                                 stringResource(R.string.car_seats_label) to car.numberOfSeats.takeIf { it != 0 }?.toString().orEmpty(),
                                 stringResource(R.string.car_doors_label) to car.numberOfDoors.takeIf { it != 0 }?.toString().orEmpty(),
-                                stringResource(R.string.car_boot_label) to if (car.bootSpace > 0) "${car.bootSpace} L" else "",
-                                stringResource(R.string.car_fuel_tank_label) to if (car.fuelTankCapacity > 0) "${car.fuelTankCapacity} L" else "",
-                                stringResource(R.string.car_battery_capacity_label) to if (car.batteryCapacity > 0) "${car.batteryCapacity} kWh" else "",
+                                stringResource(R.string.car_boot_label) to if (car.bootSpace > 0) "${car.bootSpace}\u00A0L" else "",
+                                stringResource(R.string.car_fuel_tank_label) to if (car.fuelTankCapacity > 0) "${car.fuelTankCapacity}\u00A0L" else "",
+                                stringResource(R.string.car_battery_capacity_label) to if (car.batteryCapacity > 0) "${car.batteryCapacity}\u00A0kWh" else "",
                                 stringResource(R.string.car_tire_size_label) to tireSizeText
                             )
                         )

@@ -45,6 +45,7 @@ object CarFormatters {
     fun getCarSummary(context: android.content.Context, car: Car): String {
         val details = mutableListOf<String>()
         if (car.year != 0) details.add(car.year.toString())
+        if (car.fuelType.isNotBlank()) details.add(CarTranslations.getFuelTypeLabel(context, car.fuelType))
         if (car.power != 0) {
             val hp = if (car.powerUnit.lowercase() == "hp") car.power else (car.power * 1.35962).roundToInt()
             details.add(context.getString(com.dariusepure.caractivitylog.R.string.formatter_power_hp, hp))
@@ -68,7 +69,7 @@ object CarFormatters {
     fun formatDimensions(context: android.content.Context, car: Car): String {
         val dims = mutableListOf<String>()
         if (car.length > 0 || car.width > 0 || car.height > 0) {
-            dims.add("${car.length} x ${car.width} x ${car.height} mm")
+            dims.add("${car.length}\u00A0x\u00A0${car.width}\u00A0x\u00A0${car.height}\u00A0mm")
         }
         if (car.wheelbase > 0) dims.add(context.getString(com.dariusepure.caractivitylog.R.string.formatter_wheelbase, car.wheelbase))
         if (car.trackWidth > 0) dims.add(context.getString(com.dariusepure.caractivitylog.R.string.formatter_track_width, car.trackWidth))

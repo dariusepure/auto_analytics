@@ -78,6 +78,8 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material.icons.outlined.DirectionsCar
 import androidx.compose.ui.res.painterResource
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import coil.compose.AsyncImage
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -97,7 +99,8 @@ fun AddCarScreen(
     onCarSaved: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: AddCarViewModel = hiltViewModel()
+    viewModel: AddCarViewModel = hiltViewModel(),
+    windowSizeClass: WindowSizeClass? = null
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -436,46 +439,43 @@ fun AddCarScreen(
                     enabled = state !is AddCarState.Pending
                 )
 
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Button(
-                        onClick = { photoPicker.launch("image/*") },
-                        modifier = Modifier.weight(1f),
-                        enabled = state !is AddCarState.Pending && state !is AddCarState.Scanning,
-                        contentPadding = PaddingValues(horizontal = 8.dp)
-                    ) {
-                        if (state is AddCarState.Scanning) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        } else {
-                            Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(4.dp))
-                            Text(stringResource(R.string.car_scan_photo), textAlign = TextAlign.Center)
-                        }
-                    }
+                val isExpanded = windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Expanded
 
-                    Button(
-                        onClick = { pdfPicker.launch("application/pdf") },
-                        modifier = Modifier.weight(1f),
-                        enabled = state !is AddCarState.Pending && state !is AddCarState.Scanning,
-                        contentPadding = PaddingValues(horizontal = 8.dp)
+                if (isExpanded) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        if (state is AddCarState.Scanning) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        } else {
-                            Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(4.dp))
-                            Text(stringResource(R.string.car_scan_pdf), textAlign = TextAlign.Center)
-                        }
+                        ScanButton(
+                            onClick = { photoPicker.launch("image/*") },
+                            modifier = Modifier.weight(1f),
+                            state = state,
+                            label = stringResource(R.string.car_scan_photo)
+                        )
+                        ScanButton(
+                            onClick = { pdfPicker.launch("application/pdf") },
+                            modifier = Modifier.weight(1f),
+                            state = state,
+                            label = stringResource(R.string.car_scan_pdf)
+                        )
+                    }
+                } else {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        ScanButton(
+                            onClick = { photoPicker.launch("image/*") },
+                            modifier = Modifier.fillMaxWidth(),
+                            state = state,
+                            label = stringResource(R.string.car_scan_photo)
+                        )
+                        ScanButton(
+                            onClick = { pdfPicker.launch("application/pdf") },
+                            modifier = Modifier.fillMaxWidth(),
+                            state = state,
+                            label = stringResource(R.string.car_scan_pdf)
+                        )
                     }
                 }
 
@@ -1586,6 +1586,33 @@ fun AddCarScreen(
                     Text(stringResource(R.string.common_save))
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ScanButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    state: AddCarState,
+    label: String
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = state !is AddCarState.Pending && state !is AddCarState.Scanning,
+        contentPadding = PaddingValues(horizontal = 8.dp)
+    ) {
+        if (state is AddCarState.Scanning) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(20.dp),
+                strokeWidth = 2.dp,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+        } else {
+            Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(4.dp))
+            Text(label, textAlign = TextAlign.Center)
         }
     }
 }

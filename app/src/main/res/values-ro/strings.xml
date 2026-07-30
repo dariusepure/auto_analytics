@@ -278,8 +278,8 @@
     <string name="mileage_delete_content_description">Șterge kilometrajul</string>
     <string name="mileage_confirm_scanned">Confirmă înregistrările scanate</string>
     <string name="mileage_scanned_subtitle">Am găsit %d înregistrări de kilometraj. Te rugăm să confirmi care să fie adăugate.</string>
-    <string name="mileage_conflict_less">Nu poate fi mai mic decât %1$d %2$s (înregistrat la data de %3$s)</string>
-    <string name="mileage_conflict_more">Nu poate fi mai mare decât %1$d %2$s (înregistrat la data de %3$s)</string>
+    <string name="mileage_conflict_less">Nu poate fi mai mic decât %1$d&#160;%2$s (înregistrat la data de %3$s)</string>
+    <string name="mileage_conflict_more">Nu poate fi mai mare decât %1$d&#160;%2$s (înregistrat la data de %3$s)</string>
 
     <!-- Inspection -->
     <string name="inspection_history_title">Istoric ITP</string>
@@ -299,7 +299,7 @@
     <string name="vignette_empty">Nu s-au găsit înregistrări de vinietă.</string>
     <string name="inspection_edit_content_description">Editează inspecția</string>
     <string name="inspection_delete_content_description">Șterge inspecția</string>
-    <string name="inspection_item_summary">Data inspecției: %1$s \u00B7 %2$d %3$s</string>
+    <string name="inspection_item_summary">Data inspecției: %1$s \u00B7 %2$d&#160;%3$s</string>
 
     <!-- Fuel -->
     <string name="fuel_history_title">Consum combustibil</string>
@@ -335,14 +335,14 @@
     <string name="recycle_bin_restore">Restaurează</string>
 
     <!-- Formatters -->
-    <string name="formatter_power_dual">%1$d cp / %2$d kw</string>
-    <string name="formatter_power_hp">%d cp</string>
-    <string name="formatter_engine_size">%s cc</string>
+    <string name="formatter_power_dual">%1$d&#160;cp / %2$d&#160;kw</string>
+    <string name="formatter_power_hp">%d&#160;cp</string>
+    <string name="formatter_engine_size">%s&#160;cc</string>
     <string name="formatter_no_inspection">Nicio inspecție înregistrată</string>
     <string name="formatter_inspection_valid_until">Valabil până la %s</string>
-    <string name="formatter_wheelbase">Ampatament: %d mm</string>
-    <string name="formatter_track_width">Ecartament: %d mm</string>
-    <string name="formatter_valves_total">%1$d (%2$d per cilindru)</string>
+    <string name="formatter_wheelbase">Ampatament: %d&#160;mm</string>
+    <string name="formatter_track_width">Ecartament: %d&#160;mm</string>
+    <string name="formatter_valves_total">%1$d (%2$d&#160;per cilindru)</string>
 
     <!-- PDF -->
     <string name="pdf_title">Raport istoric vehicul</string>
@@ -418,4 +418,9 @@
     <string name="service_empty">Nu s-au găsit înregistrări de service.</string>
     <string name="service_delete_confirm">Ești sigur că vrei să ștergi această înregistrare? Kilometrajul asociat va fi de asemenea șters.</string>
     <string name="common_permanent_delete_msg">Această acțiune nu poate fi anulată.</string>
+    <string name="photo_upload_success">Poză încărcată cu succes</string>
+    <string name="photo_upload_failed">Eșec la încărcare: %s</string>
+    <string name="photo_delete_success">Poză ștearsă</string>
+    <string name="photo_delete_failed">Eșec la ștergerea pozei</string>
+    <string name="photo_choose_label">Alege poză din Galerie</string>
 </resources>

@@ -152,6 +152,7 @@ fun FuelHistoryScreen(
                             distUnit = distUnit,
                             consUnit = consUnit,
                             usesMiles = usesMiles,
+                            accentColor = carAccentColor,
                             onEdit = { editingLog = entry.log },
                             onDelete = { logToDelete = entry.log }
                         )
@@ -241,6 +242,7 @@ fun FuelLogItem(
     distUnit: String,
     consUnit: String,
     usesMiles: Boolean,
+    accentColor: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color(0xFF2196F3),
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -293,7 +295,7 @@ fun FuelLogItem(
                     Icon(
                         imageVector = Icons.Default.Edit,
                         null,
-                        tint = androidx.compose.ui.graphics.Color(0xFF2196F3)
+                        tint = accentColor
                     )
                 }
             }

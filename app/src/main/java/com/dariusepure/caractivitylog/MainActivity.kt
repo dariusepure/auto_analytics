@@ -9,6 +9,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -28,6 +29,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+    @OptIn(androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
@@ -39,6 +41,7 @@ class MainActivity : AppCompatActivity() {
 
         enableEdgeToEdge()
         setContent {
+            val windowSizeClass = calculateWindowSizeClass(this)
             val viewModel: MainViewModel = hiltViewModel()
             val themeViewModel: ThemeViewModel = hiltViewModel()
             
@@ -62,7 +65,8 @@ class MainActivity : AppCompatActivity() {
             CarActivityLogTheme(darkTheme = useDarkTheme) {
                 AppNavigation(
                     startDestination = startRoute,
-                    themeViewModel = themeViewModel
+                    themeViewModel = themeViewModel,
+                    windowSizeClass = windowSizeClass
                 )
             }
         }

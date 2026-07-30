@@ -1,6 +1,7 @@
 package com.dariusepure.caractivitylog.ui
 
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -78,7 +79,8 @@ fun AppNavigation(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startDestination: String = Screen.CarList.route,
-    themeViewModel: ThemeViewModel = hiltViewModel()
+    themeViewModel: ThemeViewModel = hiltViewModel(),
+    windowSizeClass: WindowSizeClass? = null
 ) {
     NavHost(
         navController = navController,
@@ -186,7 +188,8 @@ fun AppNavigation(
                 },
                 onServiceClick = {
                     navController.navigate(Screen.ServiceHistory.createRoute(carId))
-                }
+                },
+                windowSizeClass = windowSizeClass
             )
         }
         composable(Screen.MileageHistory.route) { backStackEntry ->
@@ -231,7 +234,8 @@ fun AppNavigation(
                 },
                 onBack = {
                     navController.popBackStack()
-                }
+                },
+                windowSizeClass = windowSizeClass
             )
         }
         composable(Screen.EditCar.route) { backStackEntry ->
@@ -243,7 +247,8 @@ fun AppNavigation(
                 },
                 onBack = {
                     navController.popBackStack()
-                }
+                },
+                windowSizeClass = windowSizeClass
             )
         }
         composable(Screen.Diagnosis.route) { backStackEntry ->

@@ -154,6 +154,7 @@ fun InspectionHistoryScreen(
                             )
                         }
                     } else {
+                        val carAccentColor = s.car.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
                         items(s.inspections) { inspection ->
                             val country = europeanCountries.find { it.code == car.plateCountry }
                             val unitLabel = if (country?.usesMiles == true) "mi" else "km"
@@ -162,6 +163,7 @@ fun InspectionHistoryScreen(
                             InspectionItem(
                                 inspection = inspection.copy(mileage = displayMileage),
                                 unit = unitLabel,
+                                accentColor = carAccentColor,
                                 onEditClick = { editingInspection = inspection },
                                 onDeleteClick = { inspectionToDelete = inspection }
                             )
