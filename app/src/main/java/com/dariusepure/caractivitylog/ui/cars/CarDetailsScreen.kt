@@ -30,12 +30,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.domain.*
+import com.dariusepure.caractivitylog.ui.common.AutoSizeText
 import com.dariusepure.caractivitylog.ui.common.*
 import com.dariusepure.caractivitylog.util.LocalImageHelper
 import com.dariusepure.caractivitylog.util.PdfReportGenerator
@@ -216,7 +219,6 @@ fun CarDetailsScreen(
                                     Icon(Icons.Default.Description, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
                                     Spacer(Modifier.height(8.dp))
                                     Text(text = stringResource(R.string.car_technical_sheet), style = MaterialTheme.typography.titleMedium)
-                                    Text(text = stringResource(R.string.car_technical_sheet_subtitle), style = MaterialTheme.typography.bodySmall)
                                 }
                                 BentoCard(
                                     onClick = onMileageClick,
@@ -229,10 +231,6 @@ fun CarDetailsScreen(
                                     }
                                     Spacer(Modifier.height(8.dp))
                                     Text(text = stringResource(R.string.car_mileage_history), style = MaterialTheme.typography.titleMedium)
-                                    val latestMileage = s.mileageLogs.maxByOrNull { it.date }
-                                    val country = europeanCountries.find { it.code == car.plateCountry }
-                                    val unit = if (country?.usesMiles == true) "mi" else "km"
-                                    Text(text = if (latestMileage != null) "${latestMileage.km.toInt()} $unit" else stringResource(R.string.mileage_empty), style = MaterialTheme.typography.bodySmall)
                                 }
                                 val latestInspection = s.inspections.maxByOrNull { it.date }
                                 val isItpExpired = CarFormatters.isInspectionExpired(latestInspection)
@@ -297,7 +295,6 @@ fun CarDetailsScreen(
                                     }
                                     Spacer(Modifier.height(8.dp))
                                     Text(text = stringResource(R.string.car_fuel_consumption), style = MaterialTheme.typography.titleMedium)
-                                    Text(text = stringResource(R.string.car_fuel_consumption_subtitle), style = MaterialTheme.typography.bodySmall)
                                 }
                             }
                         }
@@ -311,10 +308,7 @@ fun CarDetailsScreen(
                                     Icon(Icons.Default.Build, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
                                     Spacer(Modifier.height(8.dp))
                                     Text(text = stringResource(R.string.service_history_title), style = MaterialTheme.typography.titleMedium)
-                                    val latestService = s.maintenanceLogs.maxByOrNull { it.date }
-                                    Text(text = latestService?.description ?: stringResource(R.string.service_empty), style = MaterialTheme.typography.bodySmall)
                                 }
-                                val activeTires = s.tireSets.find { it.isActive }
                                 BentoCard(
                                     onClick = onTireClick,
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
@@ -323,7 +317,6 @@ fun CarDetailsScreen(
                                     Icon(Icons.Default.DirectionsCar, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
                                     Spacer(Modifier.height(8.dp))
                                     Text(text = stringResource(R.string.tire_management_title), style = MaterialTheme.typography.titleMedium)
-                                    Text(text = if (activeTires != null) "${activeTires.brand} ${activeTires.model}" else stringResource(R.string.tire_empty), style = MaterialTheme.typography.bodySmall)
                                 }
                                 BentoCard(
                                     onClick = onDiagnosisClick,
@@ -333,7 +326,6 @@ fun CarDetailsScreen(
                                     Icon(Icons.Default.Psychology, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
                                     Spacer(Modifier.height(8.dp))
                                     Text(text = stringResource(R.string.car_diagnosis_title), style = MaterialTheme.typography.titleSmall)
-                                    Text(text = stringResource(R.string.car_diagnosis_subtitle), style = MaterialTheme.typography.bodySmall)
                                 }
                             }
                         }
@@ -354,12 +346,6 @@ fun CarDetailsScreen(
                                         softWrap = true,
                                         maxLines = 2
                                     )
-                                    Text(
-                                        text = stringResource(R.string.car_technical_sheet_subtitle),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        softWrap = true,
-                                        maxLines = 1
-                                    )
                                 }
                                 
                                 BentoCard(
@@ -377,15 +363,6 @@ fun CarDetailsScreen(
                                         style = MaterialTheme.typography.titleMedium,
                                         softWrap = true,
                                         maxLines = 2
-                                    )
-                                    val latestMileage = s.mileageLogs.maxByOrNull { it.date }
-                                    val country = europeanCountries.find { it.code == car.plateCountry }
-                                    val unit = if (country?.usesMiles == true) "mi" else "km"
-                                    Text(
-                                        text = if (latestMileage != null) "${latestMileage.km.toInt()} $unit" else stringResource(R.string.mileage_empty),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        softWrap = true,
-                                        maxLines = 1
                                     )
                                 }
                             }
@@ -484,12 +461,6 @@ fun CarDetailsScreen(
                                         softWrap = true,
                                         maxLines = 2
                                     )
-                                    Text(
-                                        text = stringResource(R.string.car_fuel_consumption_subtitle),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        softWrap = true,
-                                        maxLines = 1
-                                    )
                                 }
                                 
                                 BentoCard(
@@ -505,13 +476,6 @@ fun CarDetailsScreen(
                                         softWrap = true,
                                         maxLines = 2
                                     )
-                                    val latestService = s.maintenanceLogs.maxByOrNull { it.date }
-                                    Text(
-                                        text = latestService?.description ?: stringResource(R.string.service_empty),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        softWrap = true,
-                                        maxLines = 1
-                                    )
                                 }
                             }
                         }
@@ -519,7 +483,6 @@ fun CarDetailsScreen(
                         // Tires & Diagnosis
                         item {
                             Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                val activeTires = s.tireSets.find { it.isActive }
                                 BentoCard(
                                     onClick = onTireClick,
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
@@ -532,12 +495,6 @@ fun CarDetailsScreen(
                                         style = MaterialTheme.typography.titleMedium,
                                         softWrap = true,
                                         maxLines = 2
-                                    )
-                                    Text(
-                                        text = if (activeTires != null) "${activeTires.brand} ${activeTires.model}" else stringResource(R.string.tire_empty),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        softWrap = true,
-                                        maxLines = 1
                                     )
                                 }
 
@@ -553,12 +510,6 @@ fun CarDetailsScreen(
                                         style = MaterialTheme.typography.titleSmall,
                                         softWrap = true,
                                         maxLines = 2
-                                    )
-                                    Text(
-                                        text = stringResource(R.string.car_diagnosis_subtitle),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        softWrap = true,
-                                        maxLines = 1
                                     )
                                 }
                             }
@@ -580,7 +531,6 @@ fun CarDetailsScreen(
                                 Spacer(Modifier.width(16.dp))
                                 Column {
                                     Text(stringResource(R.string.car_generate_report), style = MaterialTheme.typography.titleMedium, color = carOnAccentColor)
-                                    Text(stringResource(R.string.car_generate_report_subtitle), style = MaterialTheme.typography.bodySmall, color = carOnAccentColor.copy(alpha = 0.7f))
                                 }
                             }
                         }
@@ -981,7 +931,7 @@ private fun CarHeaderPhoto(
 @Composable
 private fun CarHeaderText(car: Car) {
     Column {
-        Text(
+        AutoSizeText(
             text = car.displayName,
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary

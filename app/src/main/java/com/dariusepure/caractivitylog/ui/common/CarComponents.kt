@@ -27,8 +27,13 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.platform.LocalContext
@@ -37,6 +42,9 @@ import kotlin.math.roundToInt
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dariusepure.caractivitylog.domain.MileageLog
@@ -537,4 +545,41 @@ fun SpecificationCard(specifications: List<Pair<String, String>>) {
             }
         }
     }
+}
+
+/**
+ * Text component that automatically scales down font size to fit in 1 line.
+ */
+@Composable
+fun AutoSizeText(
+    text: String,
+    style: androidx.compose.ui.text.TextStyle,
+    modifier: Modifier = Modifier,
+    minFontSize: TextUnit = 10.sp,
+    maxLines: Int = 1,
+    textAlign: TextAlign? = null,
+    color: Color = Color.Unspecified
+) {
+    var fontSizeValue by remember(text) { mutableStateOf(style.fontSize) }
+    var readyToDraw by remember(text) { mutableStateOf(false) }
+
+    Text(
+        text = text,
+        modifier = modifier.drawWithContent {
+            if (readyToDraw) drawContent()
+        },
+        style = style.copy(fontSize = fontSizeValue),
+        maxLines = maxLines,
+        softWrap = false,
+        overflow = TextOverflow.Clip,
+        textAlign = textAlign,
+        color = color,
+        onTextLayout = { textLayoutResult ->
+            if (textLayoutResult.hasVisualOverflow && fontSizeValue.isSp && fontSizeValue.value > minFontSize.value) {
+                fontSizeValue = (fontSizeValue.value * 0.9f).sp
+            } else {
+                readyToDraw = true
+            }
+        }
+    )
 }
