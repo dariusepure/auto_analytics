@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Jurnal Activitate Mașină</string>
+    <string name="app_name">Clever Engine</string>
 
     <!-- Common -->
     <string name="common_save">Salvează</string>
@@ -129,7 +129,7 @@
     <string name="auth_signin_button">Autentificare</string>
     <string name="auth_signin_subtitle">Autentifică-te pentru a continua de unde ai rămas.</string>
     <string name="auth_signup_button">Înregistrare</string>
-    <string name="auth_signup_subtitle">Alătură-te Jurnalului de Activitate al Mașinii astăzi.</string>
+    <string name="auth_signup_subtitle">Alătură-te Clever Engine astăzi.</string>
     <string name="auth_forgot_password_subtitle">Introdu adresa de email și îți vom trimite un link pentru resetarea parolei.</string>
     <string name="auth_reset_password_subtitle">Te rugăm să introduci și să confirmi noua parolă mai jos.</string>
     <string name="auth_reset_password_success">Parola a fost schimbată cu succes!</string>

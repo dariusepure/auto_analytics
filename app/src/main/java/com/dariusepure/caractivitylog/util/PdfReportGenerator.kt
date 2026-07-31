@@ -59,7 +59,7 @@ object PdfReportGenerator {
             }
             val footerY = PAGE_HEIGHT - 30f
             val dateStr = "${dateFormat.format(Date())} ${timeFormat.format(Date())}"
-            canvas.drawText("Car Activity Log - $dateStr", MARGIN, footerY, footerPaint)
+            canvas.drawText("Clever Engine - $dateStr", MARGIN, footerY, footerPaint)
             
             val pageStr = "Page $pageNum"
             val bounds = Rect()

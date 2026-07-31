@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Car Activity Log</string>
+    <string name="app_name">Clever Engine</string>
 
     <!-- Common -->
     <string name="common_save">Save</string>
@@ -129,7 +129,7 @@
     <string name="auth_signin_button">Sign in</string>
     <string name="auth_signin_subtitle">Sign in to pick up where you left off.</string>
     <string name="auth_signup_button">Sign up</string>
-    <string name="auth_signup_subtitle">Join Car Activity Log today.</string>
+    <string name="auth_signup_subtitle">Join Clever Engine today.</string>
     <string name="auth_forgot_password_subtitle">Enter your email address and we\'ll send you a link to reset your password.</string>
     <string name="auth_reset_password_subtitle">Please enter and confirm your new password below.</string>
     <string name="auth_reset_password_success">Password changed successfully!</string>

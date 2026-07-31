@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Car Activity Log"
+rootProject.name = "Clever Engine"
 include(":app")

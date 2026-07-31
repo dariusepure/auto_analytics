@@ -41,7 +41,6 @@ class MainActivity : AppCompatActivity() {
 
         enableEdgeToEdge()
         setContent {
-            val windowSizeClass = calculateWindowSizeClass(this)
             val viewModel: MainViewModel = hiltViewModel()
             val themeViewModel: ThemeViewModel = hiltViewModel()
             
@@ -66,7 +65,7 @@ class MainActivity : AppCompatActivity() {
                 AppNavigation(
                     startDestination = startRoute,
                     themeViewModel = themeViewModel,
-                    windowSizeClass = windowSizeClass
+                    windowSizeClass = calculateWindowSizeClass(this)
                 )
             }
         }

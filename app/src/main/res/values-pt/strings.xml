@@ -60,7 +60,7 @@
     <string name="auth_signin_button">Entrar</string>
     <string name="auth_signin_subtitle">Inicie sessão para retomar onde parou.</string>
     <string name="auth_signup_button">Cadastrar</string>
-    <string name="auth_signup_subtitle">Junte-se ao Car Activity Log hoje mesmo.</string>
+    <string name="auth_signup_subtitle">Junte-se ao Clever Engine hoje mesmo.</string>
     <string name="auth_forgot_password_subtitle">Introduza o seu endereço de e-mail e enviaremos um link para redefinir a sua palavra-passe.</string>
     <string name="auth_reset_password_subtitle">Introduza e confirme a sua nova palavra-passe abaixo.</string>
     <string name="auth_reset_password_success">Palavra-passe alterada com sucesso!</string>

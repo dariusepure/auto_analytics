@@ -27,9 +27,6 @@ import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.background
-import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Sync

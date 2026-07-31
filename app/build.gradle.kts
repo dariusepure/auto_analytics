@@ -92,7 +92,7 @@ android {
             firebaseAppDistribution {
                 artifactType = "APK"
                 groups = "internal-testers"
-                releaseNotes = "Car Activity Log"
+                releaseNotes = "Clever Engine"
             }
         }
     }
