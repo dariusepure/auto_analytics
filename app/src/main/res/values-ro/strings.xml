@@ -21,6 +21,7 @@
     <string name="common_collapse">Restrânge</string>
     <string name="common_expand">Extinde</string>
     <string name="common_language">Limbă</string>
+    <string name="common_currency">Monedă</string>
     <string name="common_sort">Sortare</string>
 
     <!-- Units -->

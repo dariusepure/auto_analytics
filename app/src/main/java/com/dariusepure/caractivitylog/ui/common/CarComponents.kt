@@ -272,6 +272,7 @@ fun InspectionItem(
 @Composable
 fun InsuranceItem(
     insurance: Insurance,
+    currencyCode: String = "RON",
     accentColor: Color = Color(0xFF2196F3),
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
@@ -293,7 +294,7 @@ fun InsuranceItem(
             )
             val details = mutableListOf<String>()
             if (insurance.provider.isNotBlank()) details.add(insurance.provider)
-            if (insurance.cost > 0) details.add("${insurance.cost}")
+            if (insurance.cost > 0) details.add(CarFormatters.formatCost(insurance.cost, currencyCode))
             
             Text(
                 text = details.joinToString(" \u00B7 "),
@@ -346,6 +347,7 @@ fun InsuranceItem(
 @Composable
 fun VignetteItem(
     vignette: Vignette,
+    currencyCode: String = "RON",
     accentColor: Color = Color(0xFF2196F3),
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
@@ -367,7 +369,7 @@ fun VignetteItem(
             )
             val details = mutableListOf<String>()
             if (vignette.country.isNotBlank()) details.add(vignette.country)
-            if (vignette.cost > 0) details.add("${vignette.cost}")
+            if (vignette.cost > 0) details.add(CarFormatters.formatCost(vignette.cost, currencyCode))
             
             Text(
                 text = details.joinToString(" \u00B7 "),

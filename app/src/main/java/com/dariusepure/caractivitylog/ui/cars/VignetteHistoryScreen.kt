@@ -22,6 +22,7 @@ import com.dariusepure.caractivitylog.ui.common.*
 import com.dariusepure.caractivitylog.domain.Vignette
 import com.dariusepure.caractivitylog.domain.InspectionDurationUnit
 import com.dariusepure.caractivitylog.domain.displayName
+import com.dariusepure.caractivitylog.ui.theme.ThemeViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -31,9 +32,11 @@ fun VignetteHistoryScreen(
     carId: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: CarDetailsViewModel = hiltViewModel()
+    viewModel: CarDetailsViewModel = hiltViewModel(),
+    themeViewModel: ThemeViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val currencyCode by themeViewModel.currencyCode.collectAsStateWithLifecycle()
     var showAddDialog by remember { mutableStateOf(false) }
     var editingVignette by remember { mutableStateOf<Vignette?>(null) }
     var vignetteToDelete by remember { mutableStateOf<Vignette?>(null) }
@@ -129,6 +132,7 @@ fun VignetteHistoryScreen(
                         items(s.vignettes) { vignette ->
                             VignetteItem(
                                 vignette = vignette,
+                                currencyCode = currencyCode,
                                 accentColor = carAccentColor,
                                 onEditClick = { editingVignette = vignette },
                                 onDeleteClick = { vignetteToDelete = vignette }

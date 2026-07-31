@@ -28,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.ui.common.*
+import com.dariusepure.caractivitylog.ui.theme.ThemeViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -37,9 +38,11 @@ import kotlin.math.roundToInt
 fun FuelHistoryScreen(
     carId: String,
     onBack: () -> Unit,
-    viewModel: FuelHistoryViewModel = hiltViewModel()
+    viewModel: FuelHistoryViewModel = hiltViewModel(),
+    themeViewModel: ThemeViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val currencyCode by themeViewModel.currencyCode.collectAsStateWithLifecycle()
     var showAddDialog by remember { mutableStateOf(false) }
     var editingLog by remember { mutableStateOf<com.dariusepure.caractivitylog.domain.FuelLog?>(null) }
     var logToDelete by remember { mutableStateOf<com.dariusepure.caractivitylog.domain.FuelLog?>(null) }
@@ -97,7 +100,7 @@ fun FuelHistoryScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     item {
-                        FuelStatsCard(s.stats, distUnit, consUnit)
+                        FuelStatsCard(s.stats, distUnit, consUnit, currencyCode)
 
                         if (s.stats.avgConsumption == null && s.logs.isNotEmpty()) {
                             Surface(
@@ -152,6 +155,7 @@ fun FuelHistoryScreen(
                             distUnit = distUnit,
                             consUnit = consUnit,
                             usesMiles = usesMiles,
+                            currencyCode = currencyCode,
                             accentColor = carAccentColor,
                             onEdit = { editingLog = entry.log },
                             onDelete = { logToDelete = entry.log }
@@ -199,7 +203,7 @@ fun FuelHistoryScreen(
 }
 
 @Composable
-fun FuelStatsCard(stats: FuelStats, distUnit: String, consUnit: String) {
+fun FuelStatsCard(stats: FuelStats, distUnit: String, consUnit: String, currencyCode: String) {
     Card(
         modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
@@ -221,7 +225,7 @@ fun FuelStatsCard(stats: FuelStats, distUnit: String, consUnit: String) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 StatItem(stringResource(R.string.fuel_stats_total_fuel), String.format(Locale.getDefault(), "%.1f L", stats.totalLiters))
-                StatItem(stringResource(R.string.fuel_stats_total_cost), String.format(Locale.getDefault(), "%.2f", stats.totalCost))
+                StatItem(stringResource(R.string.fuel_stats_total_cost), CarFormatters.formatCost(stats.totalCost, currencyCode))
             }
         }
     }
@@ -242,6 +246,7 @@ fun FuelLogItem(
     distUnit: String,
     consUnit: String,
     usesMiles: Boolean,
+    currencyCode: String,
     accentColor: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color(0xFF2196F3),
     onEdit: () -> Unit,
     onDelete: () -> Unit
@@ -265,7 +270,7 @@ fun FuelLogItem(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = "${entry.log.liters} L \u00B7 ${entry.log.cost} \u00B7 ${if (entry.log.isFullTank) stringResource(R.string.fuel_full_tank_label) else stringResource(R.string.fuel_partial_tank)}",
+                    text = "${entry.log.liters} L \u00B7 ${CarFormatters.formatCost(entry.log.cost, currencyCode)} \u00B7 ${if (entry.log.isFullTank) stringResource(R.string.fuel_full_tank_label) else stringResource(R.string.fuel_partial_tank)}",
                     style = MaterialTheme.typography.bodySmall
                 )
             }

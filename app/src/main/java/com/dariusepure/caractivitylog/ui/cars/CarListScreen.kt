@@ -87,6 +87,7 @@ import com.dariusepure.caractivitylog.ui.common.EmptyState
 import com.dariusepure.caractivitylog.ui.common.ErrorState
 import com.dariusepure.caractivitylog.ui.common.LoadingState
 import com.dariusepure.caractivitylog.ui.common.DeleteConfirmationDialog
+import com.dariusepure.caractivitylog.ui.common.CurrencySelector
 import com.dariusepure.caractivitylog.ui.common.LanguageSelector
 import com.dariusepure.caractivitylog.ui.common.toRelativeString
 import com.dariusepure.caractivitylog.util.LocalImageHelper
@@ -293,6 +294,7 @@ fun CarListScreen(
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val viewMode by viewModel.viewMode.collectAsStateWithLifecycle()
     val isDarkMode by themeViewModel.isDarkMode.collectAsStateWithLifecycle()
+    val currencyCode by themeViewModel.currencyCode.collectAsStateWithLifecycle()
     val systemDark = androidx.compose.foundation.isSystemInDarkTheme()
     val currentDark = isDarkMode ?: systemDark
 
@@ -307,12 +309,14 @@ fun CarListScreen(
             onLogout()
         },
         onThemeToggle = { themeViewModel.toggleTheme(currentDark) },
+        onCurrencySelected = { themeViewModel.setCurrency(it) },
         onSortOrderChange = { viewModel.onSortOrderChanged(it) },
         onSearchQueryChange = { viewModel.onSearchQueryChanged(it) },
         onViewModeChange = { viewModel.onViewModeChanged(it) },
         searchQuery = searchQuery,
         currentSortOrder = sortOrder,
         currentViewMode = viewMode,
+        currentCurrencyCode = currencyCode,
         isDark = currentDark,
         state = state
     )
@@ -328,12 +332,14 @@ private fun InnerCarListScreen(
     onDeleteCar: (String) -> Unit,
     onLogoutClick: () -> Unit,
     onThemeToggle: () -> Unit,
+    onCurrencySelected: (String) -> Unit,
     onSortOrderChange: (CarSortOrder) -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onViewModeChange: (CarListViewMode) -> Unit,
     searchQuery: String,
     currentSortOrder: CarSortOrder,
     currentViewMode: CarListViewMode,
+    currentCurrencyCode: String,
     isDark: Boolean,
     state: CarListUiState,
     modifier: Modifier = Modifier,
@@ -468,6 +474,10 @@ private fun InnerCarListScreen(
                             )
                         }
                     }
+                    CurrencySelector(
+                        currentCurrencyCode = currentCurrencyCode,
+                        onCurrencySelected = onCurrencySelected
+                    )
                     LanguageSelector()
                 }
             )

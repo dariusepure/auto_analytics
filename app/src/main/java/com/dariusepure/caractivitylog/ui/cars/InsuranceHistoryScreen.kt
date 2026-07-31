@@ -22,6 +22,7 @@ import com.dariusepure.caractivitylog.ui.common.*
 import com.dariusepure.caractivitylog.domain.Insurance
 import com.dariusepure.caractivitylog.domain.InspectionDurationUnit
 import com.dariusepure.caractivitylog.domain.displayName
+import com.dariusepure.caractivitylog.ui.theme.ThemeViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -31,9 +32,11 @@ fun InsuranceHistoryScreen(
     carId: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: CarDetailsViewModel = hiltViewModel()
+    viewModel: CarDetailsViewModel = hiltViewModel(),
+    themeViewModel: ThemeViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val currencyCode by themeViewModel.currencyCode.collectAsStateWithLifecycle()
     var showAddDialog by remember { mutableStateOf(false) }
     var editingInsurance by remember { mutableStateOf<Insurance?>(null) }
     var insuranceToDelete by remember { mutableStateOf<Insurance?>(null) }
@@ -129,6 +132,7 @@ fun InsuranceHistoryScreen(
                         items(s.insurances) { insurance ->
                             InsuranceItem(
                                 insurance = insurance,
+                                currencyCode = currencyCode,
                                 accentColor = carAccentColor,
                                 onEditClick = { editingInsurance = insurance },
                                 onDeleteClick = { insuranceToDelete = insurance }

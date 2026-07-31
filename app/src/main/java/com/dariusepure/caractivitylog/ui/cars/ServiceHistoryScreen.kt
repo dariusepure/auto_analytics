@@ -22,6 +22,7 @@ import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.domain.Maintenance
 import com.dariusepure.caractivitylog.domain.displayName
 import com.dariusepure.caractivitylog.ui.common.*
+import com.dariusepure.caractivitylog.ui.theme.ThemeViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -32,9 +33,11 @@ fun ServiceHistoryScreen(
     carId: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: CarDetailsViewModel = hiltViewModel()
+    viewModel: CarDetailsViewModel = hiltViewModel(),
+    themeViewModel: ThemeViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val currencyCode by themeViewModel.currencyCode.collectAsStateWithLifecycle()
     var showAddDialog by remember { mutableStateOf(false) }
     var editingRecord by remember { mutableStateOf<Maintenance?>(null) }
     var recordToDelete by remember { mutableStateOf<Maintenance?>(null) }
@@ -137,6 +140,7 @@ fun ServiceHistoryScreen(
                             ServiceItem(
                                 record = record,
                                 unit = europeanCountries.find { it.code == s.car.plateCountry }?.let { if (it.usesMiles) "mi" else "km" } ?: "km",
+                                currencyCode = currencyCode,
                                 accentColor = carAccentColor,
                                 onEdit = { editingRecord = record },
                                 onDelete = { recordToDelete = record }
@@ -155,6 +159,7 @@ fun ServiceHistoryScreen(
 fun ServiceItem(
     record: Maintenance,
     unit: String,
+    currencyCode: String,
     accentColor: Color = Color(0xFF2196F3),
     onEdit: () -> Unit,
     onDelete: () -> Unit
@@ -172,7 +177,7 @@ fun ServiceItem(
             )
             if (record.cost > 0) {
                 Text(
-                    text = "${record.cost}",
+                    text = CarFormatters.formatCost(record.cost, currencyCode),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary
                 )

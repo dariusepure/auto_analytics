@@ -11,7 +11,7 @@
   - **Context-Aware**: The AI knows your car's specs to provide precise advice.
   - **Function Calling**: The AI can perform actions like updating car specs or mileage directly through chat.
 - **AI Document Scanning**: Extract technical data instantly from registration certificates.
-  - **Dual Input**: Support for both **Photo** (Gallery/Camera) and **PDF** files.
+  - **Dual Input**: Support for both **Photo** (Gallery) and **PDF** files.
   - **Direct Population**: Automatically fills fields like VIN, Make, Model, Year, Fuel Type, and more.
 
 ### 🛠️ Comprehensive Vehicle Management
@@ -43,8 +43,9 @@
 | Category | Technology |
 | :--- | :--- |
 | **Language** | **Kotlin** (2.0+) |
+| **Compatibility** | **Android 7.0 (API 24) and up** |
 | **UI Framework** | **Jetpack Compose** with **Material 3** |
-| **AI SDK** | **Google Generative AI SDK** (Gemini 1.5 Flash) |
+| **AI SDK** | **Google Generative AI SDK** (Gemini 3.5 Flash-lite) |
 | **Architecture** | **MVVM** + Clean Architecture |
 | **DI** | **Hilt** (Dagger) |
 | **Networking** | **Ktor Client 3.0** |

@@ -21,6 +21,7 @@
     <string name="common_collapse">Collapse</string>
     <string name="common_expand">Expand</string>
     <string name="common_language">Language</string>
+    <string name="common_currency">Currency</string>
     <string name="common_sort">Sort</string>
     <string name="common_powered_by">Powered by DFE Software</string>
 
