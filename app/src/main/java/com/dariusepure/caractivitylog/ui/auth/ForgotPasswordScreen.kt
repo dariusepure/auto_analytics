@@ -32,14 +32,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import com.dariusepure.caractivitylog.ui.common.AuthFooter
+import com.dariusepure.caractivitylog.ui.common.ErrorBanner
+import com.dariusepure.caractivitylog.ui.common.SuccessBanner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dariusepure.caractivitylog.ui.theme.CarActivityLogTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForgotPasswordScreen(
     onBack: () -> Unit,
@@ -47,6 +51,23 @@ fun ForgotPasswordScreen(
     viewModel: ForgotPasswordViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    ForgotPasswordContent(
+        state = state,
+        onSendResetEmail = viewModel::onSendResetEmail,
+        onBack = onBack,
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ForgotPasswordContent(
+    state: ForgotPasswordState,
+    onSendResetEmail: (String) -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val submitting = state == ForgotPasswordState.Pending
     val success = state == ForgotPasswordState.Success
 
@@ -66,7 +87,8 @@ fun ForgotPasswordScreen(
                     }
                 }
             )
-        }
+        },
+        bottomBar = { AuthFooter() }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -101,11 +123,12 @@ fun ForgotPasswordScreen(
 
             if (success) {
                 SuccessBanner(
+                    message = stringResource(R.string.auth_reset_link_sent),
                     modifier = Modifier.padding(top = 24.dp)
                 )
             } else {
                 (state as? ForgotPasswordState.Error)?.let { error ->
-                    ForgotPasswordErrorBanner(
+                    ErrorBanner(
                         message = error.message,
                         modifier = Modifier.padding(top = 24.dp),
                     )
@@ -124,7 +147,7 @@ fun ForgotPasswordScreen(
                 )
 
                 Button(
-                    onClick = { viewModel.onSendResetEmail(email) },
+                    onClick = { onSendResetEmail(email) },
                     enabled = !submitting,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -145,41 +168,14 @@ fun ForgotPasswordScreen(
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-private fun SuccessBanner(
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        color = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        shape = MaterialTheme.shapes.medium,
-        modifier = modifier.fillMaxWidth(),
-    ) {
-        Text(
-            text = stringResource(R.string.auth_reset_link_sent),
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(16.dp),
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Composable
-private fun ForgotPasswordErrorBanner(
-    message: String,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        color = MaterialTheme.colorScheme.errorContainer,
-        contentColor = MaterialTheme.colorScheme.onErrorContainer,
-        shape = MaterialTheme.shapes.medium,
-        modifier = modifier.fillMaxWidth(),
-    ) {
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(16.dp),
-            textAlign = TextAlign.Center
+private fun ForgotPasswordScreenPreview() {
+    CarActivityLogTheme {
+        ForgotPasswordContent(
+            state = ForgotPasswordState.Idle,
+            onSendResetEmail = {},
+            onBack = {}
         )
     }
 }

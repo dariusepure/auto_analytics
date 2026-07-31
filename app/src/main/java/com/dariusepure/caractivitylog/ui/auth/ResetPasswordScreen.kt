@@ -22,7 +22,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -35,12 +34,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import com.dariusepure.caractivitylog.ui.common.AuthFooter
+import com.dariusepure.caractivitylog.ui.common.ErrorBanner
+import com.dariusepure.caractivitylog.ui.common.SuccessBanner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dariusepure.caractivitylog.ui.theme.CarActivityLogTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,6 +56,27 @@ fun ResetPasswordScreen(
     viewModel: ResetPasswordViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    ResetPasswordContent(
+        oobCode = oobCode,
+        state = state,
+        onConfirmReset = viewModel::onConfirmReset,
+        onSuccess = onSuccess,
+        onBack = onBack,
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ResetPasswordContent(
+    oobCode: String,
+    state: ResetPasswordState,
+    onConfirmReset: (String, String, String) -> Unit,
+    onSuccess: () -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val submitting = state == ResetPasswordState.Pending
     val success = state == ResetPasswordState.Success
 
@@ -75,7 +100,8 @@ fun ResetPasswordScreen(
                     }
                 }
             )
-        }
+        },
+        bottomBar = { AuthFooter() }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -109,44 +135,22 @@ fun ResetPasswordScreen(
             )
 
             if (success) {
-                Surface(
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    shape = MaterialTheme.shapes.medium,
-                    modifier = Modifier.padding(top = 24.dp).fillMaxWidth(),
+                SuccessBanner(
+                    message = stringResource(R.string.auth_reset_password_success),
+                    modifier = Modifier.padding(top = 24.dp)
+                )
+                Button(
+                    onClick = onSuccess,
+                    modifier = Modifier.padding(top = 16.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = stringResource(R.string.auth_reset_password_success),
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center
-                        )
-                        Button(
-                            onClick = onSuccess,
-                            modifier = Modifier.padding(top = 16.dp)
-                        ) {
-                            Text(stringResource(R.string.auth_back_to_signin))
-                        }
-                    }
+                    Text(stringResource(R.string.auth_back_to_signin))
                 }
             } else {
                 (state as? ResetPasswordState.Error)?.let { error ->
-                    Surface(
-                        color = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                        shape = MaterialTheme.shapes.medium,
-                        modifier = Modifier.padding(top = 24.dp).fillMaxWidth(),
-                    ) {
-                        Text(
-                            text = error.message,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(16.dp),
-                            textAlign = TextAlign.Center
-                        )
-                    }
+                    ErrorBanner(
+                        message = error.message,
+                        modifier = Modifier.padding(top = 24.dp),
+                    )
                 }
 
                 OutlinedTextField(
@@ -185,7 +189,7 @@ fun ResetPasswordScreen(
                 )
 
                 Button(
-                    onClick = { viewModel.onConfirmReset(oobCode, newPassword, confirmPassword) },
+                    onClick = { onConfirmReset(oobCode, newPassword, confirmPassword) },
                     enabled = !submitting && newPassword.isNotBlank() && confirmPassword.isNotBlank(),
                     modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
                 ) {
@@ -201,5 +205,19 @@ fun ResetPasswordScreen(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ResetPasswordScreenPreview() {
+    CarActivityLogTheme {
+        ResetPasswordContent(
+            oobCode = "",
+            state = ResetPasswordState.Idle,
+            onConfirmReset = { _, _, _ -> },
+            onSuccess = {},
+            onBack = {}
+        )
     }
 }

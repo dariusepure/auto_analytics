@@ -1,13 +1,11 @@
 package com.dariusepure.caractivitylog.ui.auth
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -36,7 +34,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
-import com.dariusepure.caractivitylog.ui.common.LanguageSelector
+import com.dariusepure.caractivitylog.ui.common.AuthFooter
+import com.dariusepure.caractivitylog.ui.common.ErrorBanner
+import com.dariusepure.caractivitylog.ui.common.ModernAppLogo
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -48,13 +48,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dariusepure.caractivitylog.ui.theme.CarActivityLogTheme
 
-/**
- * Real email + Google sign-in. On a successful auth the observed [isSignedIn]
- * flips and [onSignedIn] fires.
- */
 @Composable
 fun SignInScreen(
     onSignedIn: () -> Unit,
@@ -66,6 +61,31 @@ fun SignInScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val signedIn by viewModel.signedIn.collectAsStateWithLifecycle(initialValue = false)
 
+    LaunchedEffect(signedIn) {
+        if (signedIn) onSignedIn()
+    }
+
+    SignInContent(
+        state = state,
+        onSignIn = viewModel::onSignIn,
+        onSignInWithGoogle = viewModel::onSignInWithGoogle,
+        onContinueAsGuest = viewModel::onContinueAsGuest,
+        onSignUpClick = onSignUpClick,
+        onForgotPasswordClick = onForgotPasswordClick,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun SignInContent(
+    state: SignInState,
+    onSignIn: (String, String) -> Unit,
+    onSignInWithGoogle: (Context) -> Unit,
+    onContinueAsGuest: () -> Unit,
+    onSignUpClick: () -> Unit,
+    onForgotPasswordClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val submitting = state == SignInState.Pending
 
     var email by rememberSaveable { mutableStateOf("") }
@@ -74,28 +94,9 @@ fun SignInScreen(
 
     val context = LocalContext.current
 
-    LaunchedEffect(signedIn) {
-        if (signedIn) onSignedIn()
-    }
-
     Scaffold(
         modifier = modifier,
-        bottomBar = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                LanguageSelector()
-                Text(
-                    text = "Powered by DFE Software",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                )
-            }
-        }
+        bottomBar = { AuthFooter() }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -106,11 +107,8 @@ fun SignInScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Icon(
-                imageVector = Icons.Outlined.DirectionsCar,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(64.dp),
+            ModernAppLogo(
+                modifier = Modifier.padding(bottom = 16.dp)
             )
             Text(
                 text = stringResource(R.string.app_name),
@@ -177,7 +175,7 @@ fun SignInScreen(
             }
 
             Button(
-                onClick = { viewModel.onSignIn(email, password) },
+                onClick = { onSignIn(email, password) },
                 enabled = !submitting,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -195,7 +193,7 @@ fun SignInScreen(
             }
 
             OutlinedButton(
-                onClick = { viewModel.onSignInWithGoogle(context)  },
+                onClick = { onSignInWithGoogle(context)  },
                 enabled = !submitting,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -205,7 +203,7 @@ fun SignInScreen(
             }
 
             TextButton(
-                onClick = { viewModel.onContinueAsGuest() },
+                onClick = onContinueAsGuest,
                 enabled = !submitting,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -230,29 +228,17 @@ fun SignInScreen(
     }
 }
 
-@Composable
-private fun ErrorBanner(
-    message: String,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        color = MaterialTheme.colorScheme.errorContainer,
-        contentColor = MaterialTheme.colorScheme.onErrorContainer,
-        shape = MaterialTheme.shapes.medium,
-        modifier = modifier.fillMaxWidth(),
-    ) {
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(16.dp),
-        )
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 private fun SignInScreenPreview() {
     CarActivityLogTheme {
-        SignInScreen(onSignedIn = {}, onSignUpClick = {}, onForgotPasswordClick = {})
+        SignInContent(
+            state = SignInState.Idle,
+            onSignIn = { _, _ -> },
+            onSignInWithGoogle = {},
+            onContinueAsGuest = {},
+            onSignUpClick = {},
+            onForgotPasswordClick = {}
+        )
     }
 }

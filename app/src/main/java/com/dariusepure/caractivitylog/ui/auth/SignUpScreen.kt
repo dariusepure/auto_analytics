@@ -18,7 +18,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -32,15 +31,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
+import com.dariusepure.caractivitylog.ui.common.AuthFooter
+import com.dariusepure.caractivitylog.ui.common.ErrorBanner
+import com.dariusepure.caractivitylog.ui.common.ModernAppLogo
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.IconButton
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dariusepure.caractivitylog.ui.theme.CarActivityLogTheme
 
 @Composable
 fun SignUpScreen(
@@ -52,6 +56,25 @@ fun SignUpScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val signedIn by viewModel.signedIn.collectAsStateWithLifecycle(initialValue = false)
 
+    LaunchedEffect(signedIn) {
+        if (signedIn) onSignedIn()
+    }
+
+    SignUpContent(
+        state = state,
+        onSignUp = viewModel::onSignUp,
+        onBackToSignIn = onBackToSignIn,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun SignUpContent(
+    state: SignUpState,
+    onSignUp: (String, String, String, String, String) -> Unit,
+    onBackToSignIn: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val submitting = state == SignUpState.Pending
 
     var email by rememberSaveable { mutableStateOf("") }
@@ -62,11 +85,10 @@ fun SignUpScreen(
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     var confirmPasswordVisible by rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(signedIn) {
-        if (signedIn) onSignedIn()
-    }
-
-    Scaffold(modifier = modifier) { innerPadding ->
+    Scaffold(
+        modifier = modifier,
+        bottomBar = { AuthFooter() }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -76,11 +98,8 @@ fun SignUpScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Icon(
-                imageVector = Icons.Outlined.DirectionsCar,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(64.dp),
+            ModernAppLogo(
+                modifier = Modifier.padding(bottom = 16.dp)
             )
             Text(
                 text = stringResource(R.string.auth_signup_title),
@@ -97,18 +116,10 @@ fun SignUpScreen(
             )
 
             (state as? SignUpState.Error)?.let { error ->
-                Surface(
-                    color = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                    shape = MaterialTheme.shapes.medium,
-                    modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
-                ) {
-                    Text(
-                        text = error.message,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(16.dp),
-                    )
-                }
+                ErrorBanner(
+                    message = error.message,
+                    modifier = Modifier.padding(top = 24.dp),
+                )
             }
 
             OutlinedTextField(
@@ -178,7 +189,7 @@ fun SignUpScreen(
 
             Button(
                 onClick = {
-                    viewModel.onSignUp(email, password, confirmPassword, fullName, username)
+                    onSignUp(email, password, confirmPassword, fullName, username)
                 },
                 enabled = !submitting && email.isNotBlank() && password.isNotBlank() && 
                         confirmPassword.isNotBlank() && fullName.isNotBlank() && username.isNotBlank(),
@@ -205,5 +216,17 @@ fun SignUpScreen(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SignUpScreenPreview() {
+    CarActivityLogTheme {
+        SignUpContent(
+            state = SignUpState.Idle,
+            onSignUp = { _, _, _, _, _ -> },
+            onBackToSignIn = {}
+        )
     }
 }
