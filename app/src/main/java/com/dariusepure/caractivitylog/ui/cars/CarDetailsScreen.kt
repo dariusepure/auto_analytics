@@ -52,6 +52,7 @@ import kotlin.math.roundToInt
 fun CarDetailsScreen(
     carId: String,
     onBack: () -> Unit,
+    onEditClick: (String) -> Unit,
     onMileageClick: () -> Unit,
     onInspectionClick: () -> Unit,
     onInsuranceClick: () -> Unit,
@@ -141,6 +142,14 @@ fun CarDetailsScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { onEditClick(carId) }) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.common_edit)
+                        )
                     }
                 }
             )

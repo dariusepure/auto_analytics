@@ -150,20 +150,26 @@ fun TechnicalSheetScreen(
                     }
 
                     TechnicalCategory(title = stringResource(R.string.car_dimensions_capacity_section)) {
-                        SpecificationCard(
-                            specifications = listOf(
-                                stringResource(R.string.car_dimensions_lxwxh) to CarFormatters.formatDimensions(context, car),
-                                stringResource(R.string.car_wheelbase_label) to if (car.wheelbase > 0) "${car.wheelbase}\u00A0mm" else "",
-                                stringResource(R.string.car_track_width_label) to if (car.trackWidth > 0) "${car.trackWidth}\u00A0mm" else "",
-                                stringResource(R.string.car_weight_label) to if (car.weight > 0) "${car.weight}\u00A0kg" else "",
-                                stringResource(R.string.car_seats_label) to car.numberOfSeats.takeIf { it != 0 }?.toString().orEmpty(),
-                                stringResource(R.string.car_doors_label) to car.numberOfDoors.takeIf { it != 0 }?.toString().orEmpty(),
-                                stringResource(R.string.car_boot_label) to if (car.bootSpace > 0) "${car.bootSpace}\u00A0L" else "",
-                                stringResource(R.string.car_fuel_tank_label) to if (car.fuelTankCapacity > 0) "${car.fuelTankCapacity}\u00A0L" else "",
-                                stringResource(R.string.car_battery_capacity_label) to if (car.batteryCapacity > 0) "${car.batteryCapacity}\u00A0kWh" else "",
-                                stringResource(R.string.car_tire_size_label) to tireSizeText
-                            )
+                        val dimensionSpecs = mutableListOf(
+                            stringResource(R.string.car_dimensions_lxwxh) to CarFormatters.formatDimensions(context, car),
+                            stringResource(R.string.car_wheelbase_label) to if (car.wheelbase > 0) "${car.wheelbase}\u00A0mm" else "",
+                            stringResource(R.string.car_track_width_label) to if (car.trackWidth > 0) "${car.trackWidth}\u00A0mm" else "",
+                            stringResource(R.string.car_weight_label) to if (car.weight > 0) "${car.weight}\u00A0kg" else "",
+                            stringResource(R.string.car_seats_label) to car.numberOfSeats.takeIf { it != 0 }?.toString().orEmpty(),
+                            stringResource(R.string.car_doors_label) to car.numberOfDoors.takeIf { it != 0 }?.toString().orEmpty(),
+                            stringResource(R.string.car_boot_label) to if (car.bootSpace > 0) "${car.bootSpace}\u00A0L" else ""
                         )
+
+                        if (car.fuelType != "Electric") {
+                            dimensionSpecs.add(stringResource(R.string.car_fuel_tank_label) to if (car.fuelTankCapacity > 0) "${car.fuelTankCapacity}\u00A0L" else "")
+                        }
+                        if (car.fuelType == "Electric" || car.fuelType == "Hybrid") {
+                            dimensionSpecs.add(stringResource(R.string.car_battery_capacity_label) to if (car.batteryCapacity > 0) "${car.batteryCapacity}\u00A0kWh" else "")
+                        }
+
+                        dimensionSpecs.add(stringResource(R.string.car_tire_size_label) to tireSizeText)
+
+                        SpecificationCard(specifications = dimensionSpecs)
                     }
                 }
             }

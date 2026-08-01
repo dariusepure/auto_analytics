@@ -145,16 +145,23 @@ object PdfReportGenerator {
 
         // 2. Engine & Performance
         drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.pdf_section_engine))
-        drawTwoColumns(listOf(
+        val engineSpecs = mutableListOf(
             context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_engine_size) to car.engineSize,
             context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_power) to if (car.power > 0) "${car.power} ${car.powerUnit}" else "",
             context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_torque) to if (car.torque > 0) "${car.torque} Nm" else "",
             context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_fuel_type) to car.fuelType,
             context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_emission_standard) to car.emissionStandard,
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_top_speed) to if (car.topSpeed > 0) "${car.topSpeed.toInt()} km/h" else "",
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_fuel_tank_capacity) to if (car.fuelTankCapacity > 0) "${car.fuelTankCapacity} L" else "",
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_battery_capacity) to if (car.batteryCapacity > 0) "${car.batteryCapacity} kWh" else ""
-        ).filter { it.second.isNotBlank() })
+            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_top_speed) to if (car.topSpeed > 0) "${car.topSpeed.toInt()} km/h" else ""
+        )
+
+        if (car.fuelType != "Electric") {
+            engineSpecs.add(context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_fuel_tank_capacity) to if (car.fuelTankCapacity > 0) "${car.fuelTankCapacity} L" else "")
+        }
+        if (car.fuelType == "Electric" || car.fuelType == "Hybrid") {
+            engineSpecs.add(context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_battery_capacity) to if (car.batteryCapacity > 0) "${car.batteryCapacity} kWh" else "")
+        }
+
+        drawTwoColumns(engineSpecs.filter { it.second.isNotBlank() })
 
         // 3. Transmission & Chassis
         drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.car_transmission_section))

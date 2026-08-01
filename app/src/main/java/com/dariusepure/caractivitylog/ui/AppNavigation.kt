@@ -162,6 +162,9 @@ fun AppNavigation(
             CarDetailsScreen(
                 carId = carId,
                 onBack = { navController.popBackStack() },
+                onEditClick = { id ->
+                    navController.navigate(Screen.EditCar.createRoute(id))
+                },
                 onMileageClick = {
                     navController.navigate(Screen.MileageHistory.createRoute(carId))
                 },
