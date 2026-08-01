@@ -170,6 +170,44 @@ class AddCarViewModel @Inject constructor(
             return
         }
 
+        // Numeric validations to prevent negative values
+        val numericFields = mapOf(
+            "Year" to year,
+            "Power" to power,
+            "Torque" to torque,
+            "Length" to length,
+            "Width" to width,
+            "Height" to height,
+            "Wheelbase" to wheelbase,
+            "Track Width" to trackWidth,
+            "Fuel Tank Capacity" to fuelTankCapacity,
+            "Battery Capacity" to batteryCapacity,
+            "Top Speed" to topSpeed,
+            "Weight" to weight,
+            "Seats" to numberOfSeats,
+            "Cylinders" to numberOfCylinders,
+            "Valves/Cyl" to valvesPerCylinder,
+            "Doors" to numberOfDoors,
+            "Boot Space" to bootSpace,
+            "Tire Width" to tireWidth,
+            "Tire Ratio" to tireAspectRatio,
+            "Tire Diameter" to tireDiameter
+        )
+
+        for ((label, value) in numericFields) {
+            if (value.isNotBlank()) {
+                val dValue = value.toDoubleOrNull()
+                if (dValue == null) {
+                    _state.value = AddCarState.Error("Invalid numeric format for $label")
+                    return
+                }
+                if (dValue < 0) {
+                    _state.value = AddCarState.Error("$label cannot be negative")
+                    return
+                }
+            }
+        }
+
         viewModelScope.launch {
             _state.value = AddCarState.Pending
             try {

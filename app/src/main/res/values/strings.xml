@@ -435,4 +435,26 @@
     <string name="photo_delete_success">Photo removed</string>
     <string name="photo_delete_failed">Failed to remove photo</string>
     <string name="photo_choose_label">Choose from Gallery</string>
+    <!-- Notifications -->
+    <string name="notif_itp_title">ITP Expiration Alert</string>
+    <string name="notif_itp_msg_tomorrow">Your ITP for %s expires tomorrow!</string>
+    <string name="notif_itp_msg_today">Your ITP for %s expires today!</string>
+    <string name="notif_itp_msg_expired">Your ITP for %s has expired!</string>
+    <string name="notif_itp_msg_days">Your ITP for %s expires in %d days.</string>
+
+    <string name="notif_rca_title">Insurance Expiration Alert</string>
+    <string name="notif_rca_msg_tomorrow">Your Insurance for %s expires tomorrow!</string>
+    <string name="notif_rca_msg_today">Your Insurance for %s expires today!</string>
+    <string name="notif_rca_msg_expired">Your Insurance for %s has expired!</string>
+    <string name="notif_rca_msg_days">Your Insurance for %s expires in %d days.</string>
+
+    <string name="notif_vig_title">Vignette Expiration Alert</string>
+    <string name="notif_vig_msg_tomorrow">Your Vignette for %s expires tomorrow!</string>
+    <string name="notif_vig_msg_today">Your Vignette for %s expires today!</string>
+    <string name="notif_vig_msg_expired">Your Vignette for %s has expired!</string>
+    <string name="notif_vig_msg_days">Your Vignette for %s expires in %d days.</string>
+
+    <!-- Validation -->
+    <string name="validation_negative_value">Value cannot be negative</string>
+    <string name="validation_invalid_format">Invalid format</string>
 </resources>

@@ -26,34 +26,34 @@ object NotificationHelper {
     }
 
     fun showItpNotification(context: Context, carName: String, daysLeft: Int) {
-        val title = "ITP Expiration Alert"
+        val title = context.getString(R.string.notif_itp_title)
         val message = when {
-            daysLeft == 1 -> "Your ITP for $carName expires tomorrow!"
-            daysLeft == 0 -> "Your ITP for $carName expires today!"
-            daysLeft < 0 -> "Your ITP for $carName has expired!"
-            else -> "Your ITP for $carName expires in $daysLeft days."
+            daysLeft == 1 -> context.getString(R.string.notif_itp_msg_tomorrow, carName)
+            daysLeft == 0 -> context.getString(R.string.notif_itp_msg_today, carName)
+            daysLeft < 0 -> context.getString(R.string.notif_itp_msg_expired, carName)
+            else -> context.getString(R.string.notif_itp_msg_days, carName, daysLeft)
         }
         showNotification(context, carName.hashCode() + 1, title, message)
     }
 
     fun showInsuranceNotification(context: Context, carName: String, daysLeft: Int) {
-        val title = "Insurance Expiration Alert"
+        val title = context.getString(R.string.notif_rca_title)
         val message = when {
-            daysLeft == 1 -> "Your Insurance for $carName expires tomorrow!"
-            daysLeft == 0 -> "Your Insurance for $carName expires today!"
-            daysLeft < 0 -> "Your Insurance for $carName has expired!"
-            else -> "Your Insurance for $carName expires in $daysLeft days."
+            daysLeft == 1 -> context.getString(R.string.notif_rca_msg_tomorrow, carName)
+            daysLeft == 0 -> context.getString(R.string.notif_rca_msg_today, carName)
+            daysLeft < 0 -> context.getString(R.string.notif_rca_msg_expired, carName)
+            else -> context.getString(R.string.notif_rca_msg_days, carName, daysLeft)
         }
         showNotification(context, carName.hashCode() + 2, title, message)
     }
 
     fun showVignetteNotification(context: Context, carName: String, daysLeft: Int) {
-        val title = "Vignette Expiration Alert"
+        val title = context.getString(R.string.notif_vig_title)
         val message = when {
-            daysLeft == 1 -> "Your Vignette for $carName expires tomorrow!"
-            daysLeft == 0 -> "Your Vignette for $carName expires today!"
-            daysLeft < 0 -> "Your Vignette for $carName has expired!"
-            else -> "Your Vignette for $carName expires in $daysLeft days."
+            daysLeft == 1 -> context.getString(R.string.notif_vig_msg_tomorrow, carName)
+            daysLeft == 0 -> context.getString(R.string.notif_vig_msg_today, carName)
+            daysLeft < 0 -> context.getString(R.string.notif_vig_msg_expired, carName)
+            else -> context.getString(R.string.notif_vig_msg_days, carName, daysLeft)
         }
         showNotification(context, carName.hashCode() + 3, title, message)
     }

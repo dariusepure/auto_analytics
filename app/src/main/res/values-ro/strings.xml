@@ -424,4 +424,26 @@
     <string name="photo_delete_success">Poză ștearsă</string>
     <string name="photo_delete_failed">Eșec la ștergerea pozei</string>
     <string name="photo_choose_label">Alege poză din Galerie</string>
+    <!-- Notifications -->
+    <string name="notif_itp_title">Alertă expirare ITP</string>
+    <string name="notif_itp_msg_tomorrow">ITP-ul pentru %s expiră mâine!</string>
+    <string name="notif_itp_msg_today">ITP-ul pentru %s expiră astăzi!</string>
+    <string name="notif_itp_msg_expired">ITP-ul pentru %s a expirat!</string>
+    <string name="notif_itp_msg_days">ITP-ul pentru %s expiră în %d zile.</string>
+
+    <string name="notif_rca_title">Alertă expirare RCA</string>
+    <string name="notif_rca_msg_tomorrow">Polița RCA pentru %s expiră mâine!</string>
+    <string name="notif_rca_msg_today">Polița RCA pentru %s expiră astăzi!</string>
+    <string name="notif_rca_msg_expired">Polița RCA pentru %s a expirat!</string>
+    <string name="notif_rca_msg_days">Polița RCA pentru %s expiră în %d zile.</string>
+
+    <string name="notif_vig_title">Alertă expirare Rovinietă</string>
+    <string name="notif_vig_msg_tomorrow">Rovinieta pentru %s expiră mâine!</string>
+    <string name="notif_vig_msg_today">Rovinieta pentru %s expiră astăzi!</string>
+    <string name="notif_vig_msg_expired">Rovinieta pentru %s a expirat!</string>
+    <string name="notif_vig_msg_days">Rovinieta pentru %s expiră în %d zile.</string>
+
+    <!-- Validation -->
+    <string name="validation_negative_value">Valoarea nu poate fi negativă</string>
+    <string name="validation_invalid_format">Format invalid</string>
 </resources>

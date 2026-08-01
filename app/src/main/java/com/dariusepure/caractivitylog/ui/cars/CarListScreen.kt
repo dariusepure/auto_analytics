@@ -76,6 +76,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -297,13 +299,17 @@ fun CarListScreen(
     val currencyCode by themeViewModel.currencyCode.collectAsStateWithLifecycle()
     val systemDark = androidx.compose.foundation.isSystemInDarkTheme()
     val currentDark = isDarkMode ?: systemDark
+    val haptic = LocalHapticFeedback.current
 
     InnerCarListScreen(
         onCarClick = onCarClick,
         onAddCarClick = onAddCarClick,
         onEditCarClick = onEditCarClick,
         onRecycleBinClick = onRecycleBinClick,
-        onDeleteCar = { carId -> viewModel.onDeleteCar(carId) },
+        onDeleteCar = { carId -> 
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            viewModel.onDeleteCar(carId) 
+        },
         onLogoutClick = {
             viewModel.signOut()
             onLogout()
