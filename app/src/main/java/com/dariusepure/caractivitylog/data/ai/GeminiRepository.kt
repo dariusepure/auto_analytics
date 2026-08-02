@@ -4,7 +4,9 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Base64
+import android.util.Log
 import com.dariusepure.caractivitylog.BuildConfig
+import com.dariusepure.caractivitylog.util.DiagnosticUtils
 import com.dariusepure.caractivitylog.domain.ScannedCarData
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -50,6 +52,8 @@ class GeminiRepository @Inject constructor(
         isLenient = true
         allowSpecialFloatingPointValues = true
     }
+
+    private val TAG = "GeminiRepository"
 
     private val updateCarTools = listOf(
         Tool(
@@ -98,14 +102,32 @@ class GeminiRepository @Inject constructor(
     private suspend fun postGemini(request: GeminiRequest): GeminiResponse {
         val model = modelName
         val url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=${BuildConfig.GEMINI_API_KEY}"
-        val sha1 = if (BuildConfig.DEBUG) BuildConfig.DEBUG_SHA1 else BuildConfig.RELEASE_SHA1
+        val sha1 = DiagnosticUtils.getAppSignatureSha1(context, withColons = false)
+        val packageName = context.packageName
 
-        return httpClient.post(url) {
-            contentType(ContentType.Application.Json)
-            header("X-Android-Package", "com.dariusepure.caractivitylog")
-            header("X-Android-Cert", sha1)
-            setBody(request)
-        }.body()
+        Log.d(TAG, "Requesting Gemini model: $model")
+        Log.d(TAG, "Using Package: $packageName")
+        Log.d(TAG, "Using real SHA1 (clean): $sha1")
+
+        try {
+            val response: io.ktor.client.statement.HttpResponse = httpClient.post(url) {
+                contentType(ContentType.Application.Json)
+                header("X-Android-Package", packageName)
+                header("X-Android-Cert", sha1)
+                setBody(request)
+            }
+            
+            if (response.status.value !in 200..299) {
+                val errorBody = response.body<String>()
+                Log.e(TAG, "Gemini API Error (${response.status}): $errorBody")
+                throw Exception("Gemini API Error ${response.status}: $errorBody")
+            }
+
+            return response.body()
+        } catch (e: Exception) {
+            Log.e(TAG, "Gemini Post failed", e)
+            throw e
+        }
     }
 
     suspend fun scanRegistrationCertificate(bitmap: Bitmap): Result<ScannedCarData> {

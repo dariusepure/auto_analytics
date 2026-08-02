@@ -74,8 +74,19 @@ class DiagnosisViewModel @Inject constructor(
         val userMessage = ChatMessage(text, true)
         
         viewModelScope.launch {
+            // Clear previous error
+            _state.update { it.copy(errorMessage = null) }
+            
             // Save user message to Firestore
-            carRepository.addDiagnosisMessage(carId, userMessage)
+            try {
+                carRepository.addDiagnosisMessage(carId, userMessage)
+            } catch (e: Exception) {
+                // If writing to Firestore fails (e.g. App Check), show error locally
+                _state.update { it.copy(
+                    errorMessage = "Firestore Error: ${e.localizedMessage ?: "Check your connection or App Check status"}"
+                ) }
+                return@launch
+            }
             
             _state.update { it.copy(isTyping = true) }
 
@@ -119,19 +130,22 @@ class DiagnosisViewModel @Inject constructor(
                     carRepository.addDiagnosisMessage(carId, aiMessage)
                 }
                 
-                _state.update { it.copy(isTyping = false) }
-                
             } catch (t: Throwable) {
-                val errorMessage = when {
+                val error = when {
                     t.message?.contains("403") == true || t.message?.contains("PERMISSION_DENIED") == true -> {
-                        "AI Error: Access denied. Ensure your app is authorized and App Check is configured correctly."
+                        "AI Access Denied: This usually happens if the APK was sent manually and Play Integrity/App Check failed, or the API key is restricted."
+                    }
+                    t.message?.contains("404") == true -> {
+                        "AI Model Not Found: The configured model name '${_state.value.carName}' (check remote config) might be invalid."
                     }
                     else -> "AI Error: ${t.localizedMessage ?: "Unknown error"}"
                 }
+                
                 _state.update { it.copy(
-                    messages = it.messages + ChatMessage(errorMessage, false),
-                    isTyping = false
+                    errorMessage = error
                 ) }
+            } finally {
+                _state.update { it.copy(isTyping = false) }
             }
         }
     }

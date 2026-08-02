@@ -10,5 +10,6 @@ data class DiagnosisUiState(
     val isLoading: Boolean = false,
     val isTyping: Boolean = false,
     val messages: List<ChatMessage> = emptyList(),
-    val carName: String = ""
+    val carName: String = "",
+    val errorMessage: String? = null
 )

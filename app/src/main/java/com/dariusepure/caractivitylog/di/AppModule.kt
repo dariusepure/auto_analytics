@@ -16,7 +16,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.serialization.kotlinx.json.json
 import javax.inject.Singleton
@@ -26,7 +26,7 @@ import javax.inject.Singleton
 object AppModule {
     @Provides
     @Singleton
-    fun provideHttpClient(): HttpClient = HttpClient(CIO) {
+    fun provideHttpClient(): HttpClient = HttpClient(OkHttp) {
         install(HttpTimeout) {
             connectTimeoutMillis = 15000
             socketTimeoutMillis = 15000
