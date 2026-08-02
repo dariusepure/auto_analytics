@@ -14,36 +14,36 @@
       },
       "oauth_client": [
         {
-          "client_id": "1050502217992-785f9nkkrgcde27upm2s0qgjbds7797h.apps.googleusercontent.com",
+          "client_id": "1050502217992-25petclu4rbg8rsofkdova5ikkoh5e1c.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.dariusepure.caractivitylog",
-            "certificate_hash": "0890a1564fe3ee87cb7f8954e3c66622214f1f02"
+            "certificate_hash": "c10c6df2fb85fc2373f01da647f4f40ccb3f685c"
           }
         },
         {
-          "client_id": "1050502217992-v4m3grm2bte7ubhajb4argl3527u1kh1.apps.googleusercontent.com",
+          "client_id": "1050502217992-t7ushlotdmc2tb1s0tvfau1m4e5ukhgf.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.dariusepure.caractivitylog",
-            "certificate_hash": "2a2bc6737597d8798df780eb6a25587e4e1d99e4"
+            "certificate_hash": "67615688f76e557769cab626f4f20c81b8749483"
           }
         },
         {
-          "client_id": "REPLACED_BY_LOCAL_PROPERTIES",
+          "client_id": "1050502217992-8au5hrcl0uuu4odfm9bftfll39q6cffs.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "REPLACED_BY_LOCAL_PROPERTIES"
+          "current_key": "AIzaSyDOrjBmSwJ1EP3BtDo6RXgVM8VwScNpi-Q"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "REPLACED_BY_LOCAL_PROPERTIES",
+              "client_id": "1050502217992-8au5hrcl0uuu4odfm9bftfll39q6cffs.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

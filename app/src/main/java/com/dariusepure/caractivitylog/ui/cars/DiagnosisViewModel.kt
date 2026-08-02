@@ -3,16 +3,18 @@ package com.dariusepure.caractivitylog.ui.cars
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dariusepure.caractivitylog.data.ai.GeminiRepository
+import com.dariusepure.caractivitylog.data.ai.text
 import com.dariusepure.caractivitylog.data.cars.CarRepository
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.displayName
-import com.google.ai.client.generativeai.type.FunctionCallPart
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonPrimitive
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -82,23 +84,23 @@ class DiagnosisViewModel @Inject constructor(
                 val response = geminiRepository.getDiagnosisResponse(text, carContext, currentMsgs)
                 
                 // Handle Function Calls
-                val parts = response.candidates.firstOrNull()?.content?.parts ?: emptyList()
-                val functionCalls = parts.filterIsInstance<FunctionCallPart>()
+                val parts = response.candidates?.firstOrNull()?.content?.parts ?: emptyList()
+                val functionCalls = parts.mapNotNull { it.functionCall }
                 
                 var toolConfirmation = ""
 
-                functionCalls.forEach { functionCall ->
+                for (functionCall in functionCalls) {
                     when (functionCall.name) {
                         "update_car_spec" -> {
-                            val field = functionCall.args["field"]
-                            val value = functionCall.args["value"]
+                            val field = functionCall.args?.get("field")?.jsonPrimitive?.contentOrNull
+                            val value = functionCall.args?.get("value")?.jsonPrimitive?.contentOrNull
                             if (field != null && value != null) {
                                 handleUpdateCarSpec(field, value)
                                 toolConfirmation += "Updated $field to $value. "
                             }
                         }
                         "update_car_mileage" -> {
-                            val km = functionCall.args["km"]?.toDoubleOrNull()
+                            val km = functionCall.args?.get("km")?.jsonPrimitive?.contentOrNull?.toDoubleOrNull()
                             if (km != null) {
                                 handleUpdateCarMileage(km)
                                 toolConfirmation += "Updated mileage to $km km. "

@@ -30,8 +30,8 @@ android {
         applicationId = "com.dariusepure.caractivitylog"
         minSdk = 24
         targetSdk = 35
-        versionCode = 11
-        versionName = "2.0"
+        versionCode = 12
+        versionName = "2.1"
 
         multiDexEnabled = true
 
@@ -41,6 +41,8 @@ android {
         buildConfigField("String", "WEB_CLIENT_ID", "\"$webClientId\"")
         buildConfigField("String", "GEMINI_API_KEY", "\"$geminiKey\"")
         buildConfigField("String", "FIREBASE_API_KEY", "\"$firebaseApiKey\"")
+        buildConfigField("String", "RELEASE_SHA1", "\"67615688F76E557769CAB626F4F20C81B8749483\"")
+        buildConfigField("String", "DEBUG_SHA1", "\"C10C6DF2FB85FC2373F01DA647F4F40CCB3F685C\"")
 
         // Firebase identifiers (can be public, but kept here for convenience)
         buildConfigField("String", "FIREBASE_PROJECT_ID", "\"car-activity-log\"")
