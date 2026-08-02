@@ -94,7 +94,7 @@ fun ConsumptionLineChart(
         }
     }
 
-    val dateFormatter = remember { SimpleDateFormat("dd/MM/yy", Locale.getDefault()) }
+    val dateFormatter = remember { SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()) }
     val marker = rememberMarker()
     val primaryColor = MaterialTheme.colorScheme.primary
 
@@ -190,7 +190,7 @@ fun MileageLineChart(
                 valueFormatter = { _, value, _ ->
                     val index = value.toInt()
                     if (index in sortedData.indices) {
-                        SimpleDateFormat("dd/MM", Locale.getDefault()).format(sortedData[index].first)
+                        SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(sortedData[index].first)
                     } else ""
                 }
             ),
