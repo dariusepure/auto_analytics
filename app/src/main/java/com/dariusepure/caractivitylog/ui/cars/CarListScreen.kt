@@ -45,8 +45,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.outlined.Payments
+import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.MoreVert
+import com.dariusepure.caractivitylog.ui.common.CurrencyDialog
+import com.dariusepure.caractivitylog.ui.common.LanguageDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.TooltipBox
@@ -349,6 +355,9 @@ private fun InnerCarListScreen(
     modifier: Modifier = Modifier,
 ) {
     var sortMenuExpanded by remember { mutableStateOf(false) }
+    var moreMenuExpanded by remember { mutableStateOf(false) }
+    var showCurrencyDialog by remember { mutableStateOf(false) }
+    var showLanguageDialog by remember { mutableStateOf(false) }
     var carToDelete by remember { mutableStateOf<String?>(null) }
 
     if (carToDelete != null) {
@@ -365,11 +374,28 @@ private fun InnerCarListScreen(
         )
     }
 
+    if (showCurrencyDialog) {
+        CurrencyDialog(
+            currentCurrencyCode = currentCurrencyCode,
+            onCurrencySelected = onCurrencySelected,
+            onDismiss = { showCurrencyDialog = false }
+        )
+    }
+
+    if (showLanguageDialog) {
+        LanguageDialog(onDismiss = { showLanguageDialog = false })
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.car_list_title)) },
+                title = { 
+                    AutoSizeText(
+                        text = stringResource(R.string.car_list_title),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
                 actions = {
                     val viewModeTooltipState = rememberTooltipState()
                     TooltipBox(
@@ -437,52 +463,59 @@ private fun InnerCarListScreen(
                             }
                         }
                     }
-                    val binTooltipState = rememberTooltipState()
-                    TooltipBox(
-                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                        tooltip = { PlainTooltip { Text(stringResource(R.string.recycle_bin_title)) } },
-                        state = binTooltipState
-                    ) {
-                        IconButton(onClick = onRecycleBinClick) {
-                            Icon(
-                                imageVector = Icons.Default.DeleteForever,
-                                contentDescription = stringResource(R.string.recycle_bin_title)
-                            )
-                        }
-                    }
 
-                    val themeTooltipState = rememberTooltipState()
-                    TooltipBox(
-                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                        tooltip = { PlainTooltip { Text(stringResource(if (isDark) R.string.theme_light_mode else R.string.theme_dark_mode)) } },
-                        state = themeTooltipState
-                    ) {
-                        IconButton(onClick = onThemeToggle) {
-                            Icon(
-                                imageVector = if (isDark) Icons.Default.LightMode else Icons.Default.DarkMode,
-                                contentDescription = null
+                    Box {
+                        IconButton(onClick = { moreMenuExpanded = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "More options")
+                        }
+                        DropdownMenu(
+                            expanded = moreMenuExpanded,
+                            onDismissRequest = { moreMenuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.recycle_bin_title)) },
+                                onClick = {
+                                    onRecycleBinClick()
+                                    moreMenuExpanded = false
+                                },
+                                leadingIcon = { Icon(Icons.Default.DeleteForever, null) }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(if (isDark) R.string.theme_light_mode else R.string.theme_dark_mode)) },
+                                onClick = {
+                                    onThemeToggle()
+                                    moreMenuExpanded = false
+                                },
+                                leadingIcon = { Icon(if (isDark) Icons.Default.LightMode else Icons.Default.DarkMode, null) }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.common_currency)) },
+                                onClick = {
+                                    showCurrencyDialog = true
+                                    moreMenuExpanded = false
+                                },
+                                leadingIcon = { Icon(Icons.Outlined.Payments, null) },
+                                trailingIcon = { Text(currentCurrencyCode, style = MaterialTheme.typography.labelSmall) }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.common_language)) },
+                                onClick = {
+                                    showLanguageDialog = true
+                                    moreMenuExpanded = false
+                                },
+                                leadingIcon = { Icon(Icons.Outlined.Language, null) }
+                            )
+                            HorizontalDivider()
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.auth_logout)) },
+                                onClick = {
+                                    onLogoutClick()
+                                    moreMenuExpanded = false
+                                },
+                                leadingIcon = { Icon(Icons.AutoMirrored.Filled.Logout, null) }
                             )
                         }
                     }
-
-                    val logoutTooltipState = rememberTooltipState()
-                    TooltipBox(
-                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                        tooltip = { PlainTooltip { Text(stringResource(R.string.auth_logout)) } },
-                        state = logoutTooltipState
-                    ) {
-                        IconButton(onClick = onLogoutClick) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.Logout,
-                                contentDescription = null
-                            )
-                        }
-                    }
-                    CurrencySelector(
-                        currentCurrencyCode = currentCurrencyCode,
-                        onCurrencySelected = onCurrencySelected
-                    )
-                    LanguageSelector()
                 }
             )
         },

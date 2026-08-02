@@ -19,6 +19,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.ui.common.DeleteConfirmationDialog
+import com.dariusepure.caractivitylog.ui.common.AutoSizeText
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,7 +58,12 @@ fun DiagnosisScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.diagnosis_title, state.carName)) },
+                title = { 
+                    AutoSizeText(
+                        text = stringResource(R.string.diagnosis_title, state.carName),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
