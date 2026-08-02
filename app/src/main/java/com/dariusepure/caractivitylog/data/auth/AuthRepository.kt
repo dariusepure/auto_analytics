@@ -21,6 +21,7 @@ import com.dariusepure.caractivitylog.BuildConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -36,7 +37,6 @@ class AuthRepository @Inject constructor(
     private val TAG = "AuthRepository"
 
     val signedIn: Flow<Boolean> = combine(
-
         callbackFlow {
             val listener = FirebaseAuth.AuthStateListener {
                 trySend(firebaseAuth.currentUser != null)
@@ -47,7 +47,7 @@ class AuthRepository @Inject constructor(
         _isGuestMode
     ) { firebaseSignedIn, guestMode ->
         firebaseSignedIn || guestMode
-    }
+    }.distinctUntilChanged()
 
     val isCurrentlySignedIn: Boolean
         get() = firebaseAuth.currentUser != null || _isGuestMode.value

@@ -81,7 +81,6 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.ui.common.AutoSizeText
 import com.dariusepure.caractivitylog.ui.common.CarCardSkeleton
@@ -92,7 +91,6 @@ import com.dariusepure.caractivitylog.ui.common.DeleteConfirmationDialog
 import com.dariusepure.caractivitylog.ui.common.CurrencySelector
 import com.dariusepure.caractivitylog.ui.common.LanguageSelector
 import com.dariusepure.caractivitylog.ui.common.toRelativeString
-import com.dariusepure.caractivitylog.util.LocalImageHelper
 import com.dariusepure.caractivitylog.domain.displayName
 
 @OptIn(ExperimentalMaterial3Api::class)

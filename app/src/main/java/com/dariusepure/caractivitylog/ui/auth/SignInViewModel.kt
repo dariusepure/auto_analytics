@@ -21,11 +21,11 @@ class SignInViewModel @Inject constructor(
     val state: StateFlow<SignInState>
         get() = _state
 
-    val signedIn: StateFlow<Boolean> =
+    val signedIn: StateFlow<Boolean?> =
         authRepository.signedIn.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5_000),
-            false
+            null
         )
 
     fun onSignIn(email: String, password: String) {

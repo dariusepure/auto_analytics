@@ -13,9 +13,9 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
-    val signedIn: StateFlow<Boolean> = authRepository.signedIn.stateIn(
+    val signedIn: StateFlow<Boolean?> = authRepository.signedIn.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = authRepository.isCurrentlySignedIn
+        initialValue = null
     )
 }

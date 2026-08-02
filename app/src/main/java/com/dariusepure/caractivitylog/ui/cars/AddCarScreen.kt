@@ -82,7 +82,6 @@ import androidx.compose.material.icons.outlined.DirectionsCar
 import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
-import coil.compose.AsyncImage
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items

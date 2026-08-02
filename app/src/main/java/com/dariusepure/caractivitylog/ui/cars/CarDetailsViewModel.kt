@@ -15,7 +15,6 @@ import com.dariusepure.caractivitylog.domain.TireSet
 import com.dariusepure.caractivitylog.domain.Maintenance
 import com.dariusepure.caractivitylog.domain.ScannedMileageEntry
 import com.dariusepure.caractivitylog.domain.VehicleInspection
-import com.dariusepure.caractivitylog.util.LocalImageHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,8 +42,7 @@ sealed class CarDetailsUiState {
         val tireSets: List<TireSet> = emptyList(),
         val fuelLogs: List<FuelLog> = emptyList(),
         val maintenanceLogs: List<Maintenance> = emptyList(),
-        val isScanning: Boolean = false,
-        val isUploading: Boolean = false
+        val isScanning: Boolean = false
     ) : CarDetailsUiState()
     data class Error(val message: String) : CarDetailsUiState()
 }
@@ -102,8 +100,7 @@ class CarDetailsViewModel @Inject constructor(
                     if (car != null) {
                         val currentState = _state.value as? CarDetailsUiState.Success
                         val currentScanning = currentState?.isScanning ?: false
-                        val currentUploading = currentState?.isUploading ?: false
-                        CarDetailsUiState.Success(car, logs, inspections, insurances, vignettes, tireSets, fuelLogs, maintenance, currentScanning, currentUploading)
+                        CarDetailsUiState.Success(car, logs, inspections, insurances, vignettes, tireSets, fuelLogs, maintenance, currentScanning)
                     } else {
                         CarDetailsUiState.Error("Car not found")
                     }
@@ -364,40 +361,4 @@ class CarDetailsViewModel @Inject constructor(
             }
         }
     }
-
-    fun uploadImage(context: android.content.Context, carId: String, uri: Uri) {
-        val currentState = _state.value as? CarDetailsUiState.Success ?: return
-        _state.value = currentState.copy(isUploading = true)
-        
-        viewModelScope.launch {
-            try {
-                if (LocalImageHelper.saveCarImage(context, carId, uri)) {
-                    _state.value = (_state.value as? CarDetailsUiState.Success)?.copy(isUploading = false) ?: return@launch
-                    _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Photo saved locally"))
-                } else {
-                    throw Exception("Failed to save image")
-                }
-            } catch (e: Exception) {
-                _state.value = currentState.copy(isUploading = false)
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Save failed: ${e.localizedMessage}"))
-            }
-        }
-    }
-
-    fun removeImage(context: android.content.Context, carId: String) {
-        val currentState = _state.value as? CarDetailsUiState.Success ?: return
-        _state.value = currentState.copy(isUploading = true)
-        
-        viewModelScope.launch {
-            try {
-                LocalImageHelper.deleteCarImage(context, carId)
-                _state.value = (_state.value as? CarDetailsUiState.Success)?.copy(isUploading = false) ?: return@launch
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Photo removed"))
-            } catch (e: Exception) {
-                _state.value = currentState.copy(isUploading = false)
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Delete failed: ${e.localizedMessage}"))
-            }
-        }
-    }
-
 }

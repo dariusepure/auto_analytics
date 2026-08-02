@@ -578,7 +578,9 @@ fun AutoSizeText(
         color = color,
         onTextLayout = { textLayoutResult ->
             if (textLayoutResult.hasVisualOverflow && fontSizeValue.isSp && fontSizeValue.value > minFontSize.value) {
-                fontSizeValue = (fontSizeValue.value * 0.9f).sp
+                // Optimize: Use a larger jump for the first few attempts on low-end devices
+                val scaleFactor = if (fontSizeValue.value > style.fontSize.value * 0.8f) 0.85f else 0.92f
+                fontSizeValue = (fontSizeValue.value * scaleFactor).sp
             } else {
                 readyToDraw = true
             }

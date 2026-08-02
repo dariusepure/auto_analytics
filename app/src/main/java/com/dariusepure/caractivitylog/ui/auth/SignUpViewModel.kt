@@ -5,8 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.dariusepure.caractivitylog.data.auth.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,7 +20,12 @@ class SignUpViewModel @Inject constructor(
     private val _state = MutableStateFlow<SignUpState>(SignUpState.Idle)
     val state: StateFlow<SignUpState> = _state.asStateFlow()
 
-    val signedIn = authRepository.signedIn
+    val signedIn: StateFlow<Boolean?> =
+        authRepository.signedIn.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000),
+            null
+        )
 
     fun onSignUp(email: String, password: String, confirmPassword: String, fullName: String, username: String) {
         if (email.isBlank() || password.isBlank() || fullName.isBlank() || username.isBlank()) {

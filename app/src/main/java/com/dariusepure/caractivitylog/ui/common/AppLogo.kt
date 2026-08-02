@@ -24,6 +24,8 @@ fun ModernAppLogo(
     size: Dp = 80.dp,
     iconSize: Dp = 48.dp
 ) {
+    val isLowEnd = android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.Q
+
     Box(
         modifier = modifier
             .size(size)
@@ -38,13 +40,15 @@ fun ModernAppLogo(
             ),
         contentAlignment = Alignment.Center
     ) {
-        // Subtle inner shadow effect using a smaller box
-        Box(
-            modifier = Modifier
-                .size(size * 0.9f)
-                .clip(RoundedCornerShape(18.dp))
-                .background(Color.White.copy(alpha = 0.1f))
-        )
+        // Only draw complex layered effects on modern devices
+        if (!isLowEnd) {
+            Box(
+                modifier = Modifier
+                    .size(size * 0.9f)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(Color.White.copy(alpha = 0.1f))
+            )
+        }
         
         Icon(
             imageVector = Icons.Rounded.DirectionsCar,

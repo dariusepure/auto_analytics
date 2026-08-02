@@ -59,10 +59,10 @@ fun SignInScreen(
     viewModel: SignInViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val signedIn by viewModel.signedIn.collectAsStateWithLifecycle(initialValue = false)
+    val signedIn by viewModel.signedIn.collectAsStateWithLifecycle()
 
     LaunchedEffect(signedIn) {
-        if (signedIn) onSignedIn()
+        if (signedIn == true) onSignedIn()
     }
 
     SignInContent(

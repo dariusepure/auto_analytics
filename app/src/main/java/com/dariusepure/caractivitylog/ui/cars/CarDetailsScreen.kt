@@ -1,15 +1,12 @@
 package com.dariusepure.caractivitylog.ui.cars
 
 import android.app.DatePickerDialog
-import android.graphics.Bitmap
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -23,25 +20,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.Hyphens
-import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.domain.*
 import com.dariusepure.caractivitylog.ui.common.AutoSizeText
 import com.dariusepure.caractivitylog.ui.common.toRelativeString
 import com.dariusepure.caractivitylog.ui.common.*
-import com.dariusepure.caractivitylog.util.LocalImageHelper
 import com.dariusepure.caractivitylog.util.PdfReportGenerator
 import java.text.SimpleDateFormat
 import java.util.*
@@ -68,26 +59,6 @@ fun CarDetailsScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
-
-    val imagePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        uri?.let {
-            viewModel.uploadImage(context, carId, it)
-        }
-    }
-
-    var showImageDeleteDialog by remember { mutableStateOf(false) }
-
-    if (showImageDeleteDialog) {
-        DeleteConfirmationDialog(
-            onConfirm = {
-                viewModel.removeImage(context, carId)
-                showImageDeleteDialog = false
-            },
-            onDismiss = { showImageDeleteDialog = false }
-        )
-    }
 
     val pdfLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/pdf"),
@@ -177,16 +148,7 @@ fun CarDetailsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 CarHeaderPhoto(
-                                    car = car,
-                                    isUploading = s.isUploading,
-                                    carAccentColor = carAccentColor,
-                                    onPhotoClick = {
-                                        imagePickerLauncher.launch(
-                                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                        )
-                                    },
-                                    onDeleteClick = { showImageDeleteDialog = true },
-                                    context = context
+                                    carAccentColor = carAccentColor
                                 )
                                 Spacer(Modifier.width(24.dp))
                                 CarHeaderText(car = car, context = context)
@@ -196,16 +158,7 @@ fun CarDetailsScreen(
                                 Spacer(Modifier.height(8.dp))
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     CarHeaderPhoto(
-                                        car = car,
-                                        isUploading = s.isUploading,
-                                        carAccentColor = carAccentColor,
-                                        onPhotoClick = {
-                                            imagePickerLauncher.launch(
-                                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                            )
-                                        },
-                                        onDeleteClick = { showImageDeleteDialog = true },
-                                        context = context
+                                        carAccentColor = carAccentColor
                                     )
                                     Spacer(Modifier.width(16.dp))
                                     CarHeaderText(car = car, context = context)
@@ -869,72 +822,21 @@ fun AddInspectionDialog(
 
 @Composable
 private fun CarHeaderPhoto(
-    car: Car,
-    isUploading: Boolean,
-    carAccentColor: Color,
-    onPhotoClick: () -> Unit,
-    onDeleteClick: () -> Unit,
-    context: android.content.Context
+    carAccentColor: Color
 ) {
     Box(
         modifier = Modifier
             .size(64.dp)
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .clickable {
-                if (!isUploading) {
-                    onPhotoClick()
-                }
-            },
+            .background(MaterialTheme.colorScheme.surfaceVariant),
         contentAlignment = Alignment.Center
     ) {
-        if (isUploading) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(24.dp),
-                strokeWidth = 2.dp,
-                color = carAccentColor
-            )
-        } else {
-            val localImage = remember(car.id, isUploading) {
-                LocalImageHelper.getCarImageFile(context, car.id)
-            }
-
-            if (localImage != null) {
-                AsyncImage(
-                    model = localImage,
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-                // Small delete overlay
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(4.dp),
-                    contentAlignment = Alignment.TopEnd
-                ) {
-                    Surface(
-                        modifier = Modifier.size(16.dp).clickable { onDeleteClick() },
-                        color = MaterialTheme.colorScheme.error,
-                        shape = CircleShape
-                    ) {
-                        Icon(
-                            Icons.Default.Close,
-                            null,
-                            modifier = Modifier.padding(2.dp),
-                            tint = Color.White
-                        )
-                    }
-                }
-            } else {
-                Icon(
-                    imageVector = Icons.Outlined.DirectionsCar,
-                    contentDescription = null,
-                    modifier = Modifier.size(36.dp),
-                    tint = carAccentColor
-                )
-            }
-        }
+        Icon(
+            imageVector = Icons.Outlined.DirectionsCar,
+            contentDescription = null,
+            modifier = Modifier.size(36.dp),
+            tint = carAccentColor
+        )
     }
 }
 

@@ -1,10 +1,11 @@
 package com.dariusepure.caractivitylog.ui.common
 
+import android.os.Build
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
@@ -13,30 +14,47 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 fun Modifier.shimmer(): Modifier = composed {
-    val transition = rememberInfiniteTransition(label = "shimmer")
-    val translateAnim = transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1000f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "shimmerTranslate"
-    )
+    // Disable complex animations on very old/weak devices to save CPU
+    val isLowEnd = Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q 
+    
+    if (isLowEnd) {
+        val transition = rememberInfiniteTransition(label = "pulse")
+        val alpha by transition.animateFloat(
+            initialValue = 0.2f,
+            targetValue = 0.4f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(1000, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "alphaPulse"
+        )
+        background(Color.LightGray.copy(alpha = alpha))
+    } else {
+        val transition = rememberInfiniteTransition(label = "shimmer")
+        val translateAnim = transition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1000f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "shimmerTranslate"
+        )
 
-    val shimmerColors = listOf(
-        Color.LightGray.copy(alpha = 0.6f),
-        Color.LightGray.copy(alpha = 0.2f),
-        Color.LightGray.copy(alpha = 0.6f),
-    )
+        val shimmerColors = listOf(
+            Color.LightGray.copy(alpha = 0.6f),
+            Color.LightGray.copy(alpha = 0.2f),
+            Color.LightGray.copy(alpha = 0.6f),
+        )
 
-    val brush = Brush.linearGradient(
-        colors = shimmerColors,
-        start = Offset.Zero,
-        end = Offset(x = translateAnim.value, y = translateAnim.value)
-    )
+        val brush = Brush.linearGradient(
+            colors = shimmerColors,
+            start = Offset.Zero,
+            end = Offset(x = translateAnim.value, y = translateAnim.value)
+        )
 
-    background(brush)
+        background(brush)
+    }
 }
 
 @Composable

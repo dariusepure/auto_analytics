@@ -21,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dariusepure.caractivitylog.ui.AppNavigation
-import com.dariusepure.caractivitylog.ui.MainViewModel
 import com.dariusepure.caractivitylog.ui.Screen
 import com.dariusepure.caractivitylog.ui.theme.CarActivityLogTheme
 import com.dariusepure.caractivitylog.ui.theme.ThemeViewModel
@@ -41,29 +40,24 @@ class MainActivity : AppCompatActivity() {
 
         enableEdgeToEdge()
         setContent {
-            val viewModel: MainViewModel = hiltViewModel()
             val themeViewModel: ThemeViewModel = hiltViewModel()
-            
             val isDarkMode by themeViewModel.isDarkMode.collectAsState()
-            val signedIn by viewModel.signedIn.collectAsState()
             
             val systemDark = isSystemInDarkTheme()
             val useDarkTheme = isDarkMode ?: systemDark
 
-            var startRoute by remember(signedIn) {
-                mutableStateOf(if (signedIn) Screen.CarList.route else Screen.SignIn.route)
-            }
+            var deepLinkRoute by remember { mutableStateOf<String?>(null) }
 
             // Handle Password Reset Intent
             LaunchedEffect(intent) {
                 handleIntent(intent) { oobCode ->
-                    startRoute = Screen.ResetPassword.createRoute(oobCode)
+                    deepLinkRoute = Screen.ResetPassword.createRoute(oobCode)
                 }
             }
 
             CarActivityLogTheme(darkTheme = useDarkTheme) {
                 AppNavigation(
-                    startDestination = startRoute,
+                    startDestination = deepLinkRoute ?: Screen.Splash.route,
                     themeViewModel = themeViewModel,
                     windowSizeClass = calculateWindowSizeClass(this)
                 )
