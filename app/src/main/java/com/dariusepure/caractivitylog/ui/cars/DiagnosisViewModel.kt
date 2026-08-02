@@ -7,7 +7,10 @@ import com.dariusepure.caractivitylog.data.ai.text
 import com.dariusepure.caractivitylog.data.cars.CarRepository
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.displayName
+import com.dariusepure.caractivitylog.util.DiagnosticUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import android.content.Context
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
@@ -20,6 +23,7 @@ import kotlin.math.roundToInt
 
 @HiltViewModel
 class DiagnosisViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val carRepository: CarRepository,
     private val geminiRepository: GeminiRepository
 ) : ViewModel() {
@@ -92,7 +96,8 @@ class DiagnosisViewModel @Inject constructor(
 
             try {
                 val currentMsgs = _state.value.messages
-                val response = geminiRepository.getDiagnosisResponse(text, carContext, currentMsgs)
+                val currentLanguage = java.util.Locale.getDefault().displayLanguage
+                val response = geminiRepository.getDiagnosisResponse(text, carContext, currentMsgs, currentLanguage)
                 
                 // Handle Function Calls
                 val parts = response.candidates?.firstOrNull()?.content?.parts ?: emptyList()
@@ -131,12 +136,13 @@ class DiagnosisViewModel @Inject constructor(
                 }
                 
             } catch (t: Throwable) {
+                val sha1 = DiagnosticUtils.getAppSignatureSha1(context, withColons = true)
                 val error = when {
                     t.message?.contains("403") == true || t.message?.contains("PERMISSION_DENIED") == true -> {
-                        "AI Access Denied: This usually happens if the APK was sent manually and Play Integrity/App Check failed, or the API key is restricted."
+                        "AI Access Denied: Please add this SHA-1 to Google Cloud Console for package ${context.packageName}: \n\n$sha1"
                     }
                     t.message?.contains("404") == true -> {
-                        "AI Model Not Found: The configured model name '${_state.value.carName}' (check remote config) might be invalid."
+                        "AI Model Not Found: Check if 'gemini-1.5-flash' is the correct model name in your config."
                     }
                     else -> "AI Error: ${t.localizedMessage ?: "Unknown error"}"
                 }

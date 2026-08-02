@@ -72,7 +72,7 @@ object BrandHelper {
             "NISSAN" -> 0xFFC11B17
             "OPEL" -> 0xFFFFD700
             "PAGANI" -> 0xFF002244
-            "PEUGEOT" -> 0xFF001E32
+            "PEUGEOT" -> 0xFF0055A4
             "POLESTAR" -> 0xFFE1B924
             "PORSCHE" -> 0xFFD5001C
             "RAM" -> 0xFFE31837

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.MileageLog
+import com.dariusepure.caractivitylog.domain.AiAnalysis
 import com.dariusepure.caractivitylog.ui.cars.ChatMessage
 import com.dariusepure.caractivitylog.data.auth.AuthRepository
 import javax.inject.Inject
@@ -754,5 +755,45 @@ class CarRepository @Inject constructor(
                 batch.delete(carRef.collection("mileage").document(log.mileageLogId))
             }
         }.await()
+    }
+
+    fun getAiAnalysis(carId: String): Flow<AiAnalysis?> = callbackFlow {
+        checkNetwork()
+        val uid = authRepository.getUserId() ?: run {
+            trySend(null)
+            close()
+            return@callbackFlow
+        }
+
+        val listener = firestore.collection("users")
+            .document(uid)
+            .collection("cars")
+            .document(carId)
+            .collection("ai_analysis")
+            .document("latest")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                val analysis = snapshot?.toObject(FirestoreAiAnalysis::class.java)?.fromFirebase(carId)
+                trySend(analysis)
+            }
+
+        awaitClose { listener.remove() }
+    }
+
+    suspend fun saveAiAnalysis(carId: String, analysis: AiAnalysis) {
+        checkNetwork()
+        val uid = getUid()
+        firestore.collection("users")
+            .document(uid)
+            .collection("cars")
+            .document(carId)
+            .collection("ai_analysis")
+            .document("latest")
+            .set(analysis.toFirebase())
+            .await()
     }
 }

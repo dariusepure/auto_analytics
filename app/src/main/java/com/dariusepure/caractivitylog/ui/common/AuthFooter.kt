@@ -24,7 +24,6 @@ fun AuthFooter(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        LanguageSelector()
         Text(
             text = stringResource(R.string.common_powered_by),
             style = MaterialTheme.typography.labelSmall,

@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.ui.text.input.KeyboardType
@@ -173,6 +174,14 @@ fun CarDetailsScreen(
                     
                     if (isExpanded) {
                         item {
+                            AiHealthCard(
+                                analysis = s.aiAnalysis,
+                                isAnalyzing = s.isAnalyzing,
+                                onAnalyzeClick = { viewModel.analyzeCarHealth(carId) },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                        item {
                             Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                 BentoCard(
                                     onClick = onTechnicalSheetClick,
@@ -294,6 +303,14 @@ fun CarDetailsScreen(
                         }
                     } else {
                         // Bento Row 1: Technical & Mileage
+                        item {
+                            AiHealthCard(
+                                analysis = s.aiAnalysis,
+                                isAnalyzing = s.isAnalyzing,
+                                onAnalyzeClick = { viewModel.analyzeCarHealth(carId) },
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                            )
+                        }
                         item {
                             Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                 BentoCard(
@@ -860,5 +877,76 @@ private fun CarHeaderText(car: Car, context: android.content.Context) {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+    }
+}
+
+@Composable
+fun AiHealthCard(
+    analysis: AiAnalysis?,
+    isAnalyzing: Boolean,
+    onAnalyzeClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
+        ),
+        shape = MaterialTheme.shapes.large
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Psychology, null, tint = MaterialTheme.colorScheme.primary)
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = "AI Health Insight",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(Modifier.weight(1f))
+                if (isAnalyzing) {
+                    CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+                } else {
+                    TextButton(onClick = onAnalyzeClick) {
+                        Text(if (analysis == null) "Analyze Now" else "Refresh")
+                    }
+                }
+            }
+
+            if (analysis != null) {
+                Spacer(Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Score: ${analysis.healthScore}/100",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = if (analysis.healthScore > 80) Color(0xFF4CAF50) else if (analysis.healthScore > 50) Color(0xFFFF9800) else Color(0xFFF44336)
+                    )
+                    Spacer(Modifier.width(16.dp))
+                    Text(
+                        text = "Analyzed on: ${SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(analysis.analyzedAt)}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Spacer(Modifier.height(4.dp))
+                Text(text = analysis.summary, style = MaterialTheme.typography.bodyMedium)
+                
+                if (analysis.recommendations.isNotEmpty()) {
+                    Spacer(Modifier.height(8.dp))
+                    analysis.recommendations.forEach { rec ->
+                        Row(Modifier.padding(vertical = 2.dp)) {
+                            Text("• ", fontWeight = FontWeight.Bold)
+                            Text(rec, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+            } else if (!isAnalyzing) {
+                Text(
+                    "Tap Analyze to get an AI-powered health report based on your maintenance and fuel history.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
     }
 }

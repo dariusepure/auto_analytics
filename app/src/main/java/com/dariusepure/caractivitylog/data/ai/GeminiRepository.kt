@@ -8,6 +8,7 @@ import android.util.Log
 import com.dariusepure.caractivitylog.BuildConfig
 import com.dariusepure.caractivitylog.util.DiagnosticUtils
 import com.dariusepure.caractivitylog.domain.ScannedCarData
+import com.dariusepure.caractivitylog.domain.AiAnalysis
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.client.HttpClient
@@ -102,12 +103,12 @@ class GeminiRepository @Inject constructor(
     private suspend fun postGemini(request: GeminiRequest): GeminiResponse {
         val model = modelName
         val url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=${BuildConfig.GEMINI_API_KEY}"
-        val sha1 = DiagnosticUtils.getAppSignatureSha1(context, withColons = false)
+        val sha1 = DiagnosticUtils.getAppSignatureSha1(context, withColons = true)
         val packageName = context.packageName
 
         Log.d(TAG, "Requesting Gemini model: $model")
         Log.d(TAG, "Using Package: $packageName")
-        Log.d(TAG, "Using real SHA1 (clean): $sha1")
+        Log.d(TAG, "Using real SHA1 (standard): $sha1")
 
         try {
             val response: io.ktor.client.statement.HttpResponse = httpClient.post(url) {
@@ -238,7 +239,8 @@ class GeminiRepository @Inject constructor(
     suspend fun getDiagnosisResponse(
         prompt: String,
         carContext: String,
-        history: List<com.dariusepure.caractivitylog.ui.cars.ChatMessage>
+        history: List<com.dariusepure.caractivitylog.ui.cars.ChatMessage>,
+        language: String = "English"
     ): GeminiResponse {
         val validatedHistory = history
             .dropWhile { !it.isUser }
@@ -253,9 +255,10 @@ class GeminiRepository @Inject constructor(
             }
 
         val finalizedPrompt = systemPrompt.replace("{{context}}", carContext)
+        val languageInstruction = "\n\nIMPORTANT: Please respond in $language."
         val userContent = Content(
             role = "user",
-            parts = listOf(Part(text = "$finalizedPrompt\n\nUser: $prompt"))
+            parts = listOf(Part(text = "$finalizedPrompt\n\nUser: $prompt$languageInstruction"))
         )
 
         val request = GeminiRequest(
@@ -265,6 +268,57 @@ class GeminiRepository @Inject constructor(
         )
 
         return postGemini(request)
+    }
+
+    suspend fun generateHealthAnalysis(
+        carContext: String,
+        fuelHistory: String,
+        maintenanceHistory: String,
+        language: String = "English"
+    ): Result<AiAnalysis> {
+        return try {
+            val prompt = """
+                Analyze the health and maintenance state of this vehicle.
+                
+                CAR SPECS:
+                $carContext
+                
+                RECENT FUEL CONSUMPTION (last 5 entries):
+                $fuelHistory
+                
+                RECENT MAINTENANCE/SERVICE HISTORY:
+                $maintenanceHistory
+                
+                INSTRUCTIONS:
+                1. Evaluate if the fuel consumption trend is normal or increasing.
+                2. Check if any major maintenance (oil, filters, timing belt) is due based on mileage and last service.
+                3. Provide a 'healthScore' from 0 to 100.
+                4. Provide a 'summary' (max 3 sentences).
+                5. Provide a list of 'recommendations' (max 3 items).
+                
+                CRITICAL: Please provide the 'summary' and 'recommendations' in $language.
+                
+                Return ONLY a JSON object with these keys:
+                summary, healthScore, recommendations.
+            """.trimIndent()
+
+            val request = GeminiRequest(
+                contents = listOf(
+                    Content(role = "user", parts = listOf(Part(text = prompt)))
+                ),
+                generationConfig = GenerationConfig(temperature = 0.4f) // Lower temperature for more analytical response
+            )
+
+            val response = postGemini(request)
+            val fullText = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull { it.text != null }?.text
+                ?: throw Exception("Empty response from AI")
+
+            val jsonText = extractJson(fullText)
+            val analysis = json.decodeFromString<AiAnalysis>(jsonText)
+            Result.success(analysis)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     private fun extractJson(text: String): String {

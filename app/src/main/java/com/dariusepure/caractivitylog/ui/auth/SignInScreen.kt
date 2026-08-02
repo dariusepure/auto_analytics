@@ -37,6 +37,7 @@ import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.ui.common.AuthFooter
 import com.dariusepure.caractivitylog.ui.common.ErrorBanner
 import com.dariusepure.caractivitylog.ui.common.ModernAppLogo
+import com.dariusepure.caractivitylog.ui.common.LanguageSelector
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -202,14 +203,24 @@ fun SignInContent(
                 Text(stringResource(R.string.auth_continue_google))
             }
 
-            TextButton(
-                onClick = onContinueAsGuest,
-                enabled = !submitting,
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
             ) {
-                Text(stringResource(R.string.auth_continue_offline))
+                TextButton(
+                    onClick = onContinueAsGuest,
+                    enabled = !submitting,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(stringResource(R.string.auth_continue_offline))
+                }
+                
+                LanguageSelector(
+                    modifier = Modifier.padding(start = 8.dp)
+                )
             }
 
             Row(
