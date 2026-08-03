@@ -158,6 +158,9 @@ fun AddVignetteDialog(
     var country by remember { mutableStateOf(existingVignette?.country ?: "") }
     var cost by remember { mutableStateOf(existingVignette?.cost?.toString() ?: "") }
     var unitExpanded by remember { mutableStateOf(false) }
+    var countryExpanded by remember { mutableStateOf(false) }
+
+    val selectedCountry = remember(country) { europeanCountries.find { it.name == country } }
 
     val context = androidx.compose.ui.platform.LocalContext.current
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
@@ -182,12 +185,49 @@ fun AddVignetteDialog(
         title = { Text(stringResource(R.string.vignette_add_title)) },
         text = {
             androidx.compose.foundation.layout.Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = country,
-                    onValueChange = { country = it },
-                    label = { Text(stringResource(R.string.vignette_country_label)) },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = country,
+                        onValueChange = { country = it },
+                        label = { Text(stringResource(R.string.vignette_country_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = selectedCountry?.let {
+                            { Text(it.flag, modifier = Modifier.padding(start = 8.dp), style = MaterialTheme.typography.headlineSmall) }
+                        },
+                        trailingIcon = {
+                            Icon(
+                                Icons.Default.ArrowDropDown,
+                                "dropdown",
+                                Modifier.clickable { countryExpanded = true })
+                        }
+                    )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { countryExpanded = true }
+                    )
+                    DropdownMenu(
+                        expanded = countryExpanded,
+                        onDismissRequest = { countryExpanded = false },
+                        modifier = Modifier.fillMaxWidth(0.9f).heightIn(max = 300.dp)
+                    ) {
+                        europeanCountries.forEach { c ->
+                            DropdownMenuItem(
+                                text = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(c.flag)
+                                        Spacer(Modifier.width(8.dp))
+                                        Text(c.name)
+                                    }
+                                },
+                                onClick = {
+                                    country = c.name
+                                    countryExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
 
                 OutlinedTextField(
                     value = cost,

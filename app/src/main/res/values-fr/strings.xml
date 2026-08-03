@@ -289,7 +289,10 @@
     <string name="pdf_field_front_brakes">Freins avant</string>
     <string name="pdf_field_rear_brakes">Freins arrière</string>
     <string name="pdf_field_tires">Pneus</string>
+    <string name="tire_dot_week_label">Semaine DOT</string>
+    <string name="tire_dot_year_label">Année DOT</string>
     <string name="pdf_field_seats">Nombre de sièges</string>
     <string name="pdf_field_doors">Nombre de portes</string>
+    <string name="validation_dot_week_range">La semaine doit être comprise entre 1 et 53</string>
 
 </resources>

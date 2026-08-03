@@ -11,9 +11,8 @@ data class TireSet(
     val width: Int = 0,
     val ratio: Int = 0,
     val diameter: Int = 0,
-    val dot: String = "", // e.g., "4223"
-    val storageLocation: String = "",
-    val notes: String = "",
+    val dotWeek: Int? = null,
+    val dotYear: Int? = null,
     val isActive: Boolean = false
 )
 

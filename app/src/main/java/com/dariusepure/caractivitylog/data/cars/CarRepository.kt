@@ -485,7 +485,6 @@ class CarRepository @Inject constructor(
             .collection("cars")
             .document(carId)
             .collection("tire_sets")
-            .orderBy("isActive", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshots, exception ->
                 if (exception != null) {
                     close(exception)
@@ -494,7 +493,8 @@ class CarRepository @Inject constructor(
 
                 val results = snapshots
                     ?.toObjects(FirestoreTireSet::class.java)
-                    ?.map { it.fromFirebase() } ?: emptyList()
+                    ?.map { it.fromFirebase() }
+                    ?.sortedByDescending { it.isActive } ?: emptyList()
 
                 trySend(results)
             }

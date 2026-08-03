@@ -291,5 +291,24 @@
     <string name="pdf_field_tires">Reifen</string>
     <string name="pdf_field_seats">Anzahl der Sitze</string>
     <string name="pdf_field_doors">Anzahl der Türen</string>
+    <string name="validation_dot_week_range">Die Woche muss zwischen 1 und 53 liegen</string>
+
+    <!-- Tires -->
+    <string name="tire_management_title">Reifenmanagement</string>
+    <string name="tire_add_title">Reifensatz hinzufügen</string>
+    <string name="tire_edit_title">Reifensatz bearbeiten</string>
+    <string name="tire_empty">Keine Reifensätze gefunden.</string>
+    <string name="tire_season_label">Jahreszeit</string>
+    <string name="tire_season_summer">Sommer</string>
+    <string name="tire_season_winter">Winter</string>
+    <string name="tire_season_all_season">Ganzjahresreifen</string>
+    <string name="tire_brand_label">Marke</string>
+    <string name="tire_model_label">Modell</string>
+    <string name="tire_dot_week_label">DOT Woche</string>
+    <string name="tire_dot_year_label">DOT Jahr</string>
+    <string name="tire_active_label">Derzeit am Fahrzeug</string>
+    <string name="tire_on_vehicle">Am Fahrzeug</string>
+    <string name="tire_in_storage">Eingelagert</string>
+    <string name="tire_summary">%1$s %2$s \u00B7 %3$d/%4$d R%5$d</string>
 
 </resources>

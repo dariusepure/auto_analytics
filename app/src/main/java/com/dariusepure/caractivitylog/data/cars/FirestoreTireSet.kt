@@ -3,7 +3,9 @@ package com.dariusepure.caractivitylog.data.cars
 import com.dariusepure.caractivitylog.domain.TireSeason
 import com.dariusepure.caractivitylog.domain.TireSet
 import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.IgnoreExtraProperties
 
+@IgnoreExtraProperties
 data class FirestoreTireSet(
     @DocumentId val id: String = "",
     val season: String = "SUMMER",
@@ -12,9 +14,8 @@ data class FirestoreTireSet(
     val width: Int = 0,
     val ratio: Int = 0,
     val diameter: Int = 0,
-    val dot: String = "",
-    val storageLocation: String = "",
-    val notes: String = "",
+    val dotWeek: Int? = null,
+    val dotYear: Int? = null,
     val isActive: Boolean = false
 )
 
@@ -26,9 +27,8 @@ fun TireSet.toFirebase() = FirestoreTireSet(
     width = this.width,
     ratio = this.ratio,
     diameter = this.diameter,
-    dot = this.dot,
-    storageLocation = this.storageLocation,
-    notes = this.notes,
+    dotWeek = this.dotWeek,
+    dotYear = this.dotYear,
     isActive = this.isActive
 )
 
@@ -40,8 +40,7 @@ fun FirestoreTireSet.fromFirebase() = TireSet(
     width = this.width,
     ratio = this.ratio,
     diameter = this.diameter,
-    dot = this.dot,
-    storageLocation = this.storageLocation,
-    notes = this.notes,
+    dotWeek = this.dotWeek,
+    dotYear = this.dotYear,
     isActive = this.isActive
 )

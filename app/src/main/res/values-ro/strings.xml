@@ -262,13 +262,12 @@
     <string name="tire_season_all_season">All-Season</string>
     <string name="tire_brand_label">Marcă</string>
     <string name="tire_model_label">Model</string>
-    <string name="tire_dot_label">DOT (SăptămânăAn)</string>
-    <string name="tire_storage_label">Locație depozitare</string>
+    <string name="tire_dot_week_label">Săptămână DOT</string>
+    <string name="tire_dot_year_label">An DOT</string>
     <string name="tire_active_label">Montate pe mașină</string>
     <string name="tire_on_vehicle">Pe mașină</string>
     <string name="tire_in_storage">Depozitate</string>
     <string name="tire_summary">%1$s %2$s \u00B7 %3$d/%4$d R%5$d</string>
-    <string name="tire_notes_label">Note (Opțional)</string>
 
     <!-- Mileage -->
     <string name="mileage_history_title">Istoric kilometraj</string>
@@ -446,4 +445,5 @@
     <!-- Validation -->
     <string name="validation_negative_value">Valoarea nu poate fi negativă</string>
     <string name="validation_invalid_format">Format invalid</string>
+    <string name="validation_dot_week_range">Săptămâna trebuie să fie între 1 și 53</string>
 </resources>

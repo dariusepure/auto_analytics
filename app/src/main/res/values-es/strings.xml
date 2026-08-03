@@ -291,5 +291,24 @@
     <string name="pdf_field_tires">Neumáticos</string>
     <string name="pdf_field_seats">Número de asientos</string>
     <string name="pdf_field_doors">Número de puertas</string>
+    <string name="validation_dot_week_range">La semana debe estar entre 1 y 53</string>
+
+    <!-- Tires -->
+    <string name="tire_management_title">Gestión de Neumáticos</string>
+    <string name="tire_add_title">Añadir Juego de Neumáticos</string>
+    <string name="tire_edit_title">Editar Juego de Neumáticos</string>
+    <string name="tire_empty">No se encontraron juegos de neumáticos.</string>
+    <string name="tire_season_label">Temporada</string>
+    <string name="tire_season_summer">Verano</string>
+    <string name="tire_season_winter">Invierno</string>
+    <string name="tire_season_all_season">Todo tiempo</string>
+    <string name="tire_brand_label">Marca</string>
+    <string name="tire_model_label">Modelo</string>
+    <string name="tire_dot_week_label">Semana DOT</string>
+    <string name="tire_dot_year_label">Año DOT</string>
+    <string name="tire_active_label">Actualmente en el vehículo</string>
+    <string name="tire_on_vehicle">En el vehículo</string>
+    <string name="tire_in_storage">Almacenados</string>
+    <string name="tire_summary">%1$s %2$s \u00B7 %3$d/%4$d R%5$d</string>
 
 </resources>

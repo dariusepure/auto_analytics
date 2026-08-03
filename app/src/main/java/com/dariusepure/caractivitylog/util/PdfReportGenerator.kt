@@ -248,7 +248,17 @@ object PdfReportGenerator {
                 textPaint.isFakeBoldText = false
                 
                 yPosition += 14f
-                val specs = "${tireSet.width}/${tireSet.ratio} R${tireSet.diameter} \u00B7 DOT ${tireSet.dot.ifBlank { "-" }}"
+                val dotText = when {
+                    tireSet.dotWeek != null && tireSet.dotYear != null -> {
+                        val weekStr = tireSet.dotWeek.toString().padStart(2, '0')
+                        val yearStr = tireSet.dotYear.toString().let { if (it.length > 2) it.takeLast(2) else it.padStart(2, '0') }
+                        "$weekStr$yearStr"
+                    }
+                    tireSet.dotWeek != null -> tireSet.dotWeek.toString().padStart(2, '0')
+                    tireSet.dotYear != null -> tireSet.dotYear.toString()
+                    else -> "-"
+                }
+                val specs = "${tireSet.width}/${tireSet.ratio} R${tireSet.diameter} \u00B7 DOT $dotText"
                 canvas.drawText(specs, MARGIN, yPosition, secondaryTextPaint)
                 
                 yPosition += 8f

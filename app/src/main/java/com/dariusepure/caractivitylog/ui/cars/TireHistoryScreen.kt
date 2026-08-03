@@ -147,13 +147,13 @@ fun AddTireSetDialog(
 ) {
     var season by remember { mutableStateOf(existingTireSet?.season ?: TireSeason.SUMMER) }
     var brand by remember { mutableStateOf(existingTireSet?.brand ?: "") }
+    var brandExpanded by remember { mutableStateOf(false) }
     var model by remember { mutableStateOf(existingTireSet?.model ?: "") }
     var width by remember { mutableStateOf(existingTireSet?.width?.toString() ?: "") }
     var ratio by remember { mutableStateOf(existingTireSet?.ratio?.toString() ?: "") }
     var diameter by remember { mutableStateOf(existingTireSet?.diameter?.toString() ?: "") }
-    var dot by remember { mutableStateOf(existingTireSet?.dot ?: "") }
-    var storageLocation by remember { mutableStateOf(existingTireSet?.storageLocation ?: "") }
-    var notes by remember { mutableStateOf(existingTireSet?.notes ?: "") }
+    var dotWeek by remember { mutableStateOf(existingTireSet?.dotWeek?.toString() ?: "") }
+    var dotYear by remember { mutableStateOf(existingTireSet?.dotYear?.toString() ?: "") }
     var isActive by remember { mutableStateOf(existingTireSet?.isActive ?: false) }
     var seasonExpanded by remember { mutableStateOf(false) }
 
@@ -192,12 +192,35 @@ fun AddTireSetDialog(
                     }
                 }
 
-                OutlinedTextField(
-                    value = brand,
-                    onValueChange = { brand = it },
-                    label = { Text(stringResource(R.string.tire_brand_label)) },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = brand,
+                        onValueChange = { brand = it },
+                        label = { Text(stringResource(R.string.tire_brand_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        trailingIcon = {
+                            IconButton(onClick = { brandExpanded = true }) {
+                                Icon(Icons.Default.ArrowDropDown, "dropdown")
+                            }
+                        }
+                    )
+                    Box(modifier = Modifier.matchParentSize().clickable { brandExpanded = true })
+                    DropdownMenu(
+                        expanded = brandExpanded,
+                        onDismissRequest = { brandExpanded = false },
+                        modifier = Modifier.fillMaxWidth(0.9f).sizeIn(maxHeight = 300.dp)
+                    ) {
+                        tireBrands.forEach { b ->
+                            DropdownMenuItem(
+                                text = { Text(b) },
+                                onClick = {
+                                    brand = if (b == "OTHER") "" else b
+                                    brandExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
 
                 OutlinedTextField(
                     value = model,
@@ -230,28 +253,29 @@ fun AddTireSetDialog(
                     )
                 }
 
-                OutlinedTextField(
-                    value = dot,
-                    onValueChange = { if (it.length <= 4 && it.all { char -> char.isDigit() }) dot = it },
-                    label = { Text(stringResource(R.string.tire_dot_label)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
-                )
-
-                OutlinedTextField(
-                    value = storageLocation,
-                    onValueChange = { storageLocation = it },
-                    label = { Text(stringResource(R.string.tire_storage_label)) },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = notes,
-                    onValueChange = { notes = it },
-                    label = { Text(stringResource(R.string.tire_notes_label)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    val dotWeekInt = dotWeek.toIntOrNull()
+                    val isWeekInvalid = dotWeek.isNotBlank() && (dotWeekInt == null || dotWeekInt !in 1..53)
+                    
+                    OutlinedTextField(
+                        value = dotWeek,
+                        onValueChange = { if (it.length <= 2 && it.all { char -> char.isDigit() }) dotWeek = it },
+                        label = { Text(stringResource(R.string.tire_dot_week_label)) },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                        isError = isWeekInvalid,
+                        supportingText = if (isWeekInvalid) {
+                            { Text(stringResource(R.string.validation_dot_week_range)) }
+                        } else null
+                    )
+                    OutlinedTextField(
+                        value = dotYear,
+                        onValueChange = { if (it.length <= 4 && it.all { char -> char.isDigit() }) dotYear = it },
+                        label = { Text(stringResource(R.string.tire_dot_year_label)) },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+                    )
+                }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = isActive, onCheckedChange = { isActive = it })
@@ -270,14 +294,14 @@ fun AddTireSetDialog(
                             width = width.toIntOrNull() ?: 0,
                             ratio = ratio.toIntOrNull() ?: 0,
                             diameter = diameter.toIntOrNull() ?: 0,
-                            dot = dot,
-                            storageLocation = storageLocation,
-                            notes = notes,
+                            dotWeek = dotWeek.toIntOrNull(),
+                            dotYear = dotYear.toIntOrNull(),
                             isActive = isActive
                         )
                     )
                 },
-                enabled = brand.isNotBlank() && width.isNotBlank(),
+                enabled = brand.isNotBlank() && width.isNotBlank() && 
+                        (dotWeek.isBlank() || (dotWeek.toIntOrNull() in 1..53)),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer

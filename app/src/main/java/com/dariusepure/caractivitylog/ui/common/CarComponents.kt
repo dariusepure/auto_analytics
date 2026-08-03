@@ -461,8 +461,17 @@ fun TireSetItem(
                 color = MaterialTheme.colorScheme.onSurface
             )
             val subDetails = mutableListOf<String>()
-            if (tireSet.dot.isNotBlank()) subDetails.add("DOT ${tireSet.dot}")
-            if (tireSet.storageLocation.isNotBlank()) subDetails.add(tireSet.storageLocation)
+            val dotText = when {
+                tireSet.dotWeek != null && tireSet.dotYear != null -> {
+                    val weekStr = tireSet.dotWeek.toString().padStart(2, '0')
+                    val yearStr = tireSet.dotYear.toString().let { if (it.length > 2) it.takeLast(2) else it.padStart(2, '0') }
+                    "$weekStr$yearStr"
+                }
+                tireSet.dotWeek != null -> tireSet.dotWeek.toString().padStart(2, '0')
+                tireSet.dotYear != null -> tireSet.dotYear.toString()
+                else -> null
+            }
+            if (!dotText.isNullOrBlank()) subDetails.add("DOT $dotText")
             
             if (subDetails.isNotEmpty()) {
                 Text(

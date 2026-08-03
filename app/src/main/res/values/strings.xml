@@ -263,13 +263,12 @@
     <string name="tire_season_all_season">All-Season</string>
     <string name="tire_brand_label">Brand</string>
     <string name="tire_model_label">Model</string>
-    <string name="tire_dot_label">DOT (WeekYear)</string>
-    <string name="tire_storage_label">Storage Location</string>
+    <string name="tire_dot_week_label">DOT Week</string>
+    <string name="tire_dot_year_label">DOT Year</string>
     <string name="tire_active_label">Currently on vehicle</string>
     <string name="tire_on_vehicle">On Vehicle</string>
     <string name="tire_in_storage">In Storage</string>
     <string name="tire_summary">%1$s %2$s \u00B7 %3$d/%4$d R%5$d</string>
-    <string name="tire_notes_label">Notes (Optional)</string>
 
     <!-- Mileage -->
     <string name="mileage_history_title">Mileage History</string>
@@ -457,4 +456,5 @@
     <!-- Validation -->
     <string name="validation_negative_value">Value cannot be negative</string>
     <string name="validation_invalid_format">Invalid format</string>
+    <string name="validation_dot_week_range">Week must be between 1 and 53</string>
 </resources>
