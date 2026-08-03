@@ -7,7 +7,6 @@ data class FuelLog(
     val date: Date = Date(),
     val km: Double = 0.0,
     val liters: Double = 0.0,
-    val cost: Double = 0.0,
     val isFullTank: Boolean = true,
     val mileageLogId: String = ""
 )

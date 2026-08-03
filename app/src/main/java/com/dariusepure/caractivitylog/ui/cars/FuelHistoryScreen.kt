@@ -28,7 +28,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.ui.common.*
-import com.dariusepure.caractivitylog.ui.theme.ThemeViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -38,11 +37,9 @@ import kotlin.math.roundToInt
 fun FuelHistoryScreen(
     carId: String,
     onBack: () -> Unit,
-    viewModel: FuelHistoryViewModel = hiltViewModel(),
-    themeViewModel: ThemeViewModel = hiltViewModel()
+    viewModel: FuelHistoryViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val currencyCode by themeViewModel.currencyCode.collectAsStateWithLifecycle()
     var showAddDialog by remember { mutableStateOf(false) }
     var editingLog by remember { mutableStateOf<com.dariusepure.caractivitylog.domain.FuelLog?>(null) }
     var logToDelete by remember { mutableStateOf<com.dariusepure.caractivitylog.domain.FuelLog?>(null) }
@@ -100,7 +97,7 @@ fun FuelHistoryScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     item {
-                        FuelStatsCard(s.stats, distUnit, consUnit, currencyCode)
+                        FuelStatsCard(s.stats, distUnit, consUnit)
 
                         if (s.stats.avgConsumption == null && s.logs.isNotEmpty()) {
                             Surface(
@@ -155,7 +152,6 @@ fun FuelHistoryScreen(
                             distUnit = distUnit,
                             consUnit = consUnit,
                             usesMiles = usesMiles,
-                            currencyCode = currencyCode,
                             accentColor = carAccentColor,
                             onEdit = { editingLog = entry.log },
                             onDelete = { logToDelete = entry.log }
@@ -177,7 +173,7 @@ fun FuelHistoryScreen(
                             showAddDialog = false
                             editingLog = null
                         },
-                        onConfirm = { kmInput, liters, cost, isFull, date ->
+                        onConfirm = { kmInput, liters, isFull, date ->
                             val kmCanonical = CarFormatters.toCanonicalDistance(kmInput, usesMiles)
                             
                             val logToEdit = editingLog
@@ -185,12 +181,11 @@ fun FuelHistoryScreen(
                                 viewModel.updateFuelLog(carId, logToEdit.copy(
                                     km = kmCanonical,
                                     liters = liters,
-                                    cost = cost,
                                     isFullTank = isFull,
                                     date = date
                                 ))
                             } else {
-                                viewModel.addFuelLog(carId, kmCanonical, liters, cost, isFull, date)
+                                viewModel.addFuelLog(carId, kmCanonical, liters, isFull, date)
                             }
                             showAddDialog = false
                             editingLog = null
@@ -203,7 +198,7 @@ fun FuelHistoryScreen(
 }
 
 @Composable
-fun FuelStatsCard(stats: FuelStats, distUnit: String, consUnit: String, currencyCode: String) {
+fun FuelStatsCard(stats: FuelStats, distUnit: String, consUnit: String) {
     Card(
         modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
@@ -220,13 +215,7 @@ fun FuelStatsCard(stats: FuelStats, distUnit: String, consUnit: String, currency
                 StatItem(stringResource(R.string.fuel_stats_total_dist), "${stats.totalDistance.roundToInt()} $distUnit")
             }
             Spacer(Modifier.height(16.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                StatItem(stringResource(R.string.fuel_stats_total_fuel), String.format(Locale.getDefault(), "%.1f L", stats.totalLiters))
-                StatItem(stringResource(R.string.fuel_stats_total_cost), CarFormatters.formatCost(stats.totalCost, currencyCode))
-            }
+            StatItem(stringResource(R.string.fuel_stats_total_fuel), String.format(Locale.getDefault(), "%.1f L", stats.totalLiters))
         }
     }
 }
@@ -246,7 +235,6 @@ fun FuelLogItem(
     distUnit: String,
     consUnit: String,
     usesMiles: Boolean,
-    currencyCode: String,
     accentColor: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color(0xFF2196F3),
     onEdit: () -> Unit,
     onDelete: () -> Unit
@@ -270,7 +258,7 @@ fun FuelLogItem(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = "${entry.log.liters} L \u00B7 ${CarFormatters.formatCost(entry.log.cost, currencyCode)} \u00B7 ${if (entry.log.isFullTank) stringResource(R.string.fuel_full_tank_label) else stringResource(R.string.fuel_partial_tank)}",
+                    text = "${entry.log.liters} L \u00B7 ${if (entry.log.isFullTank) stringResource(R.string.fuel_full_tank_label) else stringResource(R.string.fuel_partial_tank)}",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -332,13 +320,12 @@ fun AddFuelDialog(
     accentColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.primary,
     onAccentColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onPrimary,
     onDismiss: () -> Unit,
-    onConfirm: (Double, Double, Double, Boolean, Date) -> Unit
+    onConfirm: (Double, Double, Boolean, Date) -> Unit
 ) {
     var km by remember { 
         mutableStateOf(existingLog?.let { CarFormatters.fromCanonicalDistance(it.km, usesMiles).roundToInt().toString() } ?: "") 
     }
     var liters by remember { mutableStateOf(existingLog?.liters?.toString() ?: "") }
-    var cost by remember { mutableStateOf(existingLog?.cost?.toString() ?: "") }
     var isFullTank by remember { mutableStateOf(existingLog?.isFullTank ?: true) }
     var selectedDate by remember { mutableStateOf(existingLog?.date ?: Date()) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -394,14 +381,7 @@ fun AddFuelDialog(
                         onValueChange = { if (it.all { c -> c.isDigit() || c == '.' }) liters = it },
                         label = { Text(stringResource(R.string.fuel_liters_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        modifier = Modifier.weight(1f)
-                    )
-                    OutlinedTextField(
-                        value = cost,
-                        onValueChange = { if (it.all { c -> c.isDigit() || c == '.' }) cost = it },
-                        label = { Text(stringResource(R.string.fuel_cost_label)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
                 
@@ -430,7 +410,6 @@ fun AddFuelDialog(
                 onClick = {
                     val k = km.toDoubleOrNull() ?: 0.0
                     val l = liters.toDoubleOrNull() ?: 0.0
-                    val c = cost.toDoubleOrNull() ?: 0.0
                     
                     if (k > 0 && l > 0) {
                         val canonicalInput = CarFormatters.toCanonicalDistance(k, usesMiles)
@@ -445,7 +424,7 @@ fun AddFuelDialog(
                         if (conflict != null) {
                             errorMessage = context.getString(R.string.fuel_mileage_conflict, dateFormat.format(conflict.date))
                         } else {
-                            onConfirm(k, l, c, isFullTank, selectedDate)
+                            onConfirm(k, l, isFullTank, selectedDate)
                         }
                     }
                 },

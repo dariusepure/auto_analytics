@@ -180,7 +180,6 @@ object PdfReportGenerator {
             context.getString(com.dariusepure.caractivitylog.R.string.car_width_label) to if (car.width > 0) "${car.width} mm" else "",
             context.getString(com.dariusepure.caractivitylog.R.string.car_height_label) to if (car.height > 0) "${car.height} mm" else "",
             context.getString(com.dariusepure.caractivitylog.R.string.car_wheelbase_label) to if (car.wheelbase > 0) "${car.wheelbase} mm" else "",
-            context.getString(com.dariusepure.caractivitylog.R.string.car_track_width_label) to if (car.trackWidth > 0) "${car.trackWidth} mm" else "",
             context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_weight) to if (car.weight > 0) "${car.weight} kg" else ""
         ).filter { it.second.isNotBlank() })
 

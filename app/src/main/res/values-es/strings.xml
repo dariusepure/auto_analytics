@@ -141,7 +141,6 @@
     <string name="car_width_label">Anchura</string>
     <string name="car_height_label">Altura</string>
     <string name="car_wheelbase_label">Distancia entre ejes</string>
-    <string name="car_track_width_label">Ancho de vía</string>
     <string name="car_weight_label">Peso (kg)</string>
     <string name="car_seats_label">Asientos</string>
     <string name="car_doors_label">Puertas</string>
@@ -200,13 +199,11 @@
     <string name="fuel_stats_avg">Consumo medio</string>
     <string name="fuel_stats_total_dist">Distancia total</string>
     <string name="fuel_stats_total_fuel">Total combustible</string>
-    <string name="fuel_stats_total_cost">Coste total</string>
     <string name="fuel_add_full_tank_hint">Añade al menos 2 registros de "Depósito lleno" para ver el consumo medio.</string>
     <string name="fuel_history_header">Historial de repostajes</string>
     <string name="fuel_history_empty">Aún no hay registros. ¡Añade tu primer repostaje!</string>
     <string name="fuel_add_title">Añadir repostaje</string>
     <string name="fuel_liters_label">Litros</string>
-    <string name="fuel_cost_label">Coste total</string>
     <string name="fuel_full_tank_label">Depósito lleno</string>
     <string name="fuel_partial_tank">Parcial</string>
     <string name="fuel_mileage_conflict">Conflicto de kilometraje con registros del %s</string>
@@ -235,7 +232,6 @@
     <string name="formatter_no_inspection">No se ha registrado ninguna inspección</string>
     <string name="formatter_inspection_valid_until">Válido hasta %s</string>
     <string name="formatter_wheelbase">Distancia entre ejes: %d mm</string>
-    <string name="formatter_track_width">Ancho de vía: %d mm</string>
     <string name="formatter_valves_total">%1$d (%2$d por cilindro)</string>
 
     <!-- PDF -->
@@ -276,7 +272,6 @@
     <string name="pdf_field_width">Anchura</string>
     <string name="pdf_field_height">Altura</string>
     <string name="pdf_field_wheelbase">Distancia entre ejes</string>
-    <string name="pdf_field_track_width">Ancho de vía</string>
     <string name="pdf_field_weight">Peso</string>
     <string name="pdf_field_boot_space">Maletero</string>
     <string name="pdf_field_fuel_tank_capacity">Capacidad depósito</string>

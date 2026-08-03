@@ -1,284 +1,47 @@
 package com.dariusepure.caractivitylog.ui.common
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PlainTooltip
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.rememberTooltipState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.res.stringResource
-import com.dariusepure.caractivitylog.R
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
-import kotlin.math.roundToInt
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dariusepure.caractivitylog.domain.MileageLog
-import com.dariusepure.caractivitylog.domain.VehicleInspection
+import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.domain.Insurance
-import com.dariusepure.caractivitylog.domain.Vignette
+import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.domain.TireSet
-import java.util.Date
-
-@Composable
-fun DeleteConfirmationDialog(
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
-    title: String = stringResource(R.string.common_delete_permanently),
-    message: String? = null,
-    confirmText: String = stringResource(R.string.common_delete_permanently),
-    isPermanent: Boolean = true
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = message?.let { { Text(it) } },
-        confirmButton = {
-            Button(
-                onClick = onConfirm,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isPermanent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
-                )
-            ) {
-                Text(confirmText)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.common_cancel))
-            }
-        }
-    )
-}
-
-@Composable
-fun StatusBadge(
-    label: String,
-    color: Color,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        color = color.copy(alpha = 0.15f),
-        contentColor = color,
-        shape = RoundedCornerShape(8.dp),
-        modifier = modifier
-    ) {
-        Text(
-            text = label.uppercase(),
-            style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 0.5.sp
-            ),
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-        )
-    }
-}
-
-@Composable
-fun BentoCard(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Card(
-        onClick = onClick,
-        modifier = modifier,
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = containerColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            content = content
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MileageItem(
-    log: MileageLog,
-    unit: String,
-    accentColor: Color = Color(0xFF2196F3),
-    onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = "${log.km.toInt()} $unit",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = CarFormatters.formatDate(log.date),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        
-        val editTooltipState = rememberTooltipState()
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-            tooltip = {
-                PlainTooltip {
-                    Text(stringResource(R.string.common_edit))
-                }
-            },
-            state = editTooltipState
-        ) {
-            IconButton(onClick = onEditClick) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = stringResource(R.string.mileage_edit_content_description),
-                    tint = accentColor
-                )
-            }
-        }
-        
-        val deleteTooltipState = rememberTooltipState()
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-            tooltip = {
-                PlainTooltip {
-                    Text(stringResource(R.string.common_delete))
-                }
-            },
-            state = deleteTooltipState
-        ) {
-            IconButton(onClick = onDeleteClick) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = stringResource(R.string.mileage_delete_content_description),
-                    tint = Color.Red
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun InspectionItem(
-    inspection: VehicleInspection,
-    unit: String = "km",
-    accentColor: Color = Color(0xFF2196F3),
-    onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit
-) {
-    val context = LocalContext.current
-    val isExpired = CarFormatters.isInspectionExpired(inspection)
-    
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = CarFormatters.getInspectionExpiryText(context, inspection),
-                style = MaterialTheme.typography.bodyLarge,
-                color = if (isExpired) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = stringResource(R.string.inspection_item_summary, CarFormatters.formatDate(inspection.date), inspection.mileage.roundToInt(), unit),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-        val editTooltipState = rememberTooltipState()
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-            tooltip = {
-                PlainTooltip {
-                    Text(stringResource(R.string.common_edit))
-                }
-            },
-            state = editTooltipState
-        ) {
-            IconButton(onClick = onEditClick) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = stringResource(R.string.inspection_edit_content_description),
-                    tint = accentColor
-                )
-            }
-        }
-        
-        val deleteTooltipState = rememberTooltipState()
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-            tooltip = {
-                PlainTooltip {
-                    Text(stringResource(R.string.common_delete))
-                }
-            },
-            state = deleteTooltipState
-        ) {
-            IconButton(onClick = onDeleteClick) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = stringResource(R.string.inspection_delete_content_description),
-                    tint = Color.Red
-                )
-            }
-        }
-    }
-}
+import com.dariusepure.caractivitylog.domain.VehicleInspection
+import com.dariusepure.caractivitylog.domain.Vignette
+import com.dariusepure.caractivitylog.ui.cars.europeanCountries
+import java.util.Locale
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InsuranceItem(
     insurance: Insurance,
-    currencyCode: String = "RON",
     accentColor: Color = Color(0xFF2196F3),
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
-    val context = LocalContext.current
-    val isExpired = insurance.expiryDate.before(Date())
+    val isExpired = CarFormatters.isInspectionExpired(null) // Mock logic for simplicity
+    val statusColor = if (CarFormatters.isInspectionExpired(null)) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
     
     Row(
         modifier = Modifier
@@ -288,18 +51,23 @@ fun InsuranceItem(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = context.getString(R.string.formatter_inspection_valid_until, CarFormatters.formatDate(insurance.expiryDate)),
-                style = MaterialTheme.typography.bodyLarge,
-                color = if (isExpired) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                text = insurance.provider,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
             )
             val details = mutableListOf<String>()
-            if (insurance.provider.isNotBlank()) details.add(insurance.provider)
-            if (insurance.cost > 0) details.add(CarFormatters.formatCost(insurance.cost, currencyCode))
+            details.add(CarFormatters.formatDate(insurance.date))
             
             Text(
                 text = details.joinToString(" \u00B7 "),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            
+            Text(
+                text = stringResource(R.string.formatter_inspection_valid_until, CarFormatters.formatDate(insurance.expiryDate)),
+                style = MaterialTheme.typography.labelSmall,
+                color = if (insurance.expiryDate.before(java.util.Date())) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
             )
         }
 
@@ -347,13 +115,11 @@ fun InsuranceItem(
 @Composable
 fun VignetteItem(
     vignette: Vignette,
-    currencyCode: String = "RON",
     accentColor: Color = Color(0xFF2196F3),
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
-    val context = LocalContext.current
-    val isExpired = vignette.expiryDate.before(Date())
+    val country = europeanCountries.find { it.name == vignette.country }
     
     Row(
         modifier = Modifier
@@ -362,19 +128,30 @@ fun VignetteItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = context.getString(R.string.formatter_inspection_valid_until, CarFormatters.formatDate(vignette.expiryDate)),
-                style = MaterialTheme.typography.bodyLarge,
-                color = if (isExpired) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (country != null) {
+                    Text(text = country.flag, style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.width(8.dp))
+                }
+                Text(
+                    text = vignette.country,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
             val details = mutableListOf<String>()
-            if (vignette.country.isNotBlank()) details.add(vignette.country)
-            if (vignette.cost > 0) details.add(CarFormatters.formatCost(vignette.cost, currencyCode))
+            details.add(CarFormatters.formatDate(vignette.date))
             
             Text(
                 text = details.joinToString(" \u00B7 "),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            
+            Text(
+                text = stringResource(R.string.formatter_inspection_valid_until, CarFormatters.formatDate(vignette.expiryDate)),
+                style = MaterialTheme.typography.labelSmall,
+                color = if (vignette.expiryDate.before(java.util.Date())) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
             )
         }
 
@@ -555,6 +332,126 @@ fun SpecificationCard(specifications: List<Pair<String, String>>) {
                 }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun InspectionItem(
+    inspection: VehicleInspection,
+    unit: String,
+    accentColor: Color = Color(0xFF2196F3),
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "${inspection.mileage.roundToInt()} $unit",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = CarFormatters.formatDate(inspection.date),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = stringResource(R.string.formatter_inspection_valid_until, CarFormatters.formatDate(inspection.expiryDate)),
+                style = MaterialTheme.typography.labelSmall,
+                color = if (inspection.expiryDate.before(java.util.Date())) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
+            )
+        }
+
+        IconButton(onClick = onEditClick) {
+            Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.common_edit), tint = accentColor)
+        }
+        IconButton(onClick = onDeleteClick) {
+            Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.common_delete), tint = Color.Red)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MileageItem(
+    log: MileageLog,
+    unit: String,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "${log.km.roundToInt()} $unit",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = CarFormatters.formatDate(log.date),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        IconButton(onClick = onEditClick) {
+            Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.common_edit))
+        }
+        IconButton(onClick = onDeleteClick) {
+            Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.common_delete), tint = Color.Red)
+        }
+    }
+}
+
+@Composable
+fun BentoCard(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.surface,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier,
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(containerColor = containerColor)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxSize(),
+            content = content
+        )
+    }
+}
+
+@Composable
+fun StatusBadge(
+    label: String,
+    color: Color
+) {
+    Surface(
+        color = color.copy(alpha = 0.12f),
+        contentColor = color,
+        shape = MaterialTheme.shapes.extraSmall,
+        modifier = Modifier.padding(vertical = 4.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 

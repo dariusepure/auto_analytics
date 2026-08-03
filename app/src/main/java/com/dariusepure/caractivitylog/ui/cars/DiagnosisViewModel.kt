@@ -190,7 +190,6 @@ class DiagnosisViewModel @Inject constructor(
             "width" -> car.copy(width = value.toDoubleOrNull()?.roundToInt() ?: car.width)
             "height" -> car.copy(height = value.toDoubleOrNull()?.roundToInt() ?: car.height)
             "wheelbase" -> car.copy(wheelbase = value.toDoubleOrNull()?.roundToInt() ?: car.wheelbase)
-            "trackwidth" -> car.copy(trackWidth = value.toDoubleOrNull()?.roundToInt() ?: car.trackWidth)
             "emissionstandard" -> car.copy(emissionStandard = value)
             "aspiration" -> car.copy(aspiration = value)
             "fueltankcapacity" -> car.copy(fuelTankCapacity = value.toDoubleOrNull() ?: car.fuelTankCapacity)

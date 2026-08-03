@@ -19,10 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.ui.common.*
+import com.dariusepure.caractivitylog.domain.displayName
 import com.dariusepure.caractivitylog.domain.Insurance
 import com.dariusepure.caractivitylog.domain.InspectionDurationUnit
-import com.dariusepure.caractivitylog.domain.displayName
-import com.dariusepure.caractivitylog.ui.theme.ThemeViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -32,11 +31,9 @@ fun InsuranceHistoryScreen(
     carId: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: CarDetailsViewModel = hiltViewModel(),
-    themeViewModel: ThemeViewModel = hiltViewModel()
+    viewModel: CarDetailsViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val currencyCode by themeViewModel.currencyCode.collectAsStateWithLifecycle()
     var showAddDialog by remember { mutableStateOf(false) }
     var editingInsurance by remember { mutableStateOf<Insurance?>(null) }
     var insuranceToDelete by remember { mutableStateOf<Insurance?>(null) }
@@ -132,7 +129,6 @@ fun InsuranceHistoryScreen(
                         items(s.insurances) { insurance ->
                             InsuranceItem(
                                 insurance = insurance,
-                                currencyCode = currencyCode,
                                 accentColor = carAccentColor,
                                 onEditClick = { editingInsurance = insurance },
                                 onDeleteClick = { insuranceToDelete = insurance }
@@ -156,7 +152,6 @@ fun AddInsuranceDialog(
     var durationValue by remember { mutableStateOf(existingInsurance?.durationValue?.toString() ?: "1") }
     var durationUnit by remember { mutableStateOf(existingInsurance?.durationUnit ?: InspectionDurationUnit.YEARS) }
     var provider by remember { mutableStateOf(existingInsurance?.provider ?: "") }
-    var cost by remember { mutableStateOf(existingInsurance?.cost?.toString() ?: "") }
     var unitExpanded by remember { mutableStateOf(false) }
 
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -187,14 +182,6 @@ fun AddInsuranceDialog(
                     onValueChange = { provider = it },
                     label = { Text(stringResource(R.string.insurance_provider_label)) },
                     modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = cost,
-                    onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) cost = it },
-                    label = { Text(stringResource(R.string.common_cost_label)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal)
                 )
 
                 OutlinedTextField(
@@ -274,8 +261,7 @@ fun AddInsuranceDialog(
                             date = selectedDate,
                             durationValue = durationValue.toIntOrNull() ?: 1,
                             durationUnit = durationUnit,
-                            provider = provider,
-                            cost = cost.toDoubleOrNull() ?: 0.0
+                            provider = provider
                         )
                     )
                 },

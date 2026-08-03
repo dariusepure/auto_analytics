@@ -25,7 +25,6 @@ data class Car(
     val width: Int = 0,
     val height: Int = 0,
     val wheelbase: Int = 0,
-    val trackWidth: Int = 0,
     val emissionStandard: String = "",
     val aspiration: String = "",
     val fuelTankCapacity: Double = 0.0,

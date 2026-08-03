@@ -9,7 +9,6 @@ data class FirestoreMaintenance(
     val date: Date = Date(),
     val km: Double = 0.0,
     val description: String = "",
-    val cost: Double = 0.0,
     val mileageLogId: String = "",
     val category: String = "General"
 )
@@ -19,7 +18,6 @@ fun Maintenance.toFirebase() = FirestoreMaintenance(
     date = this.date,
     km = this.km,
     description = this.description,
-    cost = this.cost,
     mileageLogId = this.mileageLogId,
     category = this.category
 )
@@ -29,7 +27,6 @@ fun FirestoreMaintenance.fromFirebase() = Maintenance(
     date = this.date,
     km = this.km,
     description = this.description,
-    cost = this.cost,
     mileageLogId = this.mileageLogId,
     category = this.category
 )

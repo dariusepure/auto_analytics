@@ -144,7 +144,6 @@ fun AddCarScreen(
     var width by remember { mutableStateOf("") }
     var height by remember { mutableStateOf("") }
     var wheelbase by remember { mutableStateOf("") }
-    var trackWidth by remember { mutableStateOf("") }
     var weight by remember { mutableStateOf("") }
     var numberOfSeats by remember { mutableStateOf("") }
     var numberOfDoors by remember { mutableStateOf("") }
@@ -289,7 +288,6 @@ fun AddCarScreen(
                 width = width,
                 height = height,
                 wheelbase = wheelbase,
-                trackWidth = trackWidth,
                 fuelTankCapacity = fuelTankCapacity,
                 batteryCapacity = batteryCapacity,
                 drivetrain = drivetrain,
@@ -358,7 +356,6 @@ fun AddCarScreen(
                 width = car.width.takeIf { it != 0 }?.toString() ?: ""
                 height = car.height.takeIf { it != 0 }?.toString() ?: ""
                 wheelbase = car.wheelbase.takeIf { it != 0 }?.toString() ?: ""
-                trackWidth = car.trackWidth.takeIf { it != 0 }?.toString() ?: ""
                 weight = car.weight.takeIf { it != 0 }?.toString() ?: ""
                 numberOfSeats = car.numberOfSeats.takeIf { it != 0 }?.toString() ?: ""
                 numberOfDoors = car.numberOfDoors.takeIf { it != 0 }?.toString() ?: ""
@@ -1277,17 +1274,7 @@ fun AddCarScreen(
                         value = wheelbase,
                         onValueChange = { if (it.all { char -> char.isDigit() }) wheelbase = it },
                         label = { Text(stringResource(R.string.car_wheelbase_label)) },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        enabled = state !is AddCarState.Pending
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    OutlinedTextField(
-                        value = trackWidth,
-                        onValueChange = { if (it.all { char -> char.isDigit() }) trackWidth = it },
-                        label = { Text(stringResource(R.string.car_track_width_label)) },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         enabled = state !is AddCarState.Pending
@@ -1508,7 +1495,6 @@ fun AddCarScreen(
                         width = width,
                         height = height,
                         wheelbase = wheelbase,
-                        trackWidth = trackWidth,
                         fuelTankCapacity = fuelTankCapacity,
                         batteryCapacity = batteryCapacity,
                         drivetrain = drivetrain,

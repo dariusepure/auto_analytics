@@ -10,8 +10,7 @@ data class FirestoreInsurance(
     val date: Timestamp = Timestamp.now(),
     val durationValue: Int = 1,
     val durationUnit: String = "MONTHS",
-    val provider: String = "",
-    val cost: Double = 0.0
+    val provider: String = ""
 )
 
 fun Insurance.toFirebase() = FirestoreInsurance(
@@ -19,8 +18,7 @@ fun Insurance.toFirebase() = FirestoreInsurance(
     date = Timestamp(this.date),
     durationValue = this.durationValue,
     durationUnit = this.durationUnit.name,
-    provider = this.provider,
-    cost = this.cost
+    provider = this.provider
 )
 
 fun FirestoreInsurance.fromFirebase() = Insurance(
@@ -28,6 +26,5 @@ fun FirestoreInsurance.fromFirebase() = Insurance(
     date = this.date.toDate(),
     durationValue = this.durationValue,
     durationUnit = try { InspectionDurationUnit.valueOf(this.durationUnit) } catch (e: Exception) { InspectionDurationUnit.MONTHS },
-    provider = this.provider,
-    cost = this.cost
+    provider = this.provider
 )

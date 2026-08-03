@@ -1,6 +1,5 @@
 package com.dariusepure.caractivitylog.ui.common
 
-import com.dariusepure.caractivitylog.data.prefs.supportedCurrencies
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.VehicleInspection
 import java.text.SimpleDateFormat
@@ -73,14 +72,7 @@ object CarFormatters {
             dims.add("${car.length}\u00A0x\u00A0${car.width}\u00A0x\u00A0${car.height}\u00A0mm")
         }
         if (car.wheelbase > 0) dims.add(context.getString(com.dariusepure.caractivitylog.R.string.formatter_wheelbase, car.wheelbase))
-        if (car.trackWidth > 0) dims.add(context.getString(com.dariusepure.caractivitylog.R.string.formatter_track_width, car.trackWidth))
         
         return if (dims.isEmpty()) "-" else dims.joinToString("\n")
-    }
-
-    fun formatCost(cost: Double, currencyCode: String): String {
-        val currency = supportedCurrencies.find { it.code == currencyCode }
-        val symbol = currency?.symbol ?: currencyCode
-        return String.format(Locale.getDefault(), "%.2f %s", cost, symbol)
     }
 }

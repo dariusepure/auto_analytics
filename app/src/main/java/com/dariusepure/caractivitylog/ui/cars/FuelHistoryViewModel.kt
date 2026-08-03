@@ -18,7 +18,6 @@ import javax.inject.Inject
 data class FuelStats(
     val avgConsumption: Double? = null,
     val totalLiters: Double = 0.0,
-    val totalCost: Double = 0.0,
     val totalDistance: Double = 0.0
 )
 
@@ -118,7 +117,6 @@ class FuelHistoryViewModel @Inject constructor(
         
         val sorted = logs.sortedBy { it.date }
         val totalLiters = logs.sumOf { it.liters }
-        val totalCost = logs.sumOf { it.cost }
         
         // Avg consumption overall (from first full tank to last full tank)
         val fullTanks = sorted.filter { it.isFullTank }
@@ -148,14 +146,13 @@ class FuelHistoryViewModel @Inject constructor(
         return FuelStats(
             avgConsumption = avgConsumption,
             totalLiters = totalLiters,
-            totalCost = totalCost,
             totalDistance = CarFormatters.fromCanonicalDistance(totalDistanceCanonical, usesMiles)
         )
     }
 
-    fun addFuelLog(carId: String, kmCanonical: Double, liters: Double, cost: Double, isFullTank: Boolean, date: Date) {
+    fun addFuelLog(carId: String, kmCanonical: Double, liters: Double, isFullTank: Boolean, date: Date) {
         viewModelScope.launch {
-            carRepository.addFuelLog(carId, FuelLog(km = kmCanonical, liters = liters, cost = cost, isFullTank = isFullTank, date = date))
+            carRepository.addFuelLog(carId, FuelLog(km = kmCanonical, liters = liters, isFullTank = isFullTank, date = date))
         }
     }
 

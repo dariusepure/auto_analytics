@@ -8,8 +8,7 @@ data class Insurance(
     val date: Date = Date(),
     val durationValue: Int = 6,
     val durationUnit: InspectionDurationUnit = InspectionDurationUnit.MONTHS,
-    val provider: String = "",
-    val cost: Double = 0.0
+    val provider: String = ""
 ) {
     val expiryDate: Date
         get() {

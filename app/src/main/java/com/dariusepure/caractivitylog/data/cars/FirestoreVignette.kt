@@ -10,8 +10,7 @@ data class FirestoreVignette(
     val date: Timestamp = Timestamp.now(),
     val durationValue: Int = 1,
     val durationUnit: String = "MONTHS",
-    val country: String = "",
-    val cost: Double = 0.0
+    val country: String = ""
 )
 
 fun Vignette.toFirebase() = FirestoreVignette(
@@ -19,8 +18,7 @@ fun Vignette.toFirebase() = FirestoreVignette(
     date = Timestamp(this.date),
     durationValue = this.durationValue,
     durationUnit = this.durationUnit.name,
-    country = this.country,
-    cost = this.cost
+    country = this.country
 )
 
 fun FirestoreVignette.fromFirebase() = Vignette(
@@ -28,6 +26,5 @@ fun FirestoreVignette.fromFirebase() = Vignette(
     date = this.date.toDate(),
     durationValue = this.durationValue,
     durationUnit = try { InspectionDurationUnit.valueOf(this.durationUnit) } catch (e: Exception) { InspectionDurationUnit.MONTHS },
-    country = this.country,
-    cost = this.cost
+    country = this.country
 )

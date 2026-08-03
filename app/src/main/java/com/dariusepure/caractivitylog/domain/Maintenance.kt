@@ -7,7 +7,6 @@ data class Maintenance(
     val date: Date = Date(),
     val km: Double = 0.0,
     val description: String = "",
-    val cost: Double = 0.0,
     val mileageLogId: String = "",
     val category: String = "General"
 )

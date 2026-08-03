@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
@@ -24,7 +23,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material.icons.filled.Sort
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DeleteForever
@@ -38,7 +36,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,12 +43,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material.icons.outlined.Payments
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.MoreVert
-import com.dariusepure.caractivitylog.ui.common.CurrencyDialog
 import com.dariusepure.caractivitylog.ui.common.LanguageDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.PlainTooltip
@@ -72,13 +67,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.Hyphens
-import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
@@ -94,7 +84,6 @@ import com.dariusepure.caractivitylog.ui.common.EmptyState
 import com.dariusepure.caractivitylog.ui.common.ErrorState
 import com.dariusepure.caractivitylog.ui.common.LoadingState
 import com.dariusepure.caractivitylog.ui.common.DeleteConfirmationDialog
-import com.dariusepure.caractivitylog.ui.common.CurrencySelector
 import com.dariusepure.caractivitylog.ui.common.LanguageSelector
 import com.dariusepure.caractivitylog.ui.common.toRelativeString
 import com.dariusepure.caractivitylog.domain.displayName
@@ -300,7 +289,6 @@ fun CarListScreen(
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val viewMode by viewModel.viewMode.collectAsStateWithLifecycle()
     val isDarkMode by themeViewModel.isDarkMode.collectAsStateWithLifecycle()
-    val currencyCode by themeViewModel.currencyCode.collectAsStateWithLifecycle()
     val systemDark = androidx.compose.foundation.isSystemInDarkTheme()
     val currentDark = isDarkMode ?: systemDark
     val haptic = LocalHapticFeedback.current
@@ -319,14 +307,12 @@ fun CarListScreen(
             onLogout()
         },
         onThemeToggle = { themeViewModel.toggleTheme(currentDark) },
-        onCurrencySelected = { themeViewModel.setCurrency(it) },
         onSortOrderChange = { viewModel.onSortOrderChanged(it) },
         onSearchQueryChange = { viewModel.onSearchQueryChanged(it) },
         onViewModeChange = { viewModel.onViewModeChanged(it) },
         searchQuery = searchQuery,
         currentSortOrder = sortOrder,
         currentViewMode = viewMode,
-        currentCurrencyCode = currencyCode,
         isDark = currentDark,
         state = state
     )
@@ -342,21 +328,18 @@ private fun InnerCarListScreen(
     onDeleteCar: (String) -> Unit,
     onLogoutClick: () -> Unit,
     onThemeToggle: () -> Unit,
-    onCurrencySelected: (String) -> Unit,
     onSortOrderChange: (CarSortOrder) -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onViewModeChange: (CarListViewMode) -> Unit,
     searchQuery: String,
     currentSortOrder: CarSortOrder,
     currentViewMode: CarListViewMode,
-    currentCurrencyCode: String,
     isDark: Boolean,
     state: CarListUiState,
     modifier: Modifier = Modifier,
 ) {
     var sortMenuExpanded by remember { mutableStateOf(false) }
     var moreMenuExpanded by remember { mutableStateOf(false) }
-    var showCurrencyDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
     var carToDelete by remember { mutableStateOf<String?>(null) }
 
@@ -371,14 +354,6 @@ private fun InnerCarListScreen(
             message = stringResource(R.string.car_move_to_recycle_bin_msg),
             confirmText = stringResource(R.string.common_delete),
             isPermanent = false
-        )
-    }
-
-    if (showCurrencyDialog) {
-        CurrencyDialog(
-            currentCurrencyCode = currentCurrencyCode,
-            onCurrencySelected = onCurrencySelected,
-            onDismiss = { showCurrencyDialog = false }
         )
     }
 
@@ -487,15 +462,6 @@ private fun InnerCarListScreen(
                                     moreMenuExpanded = false
                                 },
                                 leadingIcon = { Icon(if (isDark) Icons.Default.LightMode else Icons.Default.DarkMode, null) }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.common_currency)) },
-                                onClick = {
-                                    showCurrencyDialog = true
-                                    moreMenuExpanded = false
-                                },
-                                leadingIcon = { Icon(Icons.Outlined.Payments, null) },
-                                trailingIcon = { Text(currentCurrencyCode, style = MaterialTheme.typography.labelSmall) }
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.common_language)) },

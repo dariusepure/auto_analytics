@@ -22,7 +22,6 @@ import com.dariusepure.caractivitylog.ui.common.*
 import com.dariusepure.caractivitylog.domain.Vignette
 import com.dariusepure.caractivitylog.domain.InspectionDurationUnit
 import com.dariusepure.caractivitylog.domain.displayName
-import com.dariusepure.caractivitylog.ui.theme.ThemeViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -32,11 +31,9 @@ fun VignetteHistoryScreen(
     carId: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: CarDetailsViewModel = hiltViewModel(),
-    themeViewModel: ThemeViewModel = hiltViewModel()
+    viewModel: CarDetailsViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val currencyCode by themeViewModel.currencyCode.collectAsStateWithLifecycle()
     var showAddDialog by remember { mutableStateOf(false) }
     var editingVignette by remember { mutableStateOf<Vignette?>(null) }
     var vignetteToDelete by remember { mutableStateOf<Vignette?>(null) }
@@ -132,7 +129,6 @@ fun VignetteHistoryScreen(
                         items(s.vignettes) { vignette ->
                             VignetteItem(
                                 vignette = vignette,
-                                currencyCode = currencyCode,
                                 accentColor = carAccentColor,
                                 onEditClick = { editingVignette = vignette },
                                 onDeleteClick = { vignetteToDelete = vignette }
@@ -156,7 +152,6 @@ fun AddVignetteDialog(
     var durationValue by remember { mutableStateOf(existingVignette?.durationValue?.toString() ?: "1") }
     var durationUnit by remember { mutableStateOf(existingVignette?.durationUnit ?: InspectionDurationUnit.MONTHS) }
     var country by remember { mutableStateOf(existingVignette?.country ?: "") }
-    var cost by remember { mutableStateOf(existingVignette?.cost?.toString() ?: "") }
     var unitExpanded by remember { mutableStateOf(false) }
     var countryExpanded by remember { mutableStateOf(false) }
 
@@ -228,14 +223,6 @@ fun AddVignetteDialog(
                         }
                     }
                 }
-
-                OutlinedTextField(
-                    value = cost,
-                    onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) cost = it },
-                    label = { Text(stringResource(R.string.common_cost_label)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal)
-                )
 
                 OutlinedTextField(
                     value = dateFormat.format(selectedDate),
@@ -314,8 +301,7 @@ fun AddVignetteDialog(
                             date = selectedDate,
                             durationValue = durationValue.toIntOrNull() ?: 1,
                             durationUnit = durationUnit,
-                            country = country,
-                            cost = cost.toDoubleOrNull() ?: 0.0
+                            country = country
                         )
                     )
                 },

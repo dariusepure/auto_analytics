@@ -21,7 +21,6 @@
     <string name="common_collapse">Restrânge</string>
     <string name="common_expand">Extinde</string>
     <string name="common_language">Limbă</string>
-    <string name="common_currency">Monedă</string>
     <string name="common_sort">Sortare</string>
 
     <!-- Units -->
@@ -218,7 +217,6 @@
     <string name="car_width_label">Lățime</string>
     <string name="car_height_label">Înălțime</string>
     <string name="car_wheelbase_label">Ampatament</string>
-    <string name="car_track_width_label">Ecartament</string>
     <string name="car_weight_label">Greutate (kg)</string>
     <string name="car_seats_label">Locuri</string>
     <string name="car_doors_label">Uși</string>
@@ -290,7 +288,6 @@
     <string name="vignette_history_title">Istoric Rovinietă</string>
     <string name="vignette_add_title">Adaugă Rovinietă</string>
     <string name="vignette_country_label">Țara</string>
-    <string name="common_cost_label">Cost (Opțional)</string>
     <string name="inspection_mileage_label">Kilometraj (%s)</string>
     <string name="inspection_date_label">Data inspecției</string>
     <string name="inspection_validity_label">Valabilitate</string>
@@ -306,13 +303,11 @@
     <string name="fuel_stats_avg">Consum mediu</string>
     <string name="fuel_stats_total_dist">Distanță totală</string>
     <string name="fuel_stats_total_fuel">Total combustibil</string>
-    <string name="fuel_stats_total_cost">Cost total</string>
     <string name="fuel_add_full_tank_hint">Adaugă cel puțin 2 înregistrări cu „Rezervor plin” pentru a vedea consumul mediu.</string>
     <string name="fuel_history_header">Istoric alimentări</string>
     <string name="fuel_history_empty">Nicio înregistrare încă. Adaugă prima alimentare!</string>
     <string name="fuel_add_title">Adaugă alimentare</string>
     <string name="fuel_liters_label">Litri</string>
-    <string name="fuel_cost_label">Cost total</string>
     <string name="fuel_full_tank_label">Rezervor plin</string>
     <string name="fuel_partial_tank">Parțial</string>
     <string name="fuel_mileage_conflict">Conflict de kilometraj cu înregistrările din %s</string>
@@ -341,7 +336,6 @@
     <string name="formatter_no_inspection">Nicio inspecție înregistrată</string>
     <string name="formatter_inspection_valid_until">Valabil până la %s</string>
     <string name="formatter_wheelbase">Ampatament: %d&#160;mm</string>
-    <string name="formatter_track_width">Ecartament: %d&#160;mm</string>
     <string name="formatter_valves_total">%1$d (%2$d&#160;per cilindru)</string>
 
     <!-- PDF -->
@@ -382,7 +376,6 @@
     <string name="pdf_field_width">Lățime</string>
     <string name="pdf_field_height">Înălțime</string>
     <string name="pdf_field_wheelbase">Ampatament</string>
-    <string name="pdf_field_track_width">Ecartament</string>
     <string name="pdf_field_weight">Greutate</string>
     <string name="pdf_field_boot_space">Portbagaj</string>
     <string name="pdf_field_fuel_tank_capacity">Capacitate rezervor</string>

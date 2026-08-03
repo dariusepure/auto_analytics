@@ -10,7 +10,6 @@ class ThemeViewModel @Inject constructor(
 ) : androidx.lifecycle.ViewModel() {
     
     val isDarkMode = preferenceRepository.isDarkMode
-    val currencyCode = preferenceRepository.currencyCode
 
     fun toggleTheme(currentDark: Boolean) {
         preferenceRepository.setDarkMode(!currentDark)
@@ -18,9 +17,5 @@ class ThemeViewModel @Inject constructor(
 
     fun setDarkMode(enabled: Boolean?) {
         preferenceRepository.setDarkMode(enabled)
-    }
-
-    fun setCurrency(code: String) {
-        preferenceRepository.setCurrency(code)
     }
 }

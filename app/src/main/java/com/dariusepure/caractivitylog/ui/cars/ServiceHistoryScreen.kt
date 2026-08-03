@@ -22,7 +22,6 @@ import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.domain.Maintenance
 import com.dariusepure.caractivitylog.domain.displayName
 import com.dariusepure.caractivitylog.ui.common.*
-import com.dariusepure.caractivitylog.ui.theme.ThemeViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -33,11 +32,9 @@ fun ServiceHistoryScreen(
     carId: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: CarDetailsViewModel = hiltViewModel(),
-    themeViewModel: ThemeViewModel = hiltViewModel()
+    viewModel: CarDetailsViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val currencyCode by themeViewModel.currencyCode.collectAsStateWithLifecycle()
     var showAddDialog by remember { mutableStateOf(false) }
     var editingRecord by remember { mutableStateOf<Maintenance?>(null) }
     var recordToDelete by remember { mutableStateOf<Maintenance?>(null) }
@@ -140,7 +137,6 @@ fun ServiceHistoryScreen(
                             ServiceItem(
                                 record = record,
                                 unit = europeanCountries.find { it.code == s.car.plateCountry }?.let { if (it.usesMiles) "mi" else "km" } ?: "km",
-                                currencyCode = currencyCode,
                                 accentColor = carAccentColor,
                                 onEdit = { editingRecord = record },
                                 onDelete = { recordToDelete = record }
@@ -159,7 +155,6 @@ fun ServiceHistoryScreen(
 fun ServiceItem(
     record: Maintenance,
     unit: String,
-    currencyCode: String,
     accentColor: Color = Color(0xFF2196F3),
     onEdit: () -> Unit,
     onDelete: () -> Unit
@@ -175,13 +170,6 @@ fun ServiceItem(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            if (record.cost > 0) {
-                Text(
-                    text = CarFormatters.formatCost(record.cost, currencyCode),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
         }
         
         val editTooltipState = rememberTooltipState()
@@ -228,7 +216,6 @@ fun AddServiceDialog(
 ) {
     var description by remember { mutableStateOf(existingRecord?.description ?: "") }
     var km by remember { mutableStateOf(existingRecord?.km?.roundToInt()?.toString() ?: "") }
-    var cost by remember { mutableStateOf(existingRecord?.cost?.takeIf { it > 0 }?.toString() ?: "") }
     var date by remember { mutableStateOf(existingRecord?.date ?: Date()) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     
@@ -286,14 +273,6 @@ fun AddServiceDialog(
                 }
 
                 OutlinedTextField(
-                    value = cost,
-                    onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) cost = it },
-                    label = { Text(stringResource(R.string.common_cost_label)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
-                )
-
-                OutlinedTextField(
                     value = dateFormat.format(date),
                     onValueChange = { },
                     readOnly = true,
@@ -334,7 +313,6 @@ fun AddServiceDialog(
                             Maintenance(
                                 description = description,
                                 km = k,
-                                cost = cost.toDoubleOrNull() ?: 0.0,
                                 date = date
                             )
                         )

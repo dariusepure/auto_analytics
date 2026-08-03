@@ -153,7 +153,6 @@ fun TechnicalSheetScreen(
                         val dimensionSpecs = mutableListOf(
                             stringResource(R.string.car_dimensions_lxwxh) to CarFormatters.formatDimensions(context, car),
                             stringResource(R.string.car_wheelbase_label) to if (car.wheelbase > 0) "${car.wheelbase}\u00A0mm" else "",
-                            stringResource(R.string.car_track_width_label) to if (car.trackWidth > 0) "${car.trackWidth}\u00A0mm" else "",
                             stringResource(R.string.car_weight_label) to if (car.weight > 0) "${car.weight}\u00A0kg" else "",
                             stringResource(R.string.car_seats_label) to car.numberOfSeats.takeIf { it != 0 }?.toString().orEmpty(),
                             stringResource(R.string.car_doors_label) to car.numberOfDoors.takeIf { it != 0 }?.toString().orEmpty(),

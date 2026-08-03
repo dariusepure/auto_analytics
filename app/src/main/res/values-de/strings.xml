@@ -141,7 +141,6 @@
     <string name="car_width_label">Breite</string>
     <string name="car_height_label">Höhe</string>
     <string name="car_wheelbase_label">Radstand</string>
-    <string name="car_track_width_label">Spurweite</string>
     <string name="car_weight_label">Gewicht (kg)</string>
     <string name="car_seats_label">Sitze</string>
     <string name="car_doors_label">Türen</string>
@@ -200,13 +199,11 @@
     <string name="fuel_stats_avg">Durchschnittsverbrauch</string>
     <string name="fuel_stats_total_dist">Gesamtentfernung</string>
     <string name="fuel_stats_total_fuel">Gesamtmenge Kraftstoff</string>
-    <string name="fuel_stats_total_cost">Gesamtkosten</string>
     <string name="fuel_add_full_tank_hint">Fügen Sie mindestens 2 „Vollgetankt“-Einträge hinzu, um den Durchschnittsverbrauch zu sehen.</string>
     <string name="fuel_history_header">Betankungshistorie</string>
     <string name="fuel_history_empty">Noch keine Einträge. Fügen Sie Ihre erste Betankung hinzu!</string>
     <string name="fuel_add_title">Betankung hinzufügen</string>
     <string name="fuel_liters_label">Liter</string>
-    <string name="fuel_cost_label">Gesamtkosten</string>
     <string name="fuel_full_tank_label">Vollgetankt</string>
     <string name="fuel_partial_tank">Teilbetankung</string>
     <string name="fuel_mileage_conflict">Kilometerstand-Konflikt mit Einträgen am %s</string>
@@ -235,7 +232,6 @@
     <string name="formatter_no_inspection">Keine Untersuchung aufgezeichnet</string>
     <string name="formatter_inspection_valid_until">Gültig bis %s</string>
     <string name="formatter_wheelbase">Radstand: %d mm</string>
-    <string name="formatter_track_width">Spurweite: %d mm</string>
     <string name="formatter_valves_total">%1$d (%2$d pro Zylinder)</string>
 
     <!-- PDF -->
@@ -251,7 +247,7 @@
     <string name="pdf_valid_until">Gültig bis: %s</string>
     <string name="pdf_field_name">Name</string>
     <string name="pdf_field_make">Marke</string>
-    <string name="pdf_field_model">Modell</string>
+    <string name="pdf_field_model">Model</string>
     <string name="pdf_field_year">Jahr</string>
     <string name="pdf_field_vin">VIN</string>
     <string name="pdf_field_license_plate">Kennzeichen</string>
@@ -276,7 +272,6 @@
     <string name="pdf_field_width">Breite</string>
     <string name="pdf_field_height">Höhe</string>
     <string name="pdf_field_wheelbase">Radstand</string>
-    <string name="pdf_field_track_width">Spurweite</string>
     <string name="pdf_field_weight">Gewicht</string>
     <string name="pdf_field_boot_space">Kofferraum</string>
     <string name="pdf_field_fuel_tank_capacity">Tankinhalt</string>

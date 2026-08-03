@@ -7,19 +7,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
-data class Currency(
-    val name: String,
-    val code: String,
-    val symbol: String
-)
-
-val supportedCurrencies = listOf(
-    Currency("Romanian Leu", "RON", "RON"),
-    Currency("Euro", "EUR", "€"),
-    Currency("US Dollar", "USD", "$"),
-    Currency("British Pound", "GBP", "£")
-)
-
 @Singleton
 class PreferenceRepository @Inject constructor(
     @ApplicationContext context: Context
@@ -31,11 +18,6 @@ class PreferenceRepository @Inject constructor(
     )
     val isDarkMode = _isDarkMode.asStateFlow()
 
-    private val _currencyCode = MutableStateFlow(
-        prefs.getString("currency_code", "RON") ?: "RON"
-    )
-    val currencyCode = _currencyCode.asStateFlow()
-
     fun setDarkMode(enabled: Boolean?) {
         _isDarkMode.value = enabled
         if (enabled == null) {
@@ -43,10 +25,5 @@ class PreferenceRepository @Inject constructor(
         } else {
             prefs.edit().putBoolean("is_dark_mode", enabled).apply()
         }
-    }
-
-    fun setCurrency(code: String) {
-        _currencyCode.value = code
-        prefs.edit().putString("currency_code", code).apply()
     }
 }

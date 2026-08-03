@@ -8,8 +8,7 @@ data class Vignette(
     val date: Date = Date(),
     val durationValue: Int = 1,
     val durationUnit: InspectionDurationUnit = InspectionDurationUnit.MONTHS,
-    val country: String = "",
-    val cost: Double = 0.0
+    val country: String = ""
 ) {
     val expiryDate: Date
         get() {
