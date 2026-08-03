@@ -1,5 +1,6 @@
 package com.dariusepure.caractivitylog.ui
 
+import androidx.compose.animation.*
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
@@ -76,6 +77,7 @@ sealed class Screen(val route: String) {
     data object RecycleBin : Screen("recyclebin")
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun AppNavigation(
     modifier: Modifier = Modifier,
@@ -94,119 +96,136 @@ fun AppNavigation(
 
     val finalStartDestination = startDestination ?: if (signedIn == true) Screen.CarList.route else Screen.SignIn.route
 
-    NavHost(
-        navController = navController,
-        startDestination = finalStartDestination,
-        modifier = modifier
-    ) {
-        composable(Screen.SignIn.route) {
-            SignInScreen(
-                onSignedIn = {
-                    navController.navigate(Screen.CarList.route) {
-                        popUpTo(Screen.SignIn.route) { inclusive = true }
+    SharedTransitionLayout {
+        NavHost(
+            navController = navController,
+            startDestination = finalStartDestination,
+            modifier = modifier,
+            enterTransition = {
+                slideInHorizontally(initialOffsetX = { it }) + fadeIn()
+            },
+            exitTransition = {
+                slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
+            },
+            popEnterTransition = {
+                slideInHorizontally(initialOffsetX = { -it }) + fadeIn()
+            },
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { it }) + fadeOut()
+            }
+        ) {
+            composable(Screen.SignIn.route) {
+                SignInScreen(
+                    onSignedIn = {
+                        navController.navigate(Screen.CarList.route) {
+                            popUpTo(Screen.SignIn.route) { inclusive = true }
+                        }
+                    },
+                    onSignUpClick = {
+                        navController.navigate(Screen.SignUp.route)
+                    },
+                    onForgotPasswordClick = {
+                        navController.navigate(Screen.ForgotPassword.route)
                     }
-                },
-                onSignUpClick = {
-                    navController.navigate(Screen.SignUp.route)
-                },
-                onForgotPasswordClick = {
-                    navController.navigate(Screen.ForgotPassword.route)
-                }
-            )
-        }
-        composable(Screen.SignUp.route) {
-            SignUpScreen(
-                onSignedIn = {
-                    navController.navigate(Screen.CarList.route) {
-                        popUpTo(Screen.SignIn.route) { inclusive = true }
+                )
+            }
+            composable(Screen.SignUp.route) {
+                SignUpScreen(
+                    onSignedIn = {
+                        navController.navigate(Screen.CarList.route) {
+                            popUpTo(Screen.SignIn.route) { inclusive = true }
+                        }
+                    },
+                    onBackToSignIn = {
+                        navController.popBackStack()
                     }
-                },
-                onBackToSignIn = {
-                    navController.popBackStack()
-                }
-            )
-        }
-        composable(Screen.ForgotPassword.route) {
-            ForgotPasswordScreen(
-                onBack = {
-                    navController.popBackStack()
-                }
-            )
-        }
-        composable(Screen.ResetPassword.route) { backStackEntry ->
-            val oobCode = backStackEntry.arguments?.getString("oobCode") ?: ""
-            ResetPasswordScreen(
-                oobCode = oobCode,
-                onSuccess = {
-                    navController.navigate(Screen.SignIn.route) {
-                        popUpTo(navController.graph.id) { inclusive = true }
+                )
+            }
+            composable(Screen.ForgotPassword.route) {
+                ForgotPasswordScreen(
+                    onBack = {
+                        navController.popBackStack()
                     }
-                },
-                onBack = {
-                    navController.popBackStack()
-                }
-            )
-        }
-        composable(Screen.CarList.route) {
-            CarListScreen(
-                onCarClick = { carId ->
-                    navController.navigate(Screen.CarDetails.createRoute(carId))
-                },
-                onAddCarClick = {
-                    navController.navigate(Screen.AddCar.route)
-                },
-                onEditCarClick = { carId ->
-                    navController.navigate(Screen.EditCar.createRoute(carId))
-                },
-                onRecycleBinClick = {
-                    navController.navigate(Screen.RecycleBin.route)
-                },
-                onLogout = {
-                    navController.navigate(Screen.SignIn.route) {
-                        popUpTo(navController.graph.id) { inclusive = true }
+                )
+            }
+            composable(Screen.ResetPassword.route) { backStackEntry ->
+                val oobCode = backStackEntry.arguments?.getString("oobCode") ?: ""
+                ResetPasswordScreen(
+                    oobCode = oobCode,
+                    onSuccess = {
+                        navController.navigate(Screen.SignIn.route) {
+                            popUpTo(navController.graph.id) { inclusive = true }
+                        }
+                    },
+                    onBack = {
+                        navController.popBackStack()
                     }
-                },
-                themeViewModel = themeViewModel
-            )
-        }
-        composable(Screen.CarDetails.route) { backStackEntry ->
-            val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
-            CarDetailsScreen(
-                carId = carId,
-                onBack = { navController.popBackStack() },
-                onEditClick = { id ->
-                    navController.navigate(Screen.EditCar.createRoute(id))
-                },
-                onMileageClick = {
-                    navController.navigate(Screen.MileageHistory.createRoute(carId))
-                },
-                onInspectionClick = {
-                    navController.navigate(Screen.InspectionHistory.createRoute(carId))
-                },
-                onInsuranceClick = {
-                    navController.navigate(Screen.InsuranceHistory.createRoute(carId))
-                },
-                onVignetteClick = {
-                    navController.navigate(Screen.VignetteHistory.createRoute(carId))
-                },
-                onTireClick = {
-                    navController.navigate(Screen.TireHistory.createRoute(carId))
-                },
-                onTechnicalSheetClick = {
-                    navController.navigate(Screen.TechnicalSheet.createRoute(carId))
-                },
-                onDiagnosisClick = {
-                    navController.navigate(Screen.Diagnosis.createRoute(carId))
-                },
-                onFuelClick = {
-                    navController.navigate(Screen.FuelHistory.createRoute(carId))
-                },
-                onServiceClick = {
-                    navController.navigate(Screen.ServiceHistory.createRoute(carId))
-                },
-                windowSizeClass = windowSizeClass
-            )
-        }
+                )
+            }
+            composable(Screen.CarList.route) {
+                CarListScreen(
+                    onCarClick = { carId ->
+                        navController.navigate(Screen.CarDetails.createRoute(carId))
+                    },
+                    onAddCarClick = {
+                        navController.navigate(Screen.AddCar.route)
+                    },
+                    onEditCarClick = { carId ->
+                        navController.navigate(Screen.EditCar.createRoute(carId))
+                    },
+                    onRecycleBinClick = {
+                        navController.navigate(Screen.RecycleBin.route)
+                    },
+                    onLogout = {
+                        navController.navigate(Screen.SignIn.route) {
+                            popUpTo(navController.graph.id) { inclusive = true }
+                        }
+                    },
+                    themeViewModel = themeViewModel,
+                    sharedTransitionScope = this@SharedTransitionLayout,
+                    animatedVisibilityScope = this@composable
+                )
+            }
+            composable(Screen.CarDetails.route) { backStackEntry ->
+                val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
+                CarDetailsScreen(
+                    carId = carId,
+                    onBack = { navController.popBackStack() },
+                    onEditClick = { id ->
+                        navController.navigate(Screen.EditCar.createRoute(id))
+                    },
+                    onMileageClick = {
+                        navController.navigate(Screen.MileageHistory.createRoute(carId))
+                    },
+                    onInspectionClick = {
+                        navController.navigate(Screen.InspectionHistory.createRoute(carId))
+                    },
+                    onInsuranceClick = {
+                        navController.navigate(Screen.InsuranceHistory.createRoute(carId))
+                    },
+                    onVignetteClick = {
+                        navController.navigate(Screen.VignetteHistory.createRoute(carId))
+                    },
+                    onTireClick = {
+                        navController.navigate(Screen.TireHistory.createRoute(carId))
+                    },
+                    onTechnicalSheetClick = {
+                        navController.navigate(Screen.TechnicalSheet.createRoute(carId))
+                    },
+                    onDiagnosisClick = {
+                        navController.navigate(Screen.Diagnosis.createRoute(carId))
+                    },
+                    onFuelClick = {
+                        navController.navigate(Screen.FuelHistory.createRoute(carId))
+                    },
+                    onServiceClick = {
+                        navController.navigate(Screen.ServiceHistory.createRoute(carId))
+                    },
+                    windowSizeClass = windowSizeClass,
+                    sharedTransitionScope = this@SharedTransitionLayout,
+                    animatedVisibilityScope = this@composable
+                )
+            }
         composable(Screen.MileageHistory.route) { backStackEntry ->
             val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
             MileageHistoryScreen(
@@ -294,10 +313,11 @@ fun AppNavigation(
                 onBack = { navController.popBackStack() }
             )
         }
-        composable(Screen.RecycleBin.route) {
-            RecycleBinScreen(
-                onBack = { navController.popBackStack() }
-            )
+            composable(Screen.RecycleBin.route) {
+                RecycleBinScreen(
+                    onBack = { navController.popBackStack() }
+                )
+            }
         }
     }
 }

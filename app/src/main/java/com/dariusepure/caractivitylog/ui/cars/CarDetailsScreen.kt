@@ -1,5 +1,8 @@
 package com.dariusepure.caractivitylog.ui.cars
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import android.app.DatePickerDialog
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -39,7 +42,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun CarDetailsScreen(
     carId: String,
@@ -49,11 +52,13 @@ fun CarDetailsScreen(
     onInspectionClick: () -> Unit,
     onInsuranceClick: () -> Unit,
     onVignetteClick: () -> Unit,
+    onTireClick: () -> Unit,
+    onServiceClick: () -> Unit,
     onTechnicalSheetClick: () -> Unit,
     onDiagnosisClick: () -> Unit,
     onFuelClick: () -> Unit,
-    onTireClick: () -> Unit,
-    onServiceClick: () -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
     viewModel: CarDetailsViewModel = hiltViewModel(),
     windowSizeClass: WindowSizeClass? = null
@@ -152,7 +157,12 @@ fun CarDetailsScreen(
                                     carAccentColor = carAccentColor
                                 )
                                 Spacer(Modifier.width(24.dp))
-                                CarHeaderText(car = car, context = context)
+                                CarHeaderText(
+                                    car = car, 
+                                    context = context,
+                                    sharedTransitionScope = sharedTransitionScope,
+                                    animatedVisibilityScope = animatedVisibilityScope
+                                )
                             }
                         } else {
                             Column {
@@ -162,7 +172,12 @@ fun CarDetailsScreen(
                                         carAccentColor = carAccentColor
                                     )
                                     Spacer(Modifier.width(16.dp))
-                                    CarHeaderText(car = car, context = context)
+                                    CarHeaderText(
+                                        car = car, 
+                                        context = context,
+                                        sharedTransitionScope = sharedTransitionScope,
+                                        animatedVisibilityScope = animatedVisibilityScope
+                                    )
                                 }
                                 Spacer(modifier = Modifier.height(12.dp))
                             }
@@ -857,14 +872,26 @@ private fun CarHeaderPhoto(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun CarHeaderText(car: Car, context: android.content.Context) {
+private fun CarHeaderText(
+    car: Car, 
+    context: android.content.Context,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope
+) {
     Column {
-        AutoSizeText(
-            text = car.displayName,
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
+        with(sharedTransitionScope) {
+            AutoSizeText(
+                text = car.displayName,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.sharedElement(
+                    sharedTransitionScope.rememberSharedContentState(key = "title-${car.id}"),
+                    animatedVisibilityScope = animatedVisibilityScope
+                )
+            )
+        }
         if (car.licensePlate.isNotBlank()) {
             Text(
                 text = car.licensePlate,

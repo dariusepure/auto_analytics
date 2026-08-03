@@ -104,4 +104,22 @@ object CarTranslations {
         "Pickup" -> context.getString(R.string.vehicle_type_pickup)
         else -> type
     }
+
+    fun getServiceOperationLabel(context: Context, operation: String): String = when (operation) {
+        "Oil and Filter Change" -> context.getString(R.string.service_op_oil_filter)
+        "Air Filter Replacement" -> context.getString(R.string.service_op_air_filter)
+        "Cabin Filter Replacement" -> context.getString(R.string.service_op_cabin_filter)
+        "Fuel Filter Replacement" -> context.getString(R.string.service_op_fuel_filter)
+        "Brake Pads Replacement" -> context.getString(R.string.service_op_brake_pads)
+        "Brake Discs Replacement" -> context.getString(R.string.service_op_brake_discs)
+        "Timing Belt / Water Pump Kit" -> context.getString(R.string.service_op_timing_kit)
+        "Clutch Kit Replacement" -> context.getString(R.string.service_op_clutch_kit)
+        "Battery Replacement" -> context.getString(R.string.service_op_battery)
+        "Suspension Overhaul" -> context.getString(R.string.service_op_suspension)
+        "Wheel Alignment" -> context.getString(R.string.service_op_alignment)
+        "AC Recharge (Freon)" -> context.getString(R.string.service_op_ac_recharge)
+        "Spark Plugs Replacement" -> context.getString(R.string.service_op_spark_plugs)
+        "Other (Manual Entry)" -> context.getString(R.string.service_op_other)
+        else -> operation
+    }
 }

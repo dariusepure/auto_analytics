@@ -404,6 +404,22 @@
     <!-- Service -->
     <string name="service_history_title">Istoric Service</string>
     <string name="service_add_title">Adaugă înregistrare service</string>
+    <!-- Service Operations -->
+    <string name="service_op_oil_filter">Schimb Ulei și Filtru</string>
+    <string name="service_op_air_filter">Înlocuire Filtru Aer</string>
+    <string name="service_op_cabin_filter">Înlocuire Filtru Polen</string>
+    <string name="service_op_fuel_filter">Înlocuire Filtru Combustibil</string>
+    <string name="service_op_brake_pads">Înlocuire Plăcuțe Frână</string>
+    <string name="service_op_brake_discs">Înlocuire Discuri Frână</string>
+    <string name="service_op_timing_kit">Kit Distribuție / Pompă Apă</string>
+    <string name="service_op_clutch_kit">Înlocuire Kit Ambreiaj</string>
+    <string name="service_op_battery">Înlocuire Baterie</string>
+    <string name="service_op_suspension">Revizie Suspensie</string>
+    <string name="service_op_alignment">Geometrie Roți</string>
+    <string name="service_op_ac_recharge">Încărcare Freon (AC)</string>
+    <string name="service_op_spark_plugs">Înlocuire Bujii</string>
+    <string name="service_op_other">Altele (Introducere manuală)</string>
+
     <string name="service_edit_title">Editează înregistrare service</string>
     <string name="service_description_label">Descriere (Ce s-a reparat?)</string>
     <string name="service_description_placeholder">Ex: Schimb ulei și filtre</string>

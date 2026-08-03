@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -159,12 +160,16 @@ fun ServiceItem(
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
+    val context = LocalContext.current
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(record.description, style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = CarTranslations.getServiceOperationLabel(context, record.description),
+                style = MaterialTheme.typography.titleMedium
+            )
             Text(
                 text = "${CarFormatters.formatDate(record.date)} \u00B7 ${record.km.toInt()} $unit",
                 style = MaterialTheme.typography.bodyMedium,
@@ -204,6 +209,7 @@ fun ServiceItem(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddServiceDialog(
     existingRecord: Maintenance? = null,
@@ -214,12 +220,40 @@ fun AddServiceDialog(
     onDismiss: () -> Unit,
     onConfirm: (Maintenance) -> Unit
 ) {
-    var description by remember { mutableStateOf(existingRecord?.description ?: "") }
+    val serviceOperations = listOf(
+        "Oil and Filter Change",
+        "Air Filter Replacement",
+        "Cabin Filter Replacement",
+        "Fuel Filter Replacement",
+        "Brake Pads Replacement",
+        "Brake Discs Replacement",
+        "Timing Belt / Water Pump Kit",
+        "Clutch Kit Replacement",
+        "Battery Replacement",
+        "Suspension Overhaul",
+        "Wheel Alignment",
+        "AC Recharge (Freon)",
+        "Spark Plugs Replacement",
+        "Other (Manual Entry)"
+    )
+
+    var selectedOperation by remember { 
+        mutableStateOf(
+            if (existingRecord == null) "" 
+            else if (existingRecord.description in serviceOperations) existingRecord.description 
+            else "Other (Manual Entry)"
+        ) 
+    }
+    var customDescription by remember { 
+        mutableStateOf(if (selectedOperation == "Other (Manual Entry)") existingRecord?.description ?: "" else "") 
+    }
+    
+    var expanded by remember { mutableStateOf(false) }
     var km by remember { mutableStateOf(existingRecord?.km?.roundToInt()?.toString() ?: "") }
     var date by remember { mutableStateOf(existingRecord?.date ?: Date()) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val context = LocalContext.current
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
     
     val calendar = Calendar.getInstance()
@@ -243,13 +277,52 @@ fun AddServiceDialog(
         title = { Text(if (existingRecord == null) stringResource(R.string.service_add_title) else stringResource(R.string.service_edit_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text(stringResource(R.string.service_description_label)) },
-                    placeholder = { Text(stringResource(R.string.service_description_placeholder)) },
+                // Dropdown for Service Operations
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded },
                     modifier = Modifier.fillMaxWidth()
-                )
+                ) {
+                    OutlinedTextField(
+                        value = if (selectedOperation.isNotEmpty()) CarTranslations.getServiceOperationLabel(context, selectedOperation) else "",
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(R.string.service_description_label)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                        modifier = Modifier.menuAnchor().fillMaxWidth()
+                    )
+                    
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        serviceOperations.forEach { operation ->
+                            DropdownMenuItem(
+                                text = { Text(CarTranslations.getServiceOperationLabel(context, operation)) },
+                                onClick = {
+                                    selectedOperation = operation
+                                    expanded = false
+                                    if (operation != "Other (Manual Entry)") {
+                                        customDescription = ""
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+
+                // Show manual entry field if "Other" is selected
+                if (selectedOperation == "Other (Manual Entry)") {
+                    OutlinedTextField(
+                        value = customDescription,
+                        onValueChange = { customDescription = it },
+                        label = { Text(stringResource(R.string.service_description_placeholder)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                }
+
                 OutlinedTextField(
                     value = km,
                     onValueChange = { 
@@ -311,14 +384,14 @@ fun AddServiceDialog(
                     } else {
                         onConfirm(
                             Maintenance(
-                                description = description,
+                                description = if (selectedOperation == "Other (Manual Entry)") customDescription else selectedOperation,
                                 km = k,
                                 date = date
                             )
                         )
                     }
                 },
-                enabled = description.isNotBlank() && km.isNotBlank(),
+                enabled = selectedOperation.isNotEmpty() && (selectedOperation != "Other (Manual Entry)" || customDescription.isNotBlank()) && km.isNotBlank(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = accentColor,
                     contentColor = onAccentColor

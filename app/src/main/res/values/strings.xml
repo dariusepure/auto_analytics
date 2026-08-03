@@ -417,6 +417,22 @@
     <!-- Service -->
     <string name="service_history_title">Service History</string>
     <string name="service_add_title">Add Service Record</string>
+    <!-- Service Operations -->
+    <string name="service_op_oil_filter">Oil and Filter Change</string>
+    <string name="service_op_air_filter">Air Filter Replacement</string>
+    <string name="service_op_cabin_filter">Cabin Filter Replacement</string>
+    <string name="service_op_fuel_filter">Fuel Filter Replacement</string>
+    <string name="service_op_brake_pads">Brake Pads Replacement</string>
+    <string name="service_op_brake_discs">Brake Discs Replacement</string>
+    <string name="service_op_timing_kit">Timing Belt / Water Pump Kit</string>
+    <string name="service_op_clutch_kit">Clutch Kit Replacement</string>
+    <string name="service_op_battery">Battery Replacement</string>
+    <string name="service_op_suspension">Suspension Overhaul</string>
+    <string name="service_op_alignment">Wheel Alignment</string>
+    <string name="service_op_ac_recharge">AC Recharge (Freon)</string>
+    <string name="service_op_spark_plugs">Spark Plugs Replacement</string>
+    <string name="service_op_other">Other (Manual Entry)</string>
+
     <string name="service_edit_title">Edit Service Record</string>
     <string name="service_description_label">Description (What was fixed?)</string>
     <string name="service_description_placeholder">Ex: Oil change and filters</string>
