@@ -288,7 +288,7 @@ fun FuelLogItem(
                     Icon(
                         imageVector = Icons.Default.Edit,
                         null,
-                        tint = accentColor
+                        tint = androidx.compose.ui.graphics.Color(0xFF2196F3)
                     )
                 }
             }

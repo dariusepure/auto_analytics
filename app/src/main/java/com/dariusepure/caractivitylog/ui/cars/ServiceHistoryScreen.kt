@@ -188,7 +188,7 @@ fun ServiceItem(
             state = editTooltipState
         ) {
             IconButton(onClick = onEdit) {
-                Icon(Icons.Default.Edit, null, tint = accentColor)
+                Icon(Icons.Default.Edit, null, tint = Color(0xFF2196F3))
             }
         }
         
@@ -234,6 +234,17 @@ fun AddServiceDialog(
         "Wheel Alignment",
         "AC Recharge (Freon)",
         "Spark Plugs Replacement",
+        "Engine Overhaul",
+        "Injectors Cleaning/Replacement",
+        "Turbocharger Repair/Replacement",
+        "Transmission Oil Change",
+        "Brake Fluid Change",
+        "Coolant (Antifreeze) Change",
+        "DPF / EGR Cleaning",
+        "Accessory Belt Replacement",
+        "Shock Absorbers Replacement",
+        "Steering System Repair",
+        "Computer Diagnosis (Tester)",
         "Other (Manual Entry)"
     )
 

@@ -119,6 +119,17 @@ object CarTranslations {
         "Wheel Alignment" -> context.getString(R.string.service_op_alignment)
         "AC Recharge (Freon)" -> context.getString(R.string.service_op_ac_recharge)
         "Spark Plugs Replacement" -> context.getString(R.string.service_op_spark_plugs)
+        "Engine Overhaul" -> context.getString(R.string.service_op_engine_overhaul)
+        "Injectors Cleaning/Replacement" -> context.getString(R.string.service_op_injectors)
+        "Turbocharger Repair/Replacement" -> context.getString(R.string.service_op_turbo)
+        "Transmission Oil Change" -> context.getString(R.string.service_op_transmission_oil)
+        "Brake Fluid Change" -> context.getString(R.string.service_op_brake_fluid)
+        "Coolant (Antifreeze) Change" -> context.getString(R.string.service_op_coolant)
+        "DPF / EGR Cleaning" -> context.getString(R.string.service_op_dpf_egr)
+        "Accessory Belt Replacement" -> context.getString(R.string.service_op_accessory_belt)
+        "Shock Absorbers Replacement" -> context.getString(R.string.service_op_shocks)
+        "Steering System Repair" -> context.getString(R.string.service_op_steering)
+        "Computer Diagnosis (Tester)" -> context.getString(R.string.service_op_diagnosis)
         "Other (Manual Entry)" -> context.getString(R.string.service_op_other)
         else -> operation
     }

@@ -1,8 +1,5 @@
 package com.dariusepure.caractivitylog.ui.cars
 
-import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -91,15 +88,13 @@ import com.dariusepure.caractivitylog.ui.common.LanguageSelector
 import com.dariusepure.caractivitylog.ui.common.toRelativeString
 import com.dariusepure.caractivitylog.domain.displayName
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarCard(
     car: Car,
     onClick: () -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
-    sharedTransitionScope: SharedTransitionScope,
-    animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -116,18 +111,11 @@ fun CarCard(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    with(sharedTransitionScope) {
-                        AutoSizeText(
-                            text = car.displayName,
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier
-                                .sharedElement(
-                                    sharedTransitionScope.rememberSharedContentState(key = "title-${car.id}"),
-                                    animatedVisibilityScope = animatedVisibilityScope
-                                )
-                                .weight(1f, fill = false)
-                        )
-                    }
+                    AutoSizeText(
+                        text = car.displayName,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
                     
                     Spacer(Modifier.width(8.dp))
                     
@@ -173,7 +161,7 @@ fun CarCard(
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = stringResource(R.string.car_edit_content_description),
-                        tint = Color(0xFF2196F3) // Force Blue for Edit
+                        tint = Color(0xFF2196F3)
                     )
                 }
             }
@@ -200,15 +188,13 @@ fun CarCard(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarGridCard(
     car: Car,
     onClick: () -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
-    sharedTransitionScope: SharedTransitionScope,
-    animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
 ) {
     Card(
@@ -222,17 +208,11 @@ fun CarGridCard(
                 .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            with(sharedTransitionScope) {
-                AutoSizeText(
-                    text = car.displayName,
-                    style = MaterialTheme.typography.titleMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.sharedElement(
-                        sharedTransitionScope.rememberSharedContentState(key = "title-${car.id}"),
-                        animatedVisibilityScope = animatedVisibilityScope
-                    )
-                )
-            }
+            AutoSizeText(
+                text = car.displayName,
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center
+            )
             
             if (car.licensePlate.isNotBlank()) {
                 Text(
@@ -293,7 +273,6 @@ fun CarGridCard(
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun CarListScreen(
     onCarClick: (String) -> Unit,
@@ -301,8 +280,6 @@ fun CarListScreen(
     onEditCarClick: (String) -> Unit,
     onRecycleBinClick: () -> Unit,
     onLogout: () -> Unit,
-    sharedTransitionScope: SharedTransitionScope,
-    animatedVisibilityScope: AnimatedVisibilityScope,
     viewModel: CarListViewModel = hiltViewModel(),
     themeViewModel: ThemeViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
@@ -337,13 +314,11 @@ fun CarListScreen(
         currentSortOrder = sortOrder,
         currentViewMode = viewMode,
         isDark = currentDark,
-        state = state,
-        sharedTransitionScope = sharedTransitionScope,
-        animatedVisibilityScope = animatedVisibilityScope
+        state = state
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun InnerCarListScreen(
     onCarClick: (String) -> Unit,
@@ -361,8 +336,6 @@ private fun InnerCarListScreen(
     currentViewMode: CarListViewMode,
     isDark: Boolean,
     state: CarListUiState,
-    sharedTransitionScope: SharedTransitionScope,
-    animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
 ) {
     var sortMenuExpanded by remember { mutableStateOf(false) }
@@ -597,9 +570,7 @@ private fun InnerCarListScreen(
                                     car = car,
                                     onClick = { onCarClick(car.id) },
                                     onEditClick = { onEditCarClick(car.id) },
-                                    onDeleteClick = { carToDelete = car.id },
-                                    sharedTransitionScope = sharedTransitionScope,
-                                    animatedVisibilityScope = animatedVisibilityScope
+                                    onDeleteClick = { carToDelete = car.id }
                                 )
                             }
                             item { Spacer(Modifier.height(80.dp)) }
@@ -617,9 +588,7 @@ private fun InnerCarListScreen(
                                     car = car,
                                     onClick = { onCarClick(car.id) },
                                     onEditClick = { onEditCarClick(car.id) },
-                                    onDeleteClick = { carToDelete = car.id },
-                                    sharedTransitionScope = sharedTransitionScope,
-                                    animatedVisibilityScope = animatedVisibilityScope
+                                    onDeleteClick = { carToDelete = car.id }
                                 )
                             }
                             item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) { 

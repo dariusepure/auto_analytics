@@ -240,8 +240,17 @@
     <string name="car_inspection_title">ITP</string>
     <string name="car_insurance_title">RCA</string>
     <string name="car_vignette_title">Rovinietă</string>
-    <string name="car_diagnosis_title">Chat Diagnoză AI</string>
-    <string name="car_diagnosis_subtitle">Obține sfaturi expert și rapoarte de stare</string>
+    <string name="car_health_check">Sănătate și Siguranță</string>
+    <string name="car_health_ai_summary">Sumar Stare AI</string>
+    <string name="car_health_recommendations">Recomandări Mentenanță</string>
+    <string name="car_health_score_label">Scor General Sănătate</string>
+    <string name="car_health_analyze_btn">Analizează Starea</string>
+    <string name="car_health_refresh_btn">Reîmprospătează Analiza</string>
+    <string name="car_health_view_report">Vezi raportul complet de sănătate</string>
+    <string name="car_health_empty_subtitle">Apasă butonul de mai sus pentru a genera raportul de sănătate pentru vehiculul tău.</string>
+    <string name="car_health_last_update">Ultima actualizare: %s</string>
+    <string name="car_diagnosis_title">Mecanic Virtual</string>
+    <string name="car_diagnosis_subtitle">Discută cu mecanicul tău personal</string>
     <string name="car_fuel_consumption">Consum combustibil</string>
     <string name="car_fuel_consumption_subtitle">Urmărește alimentările și vezi statistici</string>
     <string name="car_generate_report">Generează raport PDF</string>
@@ -313,7 +322,7 @@
     <string name="fuel_mileage_conflict">Conflict de kilometraj cu înregistrările din %s</string>
 
     <!-- Diagnosis -->
-    <string name="diagnosis_title">Diagnoză AI - %s</string>
+    <string name="diagnosis_title">Mecanic Virtual - %s</string>
     <string name="diagnosis_reset_chat">Resetează chat-ul</string>
     <string name="diagnosis_is_thinking">AI se gândește…</string>
     <string name="diagnosis_placeholder">Descrie problema…</string>
@@ -418,6 +427,17 @@
     <string name="service_op_alignment">Geometrie Roți</string>
     <string name="service_op_ac_recharge">Încărcare Freon (AC)</string>
     <string name="service_op_spark_plugs">Înlocuire Bujii</string>
+    <string name="service_op_engine_overhaul">Reparație Capitală Motor</string>
+    <string name="service_op_injectors">Curățare/Înlocuire Injectoare</string>
+    <string name="service_op_turbo">Reparație/Înlocuire Turbină</string>
+    <string name="service_op_transmission_oil">Schimb Ulei Cutie Viteze</string>
+    <string name="service_op_brake_fluid">Schimb Lichid Frână</string>
+    <string name="service_op_coolant">Schimb Antigel</string>
+    <string name="service_op_dpf_egr">Curățare DPF / EGR</string>
+    <string name="service_op_accessory_belt">Înlocuire Curea Accesorii</string>
+    <string name="service_op_shocks">Înlocuire Amortizoare</string>
+    <string name="service_op_steering">Reparație Sistem Direcție</string>
+    <string name="service_op_diagnosis">Diagnoză Computerizată (Tester)</string>
     <string name="service_op_other">Altele (Introducere manuală)</string>
 
     <string name="service_edit_title">Editează înregistrare service</string>

@@ -243,8 +243,17 @@
     <string name="car_inspection_title">Technical Inspection</string>
     <string name="car_insurance_title">Insurance</string>
     <string name="car_vignette_title">Vignette</string>
-    <string name="car_diagnosis_title">AI Diagnosis Chat</string>
-    <string name="car_diagnosis_subtitle">Get expert advice and health reports</string>
+    <string name="car_health_check">Health &amp; Safety</string>
+    <string name="car_health_ai_summary">AI Health Summary</string>
+    <string name="car_health_recommendations">Maintenance Recommendations</string>
+    <string name="car_health_score_label">Overall Health Score</string>
+    <string name="car_health_analyze_btn">Analyze Health</string>
+    <string name="car_health_refresh_btn">Refresh Analysis</string>
+    <string name="car_health_view_report">View full health report</string>
+    <string name="car_health_empty_subtitle">Tap the button above to generate a health report for your vehicle.</string>
+    <string name="car_health_last_update">Last updated: %s</string>
+    <string name="car_diagnosis_title">Virtual Mechanic Advisor</string>
+    <string name="car_diagnosis_subtitle">Talk to your personal mechanic advisor</string>
     <string name="car_fuel_consumption">Fuel Consumption</string>
     <string name="car_fuel_consumption_subtitle">Track fillings and view stats</string>
     <string name="car_generate_report">Generate PDF Report</string>
@@ -316,7 +325,7 @@
     <string name="fuel_mileage_conflict">Mileage conflict with records on %s</string>
 
     <!-- Diagnosis -->
-    <string name="diagnosis_title">AI Diagnosis - %s</string>
+    <string name="diagnosis_title">Virtual Mechanic - %s</string>
     <string name="diagnosis_reset_chat">Reset Chat</string>
     <string name="diagnosis_is_thinking">AI is thinking...</string>
     <string name="diagnosis_placeholder">Describe the problem...</string>
@@ -431,6 +440,17 @@
     <string name="service_op_alignment">Wheel Alignment</string>
     <string name="service_op_ac_recharge">AC Recharge (Freon)</string>
     <string name="service_op_spark_plugs">Spark Plugs Replacement</string>
+    <string name="service_op_engine_overhaul">Engine Overhaul</string>
+    <string name="service_op_injectors">Injectors Cleaning/Replacement</string>
+    <string name="service_op_turbo">Turbocharger Repair/Replacement</string>
+    <string name="service_op_transmission_oil">Transmission Oil Change</string>
+    <string name="service_op_brake_fluid">Brake Fluid Change</string>
+    <string name="service_op_coolant">Coolant (Antifreeze) Change</string>
+    <string name="service_op_dpf_egr">DPF / EGR Cleaning</string>
+    <string name="service_op_accessory_belt">Accessory Belt Replacement</string>
+    <string name="service_op_shocks">Shock Absorbers Replacement</string>
+    <string name="service_op_steering">Steering System Repair</string>
+    <string name="service_op_diagnosis">Computer Diagnosis (Tester)</string>
     <string name="service_op_other">Other (Manual Entry)</string>
 
     <string name="service_edit_title">Edit Service Record</string>
