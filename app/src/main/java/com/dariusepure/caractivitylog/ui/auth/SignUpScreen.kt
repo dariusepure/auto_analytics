@@ -34,6 +34,7 @@ import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.ui.common.AuthFooter
 import com.dariusepure.caractivitylog.ui.common.ErrorBanner
 import com.dariusepure.caractivitylog.ui.common.ModernAppLogo
+import com.dariusepure.caractivitylog.ui.common.LanguageSelector
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.IconButton
@@ -215,6 +216,10 @@ fun SignUpContent(
                     Text(stringResource(R.string.auth_signin_button))
                 }
             }
+
+            LanguageSelector(
+                modifier = Modifier.padding(top = 8.dp)
+            )
         }
     }
 }

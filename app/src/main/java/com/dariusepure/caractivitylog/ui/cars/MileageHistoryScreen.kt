@@ -1,37 +1,25 @@
 package com.dariusepure.caractivitylog.ui.cars
 
-import android.graphics.ImageDecoder
-import android.os.Build
-import android.provider.MediaStore
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.domain.MileageLog
-import com.dariusepure.caractivitylog.domain.ScannedMileageEntry
 import com.dariusepure.caractivitylog.ui.common.*
 import com.dariusepure.caractivitylog.domain.displayName
-import java.util.Date
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,54 +30,13 @@ fun MileageHistoryScreen(
     viewModel: CarDetailsViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val context = LocalContext.current
     
     var showAddMileageDialog by remember { mutableStateOf(false) }
     var editingMileageLog by remember { mutableStateOf<MileageLog?>(null) }
     var logToDelete by remember { mutableStateOf<MileageLog?>(null) }
-    var scannedEntries by remember { mutableStateOf<List<ScannedMileageEntry>>(emptyList()) }
-
-    val photoLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        uri?.let {
-            val bitmap = if (Build.VERSION.SDK_INT < 28) {
-                MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-            } else {
-                val source = ImageDecoder.createSource(context.contentResolver, it)
-                ImageDecoder.decodeBitmap(source)
-            }
-            viewModel.scanImage(bitmap)
-        }
-    }
-
-    val pdfLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        uri?.let {
-            viewModel.scanDocument(it, "application/pdf")
-        }
-    }
 
     LaunchedEffect(carId) {
         viewModel.loadCarData(carId)
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.scannedMileageEvent.collect { entries ->
-            scannedEntries = entries
-        }
-    }
-
-    if (scannedEntries.isNotEmpty()) {
-        ScannedMileageConfirmationDialog(
-            entries = scannedEntries,
-            onDismiss = { scannedEntries = emptyList() },
-            onConfirm = { selectedEntries ->
-                viewModel.addBatchMileage(carId, selectedEntries)
-                scannedEntries = emptyList()
-            }
-        )
     }
 
     if (logToDelete != null) {
@@ -166,8 +113,6 @@ fun MileageHistoryScreen(
                 val car = s.car
                 val country = europeanCountries.find { it.code == car.plateCountry }
                 val unitLabel = if (country?.usesMiles == true) "mi" else "km"
-                val carAccentColor = car.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
-
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
@@ -196,53 +141,6 @@ fun MileageHistoryScreen(
                         }
 
                         Spacer(Modifier.height(16.dp))
-                        
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Button(
-                                onClick = { photoLauncher.launch("image/*") },
-                                modifier = Modifier.weight(1f),
-                                enabled = !s.isScanning,
-                                contentPadding = PaddingValues(horizontal = 8.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = carAccentColor,
-                                    contentColor = Color.White
-                                )
-                            ) {
-                                if (s.isScanning) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(20.dp),
-                                        strokeWidth = 2.dp,
-                                        color = Color.White
-                                    )
-                                } else {
-                                    Text(stringResource(R.string.car_scan_photo), textAlign = TextAlign.Center)
-                                }
-                            }
-
-                            Button(
-                                onClick = { pdfLauncher.launch("application/pdf") },
-                                modifier = Modifier.weight(1f),
-                                enabled = !s.isScanning,
-                                contentPadding = PaddingValues(horizontal = 8.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = carAccentColor,
-                                    contentColor = Color.White
-                                )
-                            ) {
-                                if (s.isScanning) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(20.dp),
-                                        strokeWidth = 2.dp,
-                                        color = Color.White
-                                    )
-                                } else {
-                                    Text(stringResource(R.string.car_scan_pdf), textAlign = TextAlign.Center)
-                                }
-                            }
-                        }
                     }
 
                     if (s.mileageLogs.isEmpty()) {
@@ -271,79 +169,3 @@ fun MileageHistoryScreen(
     }
 }
 
-@Composable
-fun ScannedMileageConfirmationDialog(
-    entries: List<ScannedMileageEntry>,
-    onDismiss: () -> Unit,
-    onConfirm: (List<ScannedMileageEntry>) -> Unit
-) {
-    var selectedEntries by remember { mutableStateOf(entries) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.mileage_confirm_scanned)) },
-        text = {
-            Column {
-                Text(
-                    stringResource(R.string.mileage_scanned_subtitle, entries.size),
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth().heightIn(max = 300.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(entries) { entry ->
-                        val isSelected = entry in selectedEntries
-                        Surface(
-                            onClick = {
-                                selectedEntries = if (isSelected) {
-                                    selectedEntries - entry
-                                } else {
-                                    selectedEntries + entry
-                                }
-                            },
-                            shape = MaterialTheme.shapes.medium,
-                            color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = "${entry.km.roundToInt()} km",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        text = entry.date ?: "No date found",
-                                        style = MaterialTheme.typography.labelSmall
-                                    )
-                                }
-                                if (isSelected) {
-                                    Icon(Icons.Default.Check, null, tint = MaterialTheme.colorScheme.primary)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = { onConfirm(selectedEntries) },
-                enabled = selectedEntries.isNotEmpty()
-            ) {
-                Text(stringResource(R.string.common_apply_selected, selectedEntries.size))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.common_cancel))
-            }
-        }
-    )
-}

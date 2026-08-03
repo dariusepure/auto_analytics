@@ -213,14 +213,10 @@ fun SignInContent(
                 TextButton(
                     onClick = onContinueAsGuest,
                     enabled = !submitting,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(stringResource(R.string.auth_continue_offline))
                 }
-                
-                LanguageSelector(
-                    modifier = Modifier.padding(start = 8.dp)
-                )
             }
 
             Row(
@@ -235,6 +231,10 @@ fun SignInContent(
                     Text(stringResource(R.string.auth_signup_button))
                 }
             }
+
+            LanguageSelector(
+                modifier = Modifier.padding(top = 8.dp)
+            )
         }
     }
 }

@@ -27,13 +27,11 @@ import com.dariusepure.caractivitylog.ui.cars.InsuranceHistoryScreen
 import com.dariusepure.caractivitylog.ui.cars.VignetteHistoryScreen
 import com.dariusepure.caractivitylog.ui.cars.TireHistoryScreen
 import com.dariusepure.caractivitylog.ui.cars.ServiceHistoryScreen
-import com.dariusepure.caractivitylog.ui.common.SplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.ui.theme.ThemeViewModel
 
 sealed class Screen(val route: String) {
-    data object Splash : Screen("splash")
     data object SignIn : Screen("signin")
     data object SignUp : Screen("signup")
     data object ForgotPassword : Screen("forgotpassword")
@@ -82,33 +80,25 @@ sealed class Screen(val route: String) {
 fun AppNavigation(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Screen.Splash.route,
+    startDestination: String? = null,
     mainViewModel: MainViewModel = hiltViewModel(),
     themeViewModel: ThemeViewModel = hiltViewModel(),
     windowSizeClass: WindowSizeClass? = null
 ) {
     val signedIn by mainViewModel.signedIn.collectAsStateWithLifecycle()
 
+    if (signedIn == null && startDestination == null) {
+        // Still determining auth state, show nothing (system splash will be visible)
+        return
+    }
+
+    val finalStartDestination = startDestination ?: if (signedIn == true) Screen.CarList.route else Screen.SignIn.route
+
     NavHost(
         navController = navController,
-        startDestination = startDestination,
+        startDestination = finalStartDestination,
         modifier = modifier
     ) {
-        composable(Screen.Splash.route) {
-            SplashScreen(
-                signedIn = signedIn,
-                onNavigateToSignIn = {
-                    navController.navigate(Screen.SignIn.route) {
-                        popUpTo(Screen.Splash.route) { inclusive = true }
-                    }
-                },
-                onNavigateToMain = {
-                    navController.navigate(Screen.CarList.route) {
-                        popUpTo(Screen.Splash.route) { inclusive = true }
-                    }
-                }
-            )
-        }
         composable(Screen.SignIn.route) {
             SignInScreen(
                 onSignedIn = {

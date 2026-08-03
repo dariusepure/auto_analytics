@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
+import com.dariusepure.caractivitylog.ui.common.LanguageSelector
 import com.dariusepure.caractivitylog.ui.common.DeleteConfirmationDialog
 import com.dariusepure.caractivitylog.ui.common.AutoSizeText
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -71,6 +72,7 @@ fun DiagnosisScreen(
                     }
                 },
                 actions = {
+                    LanguageSelector()
                     IconButton(onClick = { showResetDialog = true }) {
                         Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.diagnosis_reset_chat))
                     }
