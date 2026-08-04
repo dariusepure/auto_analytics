@@ -22,6 +22,8 @@ import com.dariusepure.caractivitylog.ui.common.*
 import com.dariusepure.caractivitylog.domain.TireSet
 import com.dariusepure.caractivitylog.domain.TireSeason
 import com.dariusepure.caractivitylog.domain.displayName
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -195,14 +197,17 @@ fun AddTireSetDialog(
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = brand,
-                        onValueChange = { brand = it },
+                        onValueChange = { brand = it.uppercase() },
                         label = { Text(stringResource(R.string.tire_brand_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
                             IconButton(onClick = { brandExpanded = true }) {
                                 Icon(Icons.Default.ArrowDropDown, "dropdown")
                             }
-                        }
+                        },
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Characters
+                        )
                     )
                     Box(modifier = Modifier.matchParentSize().clickable { brandExpanded = true })
                     DropdownMenu(

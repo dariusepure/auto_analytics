@@ -481,56 +481,73 @@ fun CarDetailsScreen(
                         }
                     }
 
-                    // AI Health Check (Full Width)
+                    // AI Health Check & PDF Report (Side by Side)
                     item {
-                        BentoCard(
-                            onClick = onHealthClick,
-                            modifier = Modifier.fillMaxWidth(),
-                            containerColor = carAccentColor.copy(alpha = 0.15f)
+                        Row(
+                            modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.HealthAndSafety, null, modifier = Modifier.size(40.dp), tint = carAccentColor)
-                                Spacer(Modifier.width(16.dp))
-                                Column {
+                            // AI Health Check
+                            BentoCard(
+                                onClick = onHealthClick,
+                                modifier = Modifier.weight(1f).fillMaxHeight(),
+                                containerColor = carAccentColor.copy(alpha = 0.15f)
+                            ) {
+                                Icon(
+                                    Icons.Default.HealthAndSafety,
+                                    null,
+                                    modifier = Modifier.size(40.dp),
+                                    tint = carAccentColor
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    text = stringResource(R.string.car_health_check),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    maxLines = 1
+                                )
+                                if (s.aiAnalysis != null) {
                                     Text(
-                                        text = stringResource(R.string.car_health_check),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = MaterialTheme.colorScheme.onSurface
+                                        text = "Score: ${s.aiAnalysis.healthScore}/100",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = if (s.aiAnalysis.healthScore > 80) Color(0xFF4CAF50) else if (s.aiAnalysis.healthScore > 50) Color(0xFFFF9800) else Color(0xFFF44336)
                                     )
-                                    if (s.aiAnalysis != null) {
-                                        Text(
-                                            text = "Score: ${s.aiAnalysis.healthScore}/100",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = if (s.aiAnalysis.healthScore > 80) Color(0xFF4CAF50) else if (s.aiAnalysis.healthScore > 50) Color(0xFFFF9800) else Color(0xFFF44336)
-                                        )
-                                    } else {
-                                        Text(
-                                            text = "View full vehicle report",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
+                                } else {
+                                    Text(
+                                        text = "Check health",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
                                 }
                             }
-                        }
-                    }
 
-                    // Report (Full Width)
-                    item {
-                        BentoCard(
-                            onClick = { 
-                                val fileName = "Report_${car.displayName.replace(" ", "_")}_${SimpleDateFormat("yyyyMMdd", Locale.ROOT).format(Date())}.pdf"
-                                pdfLauncher.launch(fileName) 
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            containerColor = carAccentColor
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Description, null, modifier = Modifier.size(40.dp), tint = carOnAccentColor)
-                                Spacer(Modifier.width(16.dp))
-                                Column {
-                                    Text(stringResource(R.string.car_generate_report), style = MaterialTheme.typography.titleMedium, color = carOnAccentColor)
-                                }
+                            // PDF Report
+                            BentoCard(
+                                onClick = {
+                                    val fileName = "Report_${car.displayName.replace(" ", "_")}_${SimpleDateFormat("yyyyMMdd", Locale.ROOT).format(Date())}.pdf"
+                                    pdfLauncher.launch(fileName)
+                                },
+                                modifier = Modifier.weight(1f).fillMaxHeight(),
+                                containerColor = carAccentColor
+                            ) {
+                                Icon(
+                                    Icons.Default.PictureAsPdf,
+                                    null,
+                                    modifier = Modifier.size(40.dp),
+                                    tint = carOnAccentColor
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    text = stringResource(R.string.car_generate_report),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = carOnAccentColor,
+                                    maxLines = 1
+                                )
+                                Text(
+                                    text = "PDF Document",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = carOnAccentColor.copy(alpha = 0.7f)
+                                )
                             }
                         }
                     }

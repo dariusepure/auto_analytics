@@ -142,7 +142,8 @@ class GeminiRepository @Inject constructor(
                 1. Verify VIN format: must be 17 characters, only letters and digits (excluding I, O, Q).
                 2. Verify Year: must be a realistic year (e.g., 1900-2026).
                 3. Verify Engine Size: must be in cubic centimeters (cc).
-                4. If a value is unreadable, illogical, or not found, return null for that field.
+                4. Brand (make) MUST be returned in UPPERCASE (e.g., "BMW", "VOLKSWAGEN").
+                5. If a value is unreadable, illogical, or not found, return null for that field.
                 
                 Return ONLY a JSON object with these keys: 
                 make, model, vin, year, fuelType, engineSize, power, powerUnit, torque, color, 
@@ -199,7 +200,8 @@ class GeminiRepository @Inject constructor(
                 1. Verify VIN format: must be 17 characters, only letters and digits (excluding I, O, Q).
                 2. Verify Year: must be a realistic year (e.g., 1900-2026).
                 3. Verify Engine Size: must be in cubic centimeters (cc).
-                4. If a value is unreadable, illogical, or not found, return null for that field.
+                4. Brand (make) MUST be returned in UPPERCASE (e.g., "BMW", "VOLKSWAGEN").
+                5. If a value is unreadable, illogical, or not found, return null for that field.
                 
                 Return ONLY a JSON object with these keys: 
                 make, model, vin, year, fuelType, engineSize, power, powerUnit, torque, color, 

@@ -60,6 +60,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -123,6 +124,7 @@ fun AddCarScreen(
     var selectedCountry by remember { mutableStateOf<Country?>(null) }
     var make by remember { mutableStateOf("") }
     var model by remember { mutableStateOf("") }
+    var modelExpanded by remember { mutableStateOf(false) }
     var vin by remember { mutableStateOf("") }
     var year by remember { mutableStateOf("") }
     var engineSize by remember { mutableStateOf("") }
@@ -489,7 +491,7 @@ fun AddCarScreen(
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = make,
-                        onValueChange = { make = it },
+                        onValueChange = { make = it.uppercase() },
                         label = { Text(stringResource(R.string.car_make_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         leadingIcon = {
@@ -500,7 +502,10 @@ fun AddCarScreen(
                                 Icons.Default.ArrowDropDown,
                                 "dropdown",
                                 Modifier.clickable { makeExpanded = true })
-                        }
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Characters
+                        )
                     )
                     DropdownMenu(
                         expanded = makeExpanded,
@@ -514,6 +519,11 @@ fun AddCarScreen(
                                     onClick = {
                                         make = brand
                                         makeExpanded = false
+                                        // Clear model if brand changes and previous model isn't in new brand list
+                                        val modelsForBrand = carModels[brand] ?: emptyList()
+                                        if (model !in modelsForBrand) {
+                                            // model = "" // Optional: reset model on brand change
+                                        }
                                     }
                                 )
                             }
@@ -523,14 +533,44 @@ fun AddCarScreen(
 
                 Spacer(Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = model,
-                    onValueChange = { model = it },
-                    label = { Text(stringResource(R.string.car_model_label)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    enabled = state !is AddCarState.Pending
-                )
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    val modelsForBrand = remember(make) { carModels[make.uppercase()] ?: emptyList() }
+                    
+                    OutlinedTextField(
+                        value = model,
+                        onValueChange = { model = it },
+                        label = { Text(stringResource(R.string.car_model_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        enabled = state !is AddCarState.Pending,
+                        trailingIcon = if (modelsForBrand.isNotEmpty()) {
+                            {
+                                Icon(
+                                    Icons.Default.ArrowDropDown,
+                                    "dropdown",
+                                    Modifier.clickable { modelExpanded = true })
+                            }
+                        } else null
+                    )
+                    
+                    if (modelsForBrand.isNotEmpty()) {
+                        DropdownMenu(
+                            expanded = modelExpanded,
+                            onDismissRequest = { modelExpanded = false },
+                            modifier = Modifier.fillMaxWidth(0.9f).sizeIn(maxHeight = 300.dp)
+                        ) {
+                            modelsForBrand.forEach { carModel ->
+                                DropdownMenuItem(
+                                    text = { Text(carModel) },
+                                    onClick = {
+                                        model = carModel
+                                        modelExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
 
                 Spacer(Modifier.height(8.dp))
 
