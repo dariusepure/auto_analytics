@@ -117,7 +117,11 @@ fun AddCarScreen(
     val frontSuspensionOptions = listOf("MacPherson", "Double Wishbone", "Multi-link")
     val rearSuspensionOptions = listOf("Torsion Beam", "Multi-link", "Solid Axle")
     val drivetrainOptions = listOf("FWD", "RWD", "AWD", "4WD")
-    val vehicleTypes = listOf("Saloon", "Estate", "Hatchback", "MPV", "SUV", "Coupe", "Convertible", "Van", "Pickup")
+    val vehicleTypes = listOf(
+        "Saloon", "Estate", "Hatchback", "Liftback", "Fastback", "MPV", "SUV", "Crossover", 
+        "Coupe", "Convertible", "Roadster", "Spider", "Targa", "Coupe-Cabriolet", "Shooting Brake",
+        "Van", "Minivan", "Pickup"
+    )
 
     var name by remember { mutableStateOf("") } // Car Title / Nickname
     var licensePlate by remember { mutableStateOf("") }
@@ -141,6 +145,9 @@ fun AddCarScreen(
     var aspiration by remember { mutableStateOf("") }
     var numberOfCylinders by remember { mutableStateOf("") }
     var valvesPerCylinder by remember { mutableStateOf("") }
+    var acceleration0to100 by remember { mutableStateOf("") }
+    var fuelConsumptionCombined by remember { mutableStateOf("") }
+    var co2Emissions by remember { mutableStateOf("") }
 
     var length by remember { mutableStateOf("") }
     var width by remember { mutableStateOf("") }
@@ -195,48 +202,95 @@ fun AddCarScreen(
         }
     }
 
-    var pendingScannedData by remember { mutableStateOf<ScannedCarData?>(null) }
+    var pendingScannedData by remember { mutableStateOf<List<ScannedCarData>?>(null) }
+    var dataToConfirm by remember { mutableStateOf<ScannedCarData?>(null) }
 
     LaunchedEffect(Unit) {
-        viewModel.scannedDataEvent.collect { data ->
-            pendingScannedData = data
+        viewModel.scannedDataEvent.collect { dataList ->
+            if (dataList.size > 1) {
+                pendingScannedData = dataList
+            } else if (dataList.isNotEmpty()) {
+                dataToConfirm = dataList.first()
+            }
         }
     }
 
     if (pendingScannedData != null) {
-        ScannedCarDataConfirmationDialog(
-            data = pendingScannedData!!,
+        VariantSelectionDialog(
+            variants = pendingScannedData!!,
             onDismiss = { pendingScannedData = null },
+            onVariantSelected = { selected ->
+                dataToConfirm = selected
+                pendingScannedData = null
+            }
+        )
+    }
+
+    if (dataToConfirm != null) {
+        ScannedCarDataConfirmationDialog(
+            data = dataToConfirm!!,
+            existingData = mapOf(
+                "make" to make,
+                "model" to model,
+                "vin" to vin,
+                "year" to year,
+                "fuelType" to fuelType,
+                "engineSize" to engineSize,
+                "power" to power,
+                "torque" to torque,
+                "color" to color,
+                "registrationPlate" to licensePlate,
+                "numberOfSeats" to numberOfSeats,
+                "numberOfDoors" to numberOfDoors,
+                "weight" to weight,
+                "engineCode" to engineCode,
+                "emissionStandard" to emissionStandard,
+                "gearboxType" to gearboxType,
+                "drivetrain" to drivetrain,
+                "engineLayout" to engineLayout,
+                "cylinderLayout" to cylinderLayout,
+                "fuelTankCapacity" to fuelTankCapacity,
+                "topSpeed" to topSpeed,
+                "acceleration0to100" to acceleration0to100,
+                "fuelConsumptionCombined" to fuelConsumptionCombined,
+                "co2Emissions" to co2Emissions
+            ),
+            onDismiss = { dataToConfirm = null },
             onConfirm = { selectedData ->
-                selectedData.make?.let { make = it.uppercase() }
-                selectedData.model?.let { model = it }
-                selectedData.vin?.let { vin = it.uppercase() }
-                selectedData.year?.let { year = it.roundToInt().toString() }
-                selectedData.fuelType?.let { if (it in fuelTypes) fuelType = it }
-                selectedData.engineSize?.let { engineSize = it.roundToInt().toString() }
-                selectedData.power?.let { power = it.roundToInt().toString() }
-                selectedData.powerUnit?.let { powerUnit = it }
-                selectedData.torque?.let { torque = it.roundToInt().toString() }
-                selectedData.color?.let { color = it }
-                selectedData.registrationPlate?.let { licensePlate = it.uppercase() }
-                selectedData.numberOfSeats?.let { numberOfSeats = it.roundToInt().toString() }
-                selectedData.numberOfDoors?.let { numberOfDoors = it.roundToInt().toString() }
-                selectedData.weight?.let { weight = it.roundToInt().toString() }
-                selectedData.engineCode?.let { engineCode = it }
-                selectedData.emissionStandard?.let {
-                    if (it in emissionStandards) emissionStandard = it
-                    else if (it.contains("Euro", ignoreCase = true)) {
-                        val standard = emissionStandards.find { s -> it.contains(s.takeLast(1)) }
-                        if (standard != null) emissionStandard = standard
+                if (make.isBlank()) selectedData.make?.let { make = it.uppercase() }
+                if (model.isBlank()) selectedData.model?.let { model = it }
+                if (vin.isBlank()) selectedData.vin?.let { vin = it.uppercase() }
+                if (year.isBlank()) selectedData.year?.let { year = it.roundToInt().toString() }
+                if (fuelType.isBlank()) selectedData.fuelType?.let { if (it in fuelTypes) fuelType = it }
+                if (engineSize.isBlank()) selectedData.engineSize?.let { engineSize = it.roundToInt().toString() }
+                if (power.isBlank()) selectedData.power?.let { power = it.roundToInt().toString() }
+                if (powerUnit.isBlank() || powerUnit == "hp") selectedData.powerUnit?.let { powerUnit = it }
+                if (torque.isBlank()) selectedData.torque?.let { torque = it.roundToInt().toString() }
+                if (color.isBlank()) selectedData.color?.let { color = it }
+                if (licensePlate.isBlank()) selectedData.registrationPlate?.let { licensePlate = it.uppercase() }
+                if (numberOfSeats.isBlank()) selectedData.numberOfSeats?.let { numberOfSeats = it.roundToInt().toString() }
+                if (numberOfDoors.isBlank()) selectedData.numberOfDoors?.let { numberOfDoors = it.roundToInt().toString() }
+                if (weight.isBlank()) selectedData.weight?.let { weight = it.roundToInt().toString() }
+                if (engineCode.isBlank()) selectedData.engineCode?.let { engineCode = it }
+                if (emissionStandard.isBlank()) {
+                    selectedData.emissionStandard?.let {
+                        if (it in emissionStandards) emissionStandard = it
+                        else if (it.contains("Euro", ignoreCase = true)) {
+                            val standard = emissionStandards.find { s -> it.contains(s.takeLast(1)) }
+                            if (standard != null) emissionStandard = standard
+                        }
                     }
                 }
-                selectedData.gearboxType?.let { if (it in gearboxTypes) gearboxType = it }
-                selectedData.drivetrain?.let { if (it in drivetrainOptions) drivetrain = it }
-                selectedData.engineLayout?.let { if (it in engineLayouts) engineLayout = it }
-                selectedData.cylinderLayout?.let { if (it in cylinderLayouts) cylinderLayout = it }
-                selectedData.fuelTankCapacity?.let { fuelTankCapacity = it.toString() }
-                selectedData.topSpeed?.let { topSpeed = it.roundToInt().toString() }
-                pendingScannedData = null
+                if (gearboxType.isBlank()) selectedData.gearboxType?.let { if (it in gearboxTypes) gearboxType = it }
+                if (drivetrain.isBlank()) selectedData.drivetrain?.let { if (it in drivetrainOptions) drivetrain = it }
+                if (engineLayout.isBlank()) selectedData.engineLayout?.let { if (it in engineLayouts) engineLayout = it }
+                if (cylinderLayout.isBlank()) selectedData.cylinderLayout?.let { if (it in cylinderLayouts) cylinderLayout = it }
+                if (fuelTankCapacity.isBlank()) selectedData.fuelTankCapacity?.let { fuelTankCapacity = it.toString() }
+                if (topSpeed.isBlank()) selectedData.topSpeed?.let { topSpeed = it.roundToInt().toString() }
+                if (acceleration0to100.isBlank()) selectedData.acceleration0to100?.let { acceleration0to100 = it.toString() }
+                if (fuelConsumptionCombined.isBlank()) selectedData.fuelConsumptionCombined?.let { fuelConsumptionCombined = it.toString() }
+                if (co2Emissions.isBlank()) selectedData.co2Emissions?.let { co2Emissions = it.roundToInt().toString() }
+                dataToConfirm = null
             }
         )
     }
@@ -266,7 +320,10 @@ fun AddCarScreen(
     val powerUnits = listOf("hp", "kw")
 
     val handleBack = {
-        if (carId != null && (name.isNotBlank() || (make.isNotBlank() && model.isNotBlank())) && (vin.isEmpty() || vin.length == 17)) {
+        val hasRequiredData = name.isNotBlank() || (make.isNotBlank() && model.isNotBlank())
+        val isVinValid = vin.isEmpty() || vin.length == 17
+        
+        if (hasRequiredData && isVinValid) {
             viewModel.onAddOrUpdateCar(
                 name = name,
                 licensePlate = licensePlate,
@@ -312,6 +369,9 @@ fun AddCarScreen(
                 tireWidth = tireWidth,
                 tireAspectRatio = tireAspectRatio,
                 tireDiameter = tireDiameter,
+                acceleration0to100 = acceleration0to100,
+                fuelConsumptionCombined = fuelConsumptionCombined,
+                co2Emissions = co2Emissions,
                 accentColor = accentColor
             )
         } else {
@@ -351,6 +411,10 @@ fun AddCarScreen(
                 val displayTopSpeed = CarFormatters.fromCanonicalSpeed(car.topSpeed, selectedCountry?.usesMiles == true)
                 topSpeed = displayTopSpeed.takeIf { it != 0.0 }?.roundToInt()?.toString() ?: ""
                 
+                acceleration0to100 = car.acceleration0to100.takeIf { it != 0.0 }?.toString() ?: ""
+                fuelConsumptionCombined = car.fuelConsumptionCombined.takeIf { it != 0.0 }?.toString() ?: ""
+                co2Emissions = car.co2Emissions.takeIf { it != 0 }?.toString() ?: ""
+
                 numberOfCylinders = car.numberOfCylinders.takeIf { it != 0 }?.toString() ?: ""
                 valvesPerCylinder = car.valvesPerCylinder.takeIf { it != 0 }?.toString() ?: ""
                 
@@ -467,6 +531,26 @@ fun AddCarScreen(
                             state = state,
                             label = stringResource(R.string.car_scan_pdf)
                         )
+                        ScanButton(
+                            onClick = { 
+                                viewModel.autoFillSpecs(
+                                    make = make, 
+                                    model = model, 
+                                    year = year,
+                                    engineSize = engineSize,
+                                    fuelType = fuelType,
+                                    power = power,
+                                    engineCode = engineCode,
+                                    gearboxType = gearboxType,
+                                    drivetrain = drivetrain
+                                ) 
+                            },
+                            modifier = Modifier.weight(1f),
+                            state = state,
+                            label = stringResource(R.string.car_auto_fill_specs),
+                            loadingLabel = stringResource(R.string.car_auto_fill_loading),
+                            enabled = make.isNotBlank() && model.isNotBlank() && year.length == 4
+                        )
                     }
                 } else {
                     Column(
@@ -484,6 +568,26 @@ fun AddCarScreen(
                             modifier = Modifier.fillMaxWidth(),
                             state = state,
                             label = stringResource(R.string.car_scan_pdf)
+                        )
+                        ScanButton(
+                            onClick = { 
+                                viewModel.autoFillSpecs(
+                                    make = make, 
+                                    model = model, 
+                                    year = year,
+                                    engineSize = engineSize,
+                                    fuelType = fuelType,
+                                    power = power,
+                                    engineCode = engineCode,
+                                    gearboxType = gearboxType,
+                                    drivetrain = drivetrain
+                                ) 
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            state = state,
+                            label = stringResource(R.string.car_auto_fill_specs),
+                            loadingLabel = stringResource(R.string.car_auto_fill_loading),
+                            enabled = make.isNotBlank() && model.isNotBlank() && year.length == 4
                         )
                     }
                 }
@@ -1029,6 +1133,42 @@ fun AddCarScreen(
 
                 Row(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
+                        value = acceleration0to100,
+                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) acceleration0to100 = it },
+                        label = { Text(stringResource(R.string.car_acceleration_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        enabled = state !is AddCarState.Pending
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    OutlinedTextField(
+                        value = fuelConsumptionCombined,
+                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelConsumptionCombined = it },
+                        label = { Text(stringResource(R.string.car_consumption_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        enabled = state !is AddCarState.Pending
+                    )
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = co2Emissions,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) co2Emissions = it },
+                    label = { Text(stringResource(R.string.car_co2_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    enabled = state !is AddCarState.Pending
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
                         value = numberOfCylinders,
                         onValueChange = { if (it.all { char -> char.isDigit() }) numberOfCylinders = it },
                         label = { Text(stringResource(R.string.car_cylinders_label)) },
@@ -1138,6 +1278,42 @@ fun AddCarScreen(
                 Spacer(Modifier.height(8.dp))
 
                 Row(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = acceleration0to100,
+                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) acceleration0to100 = it },
+                        label = { Text(stringResource(R.string.car_acceleration_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        enabled = state !is AddCarState.Pending
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    OutlinedTextField(
+                        value = fuelConsumptionCombined,
+                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelConsumptionCombined = it },
+                        label = { Text(stringResource(R.string.car_consumption_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        enabled = state !is AddCarState.Pending
+                    )
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = co2Emissions,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) co2Emissions = it },
+                    label = { Text(stringResource(R.string.car_co2_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    enabled = state !is AddCarState.Pending
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                Row(modifier = Modifier.fillMaxWidth()) {
                     Box(modifier = Modifier.weight(1.5f)) {
                         OutlinedTextField(
                             value = getGearboxTypeLabel(context, gearboxType),
@@ -1178,6 +1354,42 @@ fun AddCarScreen(
                         enabled = state !is AddCarState.Pending && !isCvt
                     )
                 }
+
+                Spacer(Modifier.height(8.dp))
+
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = acceleration0to100,
+                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) acceleration0to100 = it },
+                        label = { Text(stringResource(R.string.car_acceleration_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        enabled = state !is AddCarState.Pending
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    OutlinedTextField(
+                        value = fuelConsumptionCombined,
+                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelConsumptionCombined = it },
+                        label = { Text(stringResource(R.string.car_consumption_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        enabled = state !is AddCarState.Pending
+                    )
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = co2Emissions,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) co2Emissions = it },
+                    label = { Text(stringResource(R.string.car_co2_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    enabled = state !is AddCarState.Pending
+                )
 
                 Spacer(Modifier.height(8.dp))
 
@@ -1277,6 +1489,42 @@ fun AddCarScreen(
             ) {
                 Row(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
+                        value = acceleration0to100,
+                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) acceleration0to100 = it },
+                        label = { Text(stringResource(R.string.car_acceleration_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        enabled = state !is AddCarState.Pending
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    OutlinedTextField(
+                        value = fuelConsumptionCombined,
+                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelConsumptionCombined = it },
+                        label = { Text(stringResource(R.string.car_consumption_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        enabled = state !is AddCarState.Pending
+                    )
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = co2Emissions,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) co2Emissions = it },
+                    label = { Text(stringResource(R.string.car_co2_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    enabled = state !is AddCarState.Pending
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
                         value = length,
                         onValueChange = { if (it.all { char -> char.isDigit() }) length = it },
                         label = { Text(stringResource(R.string.car_length_label)) },
@@ -1311,6 +1559,42 @@ fun AddCarScreen(
 
                 Row(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
+                        value = acceleration0to100,
+                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) acceleration0to100 = it },
+                        label = { Text(stringResource(R.string.car_acceleration_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        enabled = state !is AddCarState.Pending
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    OutlinedTextField(
+                        value = fuelConsumptionCombined,
+                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelConsumptionCombined = it },
+                        label = { Text(stringResource(R.string.car_consumption_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        enabled = state !is AddCarState.Pending
+                    )
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = co2Emissions,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) co2Emissions = it },
+                    label = { Text(stringResource(R.string.car_co2_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    enabled = state !is AddCarState.Pending
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
                         value = wheelbase,
                         onValueChange = { if (it.all { char -> char.isDigit() }) wheelbase = it },
                         label = { Text(stringResource(R.string.car_wheelbase_label)) },
@@ -1320,6 +1604,42 @@ fun AddCarScreen(
                         enabled = state !is AddCarState.Pending
                     )
                 }
+
+                Spacer(Modifier.height(8.dp))
+
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = acceleration0to100,
+                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) acceleration0to100 = it },
+                        label = { Text(stringResource(R.string.car_acceleration_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        enabled = state !is AddCarState.Pending
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    OutlinedTextField(
+                        value = fuelConsumptionCombined,
+                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelConsumptionCombined = it },
+                        label = { Text(stringResource(R.string.car_consumption_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        enabled = state !is AddCarState.Pending
+                    )
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = co2Emissions,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) co2Emissions = it },
+                    label = { Text(stringResource(R.string.car_co2_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    enabled = state !is AddCarState.Pending
+                )
 
                 Spacer(Modifier.height(8.dp))
 
@@ -1344,6 +1664,42 @@ fun AddCarScreen(
                         enabled = state !is AddCarState.Pending
                     )
                 }
+
+                Spacer(Modifier.height(8.dp))
+
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = acceleration0to100,
+                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) acceleration0to100 = it },
+                        label = { Text(stringResource(R.string.car_acceleration_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        enabled = state !is AddCarState.Pending
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    OutlinedTextField(
+                        value = fuelConsumptionCombined,
+                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelConsumptionCombined = it },
+                        label = { Text(stringResource(R.string.car_consumption_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        enabled = state !is AddCarState.Pending
+                    )
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = co2Emissions,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) co2Emissions = it },
+                    label = { Text(stringResource(R.string.car_co2_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    enabled = state !is AddCarState.Pending
+                )
 
                 Spacer(Modifier.height(8.dp))
 
@@ -1408,6 +1764,42 @@ fun AddCarScreen(
                         enabled = state !is AddCarState.Pending
                     )
                 }
+
+                Spacer(Modifier.height(8.dp))
+
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = acceleration0to100,
+                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) acceleration0to100 = it },
+                        label = { Text(stringResource(R.string.car_acceleration_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        enabled = state !is AddCarState.Pending
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    OutlinedTextField(
+                        value = fuelConsumptionCombined,
+                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelConsumptionCombined = it },
+                        label = { Text(stringResource(R.string.car_consumption_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        enabled = state !is AddCarState.Pending
+                    )
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = co2Emissions,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) co2Emissions = it },
+                    label = { Text(stringResource(R.string.car_co2_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    enabled = state !is AddCarState.Pending
+                )
 
                 Spacer(Modifier.height(8.dp))
 
@@ -1557,6 +1949,9 @@ fun AddCarScreen(
                         aspiration = aspiration,
                         frontBrakes = frontBrakes,
                         rearBrakes = rearBrakes,
+                        acceleration0to100 = acceleration0to100,
+                        fuelConsumptionCombined = fuelConsumptionCombined,
+                        co2Emissions = co2Emissions,
                         accentColor = accentColor
                     )
                 },
@@ -1586,20 +1981,28 @@ private fun ScanButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     state: AddCarState,
-    label: String
+    label: String,
+    loadingLabel: String? = null,
+    enabled: Boolean = true
 ) {
     Button(
         onClick = onClick,
         modifier = modifier,
-        enabled = state !is AddCarState.Pending && state !is AddCarState.Scanning,
+        enabled = enabled && state !is AddCarState.Pending && state !is AddCarState.Scanning,
         contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
         if (state is AddCarState.Scanning) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(20.dp),
-                strokeWidth = 2.dp,
-                color = MaterialTheme.colorScheme.onPrimary
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+                if (loadingLabel != null) {
+                    Spacer(Modifier.width(8.dp))
+                    Text(loadingLabel, style = MaterialTheme.typography.labelSmall)
+                }
+            }
         } else {
             Text(label, textAlign = TextAlign.Center)
         }
@@ -1607,37 +2010,116 @@ private fun ScanButton(
 }
 
 @Composable
+fun VariantSelectionDialog(
+    variants: List<ScannedCarData>,
+    onDismiss: () -> Unit,
+    onVariantSelected: (ScannedCarData) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.car_select_variant_title)) },
+        text = {
+            Column {
+                Text(
+                    stringResource(R.string.car_select_variant_subtitle),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(variants) { variant ->
+                        Surface(
+                            onClick = { onVariantSelected(variant) },
+                            shape = MaterialTheme.shapes.medium,
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Text(
+                                    text = "${variant.make} ${variant.model} (${variant.year?.roundToInt()})",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = listOfNotNull(
+                                        variant.engineSize?.let { "${it.roundToInt()} cc" },
+                                        variant.fuelType,
+                                        variant.power?.let { "${it.roundToInt()} ${variant.powerUnit ?: "hp"}" },
+                                        variant.gearboxType
+                                    ).joinToString(" • "),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                if (!variant.engineCode.isNullOrBlank()) {
+                                    Text(
+                                        text = "Engine: ${variant.engineCode}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.common_cancel))
+            }
+        }
+    )
+}
+
+@Composable
 fun ScannedCarDataConfirmationDialog(
     data: ScannedCarData,
+    existingData: Map<String, String>,
     onDismiss: () -> Unit,
     onConfirm: (ScannedCarData) -> Unit
 ) {
     val context = LocalContext.current
-    // We create a map of keys to values and labels for easy display
-    val fields = remember(data) {
+    // We create a map of keys to values and labels for easy display, 
+    // but ONLY for fields that are empty in the form.
+    val fields = remember(data, existingData) {
         val list = mutableListOf<Triple<String, String, String>>() // Label, Value, Key
-        data.make?.let { list.add(Triple(context.getString(R.string.car_make_label), it, "make")) }
-        data.model?.let { list.add(Triple(context.getString(R.string.car_model_label), it, "model")) }
-        data.vin?.let { list.add(Triple(context.getString(R.string.car_vin_label), it, "vin")) }
-        data.year?.let { list.add(Triple(context.getString(R.string.car_year_label), it.roundToInt().toString(), "year")) }
-        data.fuelType?.let { list.add(Triple(context.getString(R.string.car_fuel_type_label), getFuelTypeLabel(context, it), "fuelType")) }
-        data.engineSize?.let { list.add(Triple(context.getString(R.string.car_engine_size_label), "${it.roundToInt()} cc", "engineSize")) }
-        data.power?.let { list.add(Triple(context.getString(R.string.car_power_label), "${it.roundToInt()} ${data.powerUnit ?: "hp"}", "power")) }
-        data.torque?.let { list.add(Triple(context.getString(R.string.car_torque_label), "${it.roundToInt()} Nm", "torque")) }
-        data.color?.let { list.add(Triple(context.getString(R.string.car_color_label), it, "color")) }
-        data.registrationPlate?.let { list.add(Triple(context.getString(R.string.car_license_plate_label), it, "registrationPlate")) }
-        data.numberOfSeats?.let { list.add(Triple(context.getString(R.string.car_seats_label), it.roundToInt().toString(), "numberOfSeats")) }
-        data.numberOfDoors?.let { list.add(Triple(context.getString(R.string.car_doors_label), it.roundToInt().toString(), "numberOfDoors")) }
-        data.weight?.let { list.add(Triple(context.getString(R.string.car_weight_label), "${it.roundToInt()} kg", "weight")) }
-        data.engineCode?.let { list.add(Triple(context.getString(R.string.car_engine_code_label), it, "engineCode")) }
-        data.emissionStandard?.let { list.add(Triple(context.getString(R.string.car_emission_standard_label), getEmissionStandardLabel(context, it), "emissionStandard")) }
-        data.gearboxType?.let { list.add(Triple(context.getString(R.string.car_gearbox_type_label), getGearboxTypeLabel(context, it), "gearboxType")) }
-        data.drivetrain?.let { list.add(Triple(context.getString(R.string.car_drivetrain_label), getDrivetrainLabel(context, it), "drivetrain")) }
-        data.engineLayout?.let { list.add(Triple(context.getString(R.string.car_engine_layout_label), getEngineLayoutLabel(context, it), "engineLayout")) }
-        data.cylinderLayout?.let { list.add(Triple(context.getString(R.string.car_cylinder_layout_label), getCylinderLayoutLabel(context, it), "cylinderLayout")) }
-        data.fuelTankCapacity?.let { list.add(Triple(context.getString(R.string.car_fuel_tank_capacity_label), "$it L", "fuelTankCapacity")) }
-        data.topSpeed?.let { list.add(Triple(context.getString(R.string.car_top_speed_label), "${it.roundToInt()}", "topSpeed")) }
+        
+        fun shouldAdd(key: String) = existingData[key].isNullOrBlank()
+
+        if (shouldAdd("make")) data.make?.let { list.add(Triple(context.getString(R.string.car_make_label), it, "make")) }
+        if (shouldAdd("model")) data.model?.let { list.add(Triple(context.getString(R.string.car_model_label), it, "model")) }
+        if (shouldAdd("vin")) data.vin?.let { list.add(Triple(context.getString(R.string.car_vin_label), it, "vin")) }
+        if (shouldAdd("year")) data.year?.let { list.add(Triple(context.getString(R.string.car_year_label), it.roundToInt().toString(), "year")) }
+        if (shouldAdd("fuelType")) data.fuelType?.let { list.add(Triple(context.getString(R.string.car_fuel_type_label), getFuelTypeLabel(context, it), "fuelType")) }
+        if (shouldAdd("engineSize")) data.engineSize?.let { list.add(Triple(context.getString(R.string.car_engine_size_label), "${it.roundToInt()} cc", "engineSize")) }
+        if (shouldAdd("power")) data.power?.let { list.add(Triple(context.getString(R.string.car_power_label), "${it.roundToInt()} ${data.powerUnit ?: "hp"}", "power")) }
+        if (shouldAdd("torque")) data.torque?.let { list.add(Triple(context.getString(R.string.car_torque_label), "${it.roundToInt()} Nm", "torque")) }
+        if (shouldAdd("color")) data.color?.let { list.add(Triple(context.getString(R.string.car_color_label), it, "color")) }
+        if (shouldAdd("registrationPlate")) data.registrationPlate?.let { list.add(Triple(context.getString(R.string.car_license_plate_label), it, "registrationPlate")) }
+        if (shouldAdd("numberOfSeats")) data.numberOfSeats?.let { list.add(Triple(context.getString(R.string.car_seats_label), it.roundToInt().toString(), "numberOfSeats")) }
+        if (shouldAdd("numberOfDoors")) data.numberOfDoors?.let { list.add(Triple(context.getString(R.string.car_doors_label), it.roundToInt().toString(), "numberOfDoors")) }
+        if (shouldAdd("weight")) data.weight?.let { list.add(Triple(context.getString(R.string.car_weight_label), "${it.roundToInt()} kg", "weight")) }
+        if (shouldAdd("engineCode")) data.engineCode?.let { list.add(Triple(context.getString(R.string.car_engine_code_label), it, "engineCode")) }
+        if (shouldAdd("emissionStandard")) data.emissionStandard?.let { list.add(Triple(context.getString(R.string.car_emission_standard_label), getEmissionStandardLabel(context, it), "emissionStandard")) }
+        if (shouldAdd("gearboxType")) data.gearboxType?.let { list.add(Triple(context.getString(R.string.car_gearbox_type_label), getGearboxTypeLabel(context, it), "gearboxType")) }
+        if (shouldAdd("drivetrain")) data.drivetrain?.let { list.add(Triple(context.getString(R.string.car_drivetrain_label), getDrivetrainLabel(context, it), "drivetrain")) }
+        if (shouldAdd("engineLayout")) data.engineLayout?.let { list.add(Triple(context.getString(R.string.car_engine_layout_label), getEngineLayoutLabel(context, it), "engineLayout")) }
+        if (shouldAdd("cylinderLayout")) data.cylinderLayout?.let { list.add(Triple(context.getString(R.string.car_cylinder_layout_label), getCylinderLayoutLabel(context, it), "cylinderLayout")) }
+        if (shouldAdd("fuelTankCapacity")) data.fuelTankCapacity?.let { list.add(Triple(context.getString(R.string.car_fuel_tank_capacity_label), "$it L", "fuelTankCapacity")) }
+        if (shouldAdd("topSpeed")) data.topSpeed?.let { list.add(Triple(context.getString(R.string.car_top_speed_label), "${it.roundToInt()} km/h", "topSpeed")) }
+        if (shouldAdd("acceleration0to100")) data.acceleration0to100?.let { list.add(Triple(context.getString(R.string.car_acceleration_label), "$it sec", "acceleration0to100")) }
+        if (shouldAdd("fuelConsumptionCombined")) data.fuelConsumptionCombined?.let { list.add(Triple(context.getString(R.string.car_consumption_label), "$it L/100km", "fuelConsumptionCombined")) }
+        if (shouldAdd("co2Emissions")) data.co2Emissions?.let { list.add(Triple(context.getString(R.string.car_co2_label), "${it.roundToInt()} g/km", "co2Emissions")) }
         list
+    }
+
+    if (fields.isEmpty()) {
+        LaunchedEffect(Unit) {
+            onConfirm(data)
+        }
+        return
     }
 
     var selectedKeys by remember { mutableStateOf(fields.map { it.third }.toSet()) }
@@ -1719,6 +2201,9 @@ fun ScannedCarDataConfirmationDialog(
                         cylinderLayout = if ("cylinderLayout" in selectedKeys) data.cylinderLayout else null,
                         fuelTankCapacity = if ("fuelTankCapacity" in selectedKeys) data.fuelTankCapacity else null,
                         topSpeed = if ("topSpeed" in selectedKeys) data.topSpeed else null,
+                        acceleration0to100 = if ("acceleration0to100" in selectedKeys) data.acceleration0to100 else null,
+                        fuelConsumptionCombined = if ("fuelConsumptionCombined" in selectedKeys) data.fuelConsumptionCombined else null,
+                        co2Emissions = if ("co2Emissions" in selectedKeys) data.co2Emissions else null,
                         mileage = if ("mileage" in selectedKeys) data.mileage else null
                     )
                     onConfirm(confirmedData)

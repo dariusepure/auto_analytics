@@ -102,6 +102,15 @@ object CarTranslations {
         "Convertible" -> context.getString(R.string.vehicle_type_convertible)
         "Van" -> context.getString(R.string.vehicle_type_van)
         "Pickup" -> context.getString(R.string.vehicle_type_pickup)
+        "Liftback" -> context.getString(R.string.vehicle_type_liftback)
+        "Fastback" -> context.getString(R.string.vehicle_type_fastback)
+        "Targa" -> context.getString(R.string.vehicle_type_targa)
+        "Roadster" -> context.getString(R.string.vehicle_type_roadster)
+        "Spider" -> context.getString(R.string.vehicle_type_spider)
+        "Coupe-Cabriolet" -> context.getString(R.string.vehicle_type_coupe_cabriolet)
+        "Shooting Brake" -> context.getString(R.string.vehicle_type_shooting_brake)
+        "Crossover" -> context.getString(R.string.vehicle_type_crossover)
+        "Minivan" -> context.getString(R.string.vehicle_type_minivan)
         else -> type
     }
 

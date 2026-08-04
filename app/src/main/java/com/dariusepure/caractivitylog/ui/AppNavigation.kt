@@ -29,9 +29,12 @@ import com.dariusepure.caractivitylog.ui.cars.InsuranceHistoryScreen
 import com.dariusepure.caractivitylog.ui.cars.VignetteHistoryScreen
 import com.dariusepure.caractivitylog.ui.cars.TireHistoryScreen
 import com.dariusepure.caractivitylog.ui.cars.CarHealthScreen
+import com.dariusepure.caractivitylog.ui.cars.CarGalleryScreen
+import com.dariusepure.caractivitylog.ui.cars.CarReportsScreen
 import com.dariusepure.caractivitylog.ui.cars.ServiceHistoryScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dariusepure.caractivitylog.ui.common.LoadingState
 import com.dariusepure.caractivitylog.ui.theme.ThemeViewModel
 
 sealed class Screen(val route: String) {
@@ -62,6 +65,12 @@ sealed class Screen(val route: String) {
     }
     data object ServiceHistory : Screen("servicehistory/{carId}") {
         fun createRoute(carId: String) = "servicehistory/$carId"
+    }
+    data object CarGallery : Screen("cargallery/{carId}") {
+        fun createRoute(carId: String) = "cargallery/$carId"
+    }
+    data object CarReports : Screen("carreports/{carId}") {
+        fun createRoute(carId: String) = "carreports/$carId"
     }
     data object AddCar : Screen("addcar")
     data object TechnicalSheet : Screen("technicalsheet/{carId}") {
@@ -94,6 +103,7 @@ fun AppNavigation(
     val signedIn by mainViewModel.signedIn.collectAsStateWithLifecycle()
 
     if (signedIn == null && startDestination == null) {
+        LoadingState()
         return
     }
 
@@ -209,6 +219,12 @@ fun AppNavigation(
                 onHealthClick = {
                     navController.navigate(Screen.CarHealth.createRoute(carId))
                 },
+                onGalleryClick = {
+                    navController.navigate(Screen.CarGallery.createRoute(carId))
+                },
+                onReportsClick = {
+                    navController.navigate(Screen.CarReports.createRoute(carId))
+                },
                 onServiceClick = {
                     navController.navigate(Screen.ServiceHistory.createRoute(carId))
                 },
@@ -311,6 +327,20 @@ fun AppNavigation(
         }
         composable(Screen.RecycleBin.route) {
             RecycleBinScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.CarGallery.route) { backStackEntry ->
+            val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
+            CarGalleryScreen(
+                carId = carId,
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.CarReports.route) { backStackEntry ->
+            val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
+            CarReportsScreen(
+                carId = carId,
                 onBack = { navController.popBackStack() }
             )
         }

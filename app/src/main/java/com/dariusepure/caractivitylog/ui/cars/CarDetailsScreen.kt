@@ -2,8 +2,6 @@ package com.dariusepure.caractivitylog.ui.cars
 
 import android.app.DatePickerDialog
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -12,6 +10,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Collections
 import androidx.compose.material.icons.outlined.DirectionsCar
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -54,6 +53,8 @@ fun CarDetailsScreen(
     onDiagnosisClick: () -> Unit,
     onFuelClick: () -> Unit,
     onHealthClick: () -> Unit,
+    onGalleryClick: () -> Unit,
+    onReportsClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CarDetailsViewModel = hiltViewModel(),
     windowSizeClass: WindowSizeClass? = null
@@ -61,33 +62,6 @@ fun CarDetailsScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    val pdfLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.CreateDocument("application/pdf"),
-        onResult = { uri ->
-            uri?.let {
-                val success = (state as? CarDetailsUiState.Success)?.let { s ->
-                    try {
-                        context.contentResolver.openOutputStream(it)?.use { os ->
-                            PdfReportGenerator.generateReport(
-                                context, s.car, s.mileageLogs, s.inspections, s.fuelLogs, s.tireSets, s.maintenanceLogs, os
-                            )
-                        }
-                        true
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        false
-                    }
-                } ?: false
-                
-                if (success) {
-                    Toast.makeText(context, context.getString(R.string.car_report_success), Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(context, context.getString(R.string.car_report_failed), Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    )
-    
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect { event ->
             when (event) {
@@ -104,7 +78,6 @@ fun CarDetailsScreen(
 
     val carAccentColor = (state as? CarDetailsUiState.Success)?.car?.accentColor?.let { Color(it) } 
         ?: Color(0xFF2196F3) // Default light blue
-    val carOnAccentColor = Color.White
 
     Scaffold(
         modifier = modifier,
@@ -295,6 +268,15 @@ fun CarDetailsScreen(
                                     Spacer(Modifier.height(8.dp))
                                     Text(text = stringResource(R.string.car_diagnosis_title), style = MaterialTheme.typography.titleSmall)
                                 }
+                                BentoCard(
+                                    onClick = onGalleryClick,
+                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    containerColor = carAccentColor.copy(alpha = 0.15f)
+                                ) {
+                                    Icon(Icons.Outlined.Collections, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
+                                    Spacer(Modifier.height(8.dp))
+                                    Text(text = stringResource(R.string.car_gallery_title), style = MaterialTheme.typography.titleSmall)
+                                }
                             }
                         }
                     } else {
@@ -445,7 +427,7 @@ fun CarDetailsScreen(
                             }
                         }
 
-                        // Tires & Diagnosis
+                        // Tires & Diagnosis & Gallery
                         item {
                             Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                 BentoCard(
@@ -472,6 +454,21 @@ fun CarDetailsScreen(
                                     Spacer(Modifier.weight(1f))
                                     Text(
                                         text = stringResource(R.string.car_diagnosis_title),
+                                        style = MaterialTheme.typography.titleSmall,
+                                        softWrap = true,
+                                        maxLines = 2
+                                    )
+                                }
+                                
+                                BentoCard(
+                                    onClick = onGalleryClick,
+                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    containerColor = carAccentColor.copy(alpha = 0.15f)
+                                ) {
+                                    Icon(Icons.Outlined.Collections, null, modifier = Modifier.size(52.dp), tint = carAccentColor)
+                                    Spacer(Modifier.weight(1f))
+                                    Text(
+                                        text = stringResource(R.string.car_gallery_title),
                                         style = MaterialTheme.typography.titleSmall,
                                         softWrap = true,
                                         maxLines = 2
@@ -523,30 +520,27 @@ fun CarDetailsScreen(
 
                             // PDF Report
                             BentoCard(
-                                onClick = {
-                                    val fileName = "Report_${car.displayName.replace(" ", "_")}_${SimpleDateFormat("yyyyMMdd", Locale.ROOT).format(Date())}.pdf"
-                                    pdfLauncher.launch(fileName)
-                                },
+                                onClick = onReportsClick,
                                 modifier = Modifier.weight(1f).fillMaxHeight(),
-                                containerColor = carAccentColor
+                                containerColor = carAccentColor.copy(alpha = 0.15f)
                             ) {
                                 Icon(
                                     Icons.Default.PictureAsPdf,
                                     null,
                                     modifier = Modifier.size(40.dp),
-                                    tint = carOnAccentColor
+                                    tint = carAccentColor
                                 )
                                 Spacer(Modifier.height(8.dp))
                                 Text(
                                     text = stringResource(R.string.car_generate_report),
                                     style = MaterialTheme.typography.titleSmall,
-                                    color = carOnAccentColor,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     maxLines = 1
                                 )
                                 Text(
-                                    text = "PDF Document",
+                                    text = "View history",
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = carOnAccentColor.copy(alpha = 0.7f)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }

@@ -131,7 +131,7 @@ class GeminiRepository @Inject constructor(
         }
     }
 
-    suspend fun scanRegistrationCertificate(bitmap: Bitmap): Result<ScannedCarData> {
+    suspend fun scanRegistrationCertificate(bitmap: Bitmap): Result<List<ScannedCarData>> {
         return try {
             val prompt = """
                 Extract technical details from this vehicle document (registration certificate, invoice, insurance, or technical sheet).
@@ -143,13 +143,15 @@ class GeminiRepository @Inject constructor(
                 2. Verify Year: must be a realistic year (e.g., 1900-2026).
                 3. Verify Engine Size: must be in cubic centimeters (cc).
                 4. Brand (make) MUST be returned in UPPERCASE (e.g., "BMW", "VOLKSWAGEN").
-                5. If a value is unreadable, illogical, or not found, return null for that field.
+                5. NUMERIC FIELDS (year, engineSize, power, torque, weight, capacity, speed, consumption, emissions, mileage, etc.) MUST contain ONLY the raw number, NO units (e.g., 230 instead of "230 Nm").
+                6. If a value is unreadable, illogical, or not found, return null for that field.
                 
-                Return ONLY a JSON object with these keys: 
+                Return ONLY a JSON ARRAY containing one object with these keys: 
                 make, model, vin, year, fuelType, engineSize, power, powerUnit, torque, color, 
                 registrationPlate, numberOfSeats, numberOfDoors, weight, engineCode, 
                 emissionStandard, gearboxType, gears, drivetrain, engineLayout, cylinderLayout, 
-                fuelTankCapacity, topSpeed, mileage,
+                fuelTankCapacity, topSpeed, acceleration0to100, fuelConsumptionCombined, co2Emissions,
+                mileage,
                 mileageHistory (a list of objects with 'km' and 'date' in YYYY-MM-DD format).
                 
                 Standard fuelType: Petrol, Diesel, Electric, Hybrid, LPG.
@@ -177,14 +179,18 @@ class GeminiRepository @Inject constructor(
                 ?: throw Exception("Empty response from AI")
 
             val jsonText = extractJson(fullText)
-            val data = json.decodeFromString<ScannedCarData>(jsonText)
+            val data = if (jsonText.trim().startsWith("[")) {
+                json.decodeFromString<List<ScannedCarData>>(jsonText)
+            } else {
+                listOf(json.decodeFromString<ScannedCarData>(jsonText))
+            }
             Result.success(data)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    suspend fun scanDocument(uri: Uri, mimeType: String): Result<ScannedCarData> {
+    suspend fun scanDocument(uri: Uri, mimeType: String): Result<List<ScannedCarData>> {
         return try {
             val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
                 ?: throw Exception("Could not read file")
@@ -201,13 +207,15 @@ class GeminiRepository @Inject constructor(
                 2. Verify Year: must be a realistic year (e.g., 1900-2026).
                 3. Verify Engine Size: must be in cubic centimeters (cc).
                 4. Brand (make) MUST be returned in UPPERCASE (e.g., "BMW", "VOLKSWAGEN").
-                5. If a value is unreadable, illogical, or not found, return null for that field.
+                5. NUMERIC FIELDS (year, engineSize, power, torque, weight, capacity, speed, consumption, emissions, mileage, etc.) MUST contain ONLY the raw number, NO units (e.g., 230 instead of "230 Nm").
+                6. If a value is unreadable, illogical, or not found, return null for that field.
                 
-                Return ONLY a JSON object with these keys: 
+                Return ONLY a JSON ARRAY containing one object with these keys: 
                 make, model, vin, year, fuelType, engineSize, power, powerUnit, torque, color, 
                 registrationPlate, numberOfSeats, numberOfDoors, weight, engineCode, 
                 emissionStandard, gearboxType, gears, drivetrain, engineLayout, cylinderLayout, 
-                fuelTankCapacity, topSpeed, mileage,
+                fuelTankCapacity, topSpeed, acceleration0to100, fuelConsumptionCombined, co2Emissions,
+                mileage,
                 mileageHistory (a list of objects with 'km' and 'date' in YYYY-MM-DD format).
                 
                 Standard fuelType: Petrol, Diesel, Electric, Hybrid, LPG.
@@ -231,7 +239,11 @@ class GeminiRepository @Inject constructor(
                 ?: throw Exception("Empty response from AI")
 
             val jsonText = extractJson(fullText)
-            val data = json.decodeFromString<ScannedCarData>(jsonText)
+            val data = if (jsonText.trim().startsWith("[")) {
+                json.decodeFromString<List<ScannedCarData>>(jsonText)
+            } else {
+                listOf(json.decodeFromString<ScannedCarData>(jsonText))
+            }
             Result.success(data)
         } catch (e: Exception) {
             Result.failure(e)
@@ -323,10 +335,147 @@ class GeminiRepository @Inject constructor(
         }
     }
 
+    suspend fun fetchTechnicalSpecs(
+        make: String,
+        model: String,
+        year: Int,
+        filters: Map<String, String> = emptyMap()
+    ): Result<List<ScannedCarData>> {
+        return try {
+            val filterText = if (filters.isNotEmpty()) {
+                "\nADDITIONAL FILTERS/HINTS provided by user:\n" + 
+                filters.filterValues { it.isNotBlank() }.map { "${it.key}: ${it.value}" }.joinToString("\n")
+            } else ""
+
+            val prompt = """
+                Provide detailed technical specifications for this car: $make $model ($year).
+                Search and reference reliable sources like autodata.net to find the most accurate details for this specific model year.
+                $filterText
+                
+                MANDATORY CONSTRAINT: 
+                If any ADDITIONAL FILTERS/HINTS are provided above, you MUST return specifications for THAT EXACT VARIANT. 
+                Do NOT suggest alternatives or generic variants for THOSE SPECIFIC FIELDS.
+                
+                MULTI-VARIANT SUPPORT:
+                If multiple common variants (e.g., different engine power levels for the same displacement, or different gearboxes) match the user's filters, return up to 5 variations in a list.
+                
+                TECHNICAL STANDARDS (FOR DROPDOWN FIELDS - YOU MUST PICK EXACTLY FROM THESE LISTS):
+                - fuelType: [Petrol, Diesel, Electric, Hybrid, LPG]
+                - engineLayout: [Transverse, Longitudinal]
+                - cylinderLayout: [Inline, V, W, Boxer]
+                - aspiration: [Naturally Aspirated, Turbocharged, Supercharged, Twin-Turbo, Quad-Turbo, Electric]
+                - emissionStandard: [Non-Euro, Euro 1, Euro 2, Euro 3, Euro 4, Euro 5, Euro 6]
+                - gearboxType: [Manual, Automatic, CVT, DCT, AMT]
+                - frontBrakes / rearBrakes: [Ventilated Discs, Solid Discs, Drums, Ceramic Discs]
+                - frontSuspension: [MacPherson, Double Wishbone, Multi-link]
+                - rearSuspension: [Torsion Beam, Multi-link, Solid Axle]
+                - drivetrain: [FWD, RWD, AWD, 4WD]
+                - vehicleType: [Saloon, Estate, Hatchback, MPV, SUV, Coupe, Convertible, Van, Pickup]
+                - fuelSystem (Petrol/LPG): [Carburetor, Multi Point Injection, Direct Injection]
+                - fuelSystem (Diesel): [Injection Pump, Pumpe Duse, Common Rail]
+                - powerUnit: [hp, kw]
+                
+                MAPPING RULES:
+                - Always map technical descriptions to the CLOSEST standard value from the lists above.
+                - Do NOT invent new categories.
+                - Example: "tractiune fata" -> value: "FWD".
+                - Example: "cutie manuala" -> value: "Manual".
+                - Example: "Direct injection" -> value: "Direct Injection".
+
+                Return ONLY a JSON ARRAY containing objects with these keys: 
+                make, model, year, fuelType, engineSize, power, powerUnit, torque, 
+                numberOfSeats, numberOfDoors, weight, engineCode, 
+                emissionStandard, gearboxType, gears, drivetrain, engineLayout, cylinderLayout, 
+                aspiration, fuelTankCapacity, topSpeed, acceleration0to100, 
+                fuelConsumptionCombined, co2Emissions, length, width, height, wheelbase,
+                tireWidth, tireAspectRatio, tireDiameter.
+                
+                CRITICAL: 
+                - Standard fuelType: Petrol, Diesel, Electric, Hybrid, LPG.
+                - Standard powerUnit: 'hp'.
+                - Dimensions in mm.
+                - Consumption in L/100km.
+                - Top speed in km/h.
+                - Acceleration in seconds.
+                - NUMERIC FIELDS (year, engineSize, power, torque, weight, capacity, speed, consumption, emissions, mileage, etc.) MUST contain ONLY the raw number, NO units (e.g., 230 instead of "230 Nm").
+                - If specific data is unknown, use typical values for this model generation.
+            """.trimIndent()
+
+            val request = GeminiRequest(
+                contents = listOf(
+                    Content(parts = listOf(Part(text = prompt)))
+                ),
+                generationConfig = GenerationConfig(temperature = 0.2f)
+            )
+
+            val response = postGemini(request)
+            val fullText = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull { it.text != null }?.text
+                ?: throw Exception("Empty response from AI")
+
+            val jsonText = extractJson(fullText)
+            val data = if (jsonText.trim().startsWith("[")) {
+                json.decodeFromString<List<ScannedCarData>>(jsonText)
+            } else {
+                listOf(json.decodeFromString<ScannedCarData>(jsonText))
+            }
+            Result.success(data)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun fetchModelInsights(make: String, model: String, year: Int, language: String = "English"): Result<String> {
+        return try {
+            val prompt = """
+                Provide a technical summary and reliability report for the $make $model ($year).
+                Include:
+                1. A brief overview of this generation (max 2 sentences).
+                2. COMMON ISSUES/FLAWS: List the most frequent mechanical or electrical problems users report (max 3 items).
+                3. PRO TIPS: One specific maintenance recommendation for this model.
+                
+                Language: Respond in $language.
+                Format: Plain text with bullet points. No JSON.
+            """.trimIndent()
+
+            val request = GeminiRequest(
+                contents = listOf(
+                    Content(parts = listOf(Part(text = prompt)))
+                ),
+                generationConfig = GenerationConfig(temperature = 0.5f)
+            )
+
+            val response = postGemini(request)
+            val fullText = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull { it.text != null }?.text
+                ?: throw Exception("Empty response from AI")
+
+            Result.success(fullText.trim())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     private fun extractJson(text: String): String {
         val cleanedText = text.replace("```json", "").replace("```", "").trim()
-        val start = cleanedText.indexOf('{')
-        val end = cleanedText.lastIndexOf('}')
+        val startBrace = cleanedText.indexOf('{')
+        val startBracket = cleanedText.indexOf('[')
+        
+        val start = when {
+            startBrace != -1 && startBracket != -1 -> minOf(startBrace, startBracket)
+            startBrace != -1 -> startBrace
+            startBracket != -1 -> startBracket
+            else -> -1
+        }
+        
+        val endBrace = cleanedText.lastIndexOf('}')
+        val endBracket = cleanedText.lastIndexOf(']')
+        
+        val end = when {
+            endBrace != -1 && endBracket != -1 -> maxOf(endBrace, endBracket)
+            endBrace != -1 -> endBrace
+            endBracket != -1 -> endBracket
+            else -> -1
+        }
+
         if (start != -1 && end != -1 && end > start) {
             return cleanedText.substring(start, end + 1)
         }

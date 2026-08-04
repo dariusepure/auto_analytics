@@ -83,6 +83,15 @@
     <string name="vehicle_type_convertible">Decapotabilă</string>
     <string name="vehicle_type_van">Dubă (Van)</string>
     <string name="vehicle_type_pickup">Pickup</string>
+    <string name="vehicle_type_liftback">Liftback</string>
+    <string name="vehicle_type_fastback">Fastback</string>
+    <string name="vehicle_type_targa">Targa</string>
+    <string name="vehicle_type_roadster">Roadster</string>
+    <string name="vehicle_type_spider">Spider</string>
+    <string name="vehicle_type_coupe_cabriolet">Coupe-Cabriolet</string>
+    <string name="vehicle_type_shooting_brake">Shooting Brake</string>
+    <string name="vehicle_type_crossover">Crossover</string>
+    <string name="vehicle_type_minivan">Minivan</string>
 
     <!-- Emission Standards -->
     <string name="emission_none">Non-Euro</string>
@@ -182,6 +191,9 @@
     <string name="car_title_placeholder_fallback">Ex: Mașina mea zilnică</string>
     <string name="car_scan_photo">Importă foto</string>
     <string name="car_scan_pdf">Importă PDF</string>
+    <string name="car_auto_fill_specs">✨ Auto-Fill Specs</string>
+    <string name="car_auto_fill_loading">Se caută datele...</string>
+    <string name="car_auto_fill_error">Nu am găsit date pentru acest model</string>
     <string name="car_make_label">Marcă</string>
     <string name="car_model_label">Model</string>
     <string name="car_year_label">An</string>
@@ -203,7 +215,10 @@
     <string name="car_engine_size_label">Capacitate cilindrică (cc)</string>
     <string name="car_cylinders_label">Cilindri</string>
     <string name="car_valves_per_cyl_label">Valve/Cil</string>
-    <string name="car_top_speed_label">Viteză maximă</string>
+    <string name="car_top_speed_label">Viteză maximă (km/h)</string>
+    <string name="car_acceleration_label">0-100 km/h (sec)</string>
+    <string name="car_consumption_label">Consum mixt (L/100km)</string>
+    <string name="car_co2_label">Emisii CO2 (g/km)</string>
     <string name="car_fuel_type_label">Tip combustibil</string>
     <string name="car_fuel_system_label">Sistem combustibil</string>
     <string name="car_injection_system_label">Sistem de injecție</string>
@@ -230,6 +245,8 @@
     <string name="car_drivetrain_label">Tracțiune</string>
     <string name="car_confirm_scanned_data">Confirmă datele scanate</string>
     <string name="car_scanned_data_subtitle">Am găsit următoarele informații. Selectează ce dorești să aplici în formular.</string>
+    <string name="car_select_variant_title">Selectează varianta mașinii</string>
+    <string name="car_select_variant_subtitle">Am găsit mai multe variante. Te rugăm să o alegi pe cea care se potrivește mașinii tale.</string>
 
     <!-- Car Details -->
     <string name="car_details_title">Detalii mașină</string>
@@ -240,6 +257,11 @@
     <string name="car_inspection_title">ITP</string>
     <string name="car_insurance_title">RCA</string>
     <string name="car_vignette_title">Rovinietă</string>
+    <string name="car_gallery_title">Galerie Foto</string>
+    <string name="car_gallery_empty">Nu s-au adăugat fotografii încă.</string>
+    <string name="car_gallery_add_photo">Adaugă Foto</string>
+    <string name="car_gallery_delete_photo">Șterge Foto</string>
+    <string name="car_gallery_delete_confirm">Ești sigur că vrei să ștergi această fotografie?</string>
     <string name="car_health_check">Sănătate și Siguranță</string>
     <string name="car_health_ai_summary">Sumar Stare AI</string>
     <string name="car_health_recommendations">Recomandări Mentenanță</string>
@@ -253,9 +275,18 @@
     <string name="car_diagnosis_subtitle">Discută cu mecanicul tău personal</string>
     <string name="car_fuel_consumption">Consum combustibil</string>
     <string name="car_fuel_consumption_subtitle">Urmărește alimentările și vezi statistici</string>
-    <string name="car_generate_report">Generează raport PDF</string>
-    <string name="car_generate_report_subtitle">Exportă istoricul vehiculului în PDF</string>
+    <string name="car_generate_report">Rapoarte PDF</string>
+    <string name="car_generate_report_subtitle">Vezi și gestionează istoricul</string>
+    <string name="car_reports_title">Rapoarte Vehicul</string>
+    <string name="car_reports_empty">Nu s-au generat rapoarte încă.</string>
+    <string name="car_reports_generating">Se generează raportul...</string>
+    <string name="car_reports_generate_new">Generează Raport Nou</string>
+    <string name="car_reports_view">Vezi Raport</string>
+    <string name="car_reports_share">Distribuie Raport</string>
+    <string name="car_reports_export">Salvează în Telefon</string>
+    <string name="car_reports_delete_confirm">Ești sigur că vrei să ștergi acest raport din istoric?</string>
     <string name="car_report_success">Raport salvat cu succes</string>
+    <string name="car_report_no_viewer">Nu a fost găsit niciun vizualizator PDF pe acest dispozitiv</string>
     <string name="car_report_failed">Eșec la salvarea raportului</string>
 
     <!-- Tires -->

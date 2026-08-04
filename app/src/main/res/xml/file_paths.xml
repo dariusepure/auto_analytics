@@ -2,4 +2,6 @@
 <paths>
     <cache-path name="my_cache_images" path="images/" />
     <external-cache-path name="my_external_cache_images" path="images/" />
+    <files-path name="car_photos" path="car_photos/" />
+    <files-path name="car_reports" path="reports/" />
 </paths>

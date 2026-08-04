@@ -4,6 +4,7 @@ import com.dariusepure.caractivitylog.data.ai.GeminiRepository
 import com.dariusepure.caractivitylog.domain.ScannedCarData
 import android.graphics.Bitmap
 import android.net.Uri
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dariusepure.caractivitylog.data.cars.CarRepository
@@ -11,6 +12,7 @@ import com.dariusepure.caractivitylog.data.auth.AuthRepository
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.ui.common.CarFormatters
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,7 +38,7 @@ class AddCarViewModel @Inject constructor(
     private val _navigationEvent = Channel<Unit>(Channel.BUFFERED)
     val navigationEvent = _navigationEvent.receiveAsFlow()
 
-    private val _scannedDataEvent = Channel<ScannedCarData>(Channel.BUFFERED)
+    private val _scannedDataEvent = Channel<List<ScannedCarData>>(Channel.BUFFERED)
     val scannedDataEvent = _scannedDataEvent.receiveAsFlow()
 
     private val _logoutEvent = Channel<Unit>(Channel.BUFFERED)
@@ -101,6 +103,47 @@ class AddCarViewModel @Inject constructor(
         }
     }
 
+    fun autoFillSpecs(
+        make: String,
+        model: String,
+        year: String,
+        engineSize: String = "",
+        fuelType: String = "",
+        power: String = "",
+        engineCode: String = "",
+        gearboxType: String = "",
+        drivetrain: String = ""
+    ) {
+        if (make.isBlank() || model.isBlank() || year.isBlank()) {
+            _state.value = AddCarState.Error("Please provide Brand, Model, and Year for Auto-Fill")
+            return
+        }
+        
+        val yearInt = year.toIntOrNull() ?: return
+
+        viewModelScope.launch {
+            _state.value = AddCarState.Scanning // Reuse scanning state for progress
+            
+            val filters = mutableMapOf<String, String>()
+            if (engineSize.isNotBlank()) filters["engineSize"] = engineSize
+            if (fuelType.isNotBlank()) filters["fuelType"] = fuelType
+            if (power.isNotBlank()) filters["power"] = power
+            if (engineCode.isNotBlank()) filters["engineCode"] = engineCode
+            if (gearboxType.isNotBlank()) filters["gearboxType"] = gearboxType
+            if (drivetrain.isNotBlank()) filters["drivetrain"] = drivetrain
+
+            // Fetch from AI (using autodata.net reference in prompt)
+            geminiRepository.fetchTechnicalSpecs(make, model, yearInt, filters)
+                .onSuccess { data ->
+                    _state.value = AddCarState.Idle
+                    _scannedDataEvent.trySend(data)
+                }
+                .onFailure { e ->
+                    _state.value = AddCarState.Error(e.localizedMessage ?: "Auto-Fill failed")
+                }
+        }
+    }
+
     fun onAddOrUpdateCar(
         name: String, // Car Title / Nickname
         licensePlate: String,
@@ -146,6 +189,9 @@ class AddCarViewModel @Inject constructor(
         tireWidth: String,
         tireAspectRatio: String,
         tireDiameter: String,
+        acceleration0to100: String = "",
+        fuelConsumptionCombined: String = "",
+        co2Emissions: String = "",
         accentColor: Long? = null
     ) {
         if (name.isBlank() && (make.isBlank() || model.isBlank())) {
@@ -189,7 +235,10 @@ class AddCarViewModel @Inject constructor(
             "Boot Space" to bootSpace,
             "Tire Width" to tireWidth,
             "Tire Ratio" to tireAspectRatio,
-            "Tire Diameter" to tireDiameter
+            "Tire Diameter" to tireDiameter,
+            "Acceleration" to acceleration0to100,
+            "Consumption" to fuelConsumptionCombined,
+            "CO2" to co2Emissions
         )
 
         for ((label, value) in numericFields) {
@@ -265,6 +314,9 @@ class AddCarViewModel @Inject constructor(
                     tireWidth = tireWidth.toDoubleOrNull()?.roundToInt() ?: 0,
                     tireAspectRatio = tireAspectRatio.toDoubleOrNull()?.roundToInt() ?: 0,
                     tireDiameter = tireDiameter.toDoubleOrNull()?.roundToInt() ?: 0,
+                    acceleration0to100 = acceleration0to100.toDoubleOrNull() ?: 0.0,
+                    fuelConsumptionCombined = fuelConsumptionCombined.toDoubleOrNull() ?: 0.0,
+                    co2Emissions = co2Emissions.toDoubleOrNull()?.roundToInt() ?: 0,
                     accentColor = accentColor,
                     updatedAt = Date()
                 )

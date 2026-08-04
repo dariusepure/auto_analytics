@@ -14,6 +14,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -121,6 +127,9 @@ fun TechnicalSheetScreen(
                                 stringResource(R.string.car_power_label) to powerText,
                                 stringResource(R.string.car_torque_label) to if (car.torque > 0) "${car.torque}\u00A0Nm" else "",
                                 stringResource(R.string.car_top_speed_label) to topSpeedText,
+                                stringResource(R.string.car_acceleration_label) to if (car.acceleration0to100 > 0) "${car.acceleration0to100}\u00A0sec" else "",
+                                stringResource(R.string.car_consumption_label) to if (car.fuelConsumptionCombined > 0) "${car.fuelConsumptionCombined}\u00A0L/100km" else "",
+                                stringResource(R.string.car_co2_label) to if (car.co2Emissions > 0) "${car.co2Emissions}\u00A0g/km" else "",
                                 stringResource(R.string.car_aspiration_label) to CarTranslations.getAspirationLabel(context, car.aspiration),
                                 stringResource(R.string.car_cylinders_label) to car.numberOfCylinders.takeIf { it != 0 }?.toString().orEmpty(),
                                 stringResource(R.string.car_valves_label) to valvesText,
@@ -169,6 +178,55 @@ fun TechnicalSheetScreen(
                         dimensionSpecs.add(stringResource(R.string.car_tire_size_label) to tireSizeText)
 
                         SpecificationCard(specifications = dimensionSpecs)
+                    }
+
+                    TechnicalCategory(title = "Model Wiki & Reliability") {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = MaterialTheme.shapes.medium,
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                            )
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                if (car.modelWikiSummary.isNotBlank()) {
+                                    Text(
+                                        text = car.modelWikiSummary,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                    
+                                    Spacer(Modifier.height(16.dp))
+                                    HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp), thickness = 0.5.dp)
+                                    Spacer(Modifier.height(16.dp))
+                                    
+                                    Text(
+                                        text = "⚡ Generating this summary again will update common issues.",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                } else {
+                                    Text(
+                                        text = "No summary available for this model yet.",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                
+                                Spacer(Modifier.height(16.dp))
+                                
+                                OutlinedButton(
+                                    onClick = { viewModel.fetchModelInsights(carId) },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    enabled = !s.isAnalyzing
+                                ) {
+                                    if (s.isAnalyzing) {
+                                        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                                    } else {
+                                        Text(if (car.modelWikiSummary.isBlank()) "Fetch Model Wiki" else "Update Wiki Summary")
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
