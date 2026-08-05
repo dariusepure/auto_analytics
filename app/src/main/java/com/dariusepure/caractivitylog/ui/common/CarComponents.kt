@@ -465,6 +465,7 @@ fun AutoSizeText(
     modifier: Modifier = Modifier,
     minFontSize: TextUnit = 10.sp,
     maxLines: Int = 1,
+    softWrap: Boolean = maxLines > 1,
     textAlign: TextAlign? = null,
     color: Color = Color.Unspecified
 ) {
@@ -478,7 +479,7 @@ fun AutoSizeText(
         },
         style = style.copy(fontSize = fontSizeValue),
         maxLines = maxLines,
-        softWrap = false,
+        softWrap = softWrap,
         overflow = TextOverflow.Clip,
         textAlign = textAlign,
         color = color,

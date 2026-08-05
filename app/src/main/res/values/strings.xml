@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Clever Engine</string>
+    <string name="app_name">Auto Analytics</string>
 
     <!-- Common -->
     <string name="common_save">Save</string>
@@ -25,6 +25,9 @@
     <string name="common_language">Language</string>
     <string name="common_sort">Sort</string>
     <string name="common_powered_by">Powered by DFE Software</string>
+    <string name="status_ok">OK</string>
+    <string name="status_soon">Soon</string>
+    <string name="status_expired">Expired</string>
 
     <!-- Units -->
     <string name="unit_days">Days</string>
@@ -141,7 +144,7 @@
     <string name="auth_signin_button">Sign in</string>
     <string name="auth_signin_subtitle">Sign in to pick up where you left off.</string>
     <string name="auth_signup_button">Sign up</string>
-    <string name="auth_signup_subtitle">Join Clever Engine today.</string>
+    <string name="auth_signup_subtitle">Join Auto Analytics today.</string>
     <string name="auth_forgot_password_subtitle">Enter your email address and we\'ll send you a link to reset your password.</string>
     <string name="auth_reset_password_subtitle">Please enter and confirm your new password below.</string>
     <string name="auth_reset_password_success">Password changed successfully!</string>
@@ -194,9 +197,6 @@
     <string name="car_title_placeholder_fallback">Ex: My Daily Driver</string>
     <string name="car_scan_photo">Import Photo</string>
     <string name="car_scan_pdf">Import PDF</string>
-    <string name="car_auto_fill_specs">✨ Auto-Fill Specs</string>
-    <string name="car_auto_fill_loading">Fetching data...</string>
-    <string name="car_auto_fill_error">Could not find specs for this model</string>
     <string name="car_make_label">Make</string>
     <string name="car_model_label">Model</string>
     <string name="car_year_label">Year</string>
@@ -248,8 +248,6 @@
     <string name="car_drivetrain_label">Drivetrain</string>
     <string name="car_confirm_scanned_data">Confirm Scanned Data</string>
     <string name="car_scanned_data_subtitle">We found the following information. Select what you want to apply to the form.</string>
-    <string name="car_select_variant_title">Select Car Variant</string>
-    <string name="car_select_variant_subtitle">Multiple variants found. Please select the one that matches your car.</string>
 
     <!-- Car Details -->
     <string name="car_details_title">Car Details</string>
@@ -265,7 +263,8 @@
     <string name="car_gallery_add_photo">Add Photo</string>
     <string name="car_gallery_delete_photo">Delete Photo</string>
     <string name="car_gallery_delete_confirm">Are you sure you want to delete this photo?</string>
-    <string name="car_health_check">Health &amp; Safety</string>
+    <string name="car_gallery_not_on_device">Not on this device</string>
+    <string name="car_health_check">Health</string>
     <string name="car_health_ai_summary">AI Health Summary</string>
     <string name="car_health_recommendations">Maintenance Recommendations</string>
     <string name="car_health_score_label">Overall Health Score</string>

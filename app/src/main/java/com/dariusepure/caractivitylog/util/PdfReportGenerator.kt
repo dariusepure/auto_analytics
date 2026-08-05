@@ -19,9 +19,6 @@ import java.util.Date
 import java.util.Locale
 
 object PdfReportGenerator {
-    private val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-    private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-    
     private const val PAGE_WIDTH = 595 // A4 at 72 DPI
     private const val PAGE_HEIGHT = 842
     private const val MARGIN = 50f
@@ -40,6 +37,10 @@ object PdfReportGenerator {
         val pdfDocument = PdfDocument()
         var pageNumber = 1
         
+        val currentLocale = context.resources.configuration.locales[0] ?: Locale.getDefault()
+        val dateFormat = SimpleDateFormat("dd MMM yyyy", currentLocale)
+        val timeFormat = SimpleDateFormat("HH:mm", currentLocale)
+
         val accentColorInt = car.accentColor?.toInt() ?: 0xFF2196F3.toInt()
         val accentColorPaint = Paint().apply { color = accentColorInt }
         val textPaint = Paint().apply { color = Color.BLACK; isAntiAlias = true }
@@ -59,7 +60,7 @@ object PdfReportGenerator {
             }
             val footerY = PAGE_HEIGHT - 30f
             val dateStr = "${dateFormat.format(Date())} ${timeFormat.format(Date())}"
-            canvas.drawText("Clever Engine - $dateStr", MARGIN, footerY, footerPaint)
+            canvas.drawText("Auto Analytics - $dateStr", MARGIN, footerY, footerPaint)
             
             val pageStr = "Page $pageNum"
             val bounds = Rect()

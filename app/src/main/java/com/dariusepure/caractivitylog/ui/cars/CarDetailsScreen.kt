@@ -25,6 +25,7 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.R
@@ -32,7 +33,6 @@ import com.dariusepure.caractivitylog.domain.*
 import com.dariusepure.caractivitylog.ui.common.AutoSizeText
 import com.dariusepure.caractivitylog.ui.common.toRelativeString
 import com.dariusepure.caractivitylog.ui.common.*
-import com.dariusepure.caractivitylog.util.PdfReportGenerator
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -94,7 +94,7 @@ fun CarDetailsScreen(
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = stringResource(R.string.common_edit),
-                            tint = androidx.compose.ui.graphics.Color(0xFF2196F3)
+                            tint = Color(0xFF2196F3)
                         )
                     }
                 }
@@ -162,7 +162,12 @@ fun CarDetailsScreen(
                                 ) {
                                     Icon(Icons.Default.Description, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
                                     Spacer(Modifier.height(8.dp))
-                                    Text(text = stringResource(R.string.car_technical_sheet), style = MaterialTheme.typography.titleMedium)
+                                    Text(
+                                        text = stringResource(R.string.car_technical_sheet),
+                                        style = MaterialTheme.typography.titleSmall,
+                                        softWrap = true,
+                                        maxLines = 2
+                                    )
                                 }
                                 BentoCard(
                                     onClick = onMileageClick,
@@ -174,7 +179,12 @@ fun CarDetailsScreen(
                                         Icon(Icons.Default.Add, null, modifier = Modifier.size(20.dp), tint = carAccentColor)
                                     }
                                     Spacer(Modifier.height(8.dp))
-                                    Text(text = stringResource(R.string.car_mileage_history), style = MaterialTheme.typography.titleMedium)
+                                    Text(
+                                        text = stringResource(R.string.car_mileage_history),
+                                        style = MaterialTheme.typography.titleSmall,
+                                        softWrap = true,
+                                        maxLines = 2
+                                    )
                                 }
                                 val latestInspection = s.inspections.maxByOrNull { it.date }
                                 val isItpExpired = CarFormatters.isInspectionExpired(latestInspection)
@@ -208,7 +218,7 @@ fun CarDetailsScreen(
                                     Spacer(Modifier.height(8.dp))
                                     Text(text = stringResource(R.string.car_insurance_title), style = MaterialTheme.typography.titleSmall)
                                     StatusBadge(
-                                        label = if (isRcaExpired) "Expired" else if (rcaDays < 14) "Soon" else "OK",
+                                        label = if (isRcaExpired) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
                                         color = if (isRcaExpired) MaterialTheme.colorScheme.error else if (rcaDays < 14) Color(0xFFFF9800) else Color(0xFF4CAF50)
                                     )
                                 }
@@ -224,7 +234,7 @@ fun CarDetailsScreen(
                                     Spacer(Modifier.height(8.dp))
                                     Text(text = stringResource(R.string.car_vignette_title), style = MaterialTheme.typography.titleSmall)
                                     StatusBadge(
-                                        label = if (isVigExpired) "Expired" else if (vigDays < 14) "Soon" else "OK",
+                                        label = if (isVigExpired) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
                                         color = if (isVigExpired) MaterialTheme.colorScheme.error else if (vigDays < 14) Color(0xFFFF9800) else Color(0xFF4CAF50)
                                     )
                                 }
@@ -235,7 +245,12 @@ fun CarDetailsScreen(
                                 ) {
                                     Icon(Icons.Default.LocalGasStation, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
                                     Spacer(Modifier.height(8.dp))
-                                    Text(text = stringResource(R.string.car_fuel_consumption), style = MaterialTheme.typography.titleMedium)
+                                    Text(
+                                        text = stringResource(R.string.car_fuel_consumption),
+                                        style = MaterialTheme.typography.titleSmall,
+                                        softWrap = true,
+                                        maxLines = 2
+                                    )
                                 }
                             }
                         }
@@ -248,23 +263,33 @@ fun CarDetailsScreen(
                                 ) {
                                     Icon(Icons.Default.Build, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
                                     Spacer(Modifier.height(8.dp))
-                                    Text(text = stringResource(R.string.service_history_title), style = MaterialTheme.typography.titleMedium)
+                                    AutoSizeText(
+                                        text = stringResource(R.string.service_history_title),
+                                        style = MaterialTheme.typography.titleSmall,
+                                        maxLines = 2,
+                                        minFontSize = 9.sp
+                                    )
                                 }
                                 BentoCard(
                                     onClick = onTireClick,
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
                                     containerColor = carAccentColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.DirectionsCar, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
+                                    Icon(Icons.Default.TireRepair, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
                                     Spacer(Modifier.height(8.dp))
-                                    Text(text = stringResource(R.string.tire_management_title), style = MaterialTheme.typography.titleMedium)
+                                    AutoSizeText(
+                                        text = stringResource(R.string.tire_management_title),
+                                        style = MaterialTheme.typography.titleSmall,
+                                        maxLines = 2,
+                                        minFontSize = 9.sp
+                                    )
                                 }
                                 BentoCard(
                                     onClick = onDiagnosisClick,
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
                                     containerColor = carAccentColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.Psychology, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
+                                    Icon(Icons.Default.Engineering, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
                                     Spacer(Modifier.height(8.dp))
                                     Text(text = stringResource(R.string.car_diagnosis_title), style = MaterialTheme.typography.titleSmall)
                                 }
@@ -339,7 +364,7 @@ fun CarDetailsScreen(
                                         maxLines = 2
                                     )
                                     StatusBadge(
-                                        label = if (isItpExpired) "Expired" else if (itpDays < 14) "Soon" else "OK",
+                                        label = if (isItpExpired) stringResource(R.string.status_expired) else if (itpDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
                                         color = if (isItpExpired) MaterialTheme.colorScheme.error else if (itpDays < 14) Color(0xFFFF9800) else Color(0xFF4CAF50)
                                     )
                                 }
@@ -362,7 +387,7 @@ fun CarDetailsScreen(
                                         maxLines = 2
                                     )
                                     StatusBadge(
-                                        label = if (isRcaExpired) "Expired" else if (rcaDays < 14) "Soon" else "OK",
+                                        label = if (isRcaExpired) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
                                         color = if (isRcaExpired) MaterialTheme.colorScheme.error else if (rcaDays < 14) Color(0xFFFF9800) else Color(0xFF4CAF50)
                                     )
                                 }
@@ -385,7 +410,7 @@ fun CarDetailsScreen(
                                         maxLines = 2
                                     )
                                     StatusBadge(
-                                        label = if (isVigExpired) "Expired" else if (vigDays < 14) "Soon" else "OK",
+                                        label = if (isVigExpired) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
                                         color = if (isVigExpired) MaterialTheme.colorScheme.error else if (vigDays < 14) Color(0xFFFF9800) else Color(0xFF4CAF50)
                                     )
                                 }
@@ -402,11 +427,11 @@ fun CarDetailsScreen(
                                 ) {
                                     Icon(Icons.Default.LocalGasStation, null, modifier = Modifier.size(52.dp), tint = carAccentColor)
                                     Spacer(Modifier.weight(1f))
-                                    Text(
+                                    AutoSizeText(
                                         text = stringResource(R.string.car_fuel_consumption),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        softWrap = true,
-                                        maxLines = 2
+                                        style = MaterialTheme.typography.titleSmall,
+                                        maxLines = 2,
+                                        minFontSize = 9.sp
                                     )
                                 }
                                 
@@ -417,11 +442,11 @@ fun CarDetailsScreen(
                                 ) {
                                     Icon(Icons.Default.Build, null, modifier = Modifier.size(52.dp), tint = carAccentColor)
                                     Spacer(Modifier.weight(1f))
-                                    Text(
+                                    AutoSizeText(
                                         text = stringResource(R.string.service_history_title),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        softWrap = true,
-                                        maxLines = 2
+                                        style = MaterialTheme.typography.titleSmall,
+                                        maxLines = 2,
+                                        minFontSize = 9.sp
                                     )
                                 }
                             }
@@ -435,13 +460,13 @@ fun CarDetailsScreen(
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
                                     containerColor = carAccentColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.DirectionsCar, null, modifier = Modifier.size(52.dp), tint = carAccentColor)
+                                    Icon(Icons.Default.TireRepair, null, modifier = Modifier.size(52.dp), tint = carAccentColor)
                                     Spacer(Modifier.weight(1f))
-                                    Text(
+                                    AutoSizeText(
                                         text = stringResource(R.string.tire_management_title),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        softWrap = true,
-                                        maxLines = 2
+                                        style = MaterialTheme.typography.titleSmall,
+                                        maxLines = 2,
+                                        minFontSize = 9.sp
                                     )
                                 }
 
@@ -450,7 +475,7 @@ fun CarDetailsScreen(
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
                                     containerColor = carAccentColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.Psychology, null, modifier = Modifier.size(52.dp), tint = carAccentColor)
+                                    Icon(Icons.Default.Engineering, null, modifier = Modifier.size(52.dp), tint = carAccentColor)
                                     Spacer(Modifier.weight(1f))
                                     Text(
                                         text = stringResource(R.string.car_diagnosis_title),

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Clever Engine</string>
+    <string name="app_name">Auto Analytics</string>
 
     <!-- Common -->
     <string name="common_save">Salvează</string>
@@ -22,6 +22,9 @@
     <string name="common_expand">Extinde</string>
     <string name="common_language">Limbă</string>
     <string name="common_sort">Sortare</string>
+    <string name="status_ok">OK</string>
+    <string name="status_soon">Curând</string>
+    <string name="status_expired">Expirat</string>
 
     <!-- Units -->
     <string name="unit_days">Zile</string>
@@ -138,7 +141,7 @@
     <string name="auth_signin_button">Autentificare</string>
     <string name="auth_signin_subtitle">Autentifică-te pentru a continua de unde ai rămas.</string>
     <string name="auth_signup_button">Înregistrare</string>
-    <string name="auth_signup_subtitle">Alătură-te Clever Engine astăzi.</string>
+    <string name="auth_signup_subtitle">Alătură-te Auto Analytics astăzi.</string>
     <string name="auth_forgot_password_subtitle">Introdu adresa de email și îți vom trimite un link pentru resetarea parolei.</string>
     <string name="auth_reset_password_subtitle">Te rugăm să introduci și să confirmi noua parolă mai jos.</string>
     <string name="auth_reset_password_success">Parola a fost schimbată cu succes!</string>
@@ -191,9 +194,6 @@
     <string name="car_title_placeholder_fallback">Ex: Mașina mea zilnică</string>
     <string name="car_scan_photo">Importă foto</string>
     <string name="car_scan_pdf">Importă PDF</string>
-    <string name="car_auto_fill_specs">✨ Auto-Fill Specs</string>
-    <string name="car_auto_fill_loading">Se caută datele...</string>
-    <string name="car_auto_fill_error">Nu am găsit date pentru acest model</string>
     <string name="car_make_label">Marcă</string>
     <string name="car_model_label">Model</string>
     <string name="car_year_label">An</string>
@@ -245,8 +245,6 @@
     <string name="car_drivetrain_label">Tracțiune</string>
     <string name="car_confirm_scanned_data">Confirmă datele scanate</string>
     <string name="car_scanned_data_subtitle">Am găsit următoarele informații. Selectează ce dorești să aplici în formular.</string>
-    <string name="car_select_variant_title">Selectează varianta mașinii</string>
-    <string name="car_select_variant_subtitle">Am găsit mai multe variante. Te rugăm să o alegi pe cea care se potrivește mașinii tale.</string>
 
     <!-- Car Details -->
     <string name="car_details_title">Detalii mașină</string>
@@ -262,7 +260,8 @@
     <string name="car_gallery_add_photo">Adaugă Foto</string>
     <string name="car_gallery_delete_photo">Șterge Foto</string>
     <string name="car_gallery_delete_confirm">Ești sigur că vrei să ștergi această fotografie?</string>
-    <string name="car_health_check">Sănătate și Siguranță</string>
+    <string name="car_gallery_not_on_device">Indisponibilă pe acest dispozitiv</string>
+    <string name="car_health_check">Sănătate</string>
     <string name="car_health_ai_summary">Sumar Stare AI</string>
     <string name="car_health_recommendations">Recomandări Mentenanță</string>
     <string name="car_health_score_label">Scor General Sănătate</string>

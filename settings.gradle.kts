@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Clever Engine"
+rootProject.name = "Auto Analytics"
 include(":app")

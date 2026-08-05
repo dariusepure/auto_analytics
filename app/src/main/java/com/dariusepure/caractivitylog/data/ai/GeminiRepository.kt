@@ -39,7 +39,7 @@ class GeminiRepository @Inject constructor(
     }
 
     private val modelName: String
-        get() = remoteConfig.getString("gemini_model_name").ifBlank { "gemini-1.5-flash" }
+        get() = remoteConfig.getString("gemini_model_name").ifBlank { "gemini-3.5-flash-lite" }
 
     private val temperature: Float
         get() = remoteConfig.getDouble("gemini_temperature").toFloat()
@@ -54,7 +54,7 @@ class GeminiRepository @Inject constructor(
         allowSpecialFloatingPointValues = true
     }
 
-    private val TAG = "GeminiRepository"
+    private val tag = "GeminiRepository"
 
     private val updateCarTools = listOf(
         Tool(
@@ -106,9 +106,9 @@ class GeminiRepository @Inject constructor(
         val sha1 = DiagnosticUtils.getAppSignatureSha1(context, withColons = true)
         val packageName = context.packageName
 
-        Log.d(TAG, "Requesting Gemini model: $model")
-        Log.d(TAG, "Using Package: $packageName")
-        Log.d(TAG, "Using real SHA1 (standard): $sha1")
+        Log.d(tag, "Requesting Gemini model: $model")
+        Log.d(tag, "Using Package: $packageName")
+        Log.d(tag, "Using real SHA1 (standard): $sha1")
 
         try {
             val response: io.ktor.client.statement.HttpResponse = httpClient.post(url) {
@@ -120,13 +120,13 @@ class GeminiRepository @Inject constructor(
             
             if (response.status.value !in 200..299) {
                 val errorBody = response.body<String>()
-                Log.e(TAG, "Gemini API Error (${response.status}): $errorBody")
+                Log.e(tag, "Gemini API Error (${response.status}): $errorBody")
                 throw Exception("Gemini API Error ${response.status}: $errorBody")
             }
 
             return response.body()
         } catch (e: Exception) {
-            Log.e(TAG, "Gemini Post failed", e)
+            Log.e(tag, "Gemini Post failed", e)
             throw e
         }
     }
@@ -330,95 +330,6 @@ class GeminiRepository @Inject constructor(
             val jsonText = extractJson(fullText)
             val analysis = json.decodeFromString<AiAnalysis>(jsonText)
             Result.success(analysis)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    suspend fun fetchTechnicalSpecs(
-        make: String,
-        model: String,
-        year: Int,
-        filters: Map<String, String> = emptyMap()
-    ): Result<List<ScannedCarData>> {
-        return try {
-            val filterText = if (filters.isNotEmpty()) {
-                "\nADDITIONAL FILTERS/HINTS provided by user:\n" + 
-                filters.filterValues { it.isNotBlank() }.map { "${it.key}: ${it.value}" }.joinToString("\n")
-            } else ""
-
-            val prompt = """
-                Provide detailed technical specifications for this car: $make $model ($year).
-                Search and reference reliable sources like autodata.net to find the most accurate details for this specific model year.
-                $filterText
-                
-                MANDATORY CONSTRAINT: 
-                If any ADDITIONAL FILTERS/HINTS are provided above, you MUST return specifications for THAT EXACT VARIANT. 
-                Do NOT suggest alternatives or generic variants for THOSE SPECIFIC FIELDS.
-                
-                MULTI-VARIANT SUPPORT:
-                If multiple common variants (e.g., different engine power levels for the same displacement, or different gearboxes) match the user's filters, return up to 5 variations in a list.
-                
-                TECHNICAL STANDARDS (FOR DROPDOWN FIELDS - YOU MUST PICK EXACTLY FROM THESE LISTS):
-                - fuelType: [Petrol, Diesel, Electric, Hybrid, LPG]
-                - engineLayout: [Transverse, Longitudinal]
-                - cylinderLayout: [Inline, V, W, Boxer]
-                - aspiration: [Naturally Aspirated, Turbocharged, Supercharged, Twin-Turbo, Quad-Turbo, Electric]
-                - emissionStandard: [Non-Euro, Euro 1, Euro 2, Euro 3, Euro 4, Euro 5, Euro 6]
-                - gearboxType: [Manual, Automatic, CVT, DCT, AMT]
-                - frontBrakes / rearBrakes: [Ventilated Discs, Solid Discs, Drums, Ceramic Discs]
-                - frontSuspension: [MacPherson, Double Wishbone, Multi-link]
-                - rearSuspension: [Torsion Beam, Multi-link, Solid Axle]
-                - drivetrain: [FWD, RWD, AWD, 4WD]
-                - vehicleType: [Saloon, Estate, Hatchback, MPV, SUV, Coupe, Convertible, Van, Pickup]
-                - fuelSystem (Petrol/LPG): [Carburetor, Multi Point Injection, Direct Injection]
-                - fuelSystem (Diesel): [Injection Pump, Pumpe Duse, Common Rail]
-                - powerUnit: [hp, kw]
-                
-                MAPPING RULES:
-                - Always map technical descriptions to the CLOSEST standard value from the lists above.
-                - Do NOT invent new categories.
-                - Example: "tractiune fata" -> value: "FWD".
-                - Example: "cutie manuala" -> value: "Manual".
-                - Example: "Direct injection" -> value: "Direct Injection".
-
-                Return ONLY a JSON ARRAY containing objects with these keys: 
-                make, model, year, fuelType, engineSize, power, powerUnit, torque, 
-                numberOfSeats, numberOfDoors, weight, engineCode, 
-                emissionStandard, gearboxType, gears, drivetrain, engineLayout, cylinderLayout, 
-                aspiration, fuelTankCapacity, topSpeed, acceleration0to100, 
-                fuelConsumptionCombined, co2Emissions, length, width, height, wheelbase,
-                tireWidth, tireAspectRatio, tireDiameter.
-                
-                CRITICAL: 
-                - Standard fuelType: Petrol, Diesel, Electric, Hybrid, LPG.
-                - Standard powerUnit: 'hp'.
-                - Dimensions in mm.
-                - Consumption in L/100km.
-                - Top speed in km/h.
-                - Acceleration in seconds.
-                - NUMERIC FIELDS (year, engineSize, power, torque, weight, capacity, speed, consumption, emissions, mileage, etc.) MUST contain ONLY the raw number, NO units (e.g., 230 instead of "230 Nm").
-                - If specific data is unknown, use typical values for this model generation.
-            """.trimIndent()
-
-            val request = GeminiRequest(
-                contents = listOf(
-                    Content(parts = listOf(Part(text = prompt)))
-                ),
-                generationConfig = GenerationConfig(temperature = 0.2f)
-            )
-
-            val response = postGemini(request)
-            val fullText = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull { it.text != null }?.text
-                ?: throw Exception("Empty response from AI")
-
-            val jsonText = extractJson(fullText)
-            val data = if (jsonText.trim().startsWith("[")) {
-                json.decodeFromString<List<ScannedCarData>>(jsonText)
-            } else {
-                listOf(json.decodeFromString<ScannedCarData>(jsonText))
-            }
-            Result.success(data)
         } catch (e: Exception) {
             Result.failure(e)
         }

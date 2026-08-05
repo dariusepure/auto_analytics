@@ -1,4 +1,4 @@
-# 🏎️ Clever Engine
+# 🏎️ Auto Analytics
 **The Ultimate Android Companion for Your Vehicle Management with AI Integration**
 
 ---

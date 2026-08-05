@@ -95,7 +95,7 @@ android {
                 appId = "1:1050502217992:android:a0e3c2aac85c6d6fd8ecbd"
                 artifactType = "APK"
                 groups = "internal-testers"
-                releaseNotes = "Clever Engine"
+                releaseNotes = "Auto Analytics"
             }
         }
     }

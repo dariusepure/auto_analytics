@@ -1,8 +1,6 @@
 package com.dariusepure.caractivitylog.data.cars
 
 import com.dariusepure.caractivitylog.domain.VehicleInspection
-import com.google.firebase.firestore.MetadataChanges
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.channels.awaitClose
@@ -21,7 +19,6 @@ import javax.inject.Singleton
 
 @Singleton
 class CarRepository @Inject constructor(
-    private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
     private val authRepository: AuthRepository
 ) {

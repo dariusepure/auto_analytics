@@ -103,47 +103,6 @@ class AddCarViewModel @Inject constructor(
         }
     }
 
-    fun autoFillSpecs(
-        make: String,
-        model: String,
-        year: String,
-        engineSize: String = "",
-        fuelType: String = "",
-        power: String = "",
-        engineCode: String = "",
-        gearboxType: String = "",
-        drivetrain: String = ""
-    ) {
-        if (make.isBlank() || model.isBlank() || year.isBlank()) {
-            _state.value = AddCarState.Error("Please provide Brand, Model, and Year for Auto-Fill")
-            return
-        }
-        
-        val yearInt = year.toIntOrNull() ?: return
-
-        viewModelScope.launch {
-            _state.value = AddCarState.Scanning // Reuse scanning state for progress
-            
-            val filters = mutableMapOf<String, String>()
-            if (engineSize.isNotBlank()) filters["engineSize"] = engineSize
-            if (fuelType.isNotBlank()) filters["fuelType"] = fuelType
-            if (power.isNotBlank()) filters["power"] = power
-            if (engineCode.isNotBlank()) filters["engineCode"] = engineCode
-            if (gearboxType.isNotBlank()) filters["gearboxType"] = gearboxType
-            if (drivetrain.isNotBlank()) filters["drivetrain"] = drivetrain
-
-            // Fetch from AI (using autodata.net reference in prompt)
-            geminiRepository.fetchTechnicalSpecs(make, model, yearInt, filters)
-                .onSuccess { data ->
-                    _state.value = AddCarState.Idle
-                    _scannedDataEvent.trySend(data)
-                }
-                .onFailure { e ->
-                    _state.value = AddCarState.Error(e.localizedMessage ?: "Auto-Fill failed")
-                }
-        }
-    }
-
     fun onAddOrUpdateCar(
         name: String, // Car Title / Nickname
         licensePlate: String,

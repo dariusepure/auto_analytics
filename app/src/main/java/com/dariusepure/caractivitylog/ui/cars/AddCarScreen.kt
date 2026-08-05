@@ -202,28 +202,14 @@ fun AddCarScreen(
         }
     }
 
-    var pendingScannedData by remember { mutableStateOf<List<ScannedCarData>?>(null) }
     var dataToConfirm by remember { mutableStateOf<ScannedCarData?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.scannedDataEvent.collect { dataList ->
-            if (dataList.size > 1) {
-                pendingScannedData = dataList
-            } else if (dataList.isNotEmpty()) {
+            if (dataList.isNotEmpty()) {
                 dataToConfirm = dataList.first()
             }
         }
-    }
-
-    if (pendingScannedData != null) {
-        VariantSelectionDialog(
-            variants = pendingScannedData!!,
-            onDismiss = { pendingScannedData = null },
-            onVariantSelected = { selected ->
-                dataToConfirm = selected
-                pendingScannedData = null
-            }
-        )
     }
 
     if (dataToConfirm != null) {
@@ -531,26 +517,6 @@ fun AddCarScreen(
                             state = state,
                             label = stringResource(R.string.car_scan_pdf)
                         )
-                        ScanButton(
-                            onClick = { 
-                                viewModel.autoFillSpecs(
-                                    make = make, 
-                                    model = model, 
-                                    year = year,
-                                    engineSize = engineSize,
-                                    fuelType = fuelType,
-                                    power = power,
-                                    engineCode = engineCode,
-                                    gearboxType = gearboxType,
-                                    drivetrain = drivetrain
-                                ) 
-                            },
-                            modifier = Modifier.weight(1f),
-                            state = state,
-                            label = stringResource(R.string.car_auto_fill_specs),
-                            loadingLabel = stringResource(R.string.car_auto_fill_loading),
-                            enabled = make.isNotBlank() && model.isNotBlank() && year.length == 4
-                        )
                     }
                 } else {
                     Column(
@@ -568,26 +534,6 @@ fun AddCarScreen(
                             modifier = Modifier.fillMaxWidth(),
                             state = state,
                             label = stringResource(R.string.car_scan_pdf)
-                        )
-                        ScanButton(
-                            onClick = { 
-                                viewModel.autoFillSpecs(
-                                    make = make, 
-                                    model = model, 
-                                    year = year,
-                                    engineSize = engineSize,
-                                    fuelType = fuelType,
-                                    power = power,
-                                    engineCode = engineCode,
-                                    gearboxType = gearboxType,
-                                    drivetrain = drivetrain
-                                ) 
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            state = state,
-                            label = stringResource(R.string.car_auto_fill_specs),
-                            loadingLabel = stringResource(R.string.car_auto_fill_loading),
-                            enabled = make.isNotBlank() && model.isNotBlank() && year.length == 4
                         )
                     }
                 }
@@ -2007,70 +1953,6 @@ private fun ScanButton(
             Text(label, textAlign = TextAlign.Center)
         }
     }
-}
-
-@Composable
-fun VariantSelectionDialog(
-    variants: List<ScannedCarData>,
-    onDismiss: () -> Unit,
-    onVariantSelected: (ScannedCarData) -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.car_select_variant_title)) },
-        text = {
-            Column {
-                Text(
-                    stringResource(R.string.car_select_variant_subtitle),
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(variants) { variant ->
-                        Surface(
-                            onClick = { onVariantSelected(variant) },
-                            shape = MaterialTheme.shapes.medium,
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Column(modifier = Modifier.padding(12.dp)) {
-                                Text(
-                                    text = "${variant.make} ${variant.model} (${variant.year?.roundToInt()})",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = listOfNotNull(
-                                        variant.engineSize?.let { "${it.roundToInt()} cc" },
-                                        variant.fuelType,
-                                        variant.power?.let { "${it.roundToInt()} ${variant.powerUnit ?: "hp"}" },
-                                        variant.gearboxType
-                                    ).joinToString(" • "),
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                                if (!variant.engineCode.isNullOrBlank()) {
-                                    Text(
-                                        text = "Engine: ${variant.engineCode}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {},
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.common_cancel))
-            }
-        }
-    )
 }
 
 @Composable
