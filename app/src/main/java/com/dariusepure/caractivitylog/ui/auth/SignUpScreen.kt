@@ -18,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -32,7 +33,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.ui.common.AuthFooter
-import com.dariusepure.caractivitylog.ui.common.ErrorBanner
 import com.dariusepure.caractivitylog.ui.common.ModernAppLogo
 import com.dariusepure.caractivitylog.ui.common.LanguageSelector
 import androidx.compose.material.icons.filled.Visibility
@@ -117,10 +117,21 @@ fun SignUpContent(
             )
 
             (state as? SignUpState.Error)?.let { error ->
-                ErrorBanner(
-                    message = error.message,
-                    modifier = Modifier.padding(top = 24.dp),
-                )
+                Surface(
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                    shape = MaterialTheme.shapes.medium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 24.dp),
+                ) {
+                    Text(
+                        text = error.message,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(16.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
 
             OutlinedTextField(

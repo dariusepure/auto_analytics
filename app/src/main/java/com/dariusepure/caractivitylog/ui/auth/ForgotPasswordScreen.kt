@@ -33,8 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import com.dariusepure.caractivitylog.ui.common.AuthFooter
-import com.dariusepure.caractivitylog.ui.common.ErrorBanner
-import com.dariusepure.caractivitylog.ui.common.SuccessBanner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
@@ -122,16 +120,38 @@ fun ForgotPasswordContent(
             )
 
             if (success) {
-                SuccessBanner(
-                    message = stringResource(R.string.auth_reset_link_sent),
-                    modifier = Modifier.padding(top = 24.dp)
-                )
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    shape = MaterialTheme.shapes.medium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 24.dp),
+                ) {
+                    Text(
+                        text = stringResource(R.string.auth_reset_link_sent),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(16.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
             } else {
                 (state as? ForgotPasswordState.Error)?.let { error ->
-                    ErrorBanner(
-                        message = error.message,
-                        modifier = Modifier.padding(top = 24.dp),
-                    )
+                    Surface(
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        shape = MaterialTheme.shapes.medium,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 24.dp),
+                    ) {
+                        Text(
+                            text = error.message,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(16.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
 
                 OutlinedTextField(

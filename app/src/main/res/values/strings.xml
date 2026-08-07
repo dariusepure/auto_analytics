@@ -258,12 +258,6 @@
     <string name="car_inspection_title">Technical Inspection</string>
     <string name="car_insurance_title">Insurance</string>
     <string name="car_vignette_title">Vignette</string>
-    <string name="car_gallery_title">Car Gallery</string>
-    <string name="car_gallery_empty">No photos added yet.</string>
-    <string name="car_gallery_add_photo">Add Photo</string>
-    <string name="car_gallery_delete_photo">Delete Photo</string>
-    <string name="car_gallery_delete_confirm">Are you sure you want to delete this photo?</string>
-    <string name="car_gallery_not_on_device">Not on this device</string>
     <string name="car_health_check">Health</string>
     <string name="car_health_ai_summary">AI Health Summary</string>
     <string name="car_health_recommendations">Maintenance Recommendations</string>

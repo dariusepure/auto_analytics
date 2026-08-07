@@ -12,7 +12,6 @@ import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.domain.AiAnalysis
 import com.dariusepure.caractivitylog.ui.cars.ChatMessage
 import com.dariusepure.caractivitylog.domain.CarReport
-import com.dariusepure.caractivitylog.domain.CarPhoto
 import com.dariusepure.caractivitylog.data.auth.AuthRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -793,60 +792,6 @@ class CarRepository @Inject constructor(
             .collection("ai_analysis")
             .document("latest")
             .set(analysis.toFirebase())
-            .await()
-    }
-
-    fun getCarPhotos(carId: String): Flow<List<CarPhoto>> = callbackFlow {
-        checkNetwork()
-        val uid = authRepository.getUserId() ?: run {
-            trySend(emptyList())
-            close()
-            return@callbackFlow
-        }
-
-        val listener = firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("photos")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshots, exception ->
-                if (exception != null) {
-                    close(exception)
-                    return@addSnapshotListener
-                }
-
-                val results = snapshots?.toObjects(FirestoreCarPhoto::class.java)
-                    ?.map { it.toDomain(carId) } ?: emptyList()
-
-                trySend(results)
-            }
-
-        awaitClose { listener.remove() }
-    }
-
-    suspend fun addCarPhoto(carId: String, photo: CarPhoto) {
-        checkNetwork()
-        val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("photos")
-            .add(photo.toFirebase())
-            .await()
-    }
-
-    suspend fun deleteCarPhoto(carId: String, photoId: String) {
-        checkNetwork()
-        val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("photos")
-            .document(photoId)
-            .delete()
             .await()
     }
 

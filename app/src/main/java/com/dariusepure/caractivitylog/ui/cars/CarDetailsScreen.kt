@@ -53,8 +53,6 @@ fun CarDetailsScreen(
     onDiagnosisClick: () -> Unit,
     onFuelClick: () -> Unit,
     onHealthClick: () -> Unit,
-    onGalleryClick: () -> Unit,
-    onReportsClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CarDetailsViewModel = hiltViewModel(),
     windowSizeClass: WindowSizeClass? = null
@@ -293,15 +291,6 @@ fun CarDetailsScreen(
                                     Spacer(Modifier.height(8.dp))
                                     Text(text = stringResource(R.string.car_diagnosis_title), style = MaterialTheme.typography.titleSmall)
                                 }
-                                BentoCard(
-                                    onClick = onGalleryClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
-                                ) {
-                                    Icon(Icons.Outlined.Collections, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
-                                    Spacer(Modifier.height(8.dp))
-                                    Text(text = stringResource(R.string.car_gallery_title), style = MaterialTheme.typography.titleSmall)
-                                }
                             }
                         }
                     } else {
@@ -484,89 +473,6 @@ fun CarDetailsScreen(
                                         maxLines = 2
                                     )
                                 }
-                                
-                                BentoCard(
-                                    onClick = onGalleryClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
-                                ) {
-                                    Icon(Icons.Outlined.Collections, null, modifier = Modifier.size(52.dp), tint = carAccentColor)
-                                    Spacer(Modifier.weight(1f))
-                                    Text(
-                                        text = stringResource(R.string.car_gallery_title),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        softWrap = true,
-                                        maxLines = 2
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    // AI Health Check & PDF Report (Side by Side)
-                    item {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            // AI Health Check
-                            BentoCard(
-                                onClick = onHealthClick,
-                                modifier = Modifier.weight(1f).fillMaxHeight(),
-                                containerColor = carAccentColor.copy(alpha = 0.15f)
-                            ) {
-                                Icon(
-                                    Icons.Default.HealthAndSafety,
-                                    null,
-                                    modifier = Modifier.size(40.dp),
-                                    tint = carAccentColor
-                                )
-                                Spacer(Modifier.height(8.dp))
-                                Text(
-                                    text = stringResource(R.string.car_health_check),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    maxLines = 1
-                                )
-                                if (s.aiAnalysis != null) {
-                                    Text(
-                                        text = "Score: ${s.aiAnalysis.healthScore}/100",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = if (s.aiAnalysis.healthScore > 80) Color(0xFF4CAF50) else if (s.aiAnalysis.healthScore > 50) Color(0xFFFF9800) else Color(0xFFF44336)
-                                    )
-                                } else {
-                                    Text(
-                                        text = "Check health",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-
-                            // PDF Report
-                            BentoCard(
-                                onClick = onReportsClick,
-                                modifier = Modifier.weight(1f).fillMaxHeight(),
-                                containerColor = carAccentColor.copy(alpha = 0.15f)
-                            ) {
-                                Icon(
-                                    Icons.Default.PictureAsPdf,
-                                    null,
-                                    modifier = Modifier.size(40.dp),
-                                    tint = carAccentColor
-                                )
-                                Spacer(Modifier.height(8.dp))
-                                Text(
-                                    text = stringResource(R.string.car_generate_report),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    maxLines = 1
-                                )
-                                Text(
-                                    text = "View history",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
                             }
                         }
                     }

@@ -22,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -35,8 +36,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.dariusepure.caractivitylog.ui.common.AuthFooter
-import com.dariusepure.caractivitylog.ui.common.ErrorBanner
-import com.dariusepure.caractivitylog.ui.common.SuccessBanner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
@@ -135,10 +134,21 @@ fun ResetPasswordContent(
             )
 
             if (success) {
-                SuccessBanner(
-                    message = stringResource(R.string.auth_reset_password_success),
-                    modifier = Modifier.padding(top = 24.dp)
-                )
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    shape = MaterialTheme.shapes.medium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 24.dp),
+                ) {
+                    Text(
+                        text = stringResource(R.string.auth_reset_password_success),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(16.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
                 Button(
                     onClick = onSuccess,
                     modifier = Modifier.padding(top = 16.dp)
@@ -147,10 +157,21 @@ fun ResetPasswordContent(
                 }
             } else {
                 (state as? ResetPasswordState.Error)?.let { error ->
-                    ErrorBanner(
-                        message = error.message,
-                        modifier = Modifier.padding(top = 24.dp),
-                    )
+                    Surface(
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        shape = MaterialTheme.shapes.medium,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 24.dp),
+                    ) {
+                        Text(
+                            text = error.message,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(16.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
 
                 OutlinedTextField(

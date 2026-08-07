@@ -255,12 +255,6 @@
     <string name="car_inspection_title">ITP</string>
     <string name="car_insurance_title">RCA</string>
     <string name="car_vignette_title">Rovinietă</string>
-    <string name="car_gallery_title">Galerie Foto</string>
-    <string name="car_gallery_empty">Nu s-au adăugat fotografii încă.</string>
-    <string name="car_gallery_add_photo">Adaugă Foto</string>
-    <string name="car_gallery_delete_photo">Șterge Foto</string>
-    <string name="car_gallery_delete_confirm">Ești sigur că vrei să ștergi această fotografie?</string>
-    <string name="car_gallery_not_on_device">Indisponibilă pe acest dispozitiv</string>
     <string name="car_health_check">Sănătate</string>
     <string name="car_health_ai_summary">Sumar Stare AI</string>
     <string name="car_health_recommendations">Recomandări Mentenanță</string>
