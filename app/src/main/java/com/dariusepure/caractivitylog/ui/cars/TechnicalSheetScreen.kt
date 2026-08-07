@@ -28,6 +28,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import com.dariusepure.caractivitylog.ui.common.PdfSaveDialog
+import com.dariusepure.caractivitylog.util.PdfReportGenerator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.platform.LocalContext
@@ -53,6 +66,53 @@ fun TechnicalSheetScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    
+    var showPdfDialog by remember { mutableStateOf(false) }
+
+    val pdfLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/pdf"),
+        onResult = { uri ->
+            uri?.let { destUri ->
+                val successState = state as? CarDetailsUiState.Success ?: return@let
+                scope.launch {
+                    try {
+                        withContext(Dispatchers.IO) {
+                            context.contentResolver.openOutputStream(destUri)?.use { os ->
+                                PdfReportGenerator.generateReport(
+                                    context = context,
+                                    car = successState.car,
+                                    mileageLogs = successState.mileageLogs,
+                                    inspections = successState.inspections,
+                                    fuelLogs = successState.fuelLogs,
+                                    tireSets = successState.tireSets,
+                                    maintenanceLogs = successState.maintenanceLogs,
+                                    outputStream = os,
+                                    reportType = PdfReportGenerator.ReportType.TECHNICAL_SHEET
+                                )
+                            }
+                        }
+                        snackbarHostState.showSnackbar(context.getString(R.string.car_report_success))
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        snackbarHostState.showSnackbar(context.getString(R.string.car_report_failed))
+                    }
+                }
+            }
+        }
+    )
+
+    if (showPdfDialog) {
+        val carName = (state as? CarDetailsUiState.Success)?.car?.let { "${it.make}_${it.model}" } ?: "Car"
+        PdfSaveDialog(
+            onDismiss = { showPdfDialog = false },
+            onSave = {
+                showPdfDialog = false
+                pdfLauncher.launch("Technical_Sheet_$carName.pdf")
+            }
+        )
+    }
 
     LaunchedEffect(carId) {
         viewModel.loadCarData(carId)
@@ -60,6 +120,7 @@ fun TechnicalSheetScreen(
 
     Scaffold(
         modifier = modifier,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.car_technical_sheet)) },
@@ -69,7 +130,7 @@ fun TechnicalSheetScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onReportsClick) {
+                    IconButton(onClick = { showPdfDialog = true }) {
                         Icon(
                             imageVector = Icons.Default.PictureAsPdf,
                             contentDescription = stringResource(R.string.car_generate_report)

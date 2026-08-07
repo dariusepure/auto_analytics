@@ -24,6 +24,10 @@ object PdfReportGenerator {
     private const val MARGIN = 50f
     private const val CONTENT_WIDTH = PAGE_WIDTH - (2 * MARGIN)
 
+    enum class ReportType {
+        FULL, TECHNICAL_SHEET, MILEAGE_HISTORY
+    }
+
     fun generateReport(
         context: Context,
         car: Car,
@@ -32,7 +36,8 @@ object PdfReportGenerator {
         fuelLogs: List<FuelLog>,
         tireSets: List<TireSet>,
         maintenanceLogs: List<Maintenance>,
-        outputStream: OutputStream
+        outputStream: OutputStream,
+        reportType: ReportType = ReportType.FULL
     ) {
         val pdfDocument = PdfDocument()
         var pageNumber = 1
@@ -134,61 +139,63 @@ object PdfReportGenerator {
         }
 
         // 1. General Specs
-        drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.pdf_section_general))
-        drawTwoColumns(listOf(
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_make) to car.make.uppercase(),
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_model) to car.model,
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_year) to car.year.takeIf { it != 0 }?.toString().orEmpty(),
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_color) to car.color,
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_vin) to car.vin,
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_vehicle_type) to car.vehicleType
-        ).filter { it.second.isNotBlank() })
+        if (reportType == ReportType.FULL || reportType == ReportType.TECHNICAL_SHEET) {
+            drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.pdf_section_general))
+            drawTwoColumns(listOf(
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_make) to car.make.uppercase(),
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_model) to car.model,
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_year) to car.year.takeIf { it != 0 }?.toString().orEmpty(),
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_color) to car.color,
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_vin) to car.vin,
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_vehicle_type) to car.vehicleType
+            ).filter { it.second.isNotBlank() })
 
-        // 2. Engine & Performance
-        drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.pdf_section_engine))
-        val engineSpecs = mutableListOf(
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_engine_size) to car.engineSize,
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_power) to if (car.power > 0) "${car.power} ${car.powerUnit}" else "",
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_torque) to if (car.torque > 0) "${car.torque} Nm" else "",
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_top_speed) to if (car.topSpeed > 0) "${car.topSpeed.toInt()} km/h" else "",
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_acceleration) to if (car.acceleration0to100 > 0) "${car.acceleration0to100} s" else "",
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_consumption) to if (car.fuelConsumptionCombined > 0) "${car.fuelConsumptionCombined} L/100km" else "",
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_co2) to if (car.co2Emissions > 0) "${car.co2Emissions} g/km" else "",
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_fuel_type) to car.fuelType,
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_emission_standard) to car.emissionStandard
-        )
+            // 2. Engine & Performance
+            drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.pdf_section_engine))
+            val engineSpecs = mutableListOf(
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_engine_size) to car.engineSize,
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_power) to if (car.power > 0) "${car.power} ${car.powerUnit}" else "",
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_torque) to if (car.torque > 0) "${car.torque} Nm" else "",
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_top_speed) to if (car.topSpeed > 0) "${car.topSpeed.toInt()} km/h" else "",
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_acceleration) to if (car.acceleration0to100 > 0) "${car.acceleration0to100} s" else "",
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_consumption) to if (car.fuelConsumptionCombined > 0) "${car.fuelConsumptionCombined} L/100km" else "",
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_co2) to if (car.co2Emissions > 0) "${car.co2Emissions} g/km" else "",
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_fuel_type) to car.fuelType,
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_emission_standard) to car.emissionStandard
+            )
 
-        if (car.fuelType != "Electric") {
-            engineSpecs.add(context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_fuel_tank_capacity) to if (car.fuelTankCapacity > 0) "${car.fuelTankCapacity} L" else "")
+            if (car.fuelType != "Electric") {
+                engineSpecs.add(context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_fuel_tank_capacity) to if (car.fuelTankCapacity > 0) "${car.fuelTankCapacity} L" else "")
+            }
+            if (car.fuelType == "Electric" || car.fuelType == "Hybrid") {
+                engineSpecs.add(context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_battery_capacity) to if (car.batteryCapacity > 0) "${car.batteryCapacity} kWh" else "")
+            }
+
+            drawTwoColumns(engineSpecs.filter { it.second.isNotBlank() })
+
+            // 3. Transmission & Chassis
+            drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.car_transmission_section))
+            drawTwoColumns(listOf(
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_gearbox_type) to car.gearboxType,
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_gears) to car.gears,
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_drivetrain) to car.drivetrain,
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_seats) to if (car.numberOfSeats > 0) car.numberOfSeats.toString() else "",
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_doors) to if (car.numberOfDoors > 0) car.numberOfDoors.toString() else ""
+            ).filter { it.second.isNotBlank() })
+
+            // 4. Dimensions
+            drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.car_dimensions_capacity_section))
+            drawTwoColumns(listOf(
+                context.getString(com.dariusepure.caractivitylog.R.string.car_length_label) to if (car.length > 0) "${car.length} mm" else "",
+                context.getString(com.dariusepure.caractivitylog.R.string.car_width_label) to if (car.width > 0) "${car.width} mm" else "",
+                context.getString(com.dariusepure.caractivitylog.R.string.car_height_label) to if (car.height > 0) "${car.height} mm" else "",
+                context.getString(com.dariusepure.caractivitylog.R.string.car_wheelbase_label) to if (car.wheelbase > 0) "${car.wheelbase} mm" else "",
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_weight) to if (car.weight > 0) "${car.weight} kg" else ""
+            ).filter { it.second.isNotBlank() })
         }
-        if (car.fuelType == "Electric" || car.fuelType == "Hybrid") {
-            engineSpecs.add(context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_battery_capacity) to if (car.batteryCapacity > 0) "${car.batteryCapacity} kWh" else "")
-        }
-
-        drawTwoColumns(engineSpecs.filter { it.second.isNotBlank() })
-
-        // 3. Transmission & Chassis
-        drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.car_transmission_section))
-        drawTwoColumns(listOf(
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_gearbox_type) to car.gearboxType,
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_gears) to car.gears,
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_drivetrain) to car.drivetrain,
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_seats) to if (car.numberOfSeats > 0) car.numberOfSeats.toString() else "",
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_doors) to if (car.numberOfDoors > 0) car.numberOfDoors.toString() else ""
-        ).filter { it.second.isNotBlank() })
-
-        // 4. Dimensions
-        drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.car_dimensions_capacity_section))
-        drawTwoColumns(listOf(
-            context.getString(com.dariusepure.caractivitylog.R.string.car_length_label) to if (car.length > 0) "${car.length} mm" else "",
-            context.getString(com.dariusepure.caractivitylog.R.string.car_width_label) to if (car.width > 0) "${car.width} mm" else "",
-            context.getString(com.dariusepure.caractivitylog.R.string.car_height_label) to if (car.height > 0) "${car.height} mm" else "",
-            context.getString(com.dariusepure.caractivitylog.R.string.car_wheelbase_label) to if (car.wheelbase > 0) "${car.wheelbase} mm" else "",
-            context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_weight) to if (car.weight > 0) "${car.weight} kg" else ""
-        ).filter { it.second.isNotBlank() })
 
         // 3. Lists (Single Column, Table Style)
-        if (maintenanceLogs.isNotEmpty()) {
+        if ((reportType == ReportType.FULL || reportType == ReportType.TECHNICAL_SHEET) && maintenanceLogs.isNotEmpty()) {
             drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.pdf_section_service))
             val country = europeanCountries.find { it.code == car.plateCountry }
             val unit = if (country?.usesMiles == true) "mi" else "km"
@@ -206,7 +213,7 @@ object PdfReportGenerator {
             }
         }
 
-        if (inspections.isNotEmpty()) {
+        if ((reportType == ReportType.FULL || reportType == ReportType.TECHNICAL_SHEET) && inspections.isNotEmpty()) {
             drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.pdf_section_inspections))
             val country = europeanCountries.find { it.code == car.plateCountry }
             val unit = if (country?.usesMiles == true) "mi" else "km"
@@ -223,7 +230,7 @@ object PdfReportGenerator {
             }
         }
 
-        if (fuelLogs.isNotEmpty()) {
+        if ((reportType == ReportType.FULL || reportType == ReportType.TECHNICAL_SHEET) && fuelLogs.isNotEmpty()) {
             drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.pdf_section_fuel))
             val country = europeanCountries.find { it.code == car.plateCountry }
             val unit = if (country?.usesMiles == true) "mi" else "km"
@@ -239,7 +246,7 @@ object PdfReportGenerator {
             }
         }
 
-        if (tireSets.isNotEmpty()) {
+        if ((reportType == ReportType.FULL || reportType == ReportType.TECHNICAL_SHEET) && tireSets.isNotEmpty()) {
             drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.pdf_section_tire_sets))
             tireSets.sortedByDescending { it.isActive }.forEach { tireSet ->
                 checkAndCreateNewPage(35f)
@@ -270,7 +277,7 @@ object PdfReportGenerator {
             }
         }
 
-        if (mileageLogs.isNotEmpty()) {
+        if ((reportType == ReportType.FULL || reportType == ReportType.MILEAGE_HISTORY) && mileageLogs.isNotEmpty()) {
             drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.pdf_section_mileage))
             val country = europeanCountries.find { it.code == car.plateCountry }
             val unit = if (country?.usesMiles == true) "mi" else "km"

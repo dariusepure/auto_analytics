@@ -284,6 +284,8 @@
     <string name="car_report_success">Report saved successfully</string>
     <string name="car_report_no_viewer">No PDF viewer found on this device</string>
     <string name="car_report_failed">Failed to save report</string>
+    <string name="car_report_save_pdf">Save PDF</string>
+    <string name="car_report_popup_title">Export Report</string>
 
     <!-- Tires -->
     <string name="tire_management_title">Tire Management</string>

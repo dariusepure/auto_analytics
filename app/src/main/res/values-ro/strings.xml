@@ -281,6 +281,8 @@
     <string name="car_report_success">Raport salvat cu succes</string>
     <string name="car_report_no_viewer">Nu a fost găsit niciun vizualizator PDF pe acest dispozitiv</string>
     <string name="car_report_failed">Eșec la salvarea raportului</string>
+    <string name="car_report_save_pdf">Salvează PDF</string>
+    <string name="car_report_popup_title">Exportă Raport</string>
 
     <!-- Tires -->
     <string name="tire_management_title">Management Anvelope</string>
