@@ -150,8 +150,7 @@ class AddCarViewModel @Inject constructor(
         tireDiameter: String,
         acceleration0to100: String = "",
         fuelConsumptionCombined: String = "",
-        co2Emissions: String = "",
-        accentColor: Long? = null
+        co2Emissions: String = ""
     ) {
         if (name.isBlank() && (make.isBlank() || model.isBlank())) {
             _state.value = AddCarState.Error("Please provide at least a Title or Brand & Model")
@@ -276,7 +275,6 @@ class AddCarViewModel @Inject constructor(
                     acceleration0to100 = acceleration0to100.toDoubleOrNull() ?: 0.0,
                     fuelConsumptionCombined = fuelConsumptionCombined.toDoubleOrNull() ?: 0.0,
                     co2Emissions = co2Emissions.toDoubleOrNull()?.roundToInt() ?: 0,
-                    accentColor = accentColor,
                     updatedAt = Date()
                 )
 

@@ -36,7 +36,6 @@ import kotlin.math.roundToInt
 @Composable
 fun InsuranceItem(
     insurance: Insurance,
-    accentColor: Color = Color(0xFF2196F3),
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -115,7 +114,6 @@ fun InsuranceItem(
 @Composable
 fun VignetteItem(
     vignette: Vignette,
-    accentColor: Color = Color(0xFF2196F3),
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -199,7 +197,6 @@ fun VignetteItem(
 @Composable
 fun TireSetItem(
     tireSet: TireSet,
-    accentColor: Color = Color(0xFF2196F3),
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -340,7 +337,6 @@ fun SpecificationCard(specifications: List<Pair<String, String>>) {
 fun InspectionItem(
     inspection: VehicleInspection,
     unit: String,
-    accentColor: Color = Color(0xFF2196F3),
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {

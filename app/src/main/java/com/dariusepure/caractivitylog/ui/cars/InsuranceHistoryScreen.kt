@@ -84,10 +84,9 @@ fun InsuranceHistoryScreen(
             )
         },
         floatingActionButton = {
-            val carAccentColor = (state as? CarDetailsUiState.Success)?.car?.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
             FloatingActionButton(
                 onClick = { showAddDialog = true },
-                containerColor = carAccentColor,
+                containerColor = Color(0xFF2196F3),
                 contentColor = Color.White
             ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.insurance_add_title))
@@ -125,11 +124,9 @@ fun InsuranceHistoryScreen(
                             )
                         }
                     } else {
-                        val carAccentColor = s.car.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
                         items(s.insurances) { insurance ->
                             InsuranceItem(
                                 insurance = insurance,
-                                accentColor = carAccentColor,
                                 onEditClick = { editingInsurance = insurance },
                                 onDeleteClick = { insuranceToDelete = insurance }
                             )

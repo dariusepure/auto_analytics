@@ -76,13 +76,12 @@ fun InspectionHistoryScreen(
         val existingLogs = successState?.mileageLogs ?: emptyList()
         val country = europeanCountries.find { it.code == car?.plateCountry }
         val unitLabel = if (country?.usesMiles == true) "mi" else "km"
-        val carAccentColor = car?.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
         
         AddInspectionDialog(
             existingInspection = editingInspection,
             existingLogs = existingLogs,
             unit = unitLabel,
-            accentColor = carAccentColor,
+            accentColor = Color(0xFF2196F3),
             onAccentColor = Color.White,
             onDismiss = { 
                 showAddDialog = false
@@ -113,10 +112,9 @@ fun InspectionHistoryScreen(
             )
         },
         floatingActionButton = {
-            val carAccentColor = (state as? CarDetailsUiState.Success)?.car?.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
             FloatingActionButton(
                 onClick = { showAddDialog = true },
-                containerColor = carAccentColor,
+                containerColor = Color(0xFF2196F3),
                 contentColor = Color.White
             ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.inspection_add_title))
@@ -154,7 +152,6 @@ fun InspectionHistoryScreen(
                             )
                         }
                     } else {
-                        val carAccentColor = s.car.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
                         items(s.inspections) { inspection ->
                             val country = europeanCountries.find { it.code == car.plateCountry }
                             val unitLabel = if (country?.usesMiles == true) "mi" else "km"
@@ -163,7 +160,6 @@ fun InspectionHistoryScreen(
                             InspectionItem(
                                 inspection = inspection.copy(mileage = displayMileage),
                                 unit = unitLabel,
-                                accentColor = carAccentColor,
                                 onEditClick = { editingInspection = inspection },
                                 onDeleteClick = { inspectionToDelete = inspection }
                             )

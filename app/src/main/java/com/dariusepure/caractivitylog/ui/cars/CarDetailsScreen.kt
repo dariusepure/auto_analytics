@@ -74,8 +74,7 @@ fun CarDetailsScreen(
         viewModel.loadCarData(carId)
     }
 
-    val carAccentColor = (state as? CarDetailsUiState.Success)?.car?.accentColor?.let { Color(it) } 
-        ?: Color(0xFF2196F3) // Default light blue
+    val carAccentColor = Color(0xFF2196F3) // Default light blue
 
     Scaffold(
         modifier = modifier,

@@ -160,13 +160,7 @@ fun AddCarScreen(
     var tireWidth by remember { mutableStateOf("") }
     var tireAspectRatio by remember { mutableStateOf("") }
     var tireDiameter by remember { mutableStateOf("") }
-    var accentColor by remember { mutableStateOf<Long?>(null) }
 
-    LaunchedEffect(make) {
-        if (make.isNotBlank()) {
-            accentColor = BrandHelper.getBrandColor(make)
-        }
-    }
     var fuelTankCapacity by remember { mutableStateOf("") }
     var batteryCapacity by remember { mutableStateOf("") }
     var drivetrain by remember { mutableStateOf("") }
@@ -357,8 +351,7 @@ fun AddCarScreen(
                 tireDiameter = tireDiameter,
                 acceleration0to100 = acceleration0to100,
                 fuelConsumptionCombined = fuelConsumptionCombined,
-                co2Emissions = co2Emissions,
-                accentColor = accentColor
+                co2Emissions = co2Emissions
             )
         } else {
             onBack()
@@ -415,7 +408,6 @@ fun AddCarScreen(
                 tireWidth = car.tireWidth.takeIf { it != 0 }?.toString() ?: ""
                 tireAspectRatio = car.tireAspectRatio.takeIf { it != 0 }?.toString() ?: ""
                 tireDiameter = car.tireDiameter.takeIf { it != 0 }?.toString() ?: ""
-                accentColor = car.accentColor
                 
                 fuelTankCapacity = car.fuelTankCapacity.takeIf { it != 0.0 }?.toString() ?: ""
                 batteryCapacity = car.batteryCapacity.takeIf { it != 0.0 }?.toString() ?: ""
@@ -1897,8 +1889,7 @@ fun AddCarScreen(
                         rearBrakes = rearBrakes,
                         acceleration0to100 = acceleration0to100,
                         fuelConsumptionCombined = fuelConsumptionCombined,
-                        co2Emissions = co2Emissions,
-                        accentColor = accentColor
+                        co2Emissions = co2Emissions
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),

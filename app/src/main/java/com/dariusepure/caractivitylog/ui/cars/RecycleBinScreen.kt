@@ -31,7 +31,6 @@ import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.displayName
 import com.dariusepure.caractivitylog.ui.common.AutoSizeText
 import com.dariusepure.caractivitylog.ui.common.*
-import com.dariusepure.caractivitylog.ui.cars.BrandHelper
 import java.text.SimpleDateFormat
 import java.util.Locale
 

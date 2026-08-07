@@ -87,7 +87,7 @@ fun FuelHistoryScreen(
                 val usesMiles = country?.usesMiles == true
                 val distUnit = if (usesMiles) "mi" else "km"
                 val consUnit = if (usesMiles) "mpg" else "L/100km"
-                val carAccentColor = s.car.accentColor?.let { androidx.compose.ui.graphics.Color(it) } ?: androidx.compose.ui.graphics.Color(0xFF2196F3)
+                val carAccentColor = androidx.compose.ui.graphics.Color(0xFF2196F3)
 
                 LazyColumn(
                     modifier = Modifier

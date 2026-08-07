@@ -46,7 +46,7 @@ object PdfReportGenerator {
         val dateFormat = SimpleDateFormat("dd MMM yyyy", currentLocale)
         val timeFormat = SimpleDateFormat("HH:mm", currentLocale)
 
-        val accentColorInt = car.accentColor?.toInt() ?: 0xFF2196F3.toInt()
+        val accentColorInt = 0xFF2196F3.toInt() // Default blue
         val accentColorPaint = Paint().apply { color = accentColorInt }
         val textPaint = Paint().apply { color = Color.BLACK; isAntiAlias = true }
         val secondaryTextPaint = Paint().apply { color = Color.DKGRAY; isAntiAlias = true }

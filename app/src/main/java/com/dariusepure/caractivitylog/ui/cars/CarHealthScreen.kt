@@ -56,7 +56,7 @@ fun CarHealthScreen(
             is CarDetailsUiState.Error -> ErrorState(s.message, onRetry = { viewModel.loadCarData(carId) })
             is CarDetailsUiState.Success -> {
                 val analysis = s.aiAnalysis
-                val carAccentColor = s.car.accentColor?.let { Color(it) } ?: MaterialTheme.colorScheme.primary
+                val carAccentColor = Color(0xFF2196F3)
 
                 LazyColumn(
                     modifier = Modifier
@@ -134,7 +134,7 @@ fun CarHealthScreen(
                                 )
                             }
                             items(analysis.recommendations) { rec ->
-                                RecommendationItem(rec, carAccentColor)
+                                RecommendationItem(rec)
                             }
                         }
                         
@@ -227,7 +227,8 @@ fun HealthScoreHeader(
 }
 
 @Composable
-fun RecommendationItem(text: String, accentColor: Color) {
+fun RecommendationItem(text: String) {
+    val accentColor = Color(0xFF2196F3)
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),

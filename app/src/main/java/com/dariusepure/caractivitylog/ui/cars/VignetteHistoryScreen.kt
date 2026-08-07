@@ -84,10 +84,9 @@ fun VignetteHistoryScreen(
             )
         },
         floatingActionButton = {
-            val carAccentColor = (state as? CarDetailsUiState.Success)?.car?.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
             FloatingActionButton(
                 onClick = { showAddDialog = true },
-                containerColor = carAccentColor,
+                containerColor = Color(0xFF2196F3),
                 contentColor = Color.White
             ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.vignette_add_title))
@@ -125,11 +124,9 @@ fun VignetteHistoryScreen(
                             )
                         }
                     } else {
-                        val carAccentColor = s.car.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
                         items(s.vignettes) { vignette ->
                             VignetteItem(
                                 vignette = vignette,
-                                accentColor = carAccentColor,
                                 onEditClick = { editingVignette = vignette },
                                 onDeleteClick = { vignetteToDelete = vignette }
                             )

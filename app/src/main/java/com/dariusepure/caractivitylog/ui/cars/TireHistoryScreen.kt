@@ -85,10 +85,9 @@ fun TireHistoryScreen(
             )
         },
         floatingActionButton = {
-            val carAccentColor = (state as? CarDetailsUiState.Success)?.car?.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
             FloatingActionButton(
                 onClick = { showAddDialog = true },
-                containerColor = carAccentColor,
+                containerColor = Color(0xFF2196F3),
                 contentColor = Color.White
             ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.tire_add_title))

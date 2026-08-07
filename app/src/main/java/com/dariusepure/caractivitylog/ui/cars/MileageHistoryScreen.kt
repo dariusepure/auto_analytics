@@ -110,13 +110,12 @@ fun MileageHistoryScreen(
         val car = successState?.car
         val country = europeanCountries.find { it.code == car?.plateCountry }
         val unitLabel = if (country?.usesMiles == true) "mi" else "km"
-        val carAccentColor = car?.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
 
         AddMileageDialog(
             existingLog = editingMileageLog,
             existingLogs = existingLogs,
             unit = unitLabel,
-            accentColor = carAccentColor,
+            accentColor = Color(0xFF2196F3),
             onAccentColor = Color.White,
             onDismiss = { 
                 showAddMileageDialog = false
@@ -160,10 +159,9 @@ fun MileageHistoryScreen(
             )
         },
         floatingActionButton = {
-            val carAccentColor = (state as? CarDetailsUiState.Success)?.car?.accentColor?.let { Color(it) } ?: Color(0xFF2196F3)
             FloatingActionButton(
                 onClick = { showAddMileageDialog = true },
-                containerColor = carAccentColor,
+                containerColor = Color(0xFF2196F3),
                 contentColor = Color.White
             ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.mileage_add_title))
