@@ -123,13 +123,13 @@ fun AddCarScreen(
         "Van", "Minivan", "Pickup"
     )
 
-    var name by remember { mutableStateOf("") } // Car Title / Nickname
     var licensePlate by remember { mutableStateOf("") }
     var selectedCountry by remember { mutableStateOf<Country?>(null) }
     var make by remember { mutableStateOf("") }
     var model by remember { mutableStateOf("") }
     var modelExpanded by remember { mutableStateOf(false) }
     var vin by remember { mutableStateOf("") }
+    var showVinError by remember { mutableStateOf(false) }
     var year by remember { mutableStateOf("") }
     var engineSize by remember { mutableStateOf("") }
     var fuelType by remember { mutableStateOf("") }
@@ -300,12 +300,11 @@ fun AddCarScreen(
     val powerUnits = listOf("hp", "kw")
 
     val handleBack = {
-        val hasRequiredData = name.isNotBlank() || (make.isNotBlank() && model.isNotBlank())
+        val hasRequiredData = make.isNotBlank() && model.isNotBlank()
         val isVinValid = vin.isEmpty() || vin.length == 17
         
         if (hasRequiredData && isVinValid) {
             viewModel.onAddOrUpdateCar(
-                name = name,
                 licensePlate = licensePlate,
                 plateCountry = selectedCountry?.code ?: "",
                 make = make,
@@ -365,7 +364,6 @@ fun AddCarScreen(
             viewModel.loadCar(carId)
             val car = viewModel.getCarData(carId)
             if (car != null) {
-                name = car.name
                 licensePlate = car.licensePlate
                 selectedCountry = europeanCountries.find { it.code == car.plateCountry }
                 
@@ -477,57 +475,22 @@ fun AddCarScreen(
                 isExpanded = identityExpanded,
                 onToggle = { identityExpanded = !identityExpanded }
             ) {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text(stringResource(R.string.car_title_label)) },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                    singleLine = true,
-                    placeholder = { 
-                        val fallback = "$make $model".trim()
-                        Text(if (fallback.isNotBlank()) stringResource(R.string.car_title_placeholder, fallback) else stringResource(R.string.car_title_placeholder_fallback)) 
-                    },
-                    enabled = state !is AddCarState.Pending
-                )
-
-                val isExpanded = windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Expanded
-
-                if (isExpanded) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        ScanButton(
-                            onClick = { photoPicker.launch("image/*") },
-                            modifier = Modifier.weight(1f),
-                            state = state,
-                            label = stringResource(R.string.car_scan_photo)
-                        )
-                        ScanButton(
-                            onClick = { pdfPicker.launch("application/pdf") },
-                            modifier = Modifier.weight(1f),
-                            state = state,
-                            label = stringResource(R.string.car_scan_pdf)
-                        )
-                    }
-                } else {
-                    Column(
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        ScanButton(
-                            onClick = { photoPicker.launch("image/*") },
-                            modifier = Modifier.fillMaxWidth(),
-                            state = state,
-                            label = stringResource(R.string.car_scan_photo)
-                        )
-                        ScanButton(
-                            onClick = { pdfPicker.launch("application/pdf") },
-                            modifier = Modifier.fillMaxWidth(),
-                            state = state,
-                            label = stringResource(R.string.car_scan_pdf)
-                        )
-                    }
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ScanButton(
+                        onClick = { photoPicker.launch("image/*") },
+                        modifier = Modifier.weight(1f),
+                        state = state,
+                        label = stringResource(R.string.car_scan_photo)
+                    )
+                    ScanButton(
+                        onClick = { pdfPicker.launch("application/pdf") },
+                        modifier = Modifier.weight(1f),
+                        state = state,
+                        label = stringResource(R.string.car_scan_pdf)
+                    )
                 }
 
                 Box(modifier = Modifier.fillMaxWidth()) {
@@ -680,7 +643,17 @@ fun AddCarScreen(
                 OutlinedTextField(
                     value = vin,
                     onValueChange = { input ->
-                        val filtered = input.uppercase().filter { it.isLetterOrDigit() && it !in listOf('I', 'O', 'Q') }
+                        val upperInput = input.uppercase()
+                        val hasInvalidChars = upperInput.any { it in listOf('I', 'O', 'Q') }
+                        
+                        val filtered = upperInput.filter { it.isLetterOrDigit() && it !in listOf('I', 'O', 'Q') }
+                        
+                        if (hasInvalidChars) {
+                            showVinError = true
+                        } else if (filtered.length > vin.length) {
+                            showVinError = false
+                        }
+
                         if (filtered.length <= 17) vin = filtered
                     },
                     label = { Text(stringResource(R.string.car_vin_label)) },
@@ -695,10 +668,16 @@ fun AddCarScreen(
                                     Text(stringResource(R.string.car_vin_remaining, 17 - vin.length), color = MaterialTheme.colorScheme.secondary)
                                 }
                             }
-                            Text(stringResource(R.string.car_vin_invalid_chars), style = MaterialTheme.typography.bodySmall)
+                            if (showVinError) {
+                                Text(
+                                    text = stringResource(R.string.car_vin_invalid_chars),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
                         }
                     },
-                    isError = vin.isNotEmpty() && vin.length != 17
+                    isError = (vin.isNotEmpty() && vin.length != 17) || showVinError
                 )
             }
 
@@ -1843,7 +1822,6 @@ fun AddCarScreen(
             Button(
                 onClick = {
                     viewModel.onAddOrUpdateCar(
-                        name = name,
                         licensePlate = licensePlate,
                         plateCountry = selectedCountry?.code ?: "",
                         make = make,
@@ -1893,7 +1871,7 @@ fun AddCarScreen(
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = (name.isNotBlank() || (make.isNotBlank() && model.isNotBlank())) && state !is AddCarState.Pending,
+                enabled = (make.isNotBlank() && model.isNotBlank()) && state !is AddCarState.Pending,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer

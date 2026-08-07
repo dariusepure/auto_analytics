@@ -104,7 +104,6 @@ class AddCarViewModel @Inject constructor(
     }
 
     fun onAddOrUpdateCar(
-        name: String, // Car Title / Nickname
         licensePlate: String,
         plateCountry: String,
         make: String,
@@ -152,8 +151,8 @@ class AddCarViewModel @Inject constructor(
         fuelConsumptionCombined: String = "",
         co2Emissions: String = ""
     ) {
-        if (name.isBlank() && (make.isBlank() || model.isBlank())) {
-            _state.value = AddCarState.Error("Please provide at least a Title or Brand & Model")
+        if (make.isBlank() || model.isBlank()) {
+            _state.value = AddCarState.Error("Please provide Brand & Model")
             return
         }
 
@@ -228,7 +227,7 @@ class AddCarViewModel @Inject constructor(
 
                 val car = Car(
                     id = currentCarId ?: "",
-                    name = name.trim(),
+                    name = "",
                     licensePlate = licensePlate.uppercase(),
                     plateCountry = plateCountry,
                     make = make.trim().uppercase(),
