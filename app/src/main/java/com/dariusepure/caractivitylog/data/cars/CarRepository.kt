@@ -584,42 +584,23 @@ class CarRepository @Inject constructor(
         
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
         val fuelLogRef = carRef.collection("fuel_logs").document()
-        val mileageLogRef = carRef.collection("mileage").document()
 
-        val mileageLog = MileageLog(id = mileageLogRef.id, km = log.km, date = log.date)
-        val fuelLog = log.copy(id = fuelLogRef.id, mileageLogId = mileageLogRef.id)
-
-        firestore.runBatch { batch ->
-            batch.set(fuelLogRef, fuelLog.toFirebase())
-            batch.set(mileageLogRef, mileageLog.toFirebase())
-        }.await()
+        val fuelLog = log.copy(id = fuelLogRef.id)
+        fuelLogRef.set(fuelLog.toFirebase()).await()
     }
 
     suspend fun updateFuelLog(carId: String, log: com.dariusepure.caractivitylog.domain.FuelLog) {
         checkNetwork()
         val uid = getUid()
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
-        
-        firestore.runBatch { batch ->
-            batch.set(carRef.collection("fuel_logs").document(log.id), log.toFirebase())
-            if (log.mileageLogId.isNotEmpty()) {
-                val mileageLog = MileageLog(id = log.mileageLogId, km = log.km, date = log.date)
-                batch.set(carRef.collection("mileage").document(log.mileageLogId), mileageLog.toFirebase())
-            }
-        }.await()
+        carRef.collection("fuel_logs").document(log.id).set(log.toFirebase()).await()
     }
 
     suspend fun deleteFuelLog(carId: String, log: com.dariusepure.caractivitylog.domain.FuelLog) {
         checkNetwork()
         val uid = getUid()
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
-        
-        firestore.runBatch { batch ->
-            batch.delete(carRef.collection("fuel_logs").document(log.id))
-            if (log.mileageLogId.isNotEmpty()) {
-                batch.delete(carRef.collection("mileage").document(log.mileageLogId))
-            }
-        }.await()
+        carRef.collection("fuel_logs").document(log.id).delete().await()
     }
 
     fun getMaintenanceLogs(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.Maintenance>> = callbackFlow {
@@ -656,44 +637,24 @@ class CarRepository @Inject constructor(
         checkNetwork()
         val uid = getUid()
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
-        
         val maintenanceRef = carRef.collection("maintenance").document()
-        val mileageLogRef = carRef.collection("mileage").document()
 
-        val mileageLog = MileageLog(id = mileageLogRef.id, km = log.km, date = log.date)
-        val maintenanceLog = log.copy(id = maintenanceRef.id, mileageLogId = mileageLogRef.id)
-
-        firestore.runBatch { batch ->
-            batch.set(maintenanceRef, maintenanceLog.toFirebase())
-            batch.set(mileageLogRef, mileageLog.toFirebase())
-        }.await()
+        val maintenanceLog = log.copy(id = maintenanceRef.id)
+        maintenanceRef.set(maintenanceLog.toFirebase()).await()
     }
 
     suspend fun updateMaintenanceLog(carId: String, log: com.dariusepure.caractivitylog.domain.Maintenance) {
         checkNetwork()
         val uid = getUid()
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
-        
-        firestore.runBatch { batch ->
-            batch.set(carRef.collection("maintenance").document(log.id), log.toFirebase())
-            if (log.mileageLogId.isNotEmpty()) {
-                val mileageLog = MileageLog(id = log.mileageLogId, km = log.km, date = log.date)
-                batch.set(carRef.collection("mileage").document(log.mileageLogId), mileageLog.toFirebase())
-            }
-        }.await()
+        carRef.collection("maintenance").document(log.id).set(log.toFirebase()).await()
     }
 
     suspend fun deleteMaintenanceLog(carId: String, log: com.dariusepure.caractivitylog.domain.Maintenance) {
         checkNetwork()
         val uid = getUid()
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
-        
-        firestore.runBatch { batch ->
-            batch.delete(carRef.collection("maintenance").document(log.id))
-            if (log.mileageLogId.isNotEmpty()) {
-                batch.delete(carRef.collection("mileage").document(log.mileageLogId))
-            }
-        }.await()
+        carRef.collection("maintenance").document(log.id).delete().await()
     }
 
     fun getAiAnalysis(carId: String): Flow<AiAnalysis?> = callbackFlow {

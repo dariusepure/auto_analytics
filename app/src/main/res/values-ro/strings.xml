@@ -216,7 +216,9 @@
     <string name="car_valves_per_cyl_label">Valve/Cil</string>
     <string name="car_top_speed_label">Viteză maximă (km/h)</string>
     <string name="car_acceleration_label">0-100 km/h (sec)</string>
-    <string name="car_consumption_label">Consum mixt (L/100km)</string>
+    <string name="car_consumption_label">Consum mixt</string>
+    <string name="car_consumption_urban_label">Urban</string>
+    <string name="car_consumption_extra_urban_label">Extraurban</string>
     <string name="car_co2_label">Emisii CO2 (g/km)</string>
     <string name="car_fuel_type_label">Tip combustibil</string>
     <string name="car_fuel_system_label">Sistem combustibil</string>

@@ -24,12 +24,12 @@ plugins {
 
 android {
     namespace = "com.dariusepure.caractivitylog"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.dariusepure.caractivitylog"
-        minSdk = 24
-        targetSdk = 35
+        minSdk = 26
+        targetSdk = 36
         versionCode = 16
         versionName = "2.4"
 

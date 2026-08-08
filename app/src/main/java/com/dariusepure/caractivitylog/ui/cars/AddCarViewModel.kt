@@ -149,6 +149,8 @@ class AddCarViewModel @Inject constructor(
         tireDiameter: String,
         acceleration0to100: String = "",
         fuelConsumptionCombined: String = "",
+        fuelConsumptionUrban: String = "",
+        fuelConsumptionExtraUrban: String = "",
         co2Emissions: String = ""
     ) {
         if (make.isBlank() || model.isBlank()) {
@@ -194,7 +196,9 @@ class AddCarViewModel @Inject constructor(
             "Tire Ratio" to tireAspectRatio,
             "Tire Diameter" to tireDiameter,
             "Acceleration" to acceleration0to100,
-            "Consumption" to fuelConsumptionCombined,
+            "Consumption Mixed" to fuelConsumptionCombined,
+            "Consumption Urban" to fuelConsumptionUrban,
+            "Consumption Extra-Urban" to fuelConsumptionExtraUrban,
             "CO2" to co2Emissions
         )
 
@@ -273,6 +277,8 @@ class AddCarViewModel @Inject constructor(
                     tireDiameter = tireDiameter.toDoubleOrNull()?.roundToInt() ?: 0,
                     acceleration0to100 = acceleration0to100.toDoubleOrNull() ?: 0.0,
                     fuelConsumptionCombined = fuelConsumptionCombined.toDoubleOrNull() ?: 0.0,
+                    fuelConsumptionUrban = fuelConsumptionUrban.toDoubleOrNull() ?: 0.0,
+                    fuelConsumptionExtraUrban = fuelConsumptionExtraUrban.toDoubleOrNull() ?: 0.0,
                     co2Emissions = co2Emissions.toDoubleOrNull()?.roundToInt() ?: 0,
                     updatedAt = Date()
                 )

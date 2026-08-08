@@ -219,7 +219,9 @@
     <string name="car_valves_per_cyl_label">Valves/Cyl</string>
     <string name="car_top_speed_label">Top Speed (km/h)</string>
     <string name="car_acceleration_label">0-100 km/h (sec)</string>
-    <string name="car_consumption_label">Mixed Consumption (L/100km)</string>
+    <string name="car_consumption_label">Mixed Consumption</string>
+    <string name="car_consumption_urban_label">Urban</string>
+    <string name="car_consumption_extra_urban_label">Extra-Urban</string>
     <string name="car_co2_label">CO2 Emissions (g/km)</string>
     <string name="car_fuel_type_label">Fuel Type</string>
     <string name="car_fuel_system_label">Fuel System</string>

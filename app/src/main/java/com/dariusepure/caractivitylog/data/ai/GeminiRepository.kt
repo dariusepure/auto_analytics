@@ -307,8 +307,8 @@ class GeminiRepository @Inject constructor(
                 1. Evaluate if the fuel consumption trend is normal or increasing.
                 2. Check if any major maintenance (oil, filters, timing belt) is due based on mileage and last service.
                 3. Provide a 'healthScore' from 0 to 100.
-                4. Provide a 'summary' (max 3 sentences).
-                5. Provide a list of 'recommendations' (max 3 items).
+                4. Provide a 'summary' (max 2 concise sentences).
+                5. Provide a list of 'recommendations' (max 1-2 items).
                 
                 CRITICAL: Please provide the 'summary' and 'recommendations' in $language.
                 
@@ -330,36 +330,6 @@ class GeminiRepository @Inject constructor(
             val jsonText = extractJson(fullText)
             val analysis = json.decodeFromString<AiAnalysis>(jsonText)
             Result.success(analysis)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    suspend fun fetchModelInsights(make: String, model: String, year: Int, language: String = "English"): Result<String> {
-        return try {
-            val prompt = """
-                Provide a technical summary and reliability report for the $make $model ($year).
-                Include:
-                1. A brief overview of this generation (max 2 sentences).
-                2. COMMON ISSUES/FLAWS: List the most frequent mechanical or electrical problems users report (max 3 items).
-                3. PRO TIPS: One specific maintenance recommendation for this model.
-                
-                Language: Respond in $language.
-                Format: Plain text with bullet points. No JSON.
-            """.trimIndent()
-
-            val request = GeminiRequest(
-                contents = listOf(
-                    Content(parts = listOf(Part(text = prompt)))
-                ),
-                generationConfig = GenerationConfig(temperature = 0.5f)
-            )
-
-            val response = postGemini(request)
-            val fullText = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull { it.text != null }?.text
-                ?: throw Exception("Empty response from AI")
-
-            Result.success(fullText.trim())
         } catch (e: Exception) {
             Result.failure(e)
         }

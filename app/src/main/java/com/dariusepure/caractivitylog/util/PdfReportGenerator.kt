@@ -158,6 +158,8 @@ object PdfReportGenerator {
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_torque) to if (car.torque > 0) "${car.torque} Nm" else "",
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_top_speed) to if (car.topSpeed > 0) "${car.topSpeed.toInt()} km/h" else "",
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_acceleration) to if (car.acceleration0to100 > 0) "${car.acceleration0to100} s" else "",
+                context.getString(com.dariusepure.caractivitylog.R.string.car_consumption_urban_label) to if (car.fuelConsumptionUrban > 0) "${car.fuelConsumptionUrban} L/100km" else "",
+                context.getString(com.dariusepure.caractivitylog.R.string.car_consumption_extra_urban_label) to if (car.fuelConsumptionExtraUrban > 0) "${car.fuelConsumptionExtraUrban} L/100km" else "",
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_consumption) to if (car.fuelConsumptionCombined > 0) "${car.fuelConsumptionCombined} L/100km" else "",
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_co2) to if (car.co2Emissions > 0) "${car.co2Emissions} g/km" else "",
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_fuel_type) to car.fuelType,

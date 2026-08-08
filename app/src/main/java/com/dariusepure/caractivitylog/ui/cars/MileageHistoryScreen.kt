@@ -6,20 +6,25 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import com.dariusepure.caractivitylog.R
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.ui.common.*
 import com.dariusepure.caractivitylog.domain.displayName
+import java.util.Date
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,11 +37,29 @@ fun MileageHistoryScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     
     var showAddMileageDialog by remember { mutableStateOf(false) }
+    var showLogImportDialog by remember { mutableStateOf(false) }
     var editingMileageLog by remember { mutableStateOf<MileageLog?>(null) }
     var logToDelete by remember { mutableStateOf<MileageLog?>(null) }
 
     LaunchedEffect(carId) {
         viewModel.loadCarData(carId)
+    }
+
+    if (showLogImportDialog) {
+        val successState = state as? CarDetailsUiState.Success
+        if (successState != null) {
+            LogImportDialog(
+                fuelLogs = successState.fuelLogs,
+                maintenanceLogs = successState.maintenanceLogs,
+                existingMileageLogs = successState.mileageLogs,
+                unit = if (europeanCountries.find { it.code == successState.car.plateCountry }?.usesMiles == true) "mi" else "km",
+                onDismiss = { showLogImportDialog = false },
+                onConfirm = { logsToImport ->
+                    viewModel.addBatchMileageLogs(carId, logsToImport)
+                    showLogImportDialog = false
+                }
+            )
+        }
     }
 
     if (logToDelete != null) {
@@ -90,6 +113,11 @@ fun MileageHistoryScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { showLogImportDialog = true }) {
+                        Icon(Icons.Default.History, contentDescription = "Import from Fuel/Service")
                     }
                 }
             )
@@ -167,3 +195,108 @@ fun MileageHistoryScreen(
     }
 }
 
+@Composable
+fun LogImportDialog(
+    fuelLogs: List<com.dariusepure.caractivitylog.domain.FuelLog>,
+    maintenanceLogs: List<com.dariusepure.caractivitylog.domain.Maintenance>,
+    existingMileageLogs: List<MileageLog>,
+    unit: String,
+    onDismiss: () -> Unit,
+    onConfirm: (List<MileageLog>) -> Unit
+) {
+    val potentialLogs = remember(fuelLogs, maintenanceLogs, existingMileageLogs) {
+        val list = mutableListOf<Pair<MileageLog, String>>() // Log + Source Label
+        
+        val existingKms = existingMileageLogs.map { it.km.roundToInt() }.toSet()
+        
+        fuelLogs.forEach { fuel ->
+            if (fuel.km.roundToInt() !in existingKms) {
+                list.add(MileageLog(km = fuel.km, date = fuel.date) to "Fuel")
+            }
+        }
+        
+        maintenanceLogs.forEach { service ->
+            if (service.km.roundToInt() !in existingKms) {
+                list.add(MileageLog(km = service.km, date = service.date) to "Service")
+            }
+        }
+        
+        list.distinctBy { it.first.km.roundToInt() }.sortedByDescending { it.first.date }
+    }
+
+    var selectedLogs by remember { mutableStateOf(potentialLogs.map { it.first }.toSet()) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Import from Logs") },
+        text = {
+            Column {
+                if (potentialLogs.isEmpty()) {
+                    Text("No new mileage records found in Fuel or Service logs.")
+                } else {
+                    Text(
+                        text = "We found ${potentialLogs.size} records in other sections. Select what to add to history.",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth().heightIn(max = 300.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(potentialLogs) { (log, source) ->
+                            val isSelected = log in selectedLogs
+                            Surface(
+                                onClick = {
+                                    selectedLogs = if (isSelected) selectedLogs - log else selectedLogs + log
+                                },
+                                shape = MaterialTheme.shapes.medium,
+                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = "${log.km.roundToInt()} $unit",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text(
+                                            text = "$source \u00B7 ${CarFormatters.formatDate(log.date)}", 
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                    if (isSelected) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            if (potentialLogs.isNotEmpty()) {
+                Button(
+                    onClick = { onConfirm(selectedLogs.toList()) },
+                    enabled = selectedLogs.isNotEmpty()
+                ) {
+                    Text(stringResource(R.string.common_apply_selected, selectedLogs.size))
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(if (potentialLogs.isEmpty()) "Close" else stringResource(R.string.common_cancel))
+            }
+        }
+    )
+}

@@ -8,22 +8,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.PictureAsPdf
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,11 +26,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import com.dariusepure.caractivitylog.ui.common.PdfSaveDialog
+import com.dariusepure.caractivitylog.ui.common.PdfPreviewDialog
 import com.dariusepure.caractivitylog.util.PdfReportGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.platform.LocalContext
@@ -69,46 +60,41 @@ fun TechnicalSheetScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     
-    var showPdfDialog by remember { mutableStateOf(false) }
+    var tempPdfFile by remember { mutableStateOf<File?>(null) }
 
     val pdfLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/pdf"),
         onResult = { uri ->
             uri?.let { destUri ->
-                val successState = state as? CarDetailsUiState.Success ?: return@let
                 scope.launch {
                     try {
                         withContext(Dispatchers.IO) {
                             context.contentResolver.openOutputStream(destUri)?.use { os ->
-                                PdfReportGenerator.generateReport(
-                                    context = context,
-                                    car = successState.car,
-                                    mileageLogs = successState.mileageLogs,
-                                    inspections = successState.inspections,
-                                    fuelLogs = successState.fuelLogs,
-                                    tireSets = successState.tireSets,
-                                    maintenanceLogs = successState.maintenanceLogs,
-                                    outputStream = os,
-                                    reportType = PdfReportGenerator.ReportType.TECHNICAL_SHEET
-                                )
+                                tempPdfFile?.inputStream()?.use { it.copyTo(os) }
                             }
                         }
                         snackbarHostState.showSnackbar(context.getString(R.string.car_report_success))
                     } catch (e: Exception) {
                         e.printStackTrace()
                         snackbarHostState.showSnackbar(context.getString(R.string.car_report_failed))
+                    } finally {
+                        tempPdfFile?.delete()
+                        tempPdfFile = null
                     }
                 }
             }
         }
     )
 
-    if (showPdfDialog) {
+    if (tempPdfFile != null) {
         val carName = (state as? CarDetailsUiState.Success)?.car?.let { "${it.make}_${it.model}" } ?: "Car"
-        PdfSaveDialog(
-            onDismiss = { showPdfDialog = false },
+        PdfPreviewDialog(
+            pdfFile = tempPdfFile!!,
+            onDismiss = { 
+                tempPdfFile?.delete()
+                tempPdfFile = null 
+            },
             onSave = {
-                showPdfDialog = false
                 pdfLauncher.launch("Technical_Sheet_$carName.pdf")
             }
         )
@@ -130,11 +116,48 @@ fun TechnicalSheetScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { showPdfDialog = true }) {
+                    Button(
+                        onClick = { 
+                            val successState = state as? CarDetailsUiState.Success
+                            if (successState != null) {
+                                scope.launch {
+                                    try {
+                                        val file = File(context.cacheDir, "temp_report.pdf")
+                                        withContext(Dispatchers.IO) {
+                                            file.outputStream().use { os ->
+                                                PdfReportGenerator.generateReport(
+                                                    context = context,
+                                                    car = successState.car,
+                                                    mileageLogs = successState.mileageLogs,
+                                                    inspections = successState.inspections,
+                                                    fuelLogs = successState.fuelLogs,
+                                                    tireSets = successState.tireSets,
+                                                    maintenanceLogs = successState.maintenanceLogs,
+                                                    outputStream = os,
+                                                    reportType = PdfReportGenerator.ReportType.TECHNICAL_SHEET
+                                                )
+                                            }
+                                        }
+                                        tempPdfFile = file
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                    }
+                                }
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ),
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
                         Icon(
-                            imageVector = Icons.Default.PictureAsPdf,
-                            contentDescription = stringResource(R.string.car_generate_report)
+                            imageVector = Icons.Default.FileDownload,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
                         )
+                        Spacer(Modifier.width(8.dp))
+                        Text("SAVE PDF")
                     }
                 }
             )
@@ -199,6 +222,8 @@ fun TechnicalSheetScreen(
                                 stringResource(R.string.car_torque_label) to if (car.torque > 0) "${car.torque}\u00A0Nm" else "",
                                 stringResource(R.string.car_top_speed_label) to topSpeedText,
                                 stringResource(R.string.car_acceleration_label) to if (car.acceleration0to100 > 0) "${car.acceleration0to100}\u00A0sec" else "",
+                                stringResource(R.string.car_consumption_urban_label) to if (car.fuelConsumptionUrban > 0) "${car.fuelConsumptionUrban}\u00A0L/100km" else "",
+                                stringResource(R.string.car_consumption_extra_urban_label) to if (car.fuelConsumptionExtraUrban > 0) "${car.fuelConsumptionExtraUrban}\u00A0L/100km" else "",
                                 stringResource(R.string.car_consumption_label) to if (car.fuelConsumptionCombined > 0) "${car.fuelConsumptionCombined}\u00A0L/100km" else "",
                                 stringResource(R.string.car_co2_label) to if (car.co2Emissions > 0) "${car.co2Emissions}\u00A0g/km" else "",
                                 stringResource(R.string.car_aspiration_label) to CarTranslations.getAspirationLabel(context, car.aspiration),
@@ -249,55 +274,6 @@ fun TechnicalSheetScreen(
                         dimensionSpecs.add(stringResource(R.string.car_tire_size_label) to tireSizeText)
 
                         SpecificationCard(specifications = dimensionSpecs)
-                    }
-
-                    TechnicalCategory(title = "Model Wiki & Reliability") {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = MaterialTheme.shapes.medium,
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                            )
-                        ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                if (car.modelWikiSummary.isNotBlank()) {
-                                    Text(
-                                        text = car.modelWikiSummary,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                    
-                                    Spacer(Modifier.height(16.dp))
-                                    HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp), thickness = 0.5.dp)
-                                    Spacer(Modifier.height(16.dp))
-                                    
-                                    Text(
-                                        text = "⚡ Generating this summary again will update common issues.",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                } else {
-                                    Text(
-                                        text = "No summary available for this model yet.",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                                
-                                Spacer(Modifier.height(16.dp))
-                                
-                                OutlinedButton(
-                                    onClick = { viewModel.fetchModelInsights(carId) },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    enabled = !s.isAnalyzing
-                                ) {
-                                    if (s.isAnalyzing) {
-                                        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-                                    } else {
-                                        Text(if (car.modelWikiSummary.isBlank()) "Fetch Model Wiki" else "Update Wiki Summary")
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
             }

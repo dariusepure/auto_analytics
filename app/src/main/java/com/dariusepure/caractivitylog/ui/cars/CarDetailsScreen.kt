@@ -104,6 +104,20 @@ fun CarDetailsScreen(
             is CarDetailsUiState.Success -> {
                 val car = s.car
 
+                @Composable
+                fun getStatusColor(expiryDate: Date?): Color {
+                    if (expiryDate == null) return Color(0xFF1A73E8) // Default Blue
+                    val now = Date()
+                    val diff = expiryDate.time - now.time
+                    val days = diff / (1000 * 60 * 60 * 24)
+                    
+                    return when {
+                        expiryDate.before(now) -> MaterialTheme.colorScheme.error
+                        days < 14 -> Color(0xFFFF9800) // Orange
+                        else -> Color(0xFF4CAF50) // Green
+                    }
+                }
+
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
@@ -184,19 +198,20 @@ fun CarDetailsScreen(
                                     )
                                 }
                                 val latestInspection = s.inspections.maxByOrNull { it.date }
-                                val isItpExpired = CarFormatters.isInspectionExpired(latestInspection)
+                                val inspectionColor = getStatusColor(latestInspection?.expiryDate)
                                 val itpDays = latestInspection?.let { (it.expiryDate.time - Date().time) / (1000 * 60 * 60 * 24) } ?: -1
+                                
                                 BentoCard(
                                     onClick = onInspectionClick,
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
+                                    containerColor = inspectionColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.AssignmentTurnedIn, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
+                                    Icon(Icons.Default.AssignmentTurnedIn, null, modifier = Modifier.size(48.dp), tint = inspectionColor)
                                     Spacer(Modifier.height(8.dp))
                                     Text(text = stringResource(R.string.car_inspection_title), style = MaterialTheme.typography.titleSmall)
                                     StatusBadge(
-                                        label = if (isItpExpired) "Expired" else if (itpDays < 14) "Soon" else "OK",
-                                        color = if (isItpExpired) MaterialTheme.colorScheme.error else if (itpDays < 14) Color(0xFFFF9800) else Color(0xFF4CAF50)
+                                        label = if (latestInspection == null) "N/A" else if (itpDays < 0) stringResource(R.string.status_expired) else if (itpDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        color = inspectionColor
                                     )
                                 }
                             }
@@ -204,35 +219,37 @@ fun CarDetailsScreen(
                         item {
                             Row(modifier = Modifier.fillMaxWidth().height(120.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                 val latestInsurance = s.insurances.maxByOrNull { it.date }
-                                val isRcaExpired = latestInsurance?.expiryDate?.before(Date()) ?: true
+                                val insuranceColor = getStatusColor(latestInsurance?.expiryDate)
                                 val rcaDays = latestInsurance?.let { (it.expiryDate.time - Date().time) / (1000 * 60 * 60 * 24) } ?: -1
+                                
                                 BentoCard(
                                     onClick = onInsuranceClick,
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
+                                    containerColor = insuranceColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.Security, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
+                                    Icon(Icons.Default.Security, null, modifier = Modifier.size(48.dp), tint = insuranceColor)
                                     Spacer(Modifier.height(8.dp))
                                     Text(text = stringResource(R.string.car_insurance_title), style = MaterialTheme.typography.titleSmall)
                                     StatusBadge(
-                                        label = if (isRcaExpired) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
-                                        color = if (isRcaExpired) MaterialTheme.colorScheme.error else if (rcaDays < 14) Color(0xFFFF9800) else Color(0xFF4CAF50)
+                                        label = if (latestInsurance == null) "N/A" else if (rcaDays < 0) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        color = insuranceColor
                                     )
                                 }
                                 val latestVignette = s.vignettes.maxByOrNull { it.date }
-                                val isVigExpired = latestVignette?.expiryDate?.before(Date()) ?: true
+                                val vignetteColor = getStatusColor(latestVignette?.expiryDate)
                                 val vigDays = latestVignette?.let { (it.expiryDate.time - Date().time) / (1000 * 60 * 60 * 24) } ?: -1
+                                
                                 BentoCard(
                                     onClick = onVignetteClick,
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
+                                    containerColor = vignetteColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.ConfirmationNumber, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
+                                    Icon(Icons.Default.ConfirmationNumber, null, modifier = Modifier.size(48.dp), tint = vignetteColor)
                                     Spacer(Modifier.height(8.dp))
                                     Text(text = stringResource(R.string.car_vignette_title), style = MaterialTheme.typography.titleSmall)
                                     StatusBadge(
-                                        label = if (isVigExpired) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
-                                        color = if (isVigExpired) MaterialTheme.colorScheme.error else if (vigDays < 14) Color(0xFFFF9800) else Color(0xFF4CAF50)
+                                        label = if (latestVignette == null) "N/A" else if (vigDays < 0) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        color = vignetteColor
                                     )
                                 }
                                 BentoCard(
@@ -304,7 +321,7 @@ else {
                             Row(modifier = Modifier.fillMaxWidth().height(110.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                 BentoCard(
                                     onClick = onTechnicalSheetClick,
-                                    modifier = Modifier.weight(1.2f).fillMaxHeight(),
+                                    modifier = Modifier.weight(1f).fillMaxHeight(),
                                     containerColor = carAccentColor.copy(alpha = 0.15f)
                                 ) {
                                     Icon(Icons.Default.Description, null, modifier = Modifier.size(52.dp), tint = carAccentColor)
@@ -341,15 +358,15 @@ else {
                         item {
                             Row(modifier = Modifier.fillMaxWidth().height(160.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                 val latestInspection = s.inspections.maxByOrNull { it.date }
-                                val isItpExpired = CarFormatters.isInspectionExpired(latestInspection)
+                                val inspectionColor = getStatusColor(latestInspection?.expiryDate)
                                 val itpDays = latestInspection?.let { (it.expiryDate.time - Date().time) / (1000 * 60 * 60 * 24) } ?: -1
                                 
                                 BentoCard(
                                     onClick = onInspectionClick,
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
+                                    containerColor = inspectionColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.AssignmentTurnedIn, null, modifier = Modifier.size(56.dp), tint = carAccentColor)
+                                    Icon(Icons.Default.AssignmentTurnedIn, null, modifier = Modifier.size(56.dp), tint = inspectionColor)
                                     Spacer(Modifier.weight(1f))
                                     Text(
                                         text = stringResource(R.string.car_inspection_title),
@@ -358,21 +375,21 @@ else {
                                         maxLines = 2
                                     )
                                     StatusBadge(
-                                        label = if (isItpExpired) stringResource(R.string.status_expired) else if (itpDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
-                                        color = if (isItpExpired) MaterialTheme.colorScheme.error else if (itpDays < 14) Color(0xFFFF9800) else Color(0xFF4CAF50)
+                                        label = if (latestInspection == null) "N/A" else if (itpDays < 0) stringResource(R.string.status_expired) else if (itpDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        color = inspectionColor
                                     )
                                 }
 
                                 val latestInsurance = s.insurances.maxByOrNull { it.date }
-                                val isRcaExpired = latestInsurance?.expiryDate?.before(Date()) ?: true
+                                val insuranceColor = getStatusColor(latestInsurance?.expiryDate)
                                 val rcaDays = latestInsurance?.let { (it.expiryDate.time - Date().time) / (1000 * 60 * 60 * 24) } ?: -1
 
                                 BentoCard(
                                     onClick = onInsuranceClick,
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
+                                    containerColor = insuranceColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.Security, null, modifier = Modifier.size(56.dp), tint = carAccentColor)
+                                    Icon(Icons.Default.Security, null, modifier = Modifier.size(56.dp), tint = insuranceColor)
                                     Spacer(Modifier.weight(1f))
                                     Text(
                                         text = stringResource(R.string.car_insurance_title),
@@ -381,21 +398,21 @@ else {
                                         maxLines = 2
                                     )
                                     StatusBadge(
-                                        label = if (isRcaExpired) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
-                                        color = if (isRcaExpired) MaterialTheme.colorScheme.error else if (rcaDays < 14) Color(0xFFFF9800) else Color(0xFF4CAF50)
+                                        label = if (latestInsurance == null) "N/A" else if (rcaDays < 0) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        color = insuranceColor
                                     )
                                 }
 
                                 val latestVignette = s.vignettes.maxByOrNull { it.date }
-                                val isVigExpired = latestVignette?.expiryDate?.before(Date()) ?: true
+                                val vignetteColor = getStatusColor(latestVignette?.expiryDate)
                                 val vigDays = latestVignette?.let { (it.expiryDate.time - Date().time) / (1000 * 60 * 60 * 24) } ?: -1
 
                                 BentoCard(
                                     onClick = onVignetteClick,
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
+                                    containerColor = vignetteColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.ConfirmationNumber, null, modifier = Modifier.size(56.dp), tint = carAccentColor)
+                                    Icon(Icons.Default.ConfirmationNumber, null, modifier = Modifier.size(56.dp), tint = vignetteColor)
                                     Spacer(Modifier.weight(1f))
                                     Text(
                                         text = stringResource(R.string.car_vignette_title),
@@ -404,8 +421,8 @@ else {
                                         maxLines = 2
                                     )
                                     StatusBadge(
-                                        label = if (isVigExpired) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
-                                        color = if (isVigExpired) MaterialTheme.colorScheme.error else if (vigDays < 14) Color(0xFFFF9800) else Color(0xFF4CAF50)
+                                        label = if (latestVignette == null) "N/A" else if (vigDays < 0) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        color = vignetteColor
                                     )
                                 }
                             }

@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
@@ -76,6 +77,19 @@ fun rememberMarker(
 }
 
 @Composable
+fun rememberAxisLabelComponent() = rememberTextComponent(
+    color = MaterialTheme.colorScheme.onSurfaceVariant,
+    textSize = 10.sp,
+)
+
+@Composable
+fun rememberAxisTitleComponent() = rememberTextComponent(
+    color = MaterialTheme.colorScheme.onSurface,
+    textSize = 12.sp,
+    typeface = android.graphics.Typeface.DEFAULT_BOLD,
+)
+
+@Composable
 fun ConsumptionLineChart(
     data: List<Pair<Date, Double>>,
     unit: String,
@@ -97,6 +111,8 @@ fun ConsumptionLineChart(
     val dateFormatter = remember { SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()) }
     val marker = rememberMarker()
     val primaryColor = MaterialTheme.colorScheme.primary
+    val axisLabel = rememberAxisLabelComponent()
+    val axisTitle = rememberAxisTitleComponent()
 
     CartesianChartHost(
         chart = rememberCartesianChart(
@@ -111,6 +127,8 @@ fun ConsumptionLineChart(
                 )
             ),
             startAxis = VerticalAxis.rememberStart(
+                label = axisLabel,
+                titleComponent = axisTitle,
                 title = unit,
                 guideline = rememberLineComponent(
                     fill = fill(MaterialTheme.colorScheme.outlineVariant),
@@ -118,6 +136,8 @@ fun ConsumptionLineChart(
                 )
             ),
             bottomAxis = HorizontalAxis.rememberBottom(
+                label = axisLabel,
+                titleComponent = axisTitle,
                 title = "Date",
                 guideline = rememberLineComponent(
                     fill = fill(MaterialTheme.colorScheme.outlineVariant),
@@ -160,7 +180,9 @@ fun MileageLineChart(
     }
 
     val marker = rememberMarker()
-    val primaryColor = Color(0xFF1A73E8)
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val axisLabel = rememberAxisLabelComponent()
+    val axisTitle = rememberAxisTitleComponent()
 
     CartesianChartHost(
         chart = rememberCartesianChart(
@@ -175,6 +197,8 @@ fun MileageLineChart(
                 )
             ),
             startAxis = VerticalAxis.rememberStart(
+                label = axisLabel,
+                titleComponent = axisTitle,
                 title = unit,
                 guideline = rememberLineComponent(
                     fill = fill(MaterialTheme.colorScheme.outlineVariant),
@@ -182,6 +206,8 @@ fun MileageLineChart(
                 )
             ),
             bottomAxis = HorizontalAxis.rememberBottom(
+                label = axisLabel,
+                titleComponent = axisTitle,
                 title = "Date",
                 guideline = rememberLineComponent(
                     fill = fill(MaterialTheme.colorScheme.outlineVariant),

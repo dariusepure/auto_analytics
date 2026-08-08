@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SaveAlt
@@ -22,6 +23,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -31,6 +33,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.domain.CarReport
 import com.dariusepure.caractivitylog.ui.common.EmptyState
+import com.dariusepure.caractivitylog.ui.common.PdfPreviewDialog
 import com.dariusepure.caractivitylog.ui.common.toRelativeString
 import java.io.File
 import java.text.SimpleDateFormat
@@ -49,6 +52,7 @@ fun CarReportsScreen(
     
     var reportToDelete by remember { mutableStateOf<CarReport?>(null) }
     var exportingReport by remember { mutableStateOf<CarReport?>(null) }
+    var previewFile by remember { mutableStateOf<File?>(null) }
 
     val exportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/pdf"),
@@ -85,6 +89,20 @@ fun CarReportsScreen(
             },
             onDismiss = { reportToDelete = null },
             message = stringResource(R.string.car_reports_delete_confirm)
+        )
+    }
+
+    if (previewFile != null) {
+        PdfPreviewDialog(
+            pdfFile = previewFile!!,
+            onDismiss = { previewFile = null },
+            onSave = {
+                val report = reports.find { File(context.filesDir, "reports/${it.fileName}").absolutePath == previewFile!!.absolutePath }
+                if (report != null) {
+                    exportingReport = report
+                    exportLauncher.launch(report.fileName)
+                }
+            }
         )
     }
 
@@ -130,20 +148,7 @@ fun CarReportsScreen(
                         onView = {
                             val file = File(context.filesDir, "reports/${report.fileName}")
                             if (file.exists()) {
-                                val uri = FileProvider.getUriForFile(
-                                    context,
-                                    "${context.packageName}.fileprovider",
-                                    file
-                                )
-                                val intent = Intent(Intent.ACTION_VIEW).apply {
-                                    setDataAndType(uri, "application/pdf")
-                                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                }
-                                try {
-                                    context.startActivity(intent)
-                                } catch (e: Exception) {
-                                    Toast.makeText(context, context.getString(R.string.car_report_no_viewer), Toast.LENGTH_SHORT).show()
-                                }
+                                previewFile = file
                             }
                         },
                         onShare = {
@@ -213,6 +218,13 @@ private fun ReportItem(
                     text = dateStr,
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            IconButton(onClick = onExport) {
+                Icon(
+                    imageVector = Icons.Default.FileDownload,
+                    contentDescription = stringResource(R.string.car_reports_export),
+                    tint = Color(0xFF1A73E8)
                 )
             }
             Box {

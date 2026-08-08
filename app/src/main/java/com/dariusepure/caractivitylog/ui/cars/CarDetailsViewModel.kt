@@ -193,19 +193,13 @@ class CarDetailsViewModel @Inject constructor(
         }
     }
 
-    fun addBatchMileage(carId: String, entries: List<ScannedMileageEntry>) {
+    fun addBatchMileageLogs(carId: String, logs: List<MileageLog>) {
         viewModelScope.launch {
             try {
-                entries.forEach { entry ->
-                    val date = try {
-                        entry.date?.let { dateFormat.parse(it) } ?: Date()
-                    } catch (e: Exception) {
-                        Date()
-                    }
-                    val km = entry.km ?: return@forEach
-                    carRepository.addMileageLog(carId, MileageLog(km = km, date = date))
+                logs.forEach { log ->
+                    carRepository.addMileageLog(carId, log)
                 }
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Successfully added ${entries.size} records"))
+                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Successfully imported ${logs.size} records"))
             } catch (e: Exception) {
                 _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
             }
@@ -380,25 +374,6 @@ class CarDetailsViewModel @Inject constructor(
             } catch (e: Exception) {
                 _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
             }
-        }
-    }
-
-    fun fetchModelInsights(carId: String) {
-        val currentState = _state.value as? CarDetailsUiState.Success ?: return
-        _state.update { if (it is CarDetailsUiState.Success) it.copy(isAnalyzing = true) else it }
-
-        viewModelScope.launch {
-            val car = currentState.car
-            val language = java.util.Locale.getDefault().displayLanguage
-            geminiRepository.fetchModelInsights(car.make, car.model, car.year, language)
-                .onSuccess { insights ->
-                    carRepository.createCar(car.copy(modelWikiSummary = insights))
-                    _state.update { if (it is CarDetailsUiState.Success) it.copy(isAnalyzing = false) else it }
-                }
-                .onFailure { e ->
-                    _state.update { if (it is CarDetailsUiState.Success) it.copy(isAnalyzing = false) else it }
-                    _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Failed to fetch insights: ${e.localizedMessage}"))
-                }
         }
     }
 
