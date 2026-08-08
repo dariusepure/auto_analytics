@@ -10,7 +10,8 @@ data class VehicleInspection(
     val date: Date = Date(),
     val mileage: Double = 0.0,
     val durationValue: Int = 1,
-    val durationUnit: InspectionDurationUnit = InspectionDurationUnit.YEARS
+    val durationUnit: InspectionDurationUnit = InspectionDurationUnit.YEARS,
+    val mileageLogId: String = ""
 ) {
     val expiryDate: Date
         get() {

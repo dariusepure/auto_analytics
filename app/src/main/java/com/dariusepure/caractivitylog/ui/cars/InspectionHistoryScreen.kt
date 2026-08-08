@@ -63,7 +63,7 @@ fun InspectionHistoryScreen(
     if (inspectionToDelete != null) {
         DeleteConfirmationDialog(
             onConfirm = {
-                viewModel.deleteInspection(carId, inspectionToDelete!!.id)
+                viewModel.deleteInspection(carId, inspectionToDelete!!)
                 inspectionToDelete = null
             },
             onDismiss = { inspectionToDelete = null }
@@ -89,7 +89,7 @@ fun InspectionHistoryScreen(
             },
             onConfirm = { inspection ->
                 if (editingInspection != null) {
-                    viewModel.updateInspection(carId, inspection.copy(id = editingInspection!!.id))
+                    viewModel.updateInspection(carId, inspection.copy(id = editingInspection!!.id, mileageLogId = editingInspection!!.mileageLogId))
                 } else {
                     viewModel.addInspection(carId, inspection)
                 }

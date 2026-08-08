@@ -234,44 +234,45 @@ class CarRepository @Inject constructor(
         checkNetwork()
         val uid = getUid()
         
-        // 1. Add Inspection
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("inspections")
-            .add(inspection.toFirebase())
-            .await()
+        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
+        val inspectionRef = carRef.collection("inspections").document()
+        val mileageLogRef = carRef.collection("mileage").document()
 
-        // 2. Automatically add to mileage history
-        addMileageLog(carId, MileageLog(km = inspection.mileage, date = inspection.date))
+        val mileageLog = MileageLog(id = mileageLogRef.id, km = inspection.mileage, date = inspection.date)
+        val inspectionLog = inspection.copy(id = inspectionRef.id, mileageLogId = mileageLogRef.id)
+
+        firestore.runBatch { batch ->
+            batch.set(inspectionRef, inspectionLog.toFirebase())
+            batch.set(mileageLogRef, mileageLog.toFirebase())
+        }.await()
     }
 
 
     suspend fun updateInspection(carId: String, inspection: VehicleInspection) {
         checkNetwork()
         val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("inspections")
-            .document(inspection.id)
-            .set(inspection.toFirebase())
-            .await()
+        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
+        
+        firestore.runBatch { batch ->
+            batch.set(carRef.collection("inspections").document(inspection.id), inspection.toFirebase())
+            if (inspection.mileageLogId.isNotEmpty()) {
+                val mileageLog = MileageLog(id = inspection.mileageLogId, km = inspection.mileage, date = inspection.date)
+                batch.set(carRef.collection("mileage").document(inspection.mileageLogId), mileageLog.toFirebase())
+            }
+        }.await()
     }
 
-    suspend fun deleteInspection(carId: String, inspectionId: String) {
+    suspend fun deleteInspection(carId: String, inspection: VehicleInspection) {
         checkNetwork()
         val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("inspections")
-            .document(inspectionId)
-            .delete()
-            .await()
+        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
+        
+        firestore.runBatch { batch ->
+            batch.delete(carRef.collection("inspections").document(inspection.id))
+            if (inspection.mileageLogId.isNotEmpty()) {
+                batch.delete(carRef.collection("mileage").document(inspection.mileageLogId))
+            }
+        }.await()
     }
 
     fun getInsurances(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.Insurance>> = callbackFlow {

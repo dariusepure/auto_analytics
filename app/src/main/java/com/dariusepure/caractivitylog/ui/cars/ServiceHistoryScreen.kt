@@ -255,7 +255,14 @@ fun AddServiceDialog(
     }
     
     var expanded by remember { mutableStateOf(false) }
-    var km by remember { mutableStateOf(existingRecord?.km?.roundToInt()?.toString() ?: "") }
+    val usesMiles = unit == "mi"
+    var km by remember { 
+        mutableStateOf(
+            existingRecord?.let { 
+                CarFormatters.fromCanonicalDistance(it.km, usesMiles).roundToInt().toString() 
+            } ?: ""
+        ) 
+    }
     var date by remember { mutableStateOf(existingRecord?.date ?: Date()) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     
@@ -370,7 +377,6 @@ fun AddServiceDialog(
             Button(
                 onClick = {
                     val k = km.toDoubleOrNull() ?: 0.0
-                    val usesMiles = unit == "mi"
                     val canonicalInput = CarFormatters.toCanonicalDistance(k, usesMiles)
                     
                     val conflict = existingLogs.find { log ->
@@ -391,7 +397,7 @@ fun AddServiceDialog(
                         onConfirm(
                             Maintenance(
                                 description = if (selectedOperation == "Other (Manual Entry)") customDescription else selectedOperation,
-                                km = k,
+                                km = canonicalInput,
                                 date = date
                             )
                         )

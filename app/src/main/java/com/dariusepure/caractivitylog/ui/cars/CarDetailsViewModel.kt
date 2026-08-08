@@ -253,10 +253,10 @@ class CarDetailsViewModel @Inject constructor(
         }
     }
 
-    fun deleteInspection(carId: String, inspectionId: String) {
+    fun deleteInspection(carId: String, inspection: VehicleInspection) {
         viewModelScope.launch {
             try {
-                carRepository.deleteInspection(carId, inspectionId)
+                carRepository.deleteInspection(carId, inspection)
             } catch (e: Exception) {
                 _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
             }

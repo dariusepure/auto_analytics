@@ -778,10 +778,12 @@ fun AddInspectionDialog(
                     } else {
                         onConfirm(
                             VehicleInspection(
+                                id = existingInspection?.id ?: "",
                                 date = selectedDate,
                                 mileage = canonicalInput,
                                 durationValue = durationValue.toIntOrNull() ?: 1,
-                                durationUnit = durationUnit
+                                durationUnit = durationUnit,
+                                mileageLogId = existingInspection?.mileageLogId ?: ""
                             )
                         )
                     }

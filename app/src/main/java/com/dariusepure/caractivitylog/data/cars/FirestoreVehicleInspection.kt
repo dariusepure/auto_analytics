@@ -10,7 +10,8 @@ data class FirestoreVehicleInspection(
     val date: Timestamp = Timestamp.now(),
     val mileage: Double = 0.0,
     val durationValue: Int = 1,
-    val durationUnit: String = "YEARS"
+    val durationUnit: String = "YEARS",
+    val mileageLogId: String = ""
 )
 
 fun VehicleInspection.toFirebase() = FirestoreVehicleInspection(
@@ -18,7 +19,8 @@ fun VehicleInspection.toFirebase() = FirestoreVehicleInspection(
     date = Timestamp(this.date),
     mileage = this.mileage,
     durationValue = this.durationValue,
-    durationUnit = this.durationUnit.name
+    durationUnit = this.durationUnit.name,
+    mileageLogId = this.mileageLogId
 )
 
 fun FirestoreVehicleInspection.fromFirebase() = VehicleInspection(
@@ -26,5 +28,6 @@ fun FirestoreVehicleInspection.fromFirebase() = VehicleInspection(
     date = this.date.toDate(),
     mileage = this.mileage,
     durationValue = this.durationValue,
-    durationUnit = try { InspectionDurationUnit.valueOf(this.durationUnit) } catch (e: Exception) { InspectionDurationUnit.YEARS }
+    durationUnit = try { InspectionDurationUnit.valueOf(this.durationUnit) } catch (e: Exception) { InspectionDurationUnit.YEARS },
+    mileageLogId = this.mileageLogId
 )

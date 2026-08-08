@@ -8,9 +8,9 @@ val localProperties = Properties().apply {
     val f = rootProject.file("local.properties")
     if (f.exists()) f.inputStream().use { load(it) }
 }
-val webClientId: String = localProperties.getProperty("WEB_CLIENT_ID", "")
+val webClientId: String = localProperties.getProperty("WEB_CLIENT_ID", "1050502217992-8au5hrcl0uuu4odfm9bftfll39q6cffs.apps.googleusercontent.com")
 val geminiKey: String = localProperties.getProperty("gemini.api.key", "")
-val firebaseApiKey: String = localProperties.getProperty("FIREBASE_API_KEY", "")
+val firebaseApiKey: String = localProperties.getProperty("FIREBASE_API_KEY", "AIzaSyDOrjBmSwJ1EP3BtDo6RXgVM8VwScNpi-Q")
 
 plugins {
     alias(libs.plugins.android.application)

@@ -106,7 +106,7 @@ class AuthRepository @Inject constructor(
         
         if (webClientId.isBlank()) {
             Log.e(TAG, "WEB_CLIENT_ID is empty! Google Sign-In will fail.")
-            throw IllegalStateException("Web Client ID is not configured in local.properties")
+            throw IllegalStateException("Autentificarea Google nu este configurată corect în acest build.")
         }
 
         val googleIdOption = GetGoogleIdOption.Builder()
