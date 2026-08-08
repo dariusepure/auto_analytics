@@ -267,8 +267,8 @@
     <string name="car_health_view_report">View full health report</string>
     <string name="car_health_empty_subtitle">Tap the button above to generate a health report for your vehicle.</string>
     <string name="car_health_last_update">Last updated: %s</string>
-    <string name="car_diagnosis_title">Virtual Mechanic Advisor</string>
-    <string name="car_diagnosis_subtitle">Talk to your personal mechanic advisor</string>
+    <string name="car_diagnosis_title">Virtual Mechanic</string>
+    <string name="car_diagnosis_subtitle">Talk to your personal virtual mechanic</string>
     <string name="car_fuel_consumption">Fuel Consumption</string>
     <string name="car_fuel_consumption_subtitle">Track fillings and view stats</string>
     <string name="car_generate_report">PDF Reports</string>

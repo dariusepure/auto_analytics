@@ -55,7 +55,7 @@ fun ServiceHistoryScreen(
                 val country = europeanCountries.find { it.code == s.car.plateCountry }
                 if (country?.usesMiles == true) "mi" else "km"
             } ?: "km",
-            accentColor = Color(0xFF2196F3),
+            accentColor = Color(0xFF1A73E8),
             onAccentColor = Color.White,
             onDismiss = {
                 showAddDialog = false
@@ -183,7 +183,7 @@ fun ServiceItem(
             state = editTooltipState
         ) {
             IconButton(onClick = onEdit) {
-                Icon(Icons.Default.Edit, null, tint = Color(0xFF2196F3))
+                Icon(Icons.Default.Edit, null, tint = Color(0xFF1A73E8))
             }
         }
         

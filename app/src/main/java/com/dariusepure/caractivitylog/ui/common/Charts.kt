@@ -160,7 +160,7 @@ fun MileageLineChart(
     }
 
     val marker = rememberMarker()
-    val primaryColor = Color(0xFF2196F3)
+    val primaryColor = Color(0xFF1A73E8)
 
     CartesianChartHost(
         chart = rememberCartesianChart(

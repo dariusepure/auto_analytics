@@ -87,7 +87,7 @@ fun TireHistoryScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showAddDialog = true },
-                containerColor = Color(0xFF2196F3),
+                containerColor = Color(0xFF1A73E8),
                 contentColor = Color.White
             ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.tire_add_title))

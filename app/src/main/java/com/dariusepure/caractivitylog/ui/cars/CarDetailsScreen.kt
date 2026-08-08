@@ -74,7 +74,7 @@ fun CarDetailsScreen(
         viewModel.loadCarData(carId)
     }
 
-    val carAccentColor = Color(0xFF2196F3) // Default light blue
+    val carAccentColor = Color(0xFF1A73E8) // Default light blue
 
     Scaffold(
         modifier = modifier,
@@ -91,7 +91,7 @@ fun CarDetailsScreen(
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = stringResource(R.string.common_edit),
-                            tint = Color(0xFF2196F3)
+                            tint = Color(0xFF1A73E8)
                         )
                     }
                 }
@@ -151,7 +151,7 @@ fun CarDetailsScreen(
                     
                     if (isExpanded) {
                         item {
-                            Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Row(modifier = Modifier.fillMaxWidth().height(120.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                 BentoCard(
                                     onClick = onTechnicalSheetClick,
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
@@ -202,7 +202,7 @@ fun CarDetailsScreen(
                             }
                         }
                         item {
-                            Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Row(modifier = Modifier.fillMaxWidth().height(120.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                 val latestInsurance = s.insurances.maxByOrNull { it.date }
                                 val isRcaExpired = latestInsurance?.expiryDate?.before(Date()) ?: true
                                 val rcaDays = latestInsurance?.let { (it.expiryDate.time - Date().time) / (1000 * 60 * 60 * 24) } ?: -1
@@ -252,7 +252,7 @@ fun CarDetailsScreen(
                             }
                         }
                         item {
-                            Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Row(modifier = Modifier.fillMaxWidth().height(120.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                 BentoCard(
                                     onClick = onServiceClick,
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
@@ -288,14 +288,20 @@ fun CarDetailsScreen(
                                 ) {
                                     Icon(Icons.Default.Engineering, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
                                     Spacer(Modifier.height(8.dp))
-                                    Text(text = stringResource(R.string.car_diagnosis_title), style = MaterialTheme.typography.titleSmall)
+                                    AutoSizeText(
+                                        text = stringResource(R.string.car_diagnosis_title),
+                                        style = MaterialTheme.typography.titleSmall,
+                                        maxLines = 2,
+                                        minFontSize = 9.sp
+                                    )
                                 }
                             }
                         }
-                    } else {
+                    }
+else {
                         // Bento Row 1: Technical & Mileage
                         item {
-                            Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Row(modifier = Modifier.fillMaxWidth().height(110.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                 BentoCard(
                                     onClick = onTechnicalSheetClick,
                                     modifier = Modifier.weight(1.2f).fillMaxHeight(),
@@ -303,11 +309,11 @@ fun CarDetailsScreen(
                                 ) {
                                     Icon(Icons.Default.Description, null, modifier = Modifier.size(52.dp), tint = carAccentColor)
                                     Spacer(Modifier.weight(1f))
-                                    Text(
+                                    AutoSizeText(
                                         text = stringResource(R.string.car_technical_sheet),
                                         style = MaterialTheme.typography.titleMedium,
-                                        softWrap = true,
-                                        maxLines = 2
+                                        maxLines = 2,
+                                        minFontSize = 10.sp
                                     )
                                 }
                                 
@@ -321,11 +327,11 @@ fun CarDetailsScreen(
                                         Icon(Icons.Default.Add, null, modifier = Modifier.size(24.dp), tint = carAccentColor)
                                     }
                                     Spacer(Modifier.weight(1f))
-                                    Text(
+                                    AutoSizeText(
                                         text = stringResource(R.string.car_mileage_history),
                                         style = MaterialTheme.typography.titleMedium,
-                                        softWrap = true,
-                                        maxLines = 2
+                                        maxLines = 2,
+                                        minFontSize = 10.sp
                                     )
                                 }
                             }
@@ -333,7 +339,7 @@ fun CarDetailsScreen(
 
                         // Bento Row 2: ITP, RCA, Vignette (Squares)
                         item {
-                            Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Row(modifier = Modifier.fillMaxWidth().height(160.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                 val latestInspection = s.inspections.maxByOrNull { it.date }
                                 val isItpExpired = CarFormatters.isInspectionExpired(latestInspection)
                                 val itpDays = latestInspection?.let { (it.expiryDate.time - Date().time) / (1000 * 60 * 60 * 24) } ?: -1
@@ -405,9 +411,9 @@ fun CarDetailsScreen(
                             }
                         }
 
-                        // Bento Row 3: Fuel & Service
+                        // Bento Row 3: Fuel & Tires
                         item {
-                            Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Row(modifier = Modifier.fillMaxWidth().height(110.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                 BentoCard(
                                     onClick = onFuelClick,
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
@@ -417,32 +423,12 @@ fun CarDetailsScreen(
                                     Spacer(Modifier.weight(1f))
                                     AutoSizeText(
                                         text = stringResource(R.string.car_fuel_consumption),
-                                        style = MaterialTheme.typography.titleSmall,
+                                        style = MaterialTheme.typography.titleMedium,
                                         maxLines = 2,
-                                        minFontSize = 9.sp
+                                        minFontSize = 10.sp
                                     )
                                 }
                                 
-                                BentoCard(
-                                    onClick = onServiceClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
-                                ) {
-                                    Icon(Icons.Default.Build, null, modifier = Modifier.size(52.dp), tint = carAccentColor)
-                                    Spacer(Modifier.weight(1f))
-                                    AutoSizeText(
-                                        text = stringResource(R.string.service_history_title),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        maxLines = 2,
-                                        minFontSize = 9.sp
-                                    )
-                                }
-                            }
-                        }
-
-                        // Tires & Diagnosis & Gallery
-                        item {
-                            Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                 BentoCard(
                                     onClick = onTireClick,
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
@@ -452,9 +438,29 @@ fun CarDetailsScreen(
                                     Spacer(Modifier.weight(1f))
                                     AutoSizeText(
                                         text = stringResource(R.string.tire_management_title),
-                                        style = MaterialTheme.typography.titleSmall,
+                                        style = MaterialTheme.typography.titleMedium,
                                         maxLines = 2,
-                                        minFontSize = 9.sp
+                                        minFontSize = 10.sp
+                                    )
+                                }
+                            }
+                        }
+
+                        // Bento Row 4: Service & Diagnosis
+                        item {
+                            Row(modifier = Modifier.fillMaxWidth().height(110.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                BentoCard(
+                                    onClick = onServiceClick,
+                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    containerColor = carAccentColor.copy(alpha = 0.15f)
+                                ) {
+                                    Icon(Icons.Default.Build, null, modifier = Modifier.size(52.dp), tint = carAccentColor)
+                                    Spacer(Modifier.weight(1f))
+                                    AutoSizeText(
+                                        text = stringResource(R.string.service_history_title),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        maxLines = 2,
+                                        minFontSize = 10.sp
                                     )
                                 }
 
@@ -465,11 +471,11 @@ fun CarDetailsScreen(
                                 ) {
                                     Icon(Icons.Default.Engineering, null, modifier = Modifier.size(52.dp), tint = carAccentColor)
                                     Spacer(Modifier.weight(1f))
-                                    Text(
+                                    AutoSizeText(
                                         text = stringResource(R.string.car_diagnosis_title),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        softWrap = true,
-                                        maxLines = 2
+                                        style = MaterialTheme.typography.titleMedium,
+                                        maxLines = 2,
+                                        minFontSize = 10.sp
                                     )
                                 }
                             }

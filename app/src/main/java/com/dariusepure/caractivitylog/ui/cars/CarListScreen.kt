@@ -161,7 +161,7 @@ fun CarCard(
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = stringResource(R.string.car_edit_content_description),
-                        tint = Color(0xFF2196F3)
+                        tint = Color(0xFF1A73E8)
                     )
                 }
             }
@@ -243,7 +243,7 @@ fun CarGridCard(
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = stringResource(R.string.car_edit_content_description),
-                            tint = Color(0xFF2196F3),
+                            tint = Color(0xFF1A73E8),
                             modifier = Modifier.size(20.dp)
                         )
                     }

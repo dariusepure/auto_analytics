@@ -115,7 +115,7 @@ fun MileageHistoryScreen(
             existingLog = editingMileageLog,
             existingLogs = existingLogs,
             unit = unitLabel,
-            accentColor = Color(0xFF2196F3),
+            accentColor = Color(0xFF1A73E8),
             onAccentColor = Color.White,
             onDismiss = { 
                 showAddMileageDialog = false
@@ -161,7 +161,7 @@ fun MileageHistoryScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showAddMileageDialog = true },
-                containerColor = Color(0xFF2196F3),
+                containerColor = Color(0xFF1A73E8),
                 contentColor = Color.White
             ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.mileage_add_title))

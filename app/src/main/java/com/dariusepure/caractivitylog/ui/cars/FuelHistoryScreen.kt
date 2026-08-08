@@ -87,7 +87,7 @@ fun FuelHistoryScreen(
                 val usesMiles = country?.usesMiles == true
                 val distUnit = if (usesMiles) "mi" else "km"
                 val consUnit = if (usesMiles) "mpg" else "L/100km"
-                val carAccentColor = androidx.compose.ui.graphics.Color(0xFF2196F3)
+                val carAccentColor = androidx.compose.ui.graphics.Color(0xFF1A73E8)
 
                 LazyColumn(
                     modifier = Modifier
@@ -235,7 +235,7 @@ fun FuelLogItem(
     distUnit: String,
     consUnit: String,
     usesMiles: Boolean,
-    accentColor: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color(0xFF2196F3),
+    accentColor: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color(0xFF1A73E8),
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -288,7 +288,7 @@ fun FuelLogItem(
                     Icon(
                         imageVector = Icons.Default.Edit,
                         null,
-                        tint = androidx.compose.ui.graphics.Color(0xFF2196F3)
+                        tint = androidx.compose.ui.graphics.Color(0xFF1A73E8)
                     )
                 }
             }

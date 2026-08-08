@@ -84,7 +84,7 @@ fun InsuranceItem(
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = stringResource(R.string.common_edit),
-                    tint = Color(0xFF2196F3)
+                    tint = Color(0xFF1A73E8)
                 )
             }
         }
@@ -167,7 +167,7 @@ fun VignetteItem(
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = stringResource(R.string.common_edit),
-                    tint = Color(0xFF2196F3)
+                    tint = Color(0xFF1A73E8)
                 )
             }
         }
@@ -270,7 +270,7 @@ fun TireSetItem(
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = stringResource(R.string.common_edit),
-                    tint = Color(0xFF2196F3)
+                    tint = Color(0xFF1A73E8)
                 )
             }
         }
@@ -365,7 +365,7 @@ fun InspectionItem(
         }
 
         IconButton(onClick = onEditClick) {
-            Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.common_edit), tint = Color(0xFF2196F3))
+            Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.common_edit), tint = Color(0xFF1A73E8))
         }
         IconButton(onClick = onDeleteClick) {
             Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.common_delete), tint = Color.Red)
@@ -401,7 +401,7 @@ fun MileageItem(
         }
 
         IconButton(onClick = onEditClick) {
-            Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.common_edit), tint = Color(0xFF2196F3))
+            Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.common_edit), tint = Color(0xFF1A73E8))
         }
         IconButton(onClick = onDeleteClick) {
             Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.common_delete), tint = Color.Red)
