@@ -48,7 +48,10 @@ fun DiagnosisScreen(
                 viewModel.resetConversation()
                 showResetDialog = false
             },
-            onDismiss = { showResetDialog = false }
+            onDismiss = { showResetDialog = false },
+            title = stringResource(R.string.diagnosis_reset_chat),
+            message = stringResource(R.string.common_delete_msg), // "Are you sure you want to delete this item?"
+            confirmText = stringResource(R.string.common_delete)
         )
     }
 

@@ -278,7 +278,6 @@ fun CarListScreen(
     onCarClick: (String) -> Unit,
     onAddCarClick: () -> Unit,
     onEditCarClick: (String) -> Unit,
-    onRecycleBinClick: () -> Unit,
     onLogout: () -> Unit,
     viewModel: CarListViewModel = hiltViewModel(),
     themeViewModel: ThemeViewModel = hiltViewModel(),
@@ -297,7 +296,6 @@ fun CarListScreen(
         onCarClick = onCarClick,
         onAddCarClick = onAddCarClick,
         onEditCarClick = onEditCarClick,
-        onRecycleBinClick = onRecycleBinClick,
         onDeleteCar = { carId -> 
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
             viewModel.onDeleteCar(carId) 
@@ -324,7 +322,6 @@ private fun InnerCarListScreen(
     onCarClick: (String) -> Unit,
     onAddCarClick: () -> Unit,
     onEditCarClick: (String) -> Unit,
-    onRecycleBinClick: () -> Unit,
     onDeleteCar: (String) -> Unit,
     onLogoutClick: () -> Unit,
     onThemeToggle: () -> Unit,
@@ -349,11 +346,7 @@ private fun InnerCarListScreen(
                 onDeleteCar(carToDelete!!)
                 carToDelete = null
             },
-            onDismiss = { carToDelete = null },
-            title = stringResource(R.string.common_delete),
-            message = stringResource(R.string.car_move_to_recycle_bin_msg),
-            confirmText = stringResource(R.string.common_delete),
-            isPermanent = false
+            onDismiss = { carToDelete = null }
         )
     }
 
@@ -447,14 +440,6 @@ private fun InnerCarListScreen(
                             expanded = moreMenuExpanded,
                             onDismissRequest = { moreMenuExpanded = false }
                         ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.recycle_bin_title)) },
-                                onClick = {
-                                    onRecycleBinClick()
-                                    moreMenuExpanded = false
-                                },
-                                leadingIcon = { Icon(Icons.Default.DeleteForever, null) }
-                            )
                             DropdownMenuItem(
                                 text = { Text(stringResource(if (isDark) R.string.theme_light_mode else R.string.theme_dark_mode)) },
                                 onClick = {

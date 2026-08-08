@@ -8,18 +8,10 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material.icons.filled.PictureAsPdf
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.dariusepure.caractivitylog.ui.common.PdfSaveDialog
-import com.dariusepure.caractivitylog.util.PdfReportGenerator
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -38,57 +30,10 @@ fun MileageHistoryScreen(
     viewModel: CarDetailsViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
     
     var showAddMileageDialog by remember { mutableStateOf(false) }
-    var showPdfDialog by remember { mutableStateOf(false) }
     var editingMileageLog by remember { mutableStateOf<MileageLog?>(null) }
     var logToDelete by remember { mutableStateOf<MileageLog?>(null) }
-
-    val pdfLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.CreateDocument("application/pdf"),
-        onResult = { uri ->
-            uri?.let { destUri ->
-                val successState = state as? CarDetailsUiState.Success ?: return@let
-                scope.launch {
-                    try {
-                        withContext(Dispatchers.IO) {
-                            context.contentResolver.openOutputStream(destUri)?.use { os ->
-                                PdfReportGenerator.generateReport(
-                                    context = context,
-                                    car = successState.car,
-                                    mileageLogs = successState.mileageLogs,
-                                    inspections = successState.inspections,
-                                    fuelLogs = successState.fuelLogs,
-                                    tireSets = successState.tireSets,
-                                    maintenanceLogs = successState.maintenanceLogs,
-                                    outputStream = os,
-                                    reportType = PdfReportGenerator.ReportType.MILEAGE_HISTORY
-                                )
-                            }
-                        }
-                        snackbarHostState.showSnackbar(context.getString(R.string.car_report_success))
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        snackbarHostState.showSnackbar(context.getString(R.string.car_report_failed))
-                    }
-                }
-            }
-        }
-    )
-
-    if (showPdfDialog) {
-        val carName = (state as? CarDetailsUiState.Success)?.car?.let { "${it.make}_${it.model}" } ?: "Car"
-        PdfSaveDialog(
-            onDismiss = { showPdfDialog = false },
-            onSave = {
-                showPdfDialog = false
-                pdfLauncher.launch("Mileage_History_$carName.pdf")
-            }
-        )
-    }
 
     LaunchedEffect(carId) {
         viewModel.loadCarData(carId)
@@ -139,21 +84,12 @@ fun MileageHistoryScreen(
 
     Scaffold(
         modifier = modifier,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.mileage_history_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { showPdfDialog = true }) {
-                        Icon(
-                            imageVector = Icons.Default.PictureAsPdf,
-                            contentDescription = stringResource(R.string.car_generate_report)
-                        )
                     }
                 }
             )

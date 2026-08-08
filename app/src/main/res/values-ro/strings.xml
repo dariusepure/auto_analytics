@@ -177,7 +177,6 @@
     <string name="car_edit_content_description">Editează mașina</string>
     <string name="car_delete_content_description">Șterge mașina</string>
     <string name="car_last_update">Ultima actualizare: %s</string>
-    <string name="car_move_to_recycle_bin_msg">Această mașină va fi mutată în coșul de reciclare.</string>
     <string name="car_view_mode_list">Schimbă în listă</string>
     <string name="car_view_mode_grid">Schimbă în grilă</string>
     <string name="car_accent_color">Culoare accent</string>
@@ -355,14 +354,6 @@
     <string name="diagnosis_send">Trimite</string>
 
     <!-- Recycle Bin -->
-    <string name="recycle_bin_title">Coș de reciclare</string>
-    <string name="recycle_bin_empty_title">Coșul de reciclare este gol</string>
-    <string name="recycle_bin_empty_subtitle">Mașinile șterse vor apărea aici.</string>
-    <string name="recycle_bin_delete_confirm_title">Ștergi definitiv?</string>
-    <string name="recycle_bin_delete_confirm_text">Această acțiune nu poate fi anulată. Toate datele pentru %s vor fi pierdute definitiv.</string>
-    <string name="recycle_bin_delete_forever">Șterge definitiv</string>
-    <string name="recycle_bin_deleted_on">Șters la: %s</string>
-    <string name="recycle_bin_restore">Restaurează</string>
 
     <!-- Formatters -->
     <string name="formatter_power_dual">%1$d&#160;cp / %2$d&#160;kw</string>

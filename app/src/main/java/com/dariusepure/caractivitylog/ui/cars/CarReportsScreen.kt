@@ -78,26 +78,13 @@ fun CarReportsScreen(
     }
 
     if (reportToDelete != null) {
-        AlertDialog(
-            onDismissRequest = { reportToDelete = null },
-            title = { Text(stringResource(R.string.common_delete)) },
-            text = { Text(stringResource(R.string.car_reports_delete_confirm)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.deleteReport(carId, reportToDelete!!)
-                        reportToDelete = null
-                    },
-                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                ) {
-                    Text(stringResource(R.string.common_delete))
-                }
+        com.dariusepure.caractivitylog.ui.common.DeleteConfirmationDialog(
+            onConfirm = {
+                viewModel.deleteReport(carId, reportToDelete!!)
+                reportToDelete = null
             },
-            dismissButton = {
-                TextButton(onClick = { reportToDelete = null }) {
-                    Text(stringResource(R.string.common_cancel))
-                }
-            }
+            onDismiss = { reportToDelete = null },
+            message = stringResource(R.string.car_reports_delete_confirm)
         )
     }
 

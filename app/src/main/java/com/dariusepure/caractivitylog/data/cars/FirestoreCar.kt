@@ -57,9 +57,7 @@ data class FirestoreCar(
     val accentColor: Long? = null,
     val createdAt: Timestamp = Timestamp.now(),
     val updatedAt: Timestamp = Timestamp.now(),
-    val activityCount: Int = 0,
-    val deleted: Boolean = false,
-    val deletedAt: Timestamp? = null
+    val activityCount: Int = 0
 )
 
 fun Car.toFirebase() = FirestoreCar(
@@ -115,9 +113,7 @@ fun Car.toFirebase() = FirestoreCar(
     accentColor = this.accentColor,
     createdAt = Timestamp(this.createdAt),
     updatedAt = Timestamp(this.updatedAt),
-    activityCount = this.activityCount,
-    deleted = this.deleted,
-    deletedAt = this.deletedAt?.let { Timestamp(it) }
+    activityCount = this.activityCount
 )
 
 fun FirestoreCar.fromFirebase(isSynced: Boolean = true) = Car(
@@ -174,7 +170,5 @@ fun FirestoreCar.fromFirebase(isSynced: Boolean = true) = Car(
     createdAt = this.createdAt.toDate(),
     updatedAt = this.updatedAt.toDate(),
     activityCount = this.activityCount,
-    deleted = this.deleted,
-    deletedAt = this.deletedAt?.toDate(),
     isSynced = isSynced
 )

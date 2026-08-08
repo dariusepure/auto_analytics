@@ -52,37 +52,7 @@ class CarRepository @Inject constructor(
                 }
 
                 val results = snapshots?.documents?.mapNotNull { doc ->
-                    val car = doc.toObject(FirestoreCar::class.java)?.fromFirebase()
-                    if (car?.deleted == false) car else null
-                } ?: emptyList()
-
-                trySend(results)
-            }
-
-        awaitClose { listener.remove() }
-    }
-
-    val deletedCars: Flow<List<Car>> = callbackFlow {
-        checkNetwork()
-        val uid = authRepository.getUserId() ?: run {
-            trySend(emptyList())
-            close()
-            return@callbackFlow
-        }
-
-        val listener = firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .orderBy("updatedAt", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshots, exception ->
-                if (exception != null) {
-                    close(exception)
-                    return@addSnapshotListener
-                }
-
-                val results = snapshots?.documents?.mapNotNull { doc ->
-                    val car = doc.toObject(FirestoreCar::class.java)?.fromFirebase()
-                    if (car?.deleted == true) car else null
+                    doc.toObject(FirestoreCar::class.java)?.fromFirebase()
                 } ?: emptyList()
 
                 trySend(results)
@@ -150,36 +120,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteCar(carId: String) {
-        checkNetwork()
-        val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .update(
-                "deleted", true,
-                "deletedAt", com.google.firebase.Timestamp.now(),
-                "updatedAt", com.google.firebase.Timestamp.now()
-            )
-            .await()
-    }
-
-    suspend fun restoreCar(carId: String) {
-        checkNetwork()
-        val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .update(
-                "deleted", false,
-                "deletedAt", null,
-                "updatedAt", com.google.firebase.Timestamp.now()
-            )
-            .await()
-    }
-
-    suspend fun permanentlyDeleteCar(carId: String) {
         checkNetwork()
         val uid = getUid()
         

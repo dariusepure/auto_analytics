@@ -24,7 +24,7 @@
     <string name="common_expand">Expand</string>
     <string name="common_language">Language</string>
     <string name="common_sort">Sort</string>
-    <string name="common_powered_by">Powered by DFE Software</string>
+    <string name="common_powered_by">Developed by Darius DevWorks</string>
     <string name="status_ok">OK</string>
     <string name="status_soon">Soon</string>
     <string name="status_expired">Expired</string>
@@ -180,7 +180,6 @@
     <string name="car_edit_content_description">Edit car</string>
     <string name="car_delete_content_description">Delete car</string>
     <string name="car_last_update">Last update: %s</string>
-    <string name="car_move_to_recycle_bin_msg">This car will be moved to the recycle bin.</string>
     <string name="car_view_mode_list">Switch to List</string>
     <string name="car_view_mode_grid">Switch to Grid</string>
     <string name="car_accent_color">Accent Color</string>
@@ -358,14 +357,6 @@
     <string name="diagnosis_send">Send</string>
 
     <!-- Recycle Bin -->
-    <string name="recycle_bin_title">Recycle Bin</string>
-    <string name="recycle_bin_empty_title">Recycle bin is empty</string>
-    <string name="recycle_bin_empty_subtitle">Cars you delete will appear here.</string>
-    <string name="recycle_bin_delete_confirm_title">Delete Permanently?</string>
-    <string name="recycle_bin_delete_confirm_text">This action cannot be undone. All data for %s will be lost forever.</string>
-    <string name="recycle_bin_delete_forever">Delete Forever</string>
-    <string name="recycle_bin_deleted_on">Deleted on: %s</string>
-    <string name="recycle_bin_restore">Restore</string>
 
     <!-- Formatters -->
     <string name="formatter_power_dual">%1$d&#160;hp / %2$d&#160;kw</string>

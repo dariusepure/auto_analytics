@@ -11,11 +11,11 @@ import com.dariusepure.caractivitylog.R
 fun DeleteConfirmationDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
-    title: String = stringResource(R.string.common_delete_confirmation),
+    title: String = stringResource(R.string.common_delete),
     message: String = stringResource(R.string.common_delete_msg),
     confirmText: String = stringResource(R.string.common_delete),
     dismissText: String = stringResource(R.string.common_cancel),
-    isPermanent: Boolean = false
+    isPermanent: Boolean = true
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,

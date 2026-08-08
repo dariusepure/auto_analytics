@@ -34,7 +34,7 @@
 - **Adaptive Theming**: Support for Light Mode and **OLED Black Dark Mode**.
 - **Multi-Language Support**: In-app language selector (English, Romanian, and more).
 - **Edge-to-Edge**: Immersive experience with content flowing behind system bars.
-- **Powered by DFE Software**: Consistent branding and footer across the authentication flow.
+- **Developed by Darius DevWorks**: Consistent branding and footer across the authentication flow.
 
 ---
 
@@ -75,4 +75,4 @@ The project uses Gradle Version Catalog for dependency management. Ensure you ha
 > This app is designed to be **Offline-First**. All changes are saved locally and synced automatically when a connection is available.
 
 ---
-*Developed by DFE Software to provide total control over your vehicle's health and documentation.*
+*Developed by Darius DevWorks to provide total control over your vehicle's health and documentation.*
