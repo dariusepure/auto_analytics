@@ -10,9 +10,9 @@
   - **History Persistence**: Conversations are saved per car and synced to the cloud.
   - **Context-Aware**: The AI knows your car's technical specs and history to provide precise advice.
   - **Function Calling**: The AI can perform actions like updating car specs or odometer readings directly through the conversation.
-- **AI Document Scanning**: Extract technical data instantly from vehicle documents.
-  - **Dual Input**: Support for both **Photo** (Gallery/Camera) and **PDF** files.
-  - **Auto-Population**: Automatically fills exhaustive fields like VIN, Make, Model, Year, Fuel Type, and more using Google Gemini.
+- **AI Document Scanning**: Extract technical data from vehicle documents.
+  - **Flexible Input**: Import documents via **Gallery** or **PDF** files.
+  - **Assisted Data Entry**: Helps you quickly fill exhaustive fields like VIN, Make, Model, Year, Fuel Type, and more using Google Gemini.
 
 ### 🛠️ Comprehensive Vehicle Management
 - **Exhaustive Technical Profiles**: Track everything from engine layout and cylinder configuration to tire dimensions and brake types.
@@ -28,7 +28,6 @@
 - **Modern Authentication**: Sign in with Email/Password, **Google One Tap**, or explore as a **Guest**.
 - **Seamless Sync**: Powered by Firebase for real-time data synchronization across all your devices.
 - **Offline-First**: Built with a robust local-first strategy; data stays on your device and syncs whenever you're online.
-- **Recycle Bin**: Safety first—deleted vehicles can be recovered from the bin to prevent accidental data loss.
 
 ### 🌗 Premium UI/UX
 - **Material Design 3 (M3)**: A beautiful, modern interface using the latest adaptive components.
@@ -43,6 +42,7 @@
 | Category | Technology |
 | :--- | :--- |
 | **Language** | **Kotlin 2.0+** |
+| **Compatibility** | **Android 8.0 (API 26) and up** |
 | **UI Framework** | **Jetpack Compose** with **Material 3** |
 | **AI SDK** | **Google Generative AI SDK** (Gemini 3.5 Flash-lite) |
 | **Networking** | **Ktor Client 3.0** (with Content Negotiation & Logging) |
