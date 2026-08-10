@@ -30,7 +30,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 fun DiagnosisScreen(
     carId: String,
     onBack: () -> Unit,
-    onHealthClick: () -> Unit,
     viewModel: DiagnosisViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -78,13 +77,6 @@ fun DiagnosisScreen(
                 },
                 actions = {
                     LanguageSelector()
-                    IconButton(onClick = onHealthClick) {
-                        Icon(
-                            imageVector = Icons.Default.HealthAndSafety,
-                            contentDescription = stringResource(R.string.car_health_check),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
                     IconButton(onClick = { showResetDialog = true }) {
                         Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.diagnosis_reset_chat))
                     }

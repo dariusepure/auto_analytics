@@ -27,7 +27,6 @@ import com.dariusepure.caractivitylog.ui.cars.FuelHistoryScreen
 import com.dariusepure.caractivitylog.ui.cars.InsuranceHistoryScreen
 import com.dariusepure.caractivitylog.ui.cars.VignetteHistoryScreen
 import com.dariusepure.caractivitylog.ui.cars.TireHistoryScreen
-import com.dariusepure.caractivitylog.ui.cars.CarHealthScreen
 import com.dariusepure.caractivitylog.ui.cars.CarReportsScreen
 import com.dariusepure.caractivitylog.ui.cars.ServiceHistoryScreen
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -76,9 +75,6 @@ sealed class Screen(val route: String) {
     }
     data object Diagnosis : Screen("diagnosis/{carId}") {
         fun createRoute(carId: String) = "diagnosis/$carId"
-    }
-    data object CarHealth : Screen("carhealth/{carId}") {
-        fun createRoute(carId: String) = "carhealth/$carId"
     }
     data object FuelHistory : Screen("fuelhistory/{carId}") {
         fun createRoute(carId: String) = "fuelhistory/$carId"
@@ -207,9 +203,6 @@ fun AppNavigation(
                 onFuelClick = {
                     navController.navigate(Screen.FuelHistory.createRoute(carId))
                 },
-                onHealthClick = {
-                    navController.navigate(Screen.CarHealth.createRoute(carId))
-                },
                 onServiceClick = {
                     navController.navigate(Screen.ServiceHistory.createRoute(carId))
                 },
@@ -281,16 +274,6 @@ fun AppNavigation(
         composable(Screen.Diagnosis.route) { backStackEntry ->
             val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
             DiagnosisScreen(
-                carId = carId,
-                onBack = { navController.popBackStack() },
-                onHealthClick = {
-                    navController.navigate(Screen.CarHealth.createRoute(carId))
-                }
-            )
-        }
-        composable(Screen.CarHealth.route) { backStackEntry ->
-            val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
-            CarHealthScreen(
                 carId = carId,
                 onBack = { navController.popBackStack() }
             )

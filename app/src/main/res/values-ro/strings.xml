@@ -256,17 +256,8 @@
     <string name="car_inspection_title">ITP</string>
     <string name="car_insurance_title">RCA</string>
     <string name="car_vignette_title">Rovinietă</string>
-    <string name="car_health_check">Sănătate</string>
-    <string name="car_health_ai_summary">Sumar Stare AI</string>
-    <string name="car_health_recommendations">Recomandări Mentenanță</string>
-    <string name="car_health_score_label">Scor General Sănătate</string>
-    <string name="car_health_analyze_btn">Analizează Starea</string>
-    <string name="car_health_refresh_btn">Reîmprospătează Analiza</string>
-    <string name="car_health_view_report">Vezi raportul complet de sănătate</string>
-    <string name="car_health_empty_subtitle">Apasă butonul de mai sus pentru a genera raportul de sănătate pentru vehiculul tău.</string>
-    <string name="car_health_last_update">Ultima actualizare: %s</string>
     <string name="car_diagnosis_title">Mecanic Virtual</string>
-    <string name="car_diagnosis_subtitle">Discută cu mecanicul tău personal</string>
+    <string name="car_diagnosis_subtitle">Diagnoză auto asistată de AI</string>
     <string name="car_fuel_consumption">Consum combustibil</string>
     <string name="car_fuel_consumption_subtitle">Urmărește alimentările și vezi statistici</string>
     <string name="car_generate_report">Rapoarte PDF</string>
@@ -349,7 +340,7 @@
     <string name="fuel_mileage_conflict">Conflict de kilometraj cu înregistrările din %s</string>
 
     <!-- Diagnosis -->
-    <string name="diagnosis_title">Mecanic Virtual - %s</string>
+    <string name="diagnosis_title">%s Diagnoză</string>
     <string name="diagnosis_reset_chat">Resetează chat-ul</string>
     <string name="diagnosis_is_thinking">AI se gândește…</string>
     <string name="diagnosis_placeholder">Descrie problema…</string>

@@ -62,7 +62,7 @@ class DiagnosisViewModel @Inject constructor(
             carRepository.getDiagnosisMessages(carId).collect { messages ->
                 _state.update { it.copy(
                     messages = if (messages.isEmpty()) {
-                        listOf(ChatMessage("Hello! I am your car assistant. How can I help you with your ${car?.make ?: "car"} today?", false))
+                        listOf(ChatMessage("Hello! I am your AI assistant. How can I help you with your ${car?.make ?: "car"} today?", false))
                     } else {
                         messages
                     }

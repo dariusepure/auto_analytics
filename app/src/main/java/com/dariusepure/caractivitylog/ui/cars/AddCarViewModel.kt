@@ -158,16 +158,6 @@ class AddCarViewModel @Inject constructor(
             return
         }
 
-        // License Plate Validation based on selected country (only if country is selected)
-        val country = europeanCountries.find { it.code == plateCountry }
-        if (licensePlate.isNotBlank() && country?.plateRegex != null) {
-            val regex = Regex(country.plateRegex, RegexOption.IGNORE_CASE)
-            if (!licensePlate.replace(" ", "").replace("-", "").matches(regex)) {
-                _state.value = AddCarState.Error("Invalid ${country.name} license plate format (ex: ${country.plateHint})")
-                return
-            }
-        }
-
         // VIN validation: empty is okay (optional), but if not empty must be 17 chars
         if (vin.isNotBlank() && vin.length != 17) {
             _state.value = AddCarState.Error("VIN must be exactly 17 characters if provided")

@@ -47,9 +47,7 @@ sealed class CarDetailsUiState {
         val tireSets: List<TireSet> = emptyList(),
         val fuelLogs: List<FuelLog> = emptyList(),
         val maintenanceLogs: List<Maintenance> = emptyList(),
-        val aiAnalysis: AiAnalysis? = null,
-        val isScanning: Boolean = false,
-        val isAnalyzing: Boolean = false
+        val isScanning: Boolean = false
     ) : CarDetailsUiState()
     data class Error(val message: String) : CarDetailsUiState()
 }
@@ -84,7 +82,6 @@ class CarDetailsViewModel @Inject constructor(
                 val tireSetsFlow = carRepository.getTireSets(carId)
                 val fuelLogsFlow = carRepository.getFuelLogs(carId)
                 val maintenanceFlow = carRepository.getMaintenanceLogs(carId)
-                val aiAnalysisFlow = carRepository.getAiAnalysis(carId)
 
                 @Suppress("UNCHECKED_CAST")
                 kotlinx.coroutines.flow.combine(
@@ -95,8 +92,7 @@ class CarDetailsViewModel @Inject constructor(
                     vignettesFlow,
                     tireSetsFlow,
                     fuelLogsFlow,
-                    maintenanceFlow,
-                    aiAnalysisFlow
+                    maintenanceFlow
                 ) { args: Array<Any?> ->
                     val car = args[0] as? Car
                     val logs = args[1] as List<MileageLog>
@@ -106,16 +102,14 @@ class CarDetailsViewModel @Inject constructor(
                     val tireSets = args[5] as List<TireSet>
                     val fuelLogs = args[6] as List<FuelLog>
                     val maintenance = args[7] as List<Maintenance>
-                    val aiAnalysis = args[8] as? AiAnalysis
 
                     if (car != null) {
                         val currentState = _state.value as? CarDetailsUiState.Success
                         val currentScanning = currentState?.isScanning ?: false
-                        val currentAnalyzing = currentState?.isAnalyzing ?: false
                         CarDetailsUiState.Success(
                             car, logs, inspections, insurances, vignettes, 
-                            tireSets, fuelLogs, maintenance, aiAnalysis, 
-                            currentScanning, currentAnalyzing
+                            tireSets, fuelLogs, maintenance, 
+                            currentScanning
                         )
                     } else {
                         CarDetailsUiState.Error("Car not found")
@@ -372,49 +366,6 @@ class CarDetailsViewModel @Inject constructor(
             try {
                 carRepository.deleteMaintenanceLog(carId, log)
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
-            }
-        }
-    }
-
-    fun analyzeCarHealth(carId: String) {
-        val currentState = _state.value as? CarDetailsUiState.Success ?: return
-        _state.update { if (it is CarDetailsUiState.Success) it.copy(isAnalyzing = true) else it }
-        
-        viewModelScope.launch {
-            try {
-                val car = currentState.car
-                val fuelLogs = currentState.fuelLogs.take(5).joinToString("\n") { 
-                    "${it.date}: ${it.km} km, ${it.liters} L" 
-                }
-                val maintenanceHistory = currentState.maintenanceLogs.take(10).joinToString("\n") {
-                    "${it.date}: ${it.description} at ${it.km} km"
-                }
-                
-                val carContext = """
-                    Make: ${car.make}, Model: ${car.model}, Year: ${car.year}
-                    Engine: ${car.engineSize} ${car.fuelType}
-                    Power: ${car.power}${car.powerUnit}
-                """.trimIndent()
-
-                val currentLanguage = java.util.Locale.getDefault().displayLanguage
-                geminiRepository.generateHealthAnalysis(carContext, fuelLogs, maintenanceHistory, currentLanguage)
-                    .onSuccess { analysis ->
-                        carRepository.saveAiAnalysis(carId, analysis)
-                        _state.update { if (it is CarDetailsUiState.Success) it.copy(isAnalyzing = false) else it }
-                    }
-                    .onFailure { e ->
-                        val sha1 = DiagnosticUtils.getAppSignatureSha1(context, withColons = true)
-                        val message = if (e.message?.contains("403") == true) {
-                            "Analysis Access Denied. Verify SHA-1 in Google Cloud: $sha1"
-                        } else {
-                            "Analysis failed: ${e.localizedMessage}"
-                        }
-                        _state.update { if (it is CarDetailsUiState.Success) it.copy(isAnalyzing = false) else it }
-                        _uiEvent.trySend(CarDetailsUiEvent.ShowToast(message))
-                    }
-            } catch (e: Exception) {
-                _state.update { if (it is CarDetailsUiState.Success) it.copy(isAnalyzing = false) else it }
                 _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
             }
         }

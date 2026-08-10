@@ -165,8 +165,9 @@ fun ServiceItem(
                 text = CarTranslations.getServiceOperationLabel(context, record.description),
                 style = MaterialTheme.typography.titleMedium
             )
+            val displayKm = CarFormatters.fromCanonicalDistance(record.km, unit == "mi")
             Text(
-                text = "${CarFormatters.formatDate(record.date)} \u00B7 ${record.km.toInt()} $unit",
+                text = "${CarFormatters.formatDate(record.date)} \u00B7 ${displayKm.toInt()} $unit",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

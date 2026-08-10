@@ -52,7 +52,6 @@ fun CarDetailsScreen(
     onTechnicalSheetClick: () -> Unit,
     onDiagnosisClick: () -> Unit,
     onFuelClick: () -> Unit,
-    onHealthClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CarDetailsViewModel = hiltViewModel(),
     windowSizeClass: WindowSizeClass? = null

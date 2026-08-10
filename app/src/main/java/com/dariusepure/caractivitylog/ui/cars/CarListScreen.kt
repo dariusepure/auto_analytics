@@ -230,26 +230,25 @@ fun CarGridCard(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 val editTooltipState = rememberTooltipState()
-                TooltipBox(
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                    tooltip = {
-                        PlainTooltip {
-                            Text(stringResource(R.string.common_edit))
-                        }
-                    },
-                    state = editTooltipState
-                ) {
-                    IconButton(onClick = onEditClick, modifier = Modifier.size(32.dp)) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = stringResource(R.string.car_edit_content_description),
-                            tint = Color(0xFF1A73E8),
-                            modifier = Modifier.size(20.dp)
-                        )
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                tooltip = {
+                    PlainTooltip {
+                        Text(stringResource(R.string.common_edit))
                     }
+                },
+                state = editTooltipState
+            ) {
+                IconButton(onClick = onEditClick) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = stringResource(R.string.car_edit_content_description),
+                        tint = Color(0xFF1A73E8)
+                    )
                 }
-                
-                val deleteTooltipState = rememberTooltipState()
+            }
+            
+            val deleteTooltipState = rememberTooltipState()
                 TooltipBox(
                     positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                     tooltip = {

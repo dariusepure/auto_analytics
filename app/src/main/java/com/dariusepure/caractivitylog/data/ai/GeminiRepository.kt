@@ -284,57 +284,6 @@ class GeminiRepository @Inject constructor(
         return postGemini(request)
     }
 
-    suspend fun generateHealthAnalysis(
-        carContext: String,
-        fuelHistory: String,
-        maintenanceHistory: String,
-        language: String = "English"
-    ): Result<AiAnalysis> {
-        return try {
-            val prompt = """
-                Analyze the health and maintenance state of this vehicle.
-                
-                CAR SPECS:
-                $carContext
-                
-                RECENT FUEL CONSUMPTION (last 5 entries):
-                $fuelHistory
-                
-                RECENT MAINTENANCE/SERVICE HISTORY:
-                $maintenanceHistory
-                
-                INSTRUCTIONS:
-                1. Evaluate if the fuel consumption trend is normal or increasing.
-                2. Check if any major maintenance (oil, filters, timing belt) is due based on mileage and last service.
-                3. Provide a 'healthScore' from 0 to 100.
-                4. Provide a 'summary' (max 2 concise sentences).
-                5. Provide a list of 'recommendations' (max 1-2 items).
-                
-                CRITICAL: Please provide the 'summary' and 'recommendations' in $language.
-                
-                Return ONLY a JSON object with these keys:
-                summary, healthScore, recommendations.
-            """.trimIndent()
-
-            val request = GeminiRequest(
-                contents = listOf(
-                    Content(role = "user", parts = listOf(Part(text = prompt)))
-                ),
-                generationConfig = GenerationConfig(temperature = 0.4f) // Lower temperature for more analytical response
-            )
-
-            val response = postGemini(request)
-            val fullText = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull { it.text != null }?.text
-                ?: throw Exception("Empty response from AI")
-
-            val jsonText = extractJson(fullText)
-            val analysis = json.decodeFromString<AiAnalysis>(jsonText)
-            Result.success(analysis)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
     private fun extractJson(text: String): String {
         val cleanedText = text.replace("```json", "").replace("```", "").trim()
         val startBrace = cleanedText.indexOf('{')

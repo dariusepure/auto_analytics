@@ -236,15 +236,10 @@ class CarRepository @Inject constructor(
         
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
         val inspectionRef = carRef.collection("inspections").document()
-        val mileageLogRef = carRef.collection("mileage").document()
 
-        val mileageLog = MileageLog(id = mileageLogRef.id, km = inspection.mileage, date = inspection.date)
-        val inspectionLog = inspection.copy(id = inspectionRef.id, mileageLogId = mileageLogRef.id)
+        val inspectionLog = inspection.copy(id = inspectionRef.id)
 
-        firestore.runBatch { batch ->
-            batch.set(inspectionRef, inspectionLog.toFirebase())
-            batch.set(mileageLogRef, mileageLog.toFirebase())
-        }.await()
+        inspectionRef.set(inspectionLog.toFirebase()).await()
     }
 
 
@@ -253,13 +248,8 @@ class CarRepository @Inject constructor(
         val uid = getUid()
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
         
-        firestore.runBatch { batch ->
-            batch.set(carRef.collection("inspections").document(inspection.id), inspection.toFirebase())
-            if (inspection.mileageLogId.isNotEmpty()) {
-                val mileageLog = MileageLog(id = inspection.mileageLogId, km = inspection.mileage, date = inspection.date)
-                batch.set(carRef.collection("mileage").document(inspection.mileageLogId), mileageLog.toFirebase())
-            }
-        }.await()
+        carRef.collection("inspections").document(inspection.id)
+            .set(inspection.toFirebase()).await()
     }
 
     suspend fun deleteInspection(carId: String, inspection: VehicleInspection) {
@@ -267,12 +257,7 @@ class CarRepository @Inject constructor(
         val uid = getUid()
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
         
-        firestore.runBatch { batch ->
-            batch.delete(carRef.collection("inspections").document(inspection.id))
-            if (inspection.mileageLogId.isNotEmpty()) {
-                batch.delete(carRef.collection("mileage").document(inspection.mileageLogId))
-            }
-        }.await()
+        carRef.collection("inspections").document(inspection.id).delete().await()
     }
 
     fun getInsurances(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.Insurance>> = callbackFlow {
@@ -655,46 +640,6 @@ class CarRepository @Inject constructor(
         val uid = getUid()
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
         carRef.collection("maintenance").document(log.id).delete().await()
-    }
-
-    fun getAiAnalysis(carId: String): Flow<AiAnalysis?> = callbackFlow {
-        checkNetwork()
-        val uid = authRepository.getUserId() ?: run {
-            trySend(null)
-            close()
-            return@callbackFlow
-        }
-
-        val listener = firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("ai_analysis")
-            .document("latest")
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    close(error)
-                    return@addSnapshotListener
-                }
-
-                val analysis = snapshot?.toObject(FirestoreAiAnalysis::class.java)?.fromFirebase(carId)
-                trySend(analysis)
-            }
-
-        awaitClose { listener.remove() }
-    }
-
-    suspend fun saveAiAnalysis(carId: String, analysis: AiAnalysis) {
-        checkNetwork()
-        val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("ai_analysis")
-            .document("latest")
-            .set(analysis.toFirebase())
-            .await()
     }
 
     fun getCarReports(carId: String): Flow<List<CarReport>> = callbackFlow {

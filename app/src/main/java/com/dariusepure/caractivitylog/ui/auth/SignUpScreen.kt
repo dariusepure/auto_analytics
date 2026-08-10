@@ -135,21 +135,12 @@ fun SignUpContent(
             }
 
             OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text(stringResource(R.string.auth_email_label)) },
-                singleLine = true,
-                enabled = !submitting,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
-            )
-            OutlinedTextField(
                 value = fullName,
                 onValueChange = { fullName = it },
                 label = { Text(stringResource(R.string.auth_full_name_label)) },
                 singleLine = true,
                 enabled = !submitting,
-                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
             )
             OutlinedTextField(
                 value = username,
@@ -157,6 +148,15 @@ fun SignUpContent(
                 label = { Text(stringResource(R.string.auth_username_label)) },
                 singleLine = true,
                 enabled = !submitting,
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+            )
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text(stringResource(R.string.auth_email_label)) },
+                singleLine = true,
+                enabled = !submitting,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
             )
             OutlinedTextField(

@@ -51,6 +51,7 @@ fun MileageHistoryScreen(
             LogImportDialog(
                 fuelLogs = successState.fuelLogs,
                 maintenanceLogs = successState.maintenanceLogs,
+                inspections = successState.inspections,
                 existingMileageLogs = successState.mileageLogs,
                 unit = if (europeanCountries.find { it.code == successState.car.plateCountry }?.usesMiles == true) "mi" else "km",
                 onDismiss = { showLogImportDialog = false },
@@ -117,7 +118,7 @@ fun MileageHistoryScreen(
                 },
                 actions = {
                     IconButton(onClick = { showLogImportDialog = true }) {
-                        Icon(Icons.Default.History, contentDescription = "Import from Fuel/Service")
+                        Icon(Icons.Default.History, contentDescription = "Import from other logs")
                     }
                 }
             )
@@ -199,12 +200,13 @@ fun MileageHistoryScreen(
 fun LogImportDialog(
     fuelLogs: List<com.dariusepure.caractivitylog.domain.FuelLog>,
     maintenanceLogs: List<com.dariusepure.caractivitylog.domain.Maintenance>,
+    inspections: List<com.dariusepure.caractivitylog.domain.VehicleInspection>,
     existingMileageLogs: List<MileageLog>,
     unit: String,
     onDismiss: () -> Unit,
     onConfirm: (List<MileageLog>) -> Unit
 ) {
-    val potentialLogs = remember(fuelLogs, maintenanceLogs, existingMileageLogs) {
+    val potentialLogs = remember(fuelLogs, maintenanceLogs, inspections, existingMileageLogs) {
         val list = mutableListOf<Pair<MileageLog, String>>() // Log + Source Label
         
         val existingKms = existingMileageLogs.map { it.km.roundToInt() }.toSet()
@@ -218,6 +220,12 @@ fun LogImportDialog(
         maintenanceLogs.forEach { service ->
             if (service.km.roundToInt() !in existingKms) {
                 list.add(MileageLog(km = service.km, date = service.date) to "Service")
+            }
+        }
+
+        inspections.forEach { inspection ->
+            if (inspection.mileage.roundToInt() !in existingKms) {
+                list.add(MileageLog(km = inspection.mileage, date = inspection.date) to "Inspection")
             }
         }
         

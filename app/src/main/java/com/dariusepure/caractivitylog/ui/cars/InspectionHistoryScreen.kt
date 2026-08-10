@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AssignmentTurnedIn
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -53,11 +54,30 @@ fun InspectionHistoryScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showAddDialog by remember { mutableStateOf(false) }
+    var showLogImportDialog by remember { mutableStateOf(false) }
     var editingInspection by remember { mutableStateOf<VehicleInspection?>(null) }
     var inspectionToDelete by remember { mutableStateOf<VehicleInspection?>(null) }
 
     LaunchedEffect(carId) {
         viewModel.loadCarData(carId)
+    }
+
+    if (showLogImportDialog) {
+        val successState = state as? CarDetailsUiState.Success
+        if (successState != null) {
+            LogImportDialog(
+                fuelLogs = successState.fuelLogs,
+                maintenanceLogs = successState.maintenanceLogs,
+                inspections = successState.inspections,
+                existingMileageLogs = successState.mileageLogs,
+                unit = if (europeanCountries.find { it.code == successState.car.plateCountry }?.usesMiles == true) "mi" else "km",
+                onDismiss = { showLogImportDialog = false },
+                onConfirm = { logsToImport ->
+                    viewModel.addBatchMileageLogs(carId, logsToImport)
+                    showLogImportDialog = false
+                }
+            )
+        }
     }
 
     if (inspectionToDelete != null) {
@@ -107,6 +127,11 @@ fun InspectionHistoryScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { showLogImportDialog = true }) {
+                        Icon(Icons.Default.History, contentDescription = "Import to Mileage History")
                     }
                 }
             )

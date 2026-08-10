@@ -259,17 +259,8 @@
     <string name="car_inspection_title">Technical Inspection</string>
     <string name="car_insurance_title">Insurance</string>
     <string name="car_vignette_title">Vignette</string>
-    <string name="car_health_check">Health</string>
-    <string name="car_health_ai_summary">AI Health Summary</string>
-    <string name="car_health_recommendations">Maintenance Recommendations</string>
-    <string name="car_health_score_label">Overall Health Score</string>
-    <string name="car_health_analyze_btn">Analyze Health</string>
-    <string name="car_health_refresh_btn">Refresh Analysis</string>
-    <string name="car_health_view_report">View full health report</string>
-    <string name="car_health_empty_subtitle">Tap the button above to generate a health report for your vehicle.</string>
-    <string name="car_health_last_update">Last updated: %s</string>
     <string name="car_diagnosis_title">Virtual Mechanic</string>
-    <string name="car_diagnosis_subtitle">Talk to your personal virtual mechanic</string>
+    <string name="car_diagnosis_subtitle">AI-powered vehicle diagnosis</string>
     <string name="car_fuel_consumption">Fuel Consumption</string>
     <string name="car_fuel_consumption_subtitle">Track fillings and view stats</string>
     <string name="car_generate_report">PDF Reports</string>
@@ -352,7 +343,7 @@
     <string name="fuel_mileage_conflict">Mileage conflict with records on %s</string>
 
     <!-- Diagnosis -->
-    <string name="diagnosis_title">Virtual Mechanic - %s</string>
+    <string name="diagnosis_title">%s Diagnosis</string>
     <string name="diagnosis_reset_chat">Reset Chat</string>
     <string name="diagnosis_is_thinking">AI is thinking...</string>
     <string name="diagnosis_placeholder">Describe the problem...</string>
