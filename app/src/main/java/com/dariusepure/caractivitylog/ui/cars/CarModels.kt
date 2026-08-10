@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2026 Darius Epure (Darius DevWorks)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ */
+
 package com.dariusepure.caractivitylog.ui.cars
 
 val carModels = mapOf(
@@ -144,3 +153,4 @@ val carModels = mapOf(
     "VOLVO" to listOf("240", "340", "440", "460", "480", "740", "760", "850", "940", "960", "C30", "C40", "C70", "EX30", "EX90", "S40", "S60", "S70", "S80", "S90", "V40", "V50", "V60", "V70", "V90", "XC40", "XC60", "XC70", "XC90"),
     "WARTBURG" to listOf("311", "312", "313", "353", "1.3")
 )
+

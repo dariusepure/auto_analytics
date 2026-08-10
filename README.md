@@ -6,35 +6,35 @@
 ## 🌟 Key Features
 
 ### 🤖 AI-Powered Intelligence
-- **Smart Diagnosis**: Persistent chat with an expert AI car mechanic.
+- **Smart Diagnosis (Virtual Mechanic)**: Persistent chat with an expert AI car mechanic.
   - **History Persistence**: Conversations are saved per car and synced to the cloud.
-  - **Context-Aware**: The AI knows your car's specs to provide precise advice.
-  - **Function Calling**: The AI can perform actions like updating car specs or mileage directly through chat.
-- **AI Document Scanning**: Extract technical data instantly from registration certificates.
-  - **Dual Input**: Support for both **Photo** (Gallery) and **PDF** files.
-  - **Direct Population**: Automatically fills fields like VIN, Make, Model, Year, Fuel Type, and more.
+  - **Context-Aware**: The AI knows your car's technical specs and history to provide precise advice.
+  - **Function Calling**: The AI can perform actions like updating car specs or odometer readings directly through the conversation.
+- **AI Document Scanning**: Extract technical data instantly from vehicle documents.
+  - **Dual Input**: Support for both **Photo** (Gallery/Camera) and **PDF** files.
+  - **Auto-Population**: Automatically fills exhaustive fields like VIN, Make, Model, Year, Fuel Type, and more using Google Gemini.
 
 ### 🛠️ Comprehensive Vehicle Management
-- **Detailed Profiles**: Exhaustive technical specs for every vehicle, including Body, Chassis, Dimensions, and Engine details.
-- **Visual Identity**: Modernized logo and support for car profile photos with smart compression.
-- **Full History Tracking**:
-  - **Service & Maintenance**: Log repairs and oil changes.
-  - **Tire Management**: Track multiple sets (Summer/Winter/All-Season).
-  - **Fuel Consumption**: Track fillings and view average consumption stats with charts.
-  - **Legal Documents**: History and alerts for **ITP (Inspection)**, **Insurance**, and **Vignettes**.
-- **Data Safety**: **Recycle Bin** for deleted vehicles to prevent accidental data loss.
+- **Exhaustive Technical Profiles**: Track everything from engine layout and cylinder configuration to tire dimensions and brake types.
+- **Smart Mileage History**: 
+  - **Unified Log**: A central place to track your vehicle's odometer progress.
+  - **Intelligent Import**: One-tap import of mileage records from **Fuel**, **Service**, and **Technical Inspection (ITP)** logs.
+- **Maintenance & Service**: Keep a detailed technical log of every repair, oil change, or part replacement.
+- **Tire Management**: Track active and stored tire sets with DOT and size specifications.
+- **Fuel Consumption**: Log fillings, track efficiency, and visualize trends with interactive **Vico Charts**.
+- **Legal Document Tracking**: Stay ahead of deadlines with history and expiration alerts for **ITP**, **Insurance (RCA)**, and **Vignettes**.
 
 ### 🔐 Secure Access & Sync
-- **Flexible Login**: Sign in with Email/Password, **Google One Tap**, or continue as **Guest**.
-- **Cross-Device Sync**: Powered by Firebase for real-time data synchronization.
-- **Credential Manager**: Seamless and secure sign-in experience using the latest Android APIs.
+- **Modern Authentication**: Sign in with Email/Password, **Google One Tap**, or explore as a **Guest**.
+- **Seamless Sync**: Powered by Firebase for real-time data synchronization across all your devices.
+- **Offline-First**: Built with a robust local-first strategy; data stays on your device and syncs whenever you're online.
+- **Recycle Bin**: Safety first—deleted vehicles can be recovered from the bin to prevent accidental data loss.
 
-### 🌗 Premium UI/UX & Localization
-- **Material Design 3 (M3)**: Modern, clean interface with updated typography and components.
-- **Adaptive Theming**: Support for Light Mode and **OLED Black Dark Mode**.
-- **Multi-Language Support**: In-app language selector (English, Romanian, and more).
-- **Edge-to-Edge**: Immersive experience with content flowing behind system bars.
-- **Developed by Darius DevWorks**: Consistent branding and footer across the authentication flow.
+### 🌗 Premium UI/UX
+- **Material Design 3 (M3)**: A beautiful, modern interface using the latest adaptive components.
+- **Adaptive Theming**: Native support for Light Mode and a deep **OLED Black Dark Mode**.
+- **Multi-Language Support**: Full localization for **English** and **Romanian**.
+- **Edge-to-Edge**: Immersive experience with content flowing elegantly behind system bars.
 
 ---
 
@@ -42,15 +42,12 @@
 
 | Category | Technology |
 | :--- | :--- |
-| **Language** | **Kotlin** (2.0+) |
-| **Compatibility** | **Android 7.0 (API 24) and up** |
+| **Language** | **Kotlin 2.0+** |
 | **UI Framework** | **Jetpack Compose** with **Material 3** |
 | **AI SDK** | **Google Generative AI SDK** (Gemini 3.5 Flash-lite) |
-| **Architecture** | **MVVM** + Clean Architecture |
-| **DI** | **Hilt** (Dagger) |
-| **Networking** | **Ktor Client 3.0** |
-| **Database** | **Cloud Firestore** |
-| **Storage** | **Firebase Storage** |
+| **Networking** | **Ktor Client 3.0** (with Content Negotiation & Logging) |
+| **Backend** | **Firebase** (Firestore, Storage, Authentication) |
+| **Architecture** | **MVVM** + Clean Architecture + Hilt DI |
 | **Charts** | **Vico Charts** |
 | **Identity** | **Android Credential Manager** |
 | **Serialization** | **Kotlinx Serialization** |
@@ -58,21 +55,22 @@
 
 ---
 
-## ⚙️ Configuration & Setup
+## ⚖️ License
+
+Copyright © 2026 **Darius Epure (Darius DevWorks)**
+
+This project is licensed under the **GNU General Public License v3**.  
+You are free to use, modify, and distribute this software under the terms of the GPL v3, ensuring that all derivative works remain open source under the same license.
+
+---
+
+## ⚙️ Configuration
 
 ### API Keys
-To use the AI features, you must provide a Gemini API Key in your `local.properties` file:
+To enable AI features, add your Gemini API Key to `local.properties`:
 ```properties
 gemini.api.key=YOUR_API_KEY_HERE
 ```
 
-### Build & Run
-The project uses Gradle Version Catalog for dependency management. Ensure you have the latest Android Studio installed.
-
 ---
-
-> [!IMPORTANT]
-> This app is designed to be **Offline-First**. All changes are saved locally and synced automatically when a connection is available.
-
----
-*Developed by Darius DevWorks to provide total control over your vehicle's health and documentation.*
+*Developed by Darius DevWorks - Empowering drivers with data-driven vehicle maintenance.*
