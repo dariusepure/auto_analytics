@@ -1080,7 +1080,11 @@ fun AddCarScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         enabled = state !is AddCarState.Pending
                     )
-                    Spacer(Modifier.width(8.dp))
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                Row(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = topSpeed,
                         onValueChange = { if (it.all { char -> char.isDigit() }) topSpeed = it },
@@ -1090,11 +1094,7 @@ fun AddCarScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         enabled = state !is AddCarState.Pending
                     )
-                }
-
-                Spacer(Modifier.height(8.dp))
-
-                Row(modifier = Modifier.fillMaxWidth()) {
+                    Spacer(Modifier.width(8.dp))
                     OutlinedTextField(
                         value = acceleration0to100,
                         onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) acceleration0to100 = it },
@@ -1104,7 +1104,11 @@ fun AddCarScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         enabled = state !is AddCarState.Pending
                     )
-                    Spacer(Modifier.width(8.dp))
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                Row(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = co2Emissions,
                         onValueChange = { if (it.all { char -> char.isDigit() }) co2Emissions = it },
@@ -1112,6 +1116,16 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        enabled = state !is AddCarState.Pending
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    OutlinedTextField(
+                        value = fuelConsumptionCombined,
+                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelConsumptionCombined = it },
+                        label = { Text(stringResource(R.string.car_consumption_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         enabled = state !is AddCarState.Pending
                     )
                 }
@@ -1141,15 +1155,6 @@ fun AddCarScreen(
                         value = fuelConsumptionExtraUrban,
                         onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelConsumptionExtraUrban = it },
                         label = { Text(stringResource(R.string.car_consumption_extra_urban_label)) },
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        enabled = state !is AddCarState.Pending
-                    )
-                    OutlinedTextField(
-                        value = fuelConsumptionCombined,
-                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelConsumptionCombined = it },
-                        label = { Text(stringResource(R.string.car_consumption_label)) },
                         modifier = Modifier.weight(1f).fillMaxHeight(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),

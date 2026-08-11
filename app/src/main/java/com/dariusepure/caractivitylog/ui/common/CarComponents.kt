@@ -239,7 +239,7 @@ fun TireSetItem(
                 }
             }
             Text(
-                text = stringResource(R.string.tire_summary, tireSet.brand, tireSet.model, tireSet.width, tireSet.ratio, tireSet.diameter),
+                text = stringResource(R.string.tire_summary, tireSet.brand, tireSet.width, tireSet.ratio, tireSet.diameter),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )

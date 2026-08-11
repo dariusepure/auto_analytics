@@ -265,7 +265,7 @@ object PdfReportGenerator {
                 val seasonStr = context.getString(tireSet.season.labelRes)
                 
                 textPaint.isFakeBoldText = tireSet.isActive
-                canvas.drawText("${tireSet.brand} ${tireSet.model} ($seasonStr)$activeTag", MARGIN, yPosition, textPaint)
+                canvas.drawText("${tireSet.brand} ($seasonStr)$activeTag", MARGIN, yPosition, textPaint)
                 textPaint.isFakeBoldText = false
                 
                 yPosition += 14f

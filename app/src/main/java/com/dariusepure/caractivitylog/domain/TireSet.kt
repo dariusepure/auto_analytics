@@ -16,7 +16,6 @@ data class TireSet(
     val id: String = "",
     val season: TireSeason = TireSeason.SUMMER,
     val brand: String = "",
-    val model: String = "",
     val width: Int = 0,
     val ratio: Int = 0,
     val diameter: Int = 0,

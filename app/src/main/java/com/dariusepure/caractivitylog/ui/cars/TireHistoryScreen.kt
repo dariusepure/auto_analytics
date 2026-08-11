@@ -158,7 +158,6 @@ fun AddTireSetDialog(
     var season by remember { mutableStateOf(existingTireSet?.season ?: TireSeason.SUMMER) }
     var brand by remember { mutableStateOf(existingTireSet?.brand ?: "") }
     var brandExpanded by remember { mutableStateOf(false) }
-    var model by remember { mutableStateOf(existingTireSet?.model ?: "") }
     var width by remember { mutableStateOf(existingTireSet?.width?.toString() ?: "") }
     var ratio by remember { mutableStateOf(existingTireSet?.ratio?.toString() ?: "") }
     var diameter by remember { mutableStateOf(existingTireSet?.diameter?.toString() ?: "") }
@@ -237,33 +236,37 @@ fun AddTireSetDialog(
                     }
                 }
 
-                OutlinedTextField(
-                    value = model,
-                    onValueChange = { model = it },
-                    label = { Text(stringResource(R.string.tire_model_label)) },
-                    modifier = Modifier.fillMaxWidth()
+                Text(
+                    text = stringResource(R.string.car_tire_size_label),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
                 )
-
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     OutlinedTextField(
                         value = width,
                         onValueChange = { if (it.all { char -> char.isDigit() }) width = it },
                         label = { Text(stringResource(R.string.car_tire_width_label)) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
                     )
+                    Text("/", modifier = Modifier.padding(horizontal = 4.dp), style = MaterialTheme.typography.titleMedium)
                     OutlinedTextField(
                         value = ratio,
                         onValueChange = { if (it.all { char -> char.isDigit() }) ratio = it },
                         label = { Text(stringResource(R.string.car_tire_ratio_label)) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
                     )
+                    Text("R", modifier = Modifier.padding(horizontal = 4.dp), style = MaterialTheme.typography.titleMedium)
                     OutlinedTextField(
                         value = diameter,
                         onValueChange = { if (it.all { char -> char.isDigit() }) diameter = it },
                         label = { Text(stringResource(R.string.car_tire_diam_label)) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
                     )
                 }
@@ -305,7 +308,6 @@ fun AddTireSetDialog(
                         TireSet(
                             season = season,
                             brand = brand,
-                            model = model,
                             width = width.toIntOrNull() ?: 0,
                             ratio = ratio.toIntOrNull() ?: 0,
                             diameter = diameter.toIntOrNull() ?: 0,
