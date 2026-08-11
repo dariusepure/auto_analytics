@@ -246,7 +246,9 @@ fun AddCarScreen(
             ),
             onDismiss = { dataToConfirm = null },
             onConfirm = { selectedData ->
-                if (make.isBlank()) selectedData.make?.let { make = it.uppercase() }
+                if (make.isBlank()) selectedData.make?.let { 
+                    make = it.lowercase().replaceFirstChar { char -> char.uppercase() } 
+                }
                 if (model.isBlank()) selectedData.model?.let { model = it }
                 if (vin.isBlank()) selectedData.vin?.let { vin = it.uppercase() }
                 if (year.isBlank()) selectedData.year?.let { year = it.roundToInt().toString() }
@@ -509,7 +511,9 @@ fun AddCarScreen(
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = make,
-                        onValueChange = { make = it.uppercase() },
+                        onValueChange = { 
+                            make = it.lowercase().replaceFirstChar { char -> char.uppercase() } 
+                        },
                         label = { Text(stringResource(R.string.car_make_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         leadingIcon = {

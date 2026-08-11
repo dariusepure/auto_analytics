@@ -9,7 +9,7 @@
 - **Smart Diagnosis (Virtual Mechanic)**: Persistent chat with an expert AI car mechanic.
   - **History Persistence**: Conversations are saved per car and synced to the cloud.
   - **Context-Aware**: The AI knows your car's technical specs and history to provide precise advice.
-  - **Function Calling**: The AI can perform actions like updating car specs or odometer readings directly through the conversation.
+  - **Read-Only Context**: The AI can read all vehicle data to assist you, but technical modifications must be made manually by the user for maximum safety.
 - **AI Document Scanning**: Extract technical data from vehicle documents.
   - **Flexible Input**: Import documents via **Gallery** or **PDF** files.
   - **Assisted Data Entry**: Helps you quickly fill exhaustive fields like VIN, Make, Model, Year, Fuel Type, and more using Google Gemini.

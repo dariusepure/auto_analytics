@@ -205,7 +205,9 @@ fun AddTireSetDialog(
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = brand,
-                        onValueChange = { brand = it.uppercase() },
+                        onValueChange = { input ->
+                            brand = input.lowercase().replaceFirstChar { it.uppercase() }
+                        },
                         label = { Text(stringResource(R.string.tire_brand_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {

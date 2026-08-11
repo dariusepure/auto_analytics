@@ -233,7 +233,7 @@ class AddCarViewModel @Inject constructor(
                     name = "",
                     licensePlate = licensePlate.uppercase(),
                     plateCountry = plateCountry,
-                    make = make.trim().uppercase(),
+                    make = make.trim().lowercase().replaceFirstChar { it.uppercase() },
                     model = model.trim(),
                     vin = vin.trim().uppercase(),
                     year = year.toDoubleOrNull()?.roundToInt() ?: 0,

@@ -97,7 +97,7 @@ object PdfReportGenerator {
         // --- HEADER ---
         textPaint.textSize = 28f
         textPaint.isFakeBoldText = true
-        val title = "${car.make} ${car.model}".uppercase()
+        val title = "${car.make} ${car.model}"
         canvas.drawText(title, MARGIN, yPosition + 25f, textPaint)
         
         yPosition += 40f
@@ -143,7 +143,7 @@ object PdfReportGenerator {
                 isFakeBoldText = true
                 isAntiAlias = true
             }
-            canvas.drawText(title.uppercase(), MARGIN, yPosition, headerPaint)
+            canvas.drawText(title, MARGIN, yPosition, headerPaint)
             yPosition += 25f
         }
 
@@ -151,7 +151,7 @@ object PdfReportGenerator {
         if (reportType == ReportType.FULL || reportType == ReportType.TECHNICAL_SHEET) {
             drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.pdf_section_general))
             drawTwoColumns(listOf(
-                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_make) to car.make.uppercase(),
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_make) to car.make,
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_model) to car.model,
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_year) to car.year.takeIf { it != 0 }?.toString().orEmpty(),
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_color) to car.color,

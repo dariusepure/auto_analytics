@@ -65,53 +65,9 @@ class GeminiRepository @Inject constructor(
 
     private val tag = "GeminiRepository"
 
-    private val updateCarTools = listOf(
-        Tool(
-            functionDeclarations = listOf(
-                FunctionDeclaration(
-                    name = "update_car_spec",
-                    description = "Updates a specific technical specification of the car.",
-                    parameters = buildJsonObject {
-                        put("type", "object")
-                        put("properties", buildJsonObject {
-                            put("field", buildJsonObject {
-                                put("type", "string")
-                                put("description", "The technical field to update. Valid fields: make, model, vin, year, engineSize, fuelType, fuelSystem, color, power, torque, engineCode, engineLayout (Transverse, Longitudinal), cylinderLayout (Inline, V, W, Boxer), length, width, height, wheelbase, trackWidth, emissionStandard, aspiration, fuelTankCapacity, batteryCapacity, drivetrain, gearboxType, gears, frontSuspension (MacPherson, Double Wishbone, Multi-link), rearSuspension (Torsion Beam, Multi-link, Solid Axle), vehicleType, manufacturingCountry, topSpeed, weight, numberOfSeats, numberOfCylinders, valvesPerCylinder, numberOfDoors, bootSpace, tireWidth, tireAspectRatio, tireDiameter.")
-                            })
-                            put("value", buildJsonObject {
-                                put("type", "string")
-                                put("description", "The new value for the field. For dropdown fields, you MUST pick one of the standard English values provided in instructions.")
-                            })
-                        })
-                        put("required", buildJsonArray {
-                            add("field")
-                            add("value")
-                        })
-                    }
-                ),
-                FunctionDeclaration(
-                    name = "update_car_mileage",
-                    description = "Updates the car's current mileage (odometer reading).",
-                    parameters = buildJsonObject {
-                        put("type", "object")
-                        put("properties", buildJsonObject {
-                            put("km", buildJsonObject {
-                                put("type", "string")
-                                put("description", "The current mileage in kilometers.")
-                            })
-                        })
-                        put("required", buildJsonArray {
-                            add("km")
-                        })
-                    }
-                )
-            )
-        )
-    )
-
     private suspend fun postGemini(request: GeminiRequest): GeminiResponse {
         val model = modelName
-        val url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=${BuildConfig.GEMINI_API_KEY}"
+        val url = "https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${BuildConfig.GEMINI_API_KEY}"
         val sha1 = DiagnosticUtils.getAppSignatureSha1(context, withColons = true)
         val packageName = context.packageName
 
@@ -151,7 +107,7 @@ class GeminiRepository @Inject constructor(
                 1. Verify VIN format: must be 17 characters, only letters and digits (excluding I, O, Q).
                 2. Verify Year: must be a realistic year (e.g., 1900-2026).
                 3. Verify Engine Size: must be in cubic centimeters (cc).
-                4. Brand (make) MUST be returned in UPPERCASE (e.g., "BMW", "VOLKSWAGEN").
+                4. Brand (make) MUST be returned in Title Case (e.g., "Bmw", "Volkswagen").
                 5. NUMERIC FIELDS (year, engineSize, power, torque, weight, capacity, speed, consumption, emissions, mileage, etc.) MUST contain ONLY the raw number, NO units (e.g., 230 instead of "230 Nm").
                 6. If a value is unreadable, illogical, or not found, return null for that field.
                 
@@ -215,7 +171,7 @@ class GeminiRepository @Inject constructor(
                 1. Verify VIN format: must be 17 characters, only letters and digits (excluding I, O, Q).
                 2. Verify Year: must be a realistic year (e.g., 1900-2026).
                 3. Verify Engine Size: must be in cubic centimeters (cc).
-                4. Brand (make) MUST be returned in UPPERCASE (e.g., "BMW", "VOLKSWAGEN").
+                4. Brand (make) MUST be returned in Title Case (e.g., "Bmw", "Volkswagen").
                 5. NUMERIC FIELDS (year, engineSize, power, torque, weight, capacity, speed, consumption, emissions, mileage, etc.) MUST contain ONLY the raw number, NO units (e.g., 230 instead of "230 Nm").
                 6. If a value is unreadable, illogical, or not found, return null for that field.
                 
@@ -286,7 +242,6 @@ class GeminiRepository @Inject constructor(
 
         val request = GeminiRequest(
             contents = validatedHistory + userContent,
-            tools = updateCarTools,
             generationConfig = GenerationConfig(temperature = temperature)
         )
 
