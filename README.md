@@ -12,7 +12,7 @@
   - **Read-Only Context**: The AI can read all vehicle data to assist you, but technical modifications must be made manually by the user for maximum safety.
 - **AI Document Scanning**: Extract technical data from vehicle documents.
   - **Flexible Input**: Import documents via **Gallery** or **PDF** files.
-  - **Assisted Data Entry**: Helps you quickly fill exhaustive fields like VIN, Make, Model, Year, Fuel Type, and more using Google Gemini.
+  - **Manual Data Confirmation**: Review and select which scanned details (VIN, Make, Model, Year, etc.) to apply to your car profile.
 
 ### 🛠️ Comprehensive Vehicle Management
 - **Exhaustive Technical Profiles**: Track everything from engine layout and cylinder configuration to tire dimensions and brake types.
@@ -45,7 +45,7 @@
 | **Compatibility** | **Android 8.0 (API 26) and up** |
 | **UI Framework** | **Jetpack Compose** with **Material 3** |
 | **AI SDK** | **Google Generative AI SDK** (Gemini 3.5 Flash-lite) |
-| **Networking** | **Ktor Client 3.0** (with Content Negotiation & Logging) |
+| **Networking** | **Ktor Client 3.0** |
 | **Backend** | **Firebase** (Firestore, Storage, Authentication) |
 | **Architecture** | **MVVM** + Clean Architecture + Hilt DI |
 | **Charts** | **Vico Charts** |
