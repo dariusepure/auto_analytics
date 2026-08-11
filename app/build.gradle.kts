@@ -9,7 +9,6 @@ val localProperties = Properties().apply {
     if (f.exists()) f.inputStream().use { load(it) }
 }
 val webClientId: String = localProperties.getProperty("WEB_CLIENT_ID", "1050502217992-8au5hrcl0uuu4odfm9bftfll39q6cffs.apps.googleusercontent.com")
-val geminiKey: String = localProperties.getProperty("gemini.api.key", "")
 val firebaseApiKey: String = localProperties.getProperty("FIREBASE_API_KEY", "AIzaSyDOrjBmSwJ1EP3BtDo6RXgVM8VwScNpi-Q")
 
 plugins {
@@ -31,7 +30,7 @@ android {
         minSdk = 26
         targetSdk = 36
         versionCode = 17
-        versionName = "2.45"
+        versionName = "2.5"
 
         multiDexEnabled = true
 
@@ -39,7 +38,6 @@ android {
         vectorDrawables { useSupportLibrary = true }
         
         buildConfigField("String", "WEB_CLIENT_ID", "\"$webClientId\"")
-        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiKey\"")
         buildConfigField("String", "FIREBASE_API_KEY", "\"$firebaseApiKey\"")
         buildConfigField("String", "RELEASE_SHA1", "\"67615688F76E557769CAB626F4F20C81B8749483\"")
         buildConfigField("String", "DEBUG_SHA1", "\"C10C6DF2FB85FC2373F01DA647F4F40CCB3F685C\"")
@@ -159,7 +157,6 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
-    implementation(libs.google.generativeai)
     implementation(libs.firebase.appcheck.playintegrity)
     debugImplementation(libs.firebase.appcheck.debug)
     implementation(libs.firebase.crashlytics)

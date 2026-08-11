@@ -63,14 +63,4 @@ This project is licensed under the **GNU General Public License v3**.
 You are free to use, modify, and distribute this software under the terms of the GPL v3, ensuring that all derivative works remain open source under the same license.
 
 ---
-
-## ⚙️ Configuration
-
-### API Keys
-To enable AI features, add your Gemini API Key to `local.properties`:
-```properties
-gemini.api.key=YOUR_API_KEY_HERE
-```
-
----
 *Developed by Darius DevWorks - Empowering drivers with data-driven vehicle maintenance.*

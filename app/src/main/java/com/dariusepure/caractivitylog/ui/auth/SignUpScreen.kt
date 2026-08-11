@@ -81,15 +81,13 @@ fun SignUpScreen(
 @Composable
 fun SignUpContent(
     state: SignUpState,
-    onSignUp: (String, String, String, String, String) -> Unit,
+    onSignUp: (String, String, String) -> Unit,
     onBackToSignIn: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val submitting = state == SignUpState.Pending
 
     var email by rememberSaveable { mutableStateOf("") }
-    var fullName by rememberSaveable { mutableStateOf("") }
-    var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var confirmPassword by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
@@ -144,29 +142,13 @@ fun SignUpContent(
             }
 
             OutlinedTextField(
-                value = fullName,
-                onValueChange = { fullName = it },
-                label = { Text(stringResource(R.string.auth_full_name_label)) },
-                singleLine = true,
-                enabled = !submitting,
-                modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
-            )
-            OutlinedTextField(
-                value = username,
-                onValueChange = { username = it },
-                label = { Text(stringResource(R.string.auth_username_label)) },
-                singleLine = true,
-                enabled = !submitting,
-                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
-            )
-            OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
                 label = { Text(stringResource(R.string.auth_email_label)) },
                 singleLine = true,
                 enabled = !submitting,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
             )
             OutlinedTextField(
                 value = password,
@@ -210,10 +192,10 @@ fun SignUpContent(
 
             Button(
                 onClick = {
-                    onSignUp(email, password, confirmPassword, fullName, username)
+                    onSignUp(email, password, confirmPassword)
                 },
                 enabled = !submitting && email.isNotBlank() && password.isNotBlank() && 
-                        confirmPassword.isNotBlank() && fullName.isNotBlank() && username.isNotBlank(),
+                        confirmPassword.isNotBlank(),
                 modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
             ) {
                 if (submitting) {
@@ -250,7 +232,7 @@ private fun SignUpScreenPreview() {
     CarActivityLogTheme {
         SignUpContent(
             state = SignUpState.Idle,
-            onSignUp = { _, _, _, _, _ -> },
+            onSignUp = { _, _, _ -> },
             onBackToSignIn = {}
         )
     }

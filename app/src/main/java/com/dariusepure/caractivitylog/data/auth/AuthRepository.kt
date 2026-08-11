@@ -73,35 +73,16 @@ class AuthRepository @Inject constructor(
         _isGuestMode.value = enabled
     }
 
-    suspend fun isUsernameAvailable(username: String): Boolean {
-        if (username.isBlank()) return false
-        val doc = firestore.collection("usernames").document(username.lowercase()).get().await()
-        return !doc.exists()
-    }
-
-    suspend fun signUp(email: String, password: String, fullName: String, username: String) {
-        val usernameLower = username.lowercase()
-        
-        // Double check username availability
-        if (!isUsernameAvailable(usernameLower)) {
-            throw Exception("Username is already taken")
-        }
-
+    suspend fun signUp(email: String, password: String) {
         val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
         val uid = authResult.user?.uid ?: throw Exception("Failed to get user ID")
 
         val user = FirestoreUser(
             id = uid,
-            fullName = fullName,
-            username = username,
             email = email
         )
 
-        // Use a batch to ensure both documents are created
-        firestore.runBatch { batch ->
-            batch.set(firestore.collection("users").document(uid), user)
-            batch.set(firestore.collection("usernames").document(usernameLower), mapOf("uid" to uid))
-        }.await()
+        firestore.collection("users").document(uid).set(user).await()
     }
 
     suspend fun signIn(email: String, password: String) {

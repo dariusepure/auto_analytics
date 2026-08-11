@@ -36,8 +36,8 @@ class SignUpViewModel @Inject constructor(
             null
         )
 
-    fun onSignUp(email: String, password: String, confirmPassword: String, fullName: String, username: String) {
-        if (email.isBlank() || password.isBlank() || fullName.isBlank() || username.isBlank()) {
+    fun onSignUp(email: String, password: String, confirmPassword: String) {
+        if (email.isBlank() || password.isBlank()) {
             _state.value = SignUpState.Error("All fields are required")
             return
         }
@@ -47,19 +47,10 @@ class SignUpViewModel @Inject constructor(
             return
         }
 
-        if (username.length < 3) {
-            _state.value = SignUpState.Error("Username must be at least 3 characters")
-            return
-        }
-
         viewModelScope.launch {
             _state.value = SignUpState.Pending
             try {
-                if (!authRepository.isUsernameAvailable(username)) {
-                    _state.value = SignUpState.Error("Username is already taken")
-                    return@launch
-                }
-                authRepository.signUp(email, password, fullName, username)
+                authRepository.signUp(email, password)
             } catch (e: Exception) {
                 _state.value = SignUpState.Error(e.localizedMessage ?: "An error occurred during sign up")
             }

@@ -17,7 +17,6 @@ import android.util.Log
 import com.dariusepure.caractivitylog.BuildConfig
 import com.dariusepure.caractivitylog.util.DiagnosticUtils
 import com.dariusepure.caractivitylog.domain.ScannedCarData
-import com.dariusepure.caractivitylog.domain.AiAnalysis
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.client.HttpClient
@@ -56,6 +55,9 @@ class GeminiRepository @Inject constructor(
     private val systemPrompt: String
         get() = remoteConfig.getString("gemini_prompt")
 
+    private val geminiApiKey: String
+        get() = remoteConfig.getString("gemini_api_key")
+
     private val json = Json {
         ignoreUnknownKeys = true
         coerceInputValues = true
@@ -67,7 +69,7 @@ class GeminiRepository @Inject constructor(
 
     private suspend fun postGemini(request: GeminiRequest): GeminiResponse {
         val model = modelName
-        val url = "https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${BuildConfig.GEMINI_API_KEY}"
+        val url = "https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=$geminiApiKey"
         val sha1 = DiagnosticUtils.getAppSignatureSha1(context, withColons = true)
         val packageName = context.packageName
 

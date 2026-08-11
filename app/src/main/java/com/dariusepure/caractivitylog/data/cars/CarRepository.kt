@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.MileageLog
-import com.dariusepure.caractivitylog.domain.AiAnalysis
 import com.dariusepure.caractivitylog.ui.cars.ChatMessage
 import com.dariusepure.caractivitylog.domain.CarReport
 import com.dariusepure.caractivitylog.data.auth.AuthRepository

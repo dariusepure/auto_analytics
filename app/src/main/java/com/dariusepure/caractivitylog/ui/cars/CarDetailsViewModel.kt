@@ -24,7 +24,6 @@ import com.dariusepure.caractivitylog.domain.TireSet
 import com.dariusepure.caractivitylog.domain.Maintenance
 import com.dariusepure.caractivitylog.domain.ScannedMileageEntry
 import com.dariusepure.caractivitylog.domain.VehicleInspection
-import com.dariusepure.caractivitylog.domain.AiAnalysis
 import com.dariusepure.caractivitylog.util.DiagnosticUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
