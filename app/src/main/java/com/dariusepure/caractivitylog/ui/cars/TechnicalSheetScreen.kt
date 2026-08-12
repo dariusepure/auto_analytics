@@ -225,24 +225,24 @@ fun TechnicalSheetScreen(
                     TechnicalCategory(title = stringResource(R.string.car_engine_section)) {
                         SpecificationCard(
                             specifications = listOf(
+                                stringResource(R.string.car_engine_size_label) to if (car.engineSize.isNotBlank()) context.getString(R.string.formatter_engine_size, car.engineSize) else "",
+                                stringResource(R.string.car_fuel_type_label) to CarTranslations.getFuelTypeLabel(context, car.fuelType),
+                                stringResource(R.string.car_injection_system_label) to CarTranslations.getFuelSystemLabel(context, car.fuelSystem),
+                                stringResource(R.string.car_aspiration_label) to CarTranslations.getAspirationLabel(context, car.aspiration),
                                 stringResource(R.string.car_power_label) to powerText,
                                 stringResource(R.string.car_torque_label) to if (car.torque > 0) "${car.torque}\u00A0Nm" else "",
-                                stringResource(R.string.car_top_speed_label) to topSpeedText,
+                                stringResource(R.string.car_engine_code_label) to car.engineCode,
+                                stringResource(R.string.car_engine_layout_label) to CarTranslations.getEngineLayoutLabel(context, car.engineLayout),
+                                stringResource(R.string.car_cylinders_label) to car.numberOfCylinders.takeIf { it != 0 }?.toString().orEmpty(),
+                                stringResource(R.string.car_valves_per_cyl_label) to car.valvesPerCylinder.takeIf { it != 0 }?.toString().orEmpty(),
+                                stringResource(R.string.car_valves_label) to (car.numberOfCylinders * car.valvesPerCylinder).takeIf { it > 0 }?.toString().orEmpty(),
+                                stringResource(R.string.car_cylinder_layout_label) to CarTranslations.getCylinderLayoutLabel(context, car.cylinderLayout),
                                 stringResource(R.string.car_acceleration_label) to if (car.acceleration0to100 > 0) "${car.acceleration0to100}\u00A0sec" else "",
+                                stringResource(R.string.car_top_speed_label) to topSpeedText,
                                 stringResource(R.string.car_co2_label) to if (car.co2Emissions > 0) "${car.co2Emissions}\u00A0g/km" else "",
                                 stringResource(R.string.car_consumption_label) to if (car.fuelConsumptionCombined > 0) "${car.fuelConsumptionCombined}\u00A0L/100km" else "",
                                 stringResource(R.string.car_consumption_urban_label) to if (car.fuelConsumptionUrban > 0) "${car.fuelConsumptionUrban}\u00A0L/100km" else "",
                                 stringResource(R.string.car_consumption_extra_urban_label) to if (car.fuelConsumptionExtraUrban > 0) "${car.fuelConsumptionExtraUrban}\u00A0L/100km" else "",
-                                stringResource(R.string.car_aspiration_label) to CarTranslations.getAspirationLabel(context, car.aspiration),
-                                stringResource(R.string.car_cylinders_label) to car.numberOfCylinders.takeIf { it != 0 }?.toString().orEmpty(),
-                                stringResource(R.string.car_valves_per_cyl_label) to car.valvesPerCylinder.takeIf { it != 0 }?.toString().orEmpty(),
-                                stringResource(R.string.car_valves_label) to (car.numberOfCylinders * car.valvesPerCylinder).takeIf { it > 0 }?.toString().orEmpty(),
-                                stringResource(R.string.car_engine_size_label) to if (car.engineSize.isNotBlank()) context.getString(R.string.formatter_engine_size, car.engineSize) else "",
-                                stringResource(R.string.car_fuel_type_label) to CarTranslations.getFuelTypeLabel(context, car.fuelType),
-                                stringResource(R.string.car_injection_system_label) to CarTranslations.getFuelSystemLabel(context, car.fuelSystem),
-                                stringResource(R.string.car_engine_code_label) to car.engineCode,
-                                stringResource(R.string.car_engine_layout_label) to CarTranslations.getEngineLayoutLabel(context, car.engineLayout),
-                                stringResource(R.string.car_cylinder_layout_label) to CarTranslations.getCylinderLayoutLabel(context, car.cylinderLayout),
                                 stringResource(R.string.car_emission_standard_label) to CarTranslations.getEmissionStandardLabel(context, car.emissionStandard)
                             )
                         )

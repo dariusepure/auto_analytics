@@ -243,31 +243,33 @@ fun AddTireSetDialog(
                     color = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
                 )
-                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     OutlinedTextField(
                         value = width,
                         onValueChange = { if (it.all { char -> char.isDigit() }) width = it },
-                        label = { AutoSizeText(text = stringResource(R.string.car_tire_width_label), style = MaterialTheme.typography.bodySmall, minFontSize = 8.sp) },
+                        label = { AutoSizeText(text = stringResource(R.string.car_tire_width_label), style = MaterialTheme.typography.bodyMedium, minFontSize = 10.sp) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
                         suffix = { Text("mm") }
                     )
-                    Text("/", modifier = Modifier.padding(horizontal = 4.dp), style = MaterialTheme.typography.titleMedium)
                     OutlinedTextField(
                         value = ratio,
                         onValueChange = { if (it.all { char -> char.isDigit() }) ratio = it },
-                        label = { AutoSizeText(text = stringResource(R.string.car_tire_ratio_label), style = MaterialTheme.typography.bodySmall, minFontSize = 8.sp) },
+                        label = { AutoSizeText(text = stringResource(R.string.car_tire_ratio_label), style = MaterialTheme.typography.bodyMedium, minFontSize = 10.sp) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
                         suffix = { Text("%") }
                     )
-                    Text("R", modifier = Modifier.padding(horizontal = 4.dp), style = MaterialTheme.typography.titleMedium)
                     OutlinedTextField(
                         value = diameter,
                         onValueChange = { if (it.all { char -> char.isDigit() }) diameter = it },
-                        label = { AutoSizeText(text = stringResource(R.string.car_tire_diam_label), style = MaterialTheme.typography.bodySmall, minFontSize = 8.sp) },
+                        label = { AutoSizeText(text = stringResource(R.string.car_tire_diam_label), style = MaterialTheme.typography.bodyMedium, minFontSize = 10.sp) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),

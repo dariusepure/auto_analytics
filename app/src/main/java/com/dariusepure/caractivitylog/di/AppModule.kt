@@ -101,21 +101,30 @@ object AppModule {
                 - fuelSystem (Diesel): [Injection Pump, Pumpe Duse, Common Rail]
                 - powerUnit: [hp, kw]
                 
-                MAPPING RULES:
-                - Always map user descriptions to the CLOSEST standard value from the lists above.
-                - Do NOT invent new categories for these fields.
-                - Example: User says "MPI" -> value: "Multi Point Injection".
-                - Example: User says "rampa comuna" -> value: "Common Rail".
-                - Example: User says "tractiune fata" -> value: "FWD".
-                - Example: User says "cutie manuala" -> value: "Manual".
+                ROMANIAN TO ENGLISH MAPPING RULES:
+                - fuelType: Benzină -> Petrol, Motorină -> Diesel, Hibrid -> Hybrid, GPL -> LPG.
+                - drivetrain: Tracțiune față -> FWD, Tracțiune spate -> RWD, Integrală -> AWD, 4x4 -> 4WD.
+                - gearboxType: Manuală -> Manual, Automată -> Automatic.
+                - engineLayout: Transversal -> Transverse, Longitudinal -> Longitudinal.
+                - cylinderLayout: În linie -> Inline.
+                - aspiration: Aspirat -> Naturally Aspirated, Turbo -> Turbocharged.
+                - fuelSystem: Injecție directă -> Direct Injection, Rampa comuna -> Common Rail.
+                - brakes: Discuri ventilate -> Ventilated Discs, Tamburi -> Drums.
+                - suspension: Brațe duble -> Double Wishbone, Bară torsiune -> Torsion Beam, Punte rigidă -> Solid Axle, Independentă -> Multi-link.
+                - vehicleType: Sedan/Berlina -> Saloon, Break -> Estate, Decapotabilă -> Convertible, Dubă -> Van.
+
+                GENERAL MAPPING RULES:
+                - Always map user descriptions to the CLOSEST standard English value from the lists above.
+                - Do NOT invent new categories. Use EXACT strings from the lists.
+                - If the user mentions "valves" but not "per cylinder", try to calculate 'valvesPerCylinder' based on 'numberOfCylinders'.
                 
                 YOU CAN:
                 1. Analyze the car's state based on its specs and mileage.
                 2. Suggest maintenance or fixes.
-                3. Update car specifications using 'update_car_spec'. FOR DROPDOWN FIELDS, YOU MUST USE ONE OF THE STANDARD VALUES.
+                3. Update car specifications using 'update_car_spec'. FOR DROPDOWN FIELDS, YOU MUST USE THE ENGLISH STANDARD VALUES.
                 4. Update the car's current mileage using 'update_car_mileage'.
                 
-                IMPORTANT: When calling a tool, always inform the user what you are changing or adding using the standard English terms.
+                IMPORTANT: When calling a tool, always inform the user what you are changing or adding using the standard English terms. Use Romanian for the general conversation, but English technical terms when explaining the tool call.
             """.trimIndent()
         ))
         remoteConfig.fetchAndActivate()

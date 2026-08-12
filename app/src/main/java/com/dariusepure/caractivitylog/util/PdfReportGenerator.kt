@@ -178,23 +178,23 @@ object PdfReportGenerator {
             
             val engineSpecs = mutableListOf(
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_engine_size) to (if (car.engineSize.isNotBlank()) context.getString(com.dariusepure.caractivitylog.R.string.formatter_engine_size, car.engineSize) else ""),
-                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_engine_code) to car.engineCode,
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_fuel_type) to CarTranslations.getFuelTypeLabel(context, car.fuelType),
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_fuel_system) to CarTranslations.getFuelSystemLabel(context, car.fuelSystem),
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_aspiration) to CarTranslations.getAspirationLabel(context, car.aspiration),
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_power) to (if (car.power > 0) "${car.power} $powerUnit" else ""),
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_torque) to (if (car.torque > 0) "${car.torque} ${context.getString(com.dariusepure.caractivitylog.R.string.pdf_unit_nm)}" else ""),
-                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_top_speed) to (if (car.topSpeed > 0) "${car.topSpeed.toInt()} $speedUnit" else ""),
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_engine_code) to car.engineCode,
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_engine_layout) to CarTranslations.getEngineLayoutLabel(context, car.engineLayout),
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_cylinders) to car.numberOfCylinders.takeIf { it != 0 }?.toString().orEmpty(),
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_valves_per_cylinder) to car.valvesPerCylinder.takeIf { it != 0 }?.toString().orEmpty(),
+                context.getString(com.dariusepure.caractivitylog.R.string.car_valves_label) to (car.numberOfCylinders * car.valvesPerCylinder).takeIf { it > 0 }?.toString().orEmpty(),
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_cylinder_layout) to CarTranslations.getCylinderLayoutLabel(context, car.cylinderLayout),
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_acceleration) to (if (car.acceleration0to100 > 0) "${car.acceleration0to100} ${context.getString(com.dariusepure.caractivitylog.R.string.pdf_unit_seconds)}" else ""),
+                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_top_speed) to (if (car.topSpeed > 0) "${car.topSpeed.toInt()} $speedUnit" else ""),
                 context.getString(com.dariusepure.caractivitylog.R.string.car_consumption_urban_label) to (if (car.fuelConsumptionUrban > 0) "${car.fuelConsumptionUrban} $consUnit" else ""),
                 context.getString(com.dariusepure.caractivitylog.R.string.car_consumption_extra_urban_label) to (if (car.fuelConsumptionExtraUrban > 0) "${car.fuelConsumptionExtraUrban} $consUnit" else ""),
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_consumption) to (if (car.fuelConsumptionCombined > 0) "${car.fuelConsumptionCombined} $consUnit" else ""),
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_co2) to (if (car.co2Emissions > 0) "${car.co2Emissions} ${context.getString(com.dariusepure.caractivitylog.R.string.pdf_unit_co2)}" else ""),
-                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_fuel_type) to CarTranslations.getFuelTypeLabel(context, car.fuelType),
-                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_fuel_system) to CarTranslations.getFuelSystemLabel(context, car.fuelSystem),
-                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_aspiration) to CarTranslations.getAspirationLabel(context, car.aspiration),
-                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_cylinders) to car.numberOfCylinders.takeIf { it != 0 }?.toString().orEmpty(),
-                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_valves_per_cylinder) to car.valvesPerCylinder.takeIf { it != 0 }?.toString().orEmpty(),
-                context.getString(com.dariusepure.caractivitylog.R.string.car_valves_label) to (car.numberOfCylinders * car.valvesPerCylinder).takeIf { it > 0 }?.toString().orEmpty(),
-                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_engine_layout) to CarTranslations.getEngineLayoutLabel(context, car.engineLayout),
-                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_cylinder_layout) to CarTranslations.getCylinderLayoutLabel(context, car.cylinderLayout),
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_emission_standard) to CarTranslations.getEmissionStandardLabel(context, car.emissionStandard)
             )
 

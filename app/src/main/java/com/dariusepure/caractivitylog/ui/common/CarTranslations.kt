@@ -115,6 +115,12 @@ object CarTranslations {
         else -> standard
     }
 
+    fun getPowerUnitLabel(context: Context, unit: String): String = when (unit) {
+        "hp" -> context.getString(R.string.pdf_unit_hp)
+        "kw" -> context.getString(R.string.pdf_unit_kw)
+        else -> unit
+    }
+
     fun getCountryName(context: Context, countryCode: String, fallbackName: String): String {
         if (countryCode.isBlank()) return fallbackName
         return try {

@@ -96,7 +96,7 @@
     <string name="vehicle_type_suv">SUV</string>
     <string name="vehicle_type_coupe">Coupe</string>
     <string name="vehicle_type_convertible">Decapotabilă</string>
-    <string name="vehicle_type_van">Dubă (Van)</string>
+    <string name="vehicle_type_van">Dubă</string>
     <string name="vehicle_type_pickup">Pickup</string>
     <string name="vehicle_type_liftback">Liftback</string>
     <string name="vehicle_type_fastback">Fastback</string>
@@ -200,7 +200,8 @@
     <string name="car_identity_section">Identitate și stil</string>
     <string name="car_registration_section">Înregistrare</string>
     <string name="car_engine_section">Motor și performanță</string>
-    <string name="car_dimensions_section">Dimensiuni și șasiu</string>
+    <string name="car_engine_transmission_section">Motor și transmisie</string>
+    <string name="car_dimensions_section">Dimensiuni</string>
     <string name="car_title_label">Titlu mașină (Pseudonim)</string>
     <string name="car_title_placeholder">%s</string>
     <string name="car_title_placeholder_fallback">Mașina mea zilnică</string>
@@ -229,7 +230,7 @@
     <string name="car_valves_per_cyl_label">Valve pe cilindru</string>
     <string name="car_top_speed_label">Viteză maximă</string>
     <string name="car_acceleration_label">0-100 km/h</string>
-    <string name="car_consumption_label">Consum mixt</string>
+    <string name="car_consumption_label">Mixt</string>
     <string name="car_consumption_urban_label">Urban</string>
     <string name="car_consumption_extra_urban_label">Extraurban</string>
     <string name="car_co2_label">Emisii CO2</string>
@@ -423,6 +424,7 @@
     <string name="pdf_field_aspiration">Aspirație</string>
     <string name="pdf_field_emission_standard">Normă de poluare</string>
     <string name="pdf_field_top_speed">Viteză maximă</string>
+    <string name="pdf_field_consumption">Mixt</string>
     <string name="pdf_field_cylinders">Cilindri</string>
     <string name="pdf_field_valves_per_cylinder">Valve pe cilindru</string>
     <string name="pdf_field_engine_layout">Dispunere motor</string>

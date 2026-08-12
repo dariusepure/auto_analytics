@@ -203,7 +203,8 @@
     <string name="car_identity_section">Identity &amp; Style</string>
     <string name="car_registration_section">Registration</string>
     <string name="car_engine_section">Engine &amp; Performance</string>
-    <string name="car_dimensions_section">Dimensions &amp; Chassis</string>
+    <string name="car_engine_transmission_section">Engine &amp; Transmission</string>
+    <string name="car_dimensions_section">Dimensions</string>
     <string name="car_title_label">Car Title (Nickname)</string>
     <string name="car_title_placeholder">%s</string>
     <string name="car_title_placeholder_fallback">My Daily Driver</string>
@@ -232,7 +233,7 @@
     <string name="car_valves_per_cyl_label">Valves per Cylinder</string>
     <string name="car_top_speed_label">Top Speed</string>
     <string name="car_acceleration_label">0-100 km/h</string>
-    <string name="car_consumption_label">Mixed Consumption</string>
+    <string name="car_consumption_label">Mixed</string>
     <string name="car_consumption_urban_label">Urban</string>
     <string name="car_consumption_extra_urban_label">Extra-Urban</string>
     <string name="car_co2_label">CO2 Emissions</string>
@@ -427,7 +428,7 @@
     <string name="pdf_field_emission_standard">Emission Standard</string>
     <string name="pdf_field_top_speed">Top Speed</string>
     <string name="pdf_field_acceleration">0-100 km/h</string>
-    <string name="pdf_field_consumption">Mixed Consumption</string>
+    <string name="pdf_field_consumption">Mixed</string>
     <string name="pdf_field_co2">CO2 Emissions</string>
     <string name="pdf_field_cylinders">Cylinders</string>
     <string name="pdf_field_valves_per_cylinder">Valves per Cylinder</string>
