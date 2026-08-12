@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.ui.common.*
@@ -246,28 +247,31 @@ fun AddTireSetDialog(
                     OutlinedTextField(
                         value = width,
                         onValueChange = { if (it.all { char -> char.isDigit() }) width = it },
-                        label = { Text(stringResource(R.string.car_tire_width_label)) },
+                        label = { AutoSizeText(text = stringResource(R.string.car_tire_width_label), style = MaterialTheme.typography.bodySmall, minFontSize = 8.sp) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
-                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                        suffix = { Text("mm") }
                     )
                     Text("/", modifier = Modifier.padding(horizontal = 4.dp), style = MaterialTheme.typography.titleMedium)
                     OutlinedTextField(
                         value = ratio,
                         onValueChange = { if (it.all { char -> char.isDigit() }) ratio = it },
-                        label = { Text(stringResource(R.string.car_tire_ratio_label)) },
+                        label = { AutoSizeText(text = stringResource(R.string.car_tire_ratio_label), style = MaterialTheme.typography.bodySmall, minFontSize = 8.sp) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
-                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                        suffix = { Text("%") }
                     )
                     Text("R", modifier = Modifier.padding(horizontal = 4.dp), style = MaterialTheme.typography.titleMedium)
                     OutlinedTextField(
                         value = diameter,
                         onValueChange = { if (it.all { char -> char.isDigit() }) diameter = it },
-                        label = { Text(stringResource(R.string.car_tire_diam_label)) },
+                        label = { AutoSizeText(text = stringResource(R.string.car_tire_diam_label), style = MaterialTheme.typography.bodySmall, minFontSize = 8.sp) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
-                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                        suffix = { Text("\"") }
                     )
                 }
 
@@ -278,7 +282,7 @@ fun AddTireSetDialog(
                     OutlinedTextField(
                         value = dotWeek,
                         onValueChange = { if (it.length <= 2 && it.all { char -> char.isDigit() }) dotWeek = it },
-                        label = { Text(stringResource(R.string.tire_dot_week_label)) },
+                        label = { AutoSizeText(text = stringResource(R.string.tire_dot_week_label), style = MaterialTheme.typography.bodySmall, minFontSize = 8.sp) },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
                         isError = isWeekInvalid,
@@ -289,7 +293,7 @@ fun AddTireSetDialog(
                     OutlinedTextField(
                         value = dotYear,
                         onValueChange = { if (it.length <= 4 && it.all { char -> char.isDigit() }) dotYear = it },
-                        label = { Text(stringResource(R.string.tire_dot_year_label)) },
+                        label = { AutoSizeText(text = stringResource(R.string.tire_dot_year_label), style = MaterialTheme.typography.bodySmall, minFontSize = 8.sp) },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
                     )

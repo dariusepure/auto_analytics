@@ -218,7 +218,7 @@ fun CarDetailsScreen(
                                     Spacer(Modifier.height(8.dp))
                                     Text(text = stringResource(R.string.car_inspection_title), style = MaterialTheme.typography.titleSmall)
                                     StatusBadge(
-                                        label = if (latestInspection == null) "N/A" else if (itpDays < 0) stringResource(R.string.status_expired) else if (itpDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        label = if (latestInspection == null) stringResource(R.string.common_not_applicable) else if (itpDays < 0) stringResource(R.string.status_expired) else if (itpDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
                                         color = inspectionColor
                                     )
                                 }
@@ -239,7 +239,7 @@ fun CarDetailsScreen(
                                     Spacer(Modifier.height(8.dp))
                                     Text(text = stringResource(R.string.car_insurance_title), style = MaterialTheme.typography.titleSmall)
                                     StatusBadge(
-                                        label = if (latestInsurance == null) "N/A" else if (rcaDays < 0) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        label = if (latestInsurance == null) stringResource(R.string.common_not_applicable) else if (rcaDays < 0) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
                                         color = insuranceColor
                                     )
                                 }
@@ -256,7 +256,7 @@ fun CarDetailsScreen(
                                     Spacer(Modifier.height(8.dp))
                                     Text(text = stringResource(R.string.car_vignette_title), style = MaterialTheme.typography.titleSmall)
                                     StatusBadge(
-                                        label = if (latestVignette == null) "N/A" else if (vigDays < 0) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        label = if (latestVignette == null) stringResource(R.string.common_not_applicable) else if (vigDays < 0) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
                                         color = vignetteColor
                                     )
                                 }
@@ -383,7 +383,7 @@ else {
                                         maxLines = 2
                                     )
                                     StatusBadge(
-                                        label = if (latestInspection == null) "N/A" else if (itpDays < 0) stringResource(R.string.status_expired) else if (itpDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        label = if (latestInspection == null) stringResource(R.string.common_not_applicable) else if (itpDays < 0) stringResource(R.string.status_expired) else if (itpDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
                                         color = inspectionColor
                                     )
                                 }
@@ -406,7 +406,7 @@ else {
                                         maxLines = 2
                                     )
                                     StatusBadge(
-                                        label = if (latestInsurance == null) "N/A" else if (rcaDays < 0) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        label = if (latestInsurance == null) stringResource(R.string.common_not_applicable) else if (rcaDays < 0) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
                                         color = insuranceColor
                                     )
                                 }
@@ -429,7 +429,7 @@ else {
                                         maxLines = 2
                                     )
                                     StatusBadge(
-                                        label = if (latestVignette == null) "N/A" else if (vigDays < 0) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        label = if (latestVignette == null) stringResource(R.string.common_not_applicable) else if (vigDays < 0) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
                                         color = vignetteColor
                                     )
                                 }
@@ -587,7 +587,7 @@ fun AddMileageDialog(
                         .clickable { datePickerDialog.show() },
                     trailingIcon = {
                         IconButton(onClick = { datePickerDialog.show() }) {
-                            Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                            Icon(imageVector = Icons.Default.Add, contentDescription = null, tint = Color(0xFF1A73E8))
                         }
                     },
                     enabled = false,
@@ -720,7 +720,7 @@ fun AddInspectionDialog(
                         .clickable { datePickerDialog.show() },
                     trailingIcon = {
                         IconButton(onClick = { datePickerDialog.show() }) {
-                            Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                            Icon(imageVector = Icons.Default.Add, contentDescription = null, tint = Color(0xFF1A73E8))
                         }
                     },
                     enabled = false,

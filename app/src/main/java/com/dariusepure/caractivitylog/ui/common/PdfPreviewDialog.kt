@@ -104,38 +104,6 @@ fun PdfPreviewDialog(
                         }
                     }
                 )
-            },
-            bottomBar = {
-                Surface(
-                    tonalElevation = 8.dp,
-                    shadowElevation = 8.dp,
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.surface
-                ) {
-                    Button(
-                        onClick = onSave,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                            .height(56.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF1A73E8),
-                            contentColor = Color.White
-                        ),
-                        shape = MaterialTheme.shapes.medium
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.FileDownload,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(Modifier.width(12.dp))
-                        Text(
-                            text = stringResource(R.string.car_report_save_pdf).uppercase(),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
-                }
             }
         ) { padding ->
             Box(modifier = Modifier

@@ -216,25 +216,25 @@ fun LogImportDialog(
     onConfirm: (List<MileageLog>) -> Unit
 ) {
     val potentialLogs = remember(fuelLogs, maintenanceLogs, inspections, existingMileageLogs) {
-        val list = mutableListOf<Pair<MileageLog, String>>() // Log + Source Label
+        val list = mutableListOf<Pair<MileageLog, String>>() // Log + Source Key
         
         val existingKms = existingMileageLogs.map { it.km.roundToInt() }.toSet()
         
         fuelLogs.forEach { fuel ->
             if (fuel.km.roundToInt() !in existingKms) {
-                list.add(MileageLog(km = fuel.km, date = fuel.date) to "Fuel")
+                list.add(MileageLog(km = fuel.km, date = fuel.date) to "FUEL")
             }
         }
         
         maintenanceLogs.forEach { service ->
             if (service.km.roundToInt() !in existingKms) {
-                list.add(MileageLog(km = service.km, date = service.date) to "Service")
+                list.add(MileageLog(km = service.km, date = service.date) to "SERVICE")
             }
         }
 
         inspections.forEach { inspection ->
             if (inspection.mileage.roundToInt() !in existingKms) {
-                list.add(MileageLog(km = inspection.mileage, date = inspection.date) to "Inspection")
+                list.add(MileageLog(km = inspection.mileage, date = inspection.date) to "INSPECTION")
             }
         }
         
@@ -245,14 +245,14 @@ fun LogImportDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Import from Logs") },
+        title = { Text(stringResource(R.string.mileage_import_title)) },
         text = {
             Column {
                 if (potentialLogs.isEmpty()) {
-                    Text("No new mileage records found in Fuel or Service logs.")
+                    Text(stringResource(R.string.mileage_import_empty))
                 } else {
                     Text(
-                        text = "We found ${potentialLogs.size} records in other sections. Select what to add to history.",
+                        text = stringResource(R.string.mileage_import_subtitle, potentialLogs.size),
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
@@ -261,8 +261,14 @@ fun LogImportDialog(
                         modifier = Modifier.fillMaxWidth().heightIn(max = 300.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(potentialLogs) { (log, source) ->
+                        items(potentialLogs) { (log, sourceKey) ->
                             val isSelected = log in selectedLogs
+                            val sourceLabel = when(sourceKey) {
+                                "FUEL" -> stringResource(R.string.mileage_source_fuel)
+                                "SERVICE" -> stringResource(R.string.mileage_source_service)
+                                "INSPECTION" -> stringResource(R.string.mileage_source_inspection)
+                                else -> sourceKey
+                            }
                             Surface(
                                 onClick = {
                                     selectedLogs = if (isSelected) selectedLogs - log else selectedLogs + log
@@ -276,13 +282,14 @@ fun LogImportDialog(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Column(modifier = Modifier.weight(1f)) {
+                                        val displayValue = CarFormatters.fromCanonicalDistance(log.km, unit == "mi")
                                         Text(
-                                            text = "${log.km.roundToInt()} $unit",
+                                            text = "${displayValue.roundToInt()} $unit",
                                             style = MaterialTheme.typography.titleMedium,
                                             fontWeight = FontWeight.Bold
                                         )
                                         Text(
-                                            text = "$source \u00B7 ${CarFormatters.formatDate(log.date)}", 
+                                            text = "$sourceLabel \u00B7 ${CarFormatters.formatDate(log.date)}", 
                                             style = MaterialTheme.typography.bodySmall
                                         )
                                     }
@@ -312,7 +319,7 @@ fun LogImportDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(if (potentialLogs.isEmpty()) "Close" else stringResource(R.string.common_cancel))
+                Text(if (potentialLogs.isEmpty()) stringResource(R.string.common_cancel) else stringResource(R.string.common_cancel))
             }
         }
     )

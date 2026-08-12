@@ -142,6 +142,8 @@ fun TechnicalSheetScreen(
                                                     fuelLogs = successState.fuelLogs,
                                                     tireSets = successState.tireSets,
                                                     maintenanceLogs = successState.maintenanceLogs,
+                                                    insurances = successState.insurances,
+                                                    vignettes = successState.vignettes,
                                                     outputStream = os,
                                                     reportType = PdfReportGenerator.ReportType.TECHNICAL_SHEET
                                                 )
@@ -178,10 +180,6 @@ fun TechnicalSheetScreen(
             is CarDetailsUiState.Success -> {
                 val car = s.car
                 val powerText = CarFormatters.formatPower(context, car)
-                val totalValves = car.numberOfCylinders * car.valvesPerCylinder
-                val valvesText = if (totalValves > 0) {
-                    stringResource(R.string.formatter_valves_total, totalValves, car.valvesPerCylinder)
-                } else "-"
                 
                 val country = europeanCountries.find { it.code == car.plateCountry }
                 val usesMiles = country?.usesMiles == true
@@ -215,11 +213,11 @@ fun TechnicalSheetScreen(
                                 stringResource(R.string.car_model_label) to car.model,
                                 stringResource(R.string.car_vehicle_type_label) to CarTranslations.getVehicleTypeLabel(context, car.vehicleType),
                                 stringResource(R.string.car_year_label) to car.year.takeIf { it != 0 }?.toString().orEmpty(),
-                                stringResource(R.string.car_color_label) to car.color,
+                                stringResource(R.string.car_color_label) to CarTranslations.getColorLabel(context, car.color),
                                 stringResource(R.string.car_license_plate_label) to car.licensePlate,
-                                stringResource(R.string.car_plate_country_label) to (country?.let { "${it.flag} ${it.name}" } ?: car.plateCountry),
+                                stringResource(R.string.car_plate_country_label) to (country?.let { "${it.flag} ${CarTranslations.getCountryName(context, it.code, it.name)}" } ?: car.plateCountry),
                                 stringResource(R.string.car_vin_label) to car.vin,
-                                stringResource(R.string.car_manufacturing_country_label) to (europeanCountries.find { it.name == car.manufacturingCountry }?.let { "${it.flag} ${it.name}" } ?: car.manufacturingCountry)
+                                stringResource(R.string.car_manufacturing_country_label) to (europeanCountries.find { it.name == car.manufacturingCountry }?.let { "${it.flag} ${CarTranslations.getCountryName(context, it.code, it.name)}" } ?: car.manufacturingCountry)
                             )
                         )
                     }
@@ -237,8 +235,9 @@ fun TechnicalSheetScreen(
                                 stringResource(R.string.car_consumption_extra_urban_label) to if (car.fuelConsumptionExtraUrban > 0) "${car.fuelConsumptionExtraUrban}\u00A0L/100km" else "",
                                 stringResource(R.string.car_aspiration_label) to CarTranslations.getAspirationLabel(context, car.aspiration),
                                 stringResource(R.string.car_cylinders_label) to car.numberOfCylinders.takeIf { it != 0 }?.toString().orEmpty(),
-                                stringResource(R.string.car_valves_label) to valvesText,
-                                stringResource(R.string.car_engine_size_label) to if (car.engineSize.isNotBlank()) "${car.engineSize}\u00A0cc" else "",
+                                stringResource(R.string.car_valves_per_cyl_label) to car.valvesPerCylinder.takeIf { it != 0 }?.toString().orEmpty(),
+                                stringResource(R.string.car_valves_label) to (car.numberOfCylinders * car.valvesPerCylinder).takeIf { it > 0 }?.toString().orEmpty(),
+                                stringResource(R.string.car_engine_size_label) to if (car.engineSize.isNotBlank()) context.getString(R.string.formatter_engine_size, car.engineSize) else "",
                                 stringResource(R.string.car_fuel_type_label) to CarTranslations.getFuelTypeLabel(context, car.fuelType),
                                 stringResource(R.string.car_injection_system_label) to CarTranslations.getFuelSystemLabel(context, car.fuelSystem),
                                 stringResource(R.string.car_engine_code_label) to car.engineCode,
@@ -264,9 +263,12 @@ fun TechnicalSheetScreen(
                     }
 
                     TechnicalCategory(title = stringResource(R.string.car_dimensions_capacity_section)) {
+                        val mm = "mm"
                         val dimensionSpecs = mutableListOf(
-                            stringResource(R.string.car_dimensions_lxwxh) to CarFormatters.formatDimensions(context, car),
-                            stringResource(R.string.car_wheelbase_label) to if (car.wheelbase > 0) "${car.wheelbase}\u00A0mm" else "",
+                            stringResource(R.string.car_length_label) to if (car.length > 0) "${car.length}\u00A0$mm" else "",
+                            stringResource(R.string.car_width_label) to if (car.width > 0) "${car.width}\u00A0$mm" else "",
+                            stringResource(R.string.car_height_label) to if (car.height > 0) "${car.height}\u00A0$mm" else "",
+                            stringResource(R.string.car_wheelbase_label) to if (car.wheelbase > 0) "${car.wheelbase}\u00A0$mm" else "",
                             stringResource(R.string.car_weight_label) to if (car.weight > 0) "${car.weight}\u00A0kg" else "",
                             stringResource(R.string.car_seats_label) to car.numberOfSeats.takeIf { it != 0 }?.toString().orEmpty(),
                             stringResource(R.string.car_doors_label) to car.numberOfDoors.takeIf { it != 0 }?.toString().orEmpty(),

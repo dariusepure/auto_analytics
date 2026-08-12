@@ -22,6 +22,20 @@ object CarTranslations {
         else -> type
     }
 
+    fun getColorLabel(context: Context, color: String): String = when (color.lowercase()) {
+        "white" -> context.getString(R.string.color_white)
+        "black" -> context.getString(R.string.color_black)
+        "silver" -> context.getString(R.string.color_silver)
+        "gray", "grey" -> context.getString(R.string.color_gray)
+        "blue" -> context.getString(R.string.color_blue)
+        "red" -> context.getString(R.string.color_red)
+        "brown" -> context.getString(R.string.color_brown)
+        "green" -> context.getString(R.string.color_green)
+        "yellow" -> context.getString(R.string.color_yellow)
+        "orange" -> context.getString(R.string.color_orange)
+        else -> color
+    }
+
     fun getGearboxTypeLabel(context: Context, type: String): String = when (type) {
         "Manual" -> context.getString(R.string.gearbox_manual)
         "Automatic" -> context.getString(R.string.gearbox_automatic)
@@ -99,6 +113,18 @@ object CarTranslations {
         "Euro 5" -> context.getString(R.string.emission_euro5)
         "Euro 6" -> context.getString(R.string.emission_euro6)
         else -> standard
+    }
+
+    fun getCountryName(context: Context, countryCode: String, fallbackName: String): String {
+        if (countryCode.isBlank()) return fallbackName
+        return try {
+            val locale = java.util.Locale("", countryCode)
+            val currentLocale = context.resources.configuration.locales[0] ?: java.util.Locale.getDefault()
+            val displayName = locale.getDisplayCountry(currentLocale)
+            if (displayName.isNotBlank() && displayName != countryCode) displayName else fallbackName
+        } catch (e: Exception) {
+            fallbackName
+        }
     }
 
     fun getVehicleTypeLabel(context: Context, type: String): String = when (type) {

@@ -85,7 +85,6 @@ fun DiagnosisScreen(
                     }
                 },
                 actions = {
-                    LanguageSelector()
                     IconButton(onClick = { showResetDialog = true }) {
                         Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.diagnosis_reset_chat))
                     }

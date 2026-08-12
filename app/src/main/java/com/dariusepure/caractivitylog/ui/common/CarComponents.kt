@@ -316,14 +316,16 @@ fun SpecificationCard(specifications: List<Pair<String, String>>) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp),
+                        .heightIn(min = 52.dp)
+                        .padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
+                    AutoSizeText(
                         text = label,
                         style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier.weight(1f),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        minFontSize = 9.sp
                     )
                     Text(
                         text = value.ifBlank { "-" },

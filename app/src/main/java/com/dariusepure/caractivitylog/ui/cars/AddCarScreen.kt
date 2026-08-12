@@ -76,6 +76,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material.icons.filled.Check
@@ -99,6 +100,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.AlertDialog
 import androidx.compose.ui.text.font.FontWeight
 import com.dariusepure.caractivitylog.domain.ScannedCarData
+import com.dariusepure.caractivitylog.ui.common.AutoSizeText
 import com.dariusepure.caractivitylog.ui.common.CarFormatters
 import com.dariusepure.caractivitylog.ui.common.CarTranslations
 import kotlin.math.roundToInt
@@ -129,6 +131,15 @@ fun AddCarScreen(
     val vehicleTypes = listOf(
         "Saloon", "Estate", "Hatchback", "Liftback", "MPV", "SUV", "Crossover", "Coupe", "Convertible", "Van", "Pickup"
     )
+    val carColors = listOf("White", "Black", "Silver", "Gray", "Blue", "Red", "Brown", "Green", "Yellow", "Orange")
+
+    val sortedColors = remember(context) {
+        carColors.sortedBy { CarTranslations.getColorLabel(context, it) }
+    }
+
+    val sortedCountries = remember(context) {
+        europeanCountries.sortedBy { CarTranslations.getCountryName(context, it.code, it.name) }
+    }
 
     var licensePlate by remember { mutableStateOf("") }
     var selectedCountry by remember { mutableStateOf<Country?>(null) }
@@ -641,14 +652,43 @@ fun AddCarScreen(
 
                 Spacer(Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = color,
-                    onValueChange = { color = it.uppercase() },
-                    label = { Text(stringResource(R.string.car_color_label)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    enabled = state !is AddCarState.Pending
-                )
+                var colorExpanded by remember { mutableStateOf(false) }
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = CarTranslations.getColorLabel(context, color),
+                        onValueChange = { color = it },
+                        label = { Text(stringResource(R.string.car_color_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        enabled = state !is AddCarState.Pending,
+                        trailingIcon = {
+                            Icon(
+                                Icons.Default.ArrowDropDown,
+                                "dropdown",
+                                Modifier.clickable { colorExpanded = true })
+                        }
+                    )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { colorExpanded = true }
+                    )
+                    DropdownMenu(
+                        expanded = colorExpanded,
+                        onDismissRequest = { colorExpanded = false },
+                        modifier = Modifier.fillMaxWidth(0.9f).sizeIn(maxHeight = 300.dp)
+                    ) {
+                        sortedColors.forEach { c ->
+                            DropdownMenuItem(
+                                text = { Text(CarTranslations.getColorLabel(context, c)) },
+                                onClick = {
+                                    color = c
+                                    colorExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
 
                 Spacer(Modifier.height(16.dp))
 
@@ -724,7 +764,7 @@ fun AddCarScreen(
                                 color = MaterialTheme.colorScheme.secondary
                             )
                             Text(
-                                text = selectedCountry?.code ?: stringResource(R.string.car_select_country),
+                                text = selectedCountry?.let { CarTranslations.getCountryName(context, it.code, it.name) } ?: stringResource(R.string.car_select_country),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }
@@ -735,13 +775,13 @@ fun AddCarScreen(
                             onDismissRequest = { countryExpanded = false },
                             modifier = Modifier.sizeIn(maxHeight = 300.dp)
                         ) {
-                            europeanCountries.forEach { country ->
+                            sortedCountries.forEach { country ->
                                 DropdownMenuItem(
                                     text = {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Text(country.flag)
                                             Spacer(Modifier.width(8.dp))
-                                            Text(country.name)
+                                            Text(CarTranslations.getCountryName(context, country.code, country.name))
                                         }
                                     },
                                     onClick = {
@@ -772,12 +812,7 @@ fun AddCarScreen(
                         label = { Text(stringResource(R.string.car_license_plate_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
-                        enabled = state !is AddCarState.Pending,
-                        supportingText = {
-                            selectedCountry?.plateHint?.let { hint ->
-                                Text(stringResource(R.string.car_license_plate_hint, hint), style = MaterialTheme.typography.bodySmall)
-                            }
-                        }
+                        enabled = state !is AddCarState.Pending
                     )
                 }
 
@@ -785,7 +820,7 @@ fun AddCarScreen(
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = manufacturingCountry,
+                        value = europeanCountries.find { it.name == manufacturingCountry }?.let { CarTranslations.getCountryName(context, it.code, it.name) } ?: manufacturingCountry,
                         onValueChange = { },
                         readOnly = true,
                         label = { Text(stringResource(R.string.car_manufacturing_country_label)) },
@@ -801,13 +836,13 @@ fun AddCarScreen(
                         onDismissRequest = { manufacturingCountryExpanded = false },
                         modifier = Modifier.sizeIn(maxHeight = 300.dp)
                     ) {
-                        europeanCountries.forEach { country ->
+                        sortedCountries.forEach { country ->
                             DropdownMenuItem(
                                 text = {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(country.flag)
                                         Spacer(Modifier.width(8.dp))
-                                        Text(country.name)
+                                        Text(CarTranslations.getCountryName(context, country.code, country.name))
                                     }
                                 },
                                 onClick = {
@@ -881,7 +916,8 @@ fun AddCarScreen(
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    enabled = state !is AddCarState.Pending
+                    enabled = state !is AddCarState.Pending,
+                    suffix = { Text("Nm") }
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -1055,7 +1091,8 @@ fun AddCarScreen(
                     label = { Text(stringResource(R.string.car_engine_size_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    enabled = state !is AddCarState.Pending
+                    enabled = state !is AddCarState.Pending,
+                    suffix = { Text(if (context.resources.configuration.locales[0].language == "ro") "cmc" else "cc") }
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -1092,7 +1129,8 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        enabled = state !is AddCarState.Pending
+                        enabled = state !is AddCarState.Pending,
+                        suffix = { Text(if (selectedCountry?.usesMiles == true) "mph" else "km/h") }
                     )
                     Spacer(Modifier.width(8.dp))
                     OutlinedTextField(
@@ -1102,7 +1140,8 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        enabled = state !is AddCarState.Pending
+                        enabled = state !is AddCarState.Pending,
+                        suffix = { Text("sec") }
                     )
                 }
 
@@ -1116,7 +1155,8 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        enabled = state !is AddCarState.Pending
+                        enabled = state !is AddCarState.Pending,
+                        suffix = { Text("g/km") }
                     )
                     Spacer(Modifier.width(8.dp))
                     OutlinedTextField(
@@ -1126,18 +1166,13 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        enabled = state !is AddCarState.Pending
+                        enabled = state !is AddCarState.Pending,
+                        suffix = { Text("L/100km") }
                     )
                 }
 
                 Spacer(Modifier.height(16.dp))
 
-                Text(
-                    text = "Consumption (L/100km)",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-                )
                 Row(
                     modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -1149,7 +1184,8 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f).fillMaxHeight(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        enabled = state !is AddCarState.Pending
+                        enabled = state !is AddCarState.Pending,
+                        suffix = { Text("L/100km") }
                     )
                     OutlinedTextField(
                         value = fuelConsumptionExtraUrban,
@@ -1158,7 +1194,8 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f).fillMaxHeight(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        enabled = state !is AddCarState.Pending
+                        enabled = state !is AddCarState.Pending,
+                        suffix = { Text("L/100km") }
                     )
                 }
 
@@ -1355,7 +1392,8 @@ fun AddCarScreen(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        enabled = state !is AddCarState.Pending
+                        enabled = state !is AddCarState.Pending,
+                        suffix = { Text("L") }
                     )
                 }
 
@@ -1368,7 +1406,8 @@ fun AddCarScreen(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        enabled = state !is AddCarState.Pending
+                        enabled = state !is AddCarState.Pending,
+                        suffix = { Text("kWh") }
                     )
                 }
             }
@@ -1417,13 +1456,34 @@ fun AddCarScreen(
 
                 Row(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = wheelbase,
-                        onValueChange = { if (it.all { char -> char.isDigit() }) wheelbase = it },
-                        label = { Text(stringResource(R.string.car_wheelbase_label)) },
-                        modifier = Modifier.fillMaxWidth(),
+                        value = numberOfSeats,
+                        onValueChange = { if (it.all { char -> char.isDigit() }) numberOfSeats = it },
+                        label = { Text(stringResource(R.string.car_seats_label)) },
+                        modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         enabled = state !is AddCarState.Pending
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    OutlinedTextField(
+                        value = numberOfDoors,
+                        onValueChange = { if (it.all { char -> char.isDigit() }) numberOfDoors = it },
+                        label = { Text(stringResource(R.string.car_doors_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        enabled = state !is AddCarState.Pending
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    OutlinedTextField(
+                        value = wheelbase,
+                        onValueChange = { if (it.all { char -> char.isDigit() }) wheelbase = it },
+                        label = { Text(stringResource(R.string.car_wheelbase_label)) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        enabled = state !is AddCarState.Pending,
+                        suffix = { Text("mm") }
                     )
                 }
 
@@ -1437,31 +1497,8 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        enabled = state !is AddCarState.Pending
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    OutlinedTextField(
-                        value = numberOfSeats,
-                        onValueChange = { if (it.all { char -> char.isDigit() }) numberOfSeats = it },
-                        label = { Text(stringResource(R.string.car_seats_label)) },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        enabled = state !is AddCarState.Pending
-                    )
-                }
-
-                Spacer(Modifier.height(8.dp))
-
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
-                        value = numberOfDoors,
-                        onValueChange = { if (it.all { char -> char.isDigit() }) numberOfDoors = it },
-                        label = { Text(stringResource(R.string.car_doors_label)) },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        enabled = state !is AddCarState.Pending
+                        enabled = state !is AddCarState.Pending,
+                        suffix = { Text("kg") }
                     )
                     Spacer(Modifier.width(8.dp))
                     OutlinedTextField(
@@ -1471,7 +1508,8 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        enabled = state !is AddCarState.Pending
+                        enabled = state !is AddCarState.Pending,
+                        suffix = { Text("L") }
                     )
                 }
 
@@ -1487,31 +1525,34 @@ fun AddCarScreen(
                     OutlinedTextField(
                         value = tireWidth,
                         onValueChange = { if (it.all { char -> char.isDigit() }) tireWidth = it },
-                        label = { Text(stringResource(R.string.car_tire_width_label)) },
+                        label = { AutoSizeText(text = stringResource(R.string.car_tire_width_label), style = MaterialTheme.typography.bodySmall, minFontSize = 8.sp) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        enabled = state !is AddCarState.Pending
+                        enabled = state !is AddCarState.Pending,
+                        suffix = { Text("mm") }
                     )
                     Text("/", modifier = Modifier.padding(horizontal = 4.dp), style = MaterialTheme.typography.titleMedium)
                     OutlinedTextField(
                         value = tireAspectRatio,
                         onValueChange = { if (it.all { char -> char.isDigit() }) tireAspectRatio = it },
-                        label = { Text(stringResource(R.string.car_tire_ratio_label)) },
+                        label = { AutoSizeText(text = stringResource(R.string.car_tire_ratio_label), style = MaterialTheme.typography.bodySmall, minFontSize = 8.sp) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        enabled = state !is AddCarState.Pending
+                        enabled = state !is AddCarState.Pending,
+                        suffix = { Text("%") }
                     )
                     Text("R", modifier = Modifier.padding(horizontal = 4.dp), style = MaterialTheme.typography.titleMedium)
                     OutlinedTextField(
                         value = tireDiameter,
                         onValueChange = { if (it.all { char -> char.isDigit() }) tireDiameter = it },
-                        label = { Text(stringResource(R.string.car_tire_diam_label)) },
+                        label = { AutoSizeText(text = stringResource(R.string.car_tire_diam_label), style = MaterialTheme.typography.bodySmall, minFontSize = 8.sp) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        enabled = state !is AddCarState.Pending
+                        enabled = state !is AddCarState.Pending,
+                        suffix = { Text("\"") }
                     )
                 }
 

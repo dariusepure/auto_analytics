@@ -80,7 +80,6 @@ object CarFormatters {
         if (car.length > 0 || car.width > 0 || car.height > 0) {
             dims.add("${car.length}\u00A0x\u00A0${car.width}\u00A0x\u00A0${car.height}\u00A0mm")
         }
-        if (car.wheelbase > 0) dims.add(context.getString(com.dariusepure.caractivitylog.R.string.formatter_wheelbase, car.wheelbase))
         
         return if (dims.isEmpty()) "-" else dims.joinToString("\n")
     }

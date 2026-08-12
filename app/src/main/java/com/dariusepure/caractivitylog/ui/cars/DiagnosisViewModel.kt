@@ -17,9 +17,11 @@ import com.dariusepure.caractivitylog.data.cars.CarRepository
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.displayName
 import com.dariusepure.caractivitylog.util.DiagnosticUtils
+import com.dariusepure.caractivitylog.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import android.content.Context
+import androidx.appcompat.app.AppCompatDelegate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
@@ -69,7 +71,8 @@ class DiagnosisViewModel @Inject constructor(
             carRepository.getDiagnosisMessages(carId).collect { messages ->
                 _state.update { it.copy(
                     messages = if (messages.isEmpty()) {
-                        listOf(ChatMessage("Hello! I am your AI assistant. How can I help you with your ${car?.make ?: "car"} today?", false))
+                        val greeting = context.getString(R.string.diagnosis_initial_greeting, currentCar?.make ?: context.getString(R.string.car_default_make))
+                        listOf(ChatMessage(greeting, false))
                     } else {
                         messages
                     }
@@ -103,7 +106,12 @@ class DiagnosisViewModel @Inject constructor(
 
             try {
                 val currentMsgs = _state.value.messages
-                val currentLanguage = java.util.Locale.getDefault().displayLanguage
+                val locales = AppCompatDelegate.getApplicationLocales()
+                val currentLanguage = if (!locales.isEmpty) {
+                    if (locales.get(0)?.language == "ro") "Romanian" else "English"
+                } else {
+                    "English"
+                }
                 val response = geminiRepository.getDiagnosisResponse(text, carContext, currentMsgs, currentLanguage)
                 
                 val aiResponseText = response.text

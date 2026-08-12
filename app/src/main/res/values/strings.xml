@@ -34,6 +34,18 @@
     <string name="unit_months">Months</string>
     <string name="unit_years">Years</string>
 
+    <!-- Colors -->
+    <string name="color_white">White</string>
+    <string name="color_black">Black</string>
+    <string name="color_silver">Silver</string>
+    <string name="color_gray">Gray</string>
+    <string name="color_blue">Blue</string>
+    <string name="color_red">Red</string>
+    <string name="color_brown">Brown</string>
+    <string name="color_green">Green</string>
+    <string name="color_yellow">Yellow</string>
+    <string name="color_orange">Orange</string>
+
     <!-- Fuel Types -->
     <string name="fuel_petrol">Petrol</string>
     <string name="fuel_diesel">Diesel</string>
@@ -44,9 +56,9 @@
     <!-- Gearbox Types -->
     <string name="gearbox_manual">Manual</string>
     <string name="gearbox_automatic">Automatic</string>
-    <string name="gearbox_cvt">CVT</string>
-    <string name="gearbox_dct">DCT</string>
-    <string name="gearbox_amt">AMT</string>
+    <string name="gearbox_cvt">Continuously Variable</string>
+    <string name="gearbox_dct">Dual Clutch</string>
+    <string name="gearbox_amt">Automated Manual</string>
 
     <!-- Engine Layouts -->
     <string name="engine_layout_transverse">Transverse</string>
@@ -75,7 +87,7 @@
     <!-- Suspension Options -->
     <string name="suspension_macpherson">MacPherson</string>
     <string name="suspension_double_wishbone">Double Wishbone</string>
-    <string name="suspension_multi_link">Multi-link</string>
+    <string name="suspension_multi_link">Independent Suspension</string>
     <string name="suspension_torsion_beam">Torsion Beam</string>
     <string name="suspension_solid_axle">Solid Axle</string>
 
@@ -183,6 +195,7 @@
     <string name="car_view_mode_list">Switch to List</string>
     <string name="car_view_mode_grid">Switch to Grid</string>
     <string name="car_accent_color">Accent Color</string>
+    <string name="car_default_make">car</string>
 
     <!-- Add/Edit Car -->
     <string name="car_add_title">Add New Car</string>
@@ -192,8 +205,8 @@
     <string name="car_engine_section">Engine &amp; Performance</string>
     <string name="car_dimensions_section">Dimensions &amp; Chassis</string>
     <string name="car_title_label">Car Title (Nickname)</string>
-    <string name="car_title_placeholder">Ex: %s</string>
-    <string name="car_title_placeholder_fallback">Ex: My Daily Driver</string>
+    <string name="car_title_placeholder">%s</string>
+    <string name="car_title_placeholder_fallback">My Daily Driver</string>
     <string name="car_scan_photo">Import Photo</string>
     <string name="car_scan_pdf">Import PDF</string>
     <string name="car_make_label">Make</string>
@@ -204,25 +217,25 @@
     <string name="car_vin_label">VIN</string>
     <string name="car_vin_remaining">Remaining: %d characters</string>
     <string name="car_vin_invalid_chars">Letters I, O, Q are not allowed</string>
-    <string name="car_license_plate_label">License Plate (Optional)</string>
-    <string name="car_license_plate_hint">Ex: %s</string>
+    <string name="car_license_plate_label">License Plate</string>
+    <string name="car_license_plate_hint">%s</string>
     <string name="car_manufacturing_country_label">Manufacturing Country</string>
     <string name="car_power_label">Power</string>
-    <string name="car_torque_label">Torque (Nm)</string>
+    <string name="car_torque_label">Torque</string>
     <string name="car_engine_code_label">Engine Code</string>
     <string name="car_engine_layout_label">Engine Layout</string>
     <string name="car_cylinder_layout_label">Cylinder Layout</string>
     <string name="car_emission_standard_label">Emission Standard</string>
     <string name="car_aspiration_label">Engine Aspiration</string>
-    <string name="car_engine_size_label">Engine Size (cc)</string>
+    <string name="car_engine_size_label">Engine Size</string>
     <string name="car_cylinders_label">Cylinders</string>
-    <string name="car_valves_per_cyl_label">Valves/Cyl</string>
-    <string name="car_top_speed_label">Top Speed (km/h)</string>
-    <string name="car_acceleration_label">0-100 km/h (sec)</string>
+    <string name="car_valves_per_cyl_label">Valves per Cylinder</string>
+    <string name="car_top_speed_label">Top Speed</string>
+    <string name="car_acceleration_label">0-100 km/h</string>
     <string name="car_consumption_label">Mixed Consumption</string>
     <string name="car_consumption_urban_label">Urban</string>
     <string name="car_consumption_extra_urban_label">Extra-Urban</string>
-    <string name="car_co2_label">CO2 Emissions (g/km)</string>
+    <string name="car_co2_label">CO2 Emissions</string>
     <string name="car_fuel_type_label">Fuel Type</string>
     <string name="car_fuel_system_label">Fuel System</string>
     <string name="car_injection_system_label">Injection System</string>
@@ -230,17 +243,17 @@
     <string name="car_gears_label">Gears</string>
     <string name="car_front_suspension_label">Front Suspension</string>
     <string name="car_rear_suspension_label">Rear Suspension</string>
-    <string name="car_fuel_tank_capacity_label">Fuel Tank Capacity (L)</string>
-    <string name="car_battery_capacity_label">Battery Capacity (kWh)</string>
+    <string name="car_fuel_tank_capacity_label">Fuel Tank Capacity</string>
+    <string name="car_battery_capacity_label">Battery Capacity</string>
     <string name="car_length_label">Length</string>
     <string name="car_width_label">Width</string>
     <string name="car_height_label">Height</string>
     <string name="car_wheelbase_label">Wheelbase</string>
-    <string name="car_weight_label">Weight (kg)</string>
-    <string name="car_seats_label">Seats</string>
-    <string name="car_doors_label">Doors</string>
-    <string name="car_boot_label">Boot (L)</string>
-    <string name="car_tire_size_label">Tire Size</string>
+    <string name="car_weight_label">Weight</string>
+    <string name="car_seats_label">Number of Seats</string>
+    <string name="car_doors_label">Number of Doors</string>
+    <string name="car_boot_label">Boot Space</string>
+    <string name="car_tire_size_label">Tires</string>
     <string name="car_tire_width_label">Width</string>
     <string name="car_tire_ratio_label">Ratio</string>
     <string name="car_tire_diam_label">Diam.</string>
@@ -308,6 +321,13 @@
     <string name="mileage_conflict_less">Cannot be less than %d&#160;%s (recorded on %s)</string>
     <string name="mileage_conflict_more">Cannot be more than %d&#160;%s (recorded on %s)</string>
 
+    <string name="mileage_import_title">Import from Logs</string>
+    <string name="mileage_import_empty">No new mileage records found in Fuel or Service logs.</string>
+    <string name="mileage_import_subtitle">We found %d records in other sections. Select what to add to history.</string>
+    <string name="mileage_source_fuel">Fuel</string>
+    <string name="mileage_source_service">Service</string>
+    <string name="mileage_source_inspection">Inspection</string>
+
     <!-- Inspection -->
     <string name="inspection_history_title">Technical Inspection History</string>
     <string name="inspection_add_title">Add Technical Inspection</string>
@@ -344,6 +364,7 @@
     <!-- Diagnosis -->
     <string name="diagnosis_title">%s Diagnosis</string>
     <string name="diagnosis_reset_chat">Reset Chat</string>
+    <string name="diagnosis_initial_greeting">Hello! I am your AI assistant. How can I help you with your %s today?</string>
     <string name="diagnosis_is_thinking">AI is thinking...</string>
     <string name="diagnosis_placeholder">Describe the problem...</string>
     <string name="diagnosis_send">Send</string>
@@ -370,13 +391,29 @@
     <string name="pdf_section_inspections">Technical Inspections</string>
     <string name="pdf_section_fuel">Fuel Consumption</string>
     <string name="pdf_valid_until">Valid until: %s</string>
+    <string name="pdf_page_number">Page %d</string>
+    <string name="pdf_footer_text">Auto Analytics - %s</string>
+    <string name="pdf_unit_kmh">km/h</string>
+    <string name="pdf_unit_mph">mph</string>
+    <string name="pdf_unit_nm">Nm</string>
+    <string name="pdf_unit_hp">hp</string>
+    <string name="pdf_unit_kw">kw</string>
+    <string name="pdf_unit_liters">L</string>
+    <string name="pdf_unit_seconds">sec</string>
+    <string name="pdf_unit_co2">g/km</string>
+    <string name="pdf_unit_mm">mm</string>
+    <string name="pdf_unit_kg">kg</string>
+    <string name="pdf_unit_liters_100km">L/100km</string>
+    <string name="pdf_unit_kwh">kWh</string>
+    <string name="pdf_full_tank_label">Full Tank</string>
     <string name="pdf_field_name">Name</string>
+    <string name="pdf_field_nickname">Nickname</string>
     <string name="pdf_field_make">Make</string>
     <string name="pdf_field_model">Model</string>
     <string name="pdf_field_year">Year</string>
     <string name="pdf_field_vin">VIN</string>
     <string name="pdf_field_license_plate">License Plate</string>
-    <string name="pdf_field_country">Country</string>
+    <string name="pdf_field_country">Plate Country</string>
     <string name="pdf_field_color">Color</string>
     <string name="pdf_field_vehicle_type">Vehicle Type</string>
     <string name="pdf_field_manufacturing_country">Manufacturing Country</string>
@@ -414,6 +451,11 @@
     <string name="pdf_field_tires">Tires</string>
     <string name="pdf_field_seats">Number of Seats</string>
     <string name="pdf_field_doors">Number of Doors</string>
+    <string name="pdf_section_insurance">Insurance History</string>
+    <string name="pdf_section_vignette">Vignette History</string>
+    <string name="pdf_insurance_entry">%1$s - Valid until: %2$s</string>
+    <string name="pdf_vignette_entry">%1$s - Valid until: %2$s</string>
+    <string name="pdf_maintenance_category">Category: %s</string>
 
     <!-- Technical Sheet Extras -->
     <string name="car_transmission_section">Transmission &amp; Chassis</string>
@@ -421,7 +463,7 @@
     <string name="car_gears_count_label">Number of Gears</string>
     <string name="car_valves_label">Valves</string>
     <string name="car_plate_country_label">Plate Country</string>
-    <string name="car_dimensions_lxwxh">Dimensions (LxWxH)</string>
+    <string name="car_dimensions_lxwxh">Dimensions</string>
     <string name="car_fuel_tank_label">Fuel Tank</string>
     <string name="car_country_label">Country</string>
     <string name="car_select_country">Select</string>
@@ -467,7 +509,7 @@
 
     <string name="service_edit_title">Edit Service Record</string>
     <string name="service_description_label">Description (What was fixed?)</string>
-    <string name="service_description_placeholder">Ex: Oil change and filters</string>
+    <string name="service_description_placeholder">Oil change and filters</string>
     <string name="service_mileage_label">Mileage (%s)</string>
     <string name="service_empty">No service records found.</string>
     <string name="service_delete_confirm">Are you sure you want to delete this service record? The associated mileage entry will also be removed.</string>

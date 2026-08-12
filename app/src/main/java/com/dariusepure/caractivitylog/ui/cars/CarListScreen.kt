@@ -491,8 +491,8 @@ private fun InnerCarListScreen(
             ) {
                 FloatingActionButton(
                     onClick = onAddCarClick,
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    containerColor = Color(0xFF1A73E8),
+                    contentColor = Color.White
                 ) {
                     Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.car_add_button))
                 }

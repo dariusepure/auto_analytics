@@ -107,8 +107,8 @@ fun ServiceHistoryScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showAddDialog = true },
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                containerColor = Color(0xFF1A73E8),
+                contentColor = Color.White
             ) {
                 Icon(Icons.Default.Add, contentDescription = null)
             }

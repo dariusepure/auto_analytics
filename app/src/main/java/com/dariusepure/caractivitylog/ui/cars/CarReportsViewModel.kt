@@ -58,6 +58,8 @@ class CarReportsViewModel @Inject constructor(
                 val fuel = carRepository.getFuelLogs(carId).first()
                 val tires = carRepository.getTireSets(carId).first()
                 val maintenance = carRepository.getMaintenanceLogs(carId).first()
+                val insurances = carRepository.getInsurances(carId).first()
+                val vignettes = carRepository.getVignettes(carId).first()
 
                 val timestamp = SimpleDateFormat("yyyyMMdd_HHmm", Locale.ROOT).format(Date())
                 val fileName = "Report_${car.make}_${car.model}_$timestamp.pdf".replace(" ", "_")
@@ -66,7 +68,7 @@ class CarReportsViewModel @Inject constructor(
 
                 destFile.outputStream().use { os ->
                     PdfReportGenerator.generateReport(
-                        context, car, mileage, inspections, fuel, tires, maintenance, os
+                        context, car, mileage, inspections, fuel, tires, maintenance, insurances, vignettes, os
                     )
                 }
 

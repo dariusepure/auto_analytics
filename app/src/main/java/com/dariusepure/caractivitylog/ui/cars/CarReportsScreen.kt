@@ -128,7 +128,9 @@ fun CarReportsScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { if (!isGenerating) viewModel.generateReport(carId) }
+                onClick = { if (!isGenerating) viewModel.generateReport(carId) },
+                containerColor = Color(0xFF1A73E8),
+                contentColor = Color.White
             ) {
                 if (isGenerating) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
