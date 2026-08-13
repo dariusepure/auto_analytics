@@ -1,46 +1,49 @@
 package com.dariusepure.caractivitylog.ui.cars
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.data.cars.CarRepository
 import com.dariusepure.caractivitylog.data.prefs.PreferenceRepository
-import com.dariusepure.caractivitylog.domain.Car
-import com.dariusepure.caractivitylog.domain.Maintenance
-import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.domain.VehicleInspection
-import com.dariusepure.caractivitylog.domain.FuelLog
 import com.dariusepure.caractivitylog.domain.UnitSystem
+import com.dariusepure.caractivitylog.domain.MileageLog
+import com.dariusepure.caractivitylog.domain.Car
+import com.dariusepure.caractivitylog.domain.FuelLog
+import com.dariusepure.caractivitylog.domain.Maintenance
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Date
 import javax.inject.Inject
-
-data class InspectionStats(
-    val latestExpiryDate: Date? = null,
-    val daysRemaining: Long? = null
-)
 
 sealed class InspectionHistoryUiState {
     object Loading : InspectionHistoryUiState()
     data class Success(
-        val car: Car,
         val inspections: List<VehicleInspection>,
-        val stats: InspectionStats,
-        val mileageLogs: List<MileageLog>,
         val fuelLogs: List<FuelLog>,
         val maintenanceLogs: List<Maintenance>,
+        val mileageLogs: List<MileageLog>,
+        val stats: InspectionStats,
         val unitSystem: UnitSystem
     ) : InspectionHistoryUiState()
     data class Error(val message: String) : InspectionHistoryUiState()
 }
 
+data class InspectionStats(
+    val latestExpiryDate: Date?,
+    val daysRemaining: Long?
+)
+
 @HiltViewModel
 class InspectionHistoryViewModel @Inject constructor(
     private val carRepository: CarRepository,
-    private val preferenceRepository: PreferenceRepository
+    private val preferenceRepository: PreferenceRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<InspectionHistoryUiState>(InspectionHistoryUiState.Loading)
@@ -48,41 +51,44 @@ class InspectionHistoryViewModel @Inject constructor(
 
     fun loadData(carId: String) {
         viewModelScope.launch {
-            combine(
-                carRepository.getCarFlow(carId),
-                carRepository.getInspections(carId),
-                carRepository.getMileageLogs(carId),
-                carRepository.getFuelLogs(carId),
-                carRepository.getMaintenanceLogs(carId),
-                preferenceRepository.unitSystem
-            ) { args: Array<Any?> ->
-                val car = args[0] as? Car
-                val inspections = args[1] as List<VehicleInspection>
-                val mileageLogs = args[2] as List<MileageLog>
-                val fuelLogs = args[3] as List<FuelLog>
-                val maintenanceLogs = args[4] as List<Maintenance>
-                val unitSystem = args[5] as UnitSystem
+            _state.value = InspectionHistoryUiState.Loading
+            try {
+                val carFlow = carRepository.getCarFlow(carId)
+                val inspectionsFlow = carRepository.getInspections(carId)
+                val fuelFlow = carRepository.getFuelLogs(carId)
+                val maintenanceFlow = carRepository.getMaintenanceLogs(carId)
+                val mileageFlow = carRepository.getMileageLogs(carId)
+                val unitSystemFlow = preferenceRepository.unitSystem
 
-                if (car != null) {
-                    val latest = inspections.maxByOrNull { it.date }
-                    val stats = InspectionStats(
-                        latestExpiryDate = latest?.expiryDate,
-                        daysRemaining = latest?.let { (it.expiryDate.time - Date().time) / (1000 * 60 * 60 * 24) }
-                    )
-                    InspectionHistoryUiState.Success(
-                        car, 
-                        inspections.sortedByDescending { it.date }, 
-                        stats, 
-                        mileageLogs,
-                        fuelLogs,
-                        maintenanceLogs,
-                        unitSystem
-                    )
-                } else {
-                    InspectionHistoryUiState.Error("Car not found")
+                combine(
+                    carFlow, inspectionsFlow, fuelFlow, maintenanceFlow, mileageFlow, unitSystemFlow
+                ) { args: Array<Any?> ->
+                    val car = args[0] as? Car
+                    val inspections = args[1] as List<VehicleInspection>
+                    val fuel = args[2] as List<FuelLog>
+                    val maintenance = args[3] as List<Maintenance>
+                    val mileage = args[4] as List<MileageLog>
+                    val unitSystem = args[5] as UnitSystem
+
+                    if (car != null) {
+                        val sortedInspections = inspections.sortedByDescending { it.date }
+                        val latest = sortedInspections.firstOrNull()
+                        val days = latest?.let {
+                            val diff = it.expiryDate.time - Date().time
+                            diff / (1000 * 60 * 60 * 24)
+                        }
+                        val stats = InspectionStats(latest?.expiryDate, days)
+                        InspectionHistoryUiState.Success(
+                            sortedInspections, fuel, maintenance, mileage, stats, unitSystem
+                        )
+                    } else {
+                        InspectionHistoryUiState.Error(context.getString(R.string.error_car_not_found))
+                    }
+                }.collect {
+                    _state.value = it
                 }
-            }.collect {
-                _state.value = it
+            } catch (e: Exception) {
+                _state.value = InspectionHistoryUiState.Error(e.localizedMessage ?: context.getString(R.string.error_generic))
             }
         }
     }
@@ -107,7 +113,9 @@ class InspectionHistoryViewModel @Inject constructor(
 
     fun addBatchMileageLogs(carId: String, logs: List<MileageLog>) {
         viewModelScope.launch {
-            logs.forEach { carRepository.addMileageLog(carId, it) }
+            logs.forEach { log ->
+                carRepository.addMileageLog(carId, log)
+            }
         }
     }
 }

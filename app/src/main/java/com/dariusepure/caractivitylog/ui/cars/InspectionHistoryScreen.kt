@@ -89,7 +89,7 @@ fun InspectionHistoryScreen(
                 },
                 actions = {
                     IconButton(onClick = { showLogImportDialog = true }) {
-                        Icon(Icons.Default.History, contentDescription = "Import to Mileage History")
+                        Icon(Icons.Default.History, contentDescription = stringResource(R.string.mileage_import_action))
                     }
                 }
             )
@@ -120,7 +120,31 @@ fun InspectionHistoryScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     item {
-                        InspectionStatsCard(s.stats)
+                        val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
+                        val statusColor = when {
+                            s.stats.daysRemaining == null -> MaterialTheme.colorScheme.primary
+                            s.stats.daysRemaining < 0 -> statusExpiredRed
+                            s.stats.daysRemaining < 14 -> Color(0xFFFF9800)
+                            else -> Color(0xFF4CAF50)
+                        }
+
+                        Spacer(Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            StatItem(
+                                label = stringResource(R.string.stats_valid_until), 
+                                value = s.stats.latestExpiryDate?.let { dateFormat.format(it) } ?: "--",
+                                color = statusColor
+                            )
+                            StatItem(
+                                label = stringResource(R.string.stats_remaining), 
+                                value = s.stats.daysRemaining?.let { if (it < 0) stringResource(R.string.common_expired) else stringResource(R.string.stats_days_suffix, it) } ?: "--",
+                                color = statusColor
+                            )
+                        }
+
                         Spacer(Modifier.height(8.dp))
                         Text(
                             text = stringResource(R.string.inspection_history_title),
@@ -182,38 +206,6 @@ fun InspectionHistoryScreen(
 }
 
 @Composable
-fun InspectionStatsCard(stats: InspectionStats) {
-    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
-    val statusColor = when {
-        stats.daysRemaining == null -> Color(0xFF1A73E8)
-        stats.daysRemaining < 0 -> statusExpiredRed
-        stats.daysRemaining < 14 -> Color(0xFFFF9800)
-        else -> Color(0xFF4CAF50)
-    }
-
-    Card(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = statusColor.copy(alpha = 0.15f))
-    ) {
-        Column(Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                StatItem(
-                    label = "Valid until", 
-                    value = stats.latestExpiryDate?.let { dateFormat.format(it) } ?: "--"
-                )
-                StatItem(
-                    label = "Remaining", 
-                    value = stats.daysRemaining?.let { if (it < 0) "Expired" else "$it days" } ?: "--"
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun InspectionLogItem(
     inspection: VehicleInspection,
     unit: String,
@@ -236,13 +228,13 @@ fun InspectionLogItem(
             Column(Modifier.weight(1f)) {
                 Text(dateFormat.format(inspection.date), style = MaterialTheme.typography.labelSmall)
                 Text(
-                    text = "Inspection",
+                    text = stringResource(R.string.common_inspection),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 val displayKm = CarFormatters.fromCanonicalDistance(inspection.mileage, usesMiles)
                 Text(
-                    text = "${displayKm.roundToInt()} $unit \u00B7 Expires: ${dateFormat.format(inspection.expiryDate)}",
+                    text = "${displayKm.roundToInt()} $unit \u00B7 ${stringResource(R.string.common_expires)}: ${dateFormat.format(inspection.expiryDate)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

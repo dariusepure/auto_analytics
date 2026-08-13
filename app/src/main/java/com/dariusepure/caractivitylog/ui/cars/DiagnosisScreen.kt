@@ -38,13 +38,13 @@ fun DiagnosisScreen(
     val listState = rememberLazyListState()
 
     LaunchedEffect(carId) {
-        viewModel.loadCarData(carId)
+        viewModel.loadCar(carId)
     }
 
     if (showResetDialog) {
         DeleteConfirmationDialog(
             onConfirm = {
-                viewModel.resetConversation()
+                viewModel.resetChat(carId)
                 showResetDialog = false
             },
             onDismiss = { showResetDialog = false },
@@ -156,7 +156,7 @@ fun DiagnosisScreen(
                     IconButton(
                         onClick = {
                             if (inputText.isNotBlank()) {
-                                viewModel.sendMessage(inputText)
+                                viewModel.onSendMessage(carId, inputText)
                                 inputText = ""
                             }
                         }

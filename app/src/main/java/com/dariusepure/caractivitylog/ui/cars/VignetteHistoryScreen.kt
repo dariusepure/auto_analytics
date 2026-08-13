@@ -92,7 +92,31 @@ fun VignetteHistoryScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     item {
-                        VignetteStatsCard(s.stats)
+                        val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
+                        val statusColor = when {
+                            s.stats.daysRemaining == null -> MaterialTheme.colorScheme.primary
+                            s.stats.daysRemaining < 0 -> statusExpiredRed
+                            s.stats.daysRemaining < 14 -> Color(0xFFFF9800)
+                            else -> Color(0xFF4CAF50)
+                        }
+
+                        Spacer(Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            StatItem(
+                                label = stringResource(R.string.stats_valid_until), 
+                                value = s.stats.latestExpiryDate?.let { dateFormat.format(it) } ?: "--",
+                                color = statusColor
+                            )
+                            StatItem(
+                                label = stringResource(R.string.stats_remaining), 
+                                value = s.stats.daysRemaining?.let { if (it < 0) stringResource(R.string.common_expired) else stringResource(R.string.stats_days_suffix, it) } ?: "--",
+                                color = statusColor
+                            )
+                        }
+
                         Spacer(Modifier.height(8.dp))
                         Text(
                             text = stringResource(R.string.vignette_history_title),
@@ -328,38 +352,6 @@ fun AddVignetteDialog(
 }
 
 @Composable
-fun VignetteStatsCard(stats: VignetteStats) {
-    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
-    val statusColor = when {
-        stats.daysRemaining == null -> Color(0xFF1A73E8)
-        stats.daysRemaining < 0 -> statusExpiredRed
-        stats.daysRemaining < 14 -> Color(0xFFFF9800)
-        else -> Color(0xFF4CAF50)
-    }
-
-    Card(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = statusColor.copy(alpha = 0.15f))
-    ) {
-        Column(Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                StatItem(
-                    label = "Valid until", 
-                    value = stats.latestExpiryDate?.let { dateFormat.format(it) } ?: "--"
-                )
-                StatItem(
-                    label = "Remaining", 
-                    value = stats.daysRemaining?.let { if (it < 0) "Expired" else "$it days" } ?: "--"
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun VignetteLogItem(
     vignette: Vignette,
     onEdit: () -> Unit,
@@ -385,7 +377,7 @@ fun VignetteLogItem(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Expires: ${dateFormat.format(vignette.expiryDate)}",
+                    text = "${stringResource(R.string.common_expires)}: ${dateFormat.format(vignette.expiryDate)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

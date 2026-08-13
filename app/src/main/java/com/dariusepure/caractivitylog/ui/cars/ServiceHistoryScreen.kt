@@ -93,8 +93,29 @@ fun ServiceHistoryScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     item {
-                        ServiceStatsCard(s.stats, unit)
                         Spacer(Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            StatItem(
+                                label = stringResource(R.string.pdf_section_service), 
+                                value = "${s.stats.totalServices}"
+                            )
+                            StatItem(
+                                label = stringResource(R.string.service_mileage_label, unit).replace(" ($unit)", ""), 
+                                value = s.stats.lastServiceKm?.let { "${it.roundToInt()} $unit" } ?: "-- $unit"
+                            )
+                        }
+                        if (s.stats.averageIntervalKm != null) {
+                            Spacer(Modifier.height(12.dp))
+                            StatItem(
+                                label = stringResource(R.string.stats_avg_interval), 
+                                value = "${s.stats.averageIntervalKm.roundToInt()} $unit"
+                            )
+                        }
+                        
+                        Spacer(Modifier.height(16.dp))
                         Text(
                             text = stringResource(R.string.service_history_title),
                             style = MaterialTheme.typography.titleMedium,
@@ -367,37 +388,6 @@ fun AddServiceDialog(
             }
         }
     )
-}
-
-@Composable
-fun ServiceStatsCard(stats: ServiceStats, unit: String) {
-    Card(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-    ) {
-        Column(Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                StatItem(
-                    label = stringResource(R.string.pdf_section_service), 
-                    value = "${stats.totalServices}"
-                )
-                StatItem(
-                    label = stringResource(R.string.service_mileage_label, unit).replace(" ($unit)", ""), 
-                    value = stats.lastServiceKm?.let { "${it.roundToInt()} $unit" } ?: "-- $unit"
-                )
-            }
-            if (stats.averageIntervalKm != null) {
-                Spacer(Modifier.height(16.dp))
-                StatItem(
-                    label = "Avg Interval", 
-                    value = "${stats.averageIntervalKm.roundToInt()} $unit"
-                )
-            }
-        }
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

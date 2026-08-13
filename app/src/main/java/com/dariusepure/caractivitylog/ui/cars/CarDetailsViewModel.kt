@@ -18,6 +18,7 @@ import com.dariusepure.caractivitylog.domain.ScannedMileageEntry
 import com.dariusepure.caractivitylog.domain.UnitSystem
 import com.dariusepure.caractivitylog.domain.VehicleInspection
 import com.dariusepure.caractivitylog.util.DiagnosticUtils
+import com.dariusepure.caractivitylog.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import android.content.Context
@@ -117,7 +118,7 @@ class CarDetailsViewModel @Inject constructor(
                             currentScanning
                         )
                     } else {
-                        CarDetailsUiState.Error("Car not found")
+                        CarDetailsUiState.Error(context.getString(R.string.error_car_not_found))
                     }
                 }.collect { newState ->
                     _state.value = newState

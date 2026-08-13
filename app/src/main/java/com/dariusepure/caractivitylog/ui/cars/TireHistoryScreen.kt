@@ -91,7 +91,35 @@ fun TireHistoryScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     item {
-                        TireStatsCard(s.stats)
+                        Spacer(Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            StatItem(
+                                label = stringResource(R.string.stats_active_set), 
+                                value = s.stats.activeTireSet?.brand ?: stringResource(R.string.common_none)
+                            )
+                            StatItem(
+                                label = stringResource(R.string.stats_total_sets), 
+                                value = "${s.stats.totalSets}"
+                            )
+                        }
+                        if (s.stats.activeTireSet != null) {
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = stringResource(
+                                    R.string.tire_summary,
+                                    s.stats.activeTireSet.brand,
+                                    s.stats.activeTireSet.width,
+                                    s.stats.activeTireSet.ratio,
+                                    s.stats.activeTireSet.diameter
+                                ),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        
                         Spacer(Modifier.height(8.dp))
                         Text(
                             text = stringResource(R.string.tire_management_title),
@@ -333,44 +361,6 @@ fun AddTireSetDialog(
             }
         }
     )
-}
-
-@Composable
-fun TireStatsCard(stats: TireStats) {
-    Card(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-    ) {
-        Column(Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                StatItem(
-                    label = "Active Set", 
-                    value = stats.activeTireSet?.brand ?: "None"
-                )
-                StatItem(
-                    label = "Total Sets", 
-                    value = "${stats.totalSets}"
-                )
-            }
-            if (stats.activeTireSet != null) {
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text = stringResource(
-                        R.string.tire_summary,
-                        stats.activeTireSet.brand,
-                        stats.activeTireSet.width,
-                        stats.activeTireSet.ratio,
-                        stats.activeTireSet.diameter
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                )
-            }
-        }
-    }
 }
 
 @Composable

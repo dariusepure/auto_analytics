@@ -1,40 +1,39 @@
 package com.dariusepure.caractivitylog.ui.cars
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.data.cars.CarRepository
 import com.dariusepure.caractivitylog.data.prefs.PreferenceRepository
-import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.Insurance
-import com.dariusepure.caractivitylog.domain.UnitSystem
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Date
 import javax.inject.Inject
-
-data class InsuranceStats(
-    val latestExpiryDate: Date? = null,
-    val daysRemaining: Long? = null
-)
 
 sealed class InsuranceHistoryUiState {
     object Loading : InsuranceHistoryUiState()
     data class Success(
-        val car: Car,
         val insurances: List<Insurance>,
-        val stats: InsuranceStats,
-        val unitSystem: UnitSystem
+        val stats: InsuranceStats
     ) : InsuranceHistoryUiState()
     data class Error(val message: String) : InsuranceHistoryUiState()
 }
 
+data class InsuranceStats(
+    val latestExpiryDate: Date?,
+    val daysRemaining: Long?
+)
+
 @HiltViewModel
 class InsuranceHistoryViewModel @Inject constructor(
     private val carRepository: CarRepository,
-    private val preferenceRepository: PreferenceRepository
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<InsuranceHistoryUiState>(InsuranceHistoryUiState.Loading)
@@ -42,23 +41,29 @@ class InsuranceHistoryViewModel @Inject constructor(
 
     fun loadData(carId: String) {
         viewModelScope.launch {
-            combine(
-                carRepository.getCarFlow(carId),
-                carRepository.getInsurances(carId),
-                preferenceRepository.unitSystem
-            ) { car, insurances, unitSystem ->
-                if (car != null) {
-                    val latest = insurances.maxByOrNull { it.date }
-                    val stats = InsuranceStats(
-                        latestExpiryDate = latest?.expiryDate,
-                        daysRemaining = latest?.let { (it.expiryDate.time - Date().time) / (1000 * 60 * 60 * 24) }
-                    )
-                    InsuranceHistoryUiState.Success(car, insurances.sortedByDescending { it.date }, stats, unitSystem)
-                } else {
-                    InsuranceHistoryUiState.Error("Car not found")
+            _state.value = InsuranceHistoryUiState.Loading
+            try {
+                val carFlow = carRepository.getCarFlow(carId)
+                val insurancesFlow = carRepository.getInsurances(carId)
+
+                combine(carFlow, insurancesFlow) { car, insurances ->
+                    if (car != null) {
+                        val sortedInsurances = insurances.sortedByDescending { it.date }
+                        val latest = sortedInsurances.firstOrNull()
+                        val days = latest?.let {
+                            val diff = it.expiryDate.time - Date().time
+                            diff / (1000 * 60 * 60 * 24)
+                        }
+                        val stats = InsuranceStats(latest?.expiryDate, days)
+                        InsuranceHistoryUiState.Success(sortedInsurances, stats)
+                    } else {
+                        InsuranceHistoryUiState.Error(context.getString(R.string.error_car_not_found))
+                    }
+                }.collect {
+                    _state.value = it
                 }
-            }.collect {
-                _state.value = it
+            } catch (e: Exception) {
+                _state.value = InsuranceHistoryUiState.Error(e.localizedMessage ?: context.getString(R.string.error_generic))
             }
         }
     }

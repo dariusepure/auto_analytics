@@ -63,6 +63,12 @@ object CarFormatters {
         return if (usesMiles) value * GALLON_UK_TO_LITER else value
     }
 
+    fun calculateConsumption(liters: Double, distKm: Double, usesMiles: Boolean): Double {
+        if (distKm <= 0) return 0.0
+        val l100 = (liters / distKm) * 100
+        return if (usesMiles) MPG_UK_CONSTANT / l100 else l100
+    }
+
     fun formatPower(context: android.content.Context, car: Car): String {
         val hpValue: Int
         val kwValue: Int

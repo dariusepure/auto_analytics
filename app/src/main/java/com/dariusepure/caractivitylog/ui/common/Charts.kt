@@ -12,6 +12,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.dariusepure.caractivitylog.R
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
@@ -138,7 +140,7 @@ fun ConsumptionLineChart(
             bottomAxis = HorizontalAxis.rememberBottom(
                 label = axisLabel,
                 titleComponent = axisTitle,
-                title = "Date",
+                title = stringResource(R.string.common_date_label),
                 guideline = rememberLineComponent(
                     fill = fill(MaterialTheme.colorScheme.outlineVariant),
                     thickness = 0.5.dp,
@@ -208,7 +210,7 @@ fun MileageLineChart(
             bottomAxis = HorizontalAxis.rememberBottom(
                 label = axisLabel,
                 titleComponent = axisTitle,
-                title = "Date",
+                title = stringResource(R.string.common_date_label),
                 guideline = rememberLineComponent(
                     fill = fill(MaterialTheme.colorScheme.outlineVariant),
                     thickness = 0.5.dp,

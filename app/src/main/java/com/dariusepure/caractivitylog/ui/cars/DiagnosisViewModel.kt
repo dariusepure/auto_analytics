@@ -1,147 +1,107 @@
 package com.dariusepure.caractivitylog.ui.cars
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.data.ai.GeminiRepository
-import com.dariusepure.caractivitylog.data.ai.text
 import com.dariusepure.caractivitylog.data.cars.CarRepository
 import com.dariusepure.caractivitylog.domain.Car
-import com.dariusepure.caractivitylog.domain.displayName
 import com.dariusepure.caractivitylog.util.DiagnosticUtils
-import com.dariusepure.caractivitylog.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import android.content.Context
-import androidx.appcompat.app.AppCompatDelegate
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.roundToInt
 
 @HiltViewModel
 class DiagnosisViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
+    private val geminiRepository: GeminiRepository,
     private val carRepository: CarRepository,
-    private val geminiRepository: GeminiRepository
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DiagnosisUiState())
     val state = _state.asStateFlow()
 
-    private var carContext = ""
-    private var currentCarId: String? = null
-    private var currentCar: Car? = null
+    private val _currentCar = MutableStateFlow<Car?>(null)
 
-    fun loadCarData(carId: String) {
-        currentCarId = carId
+    fun loadCar(carId: String) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-            val car = carRepository.getCar(carId)
-            currentCar = car
-            if (car != null) {
-                val mileageLogs = carRepository.getMileageLogs(carId).first()
-                val latestKm = mileageLogs.maxByOrNull { it.date }?.km ?: 0.0
-                
-                carContext = """
-                    Car: ${car.displayName}, Year: ${car.year}, Engine: ${car.engineSize} ${car.fuelType}
-                    Specs: Power: ${car.power}${car.powerUnit}, Torque: ${car.torque}Nm, Color: ${car.color}, Gears: ${car.gears}
-                    System: ${car.fuelSystem}
-                    Current Mileage: $latestKm km
-                """.trimIndent()
-
-                _state.update { it.copy(
-                    isLoading = false,
-                    carName = car.displayName
-                ) }
-            }
-            
-            // Collect messages from Firestore
-            carRepository.getDiagnosisMessages(carId).collect { messages ->
-                _state.update { it.copy(
-                    messages = if (messages.isEmpty()) {
-                        val greeting = context.getString(R.string.diagnosis_initial_greeting, currentCar?.make ?: context.getString(R.string.car_default_make))
-                        listOf(ChatMessage(greeting, false))
-                    } else {
-                        messages
+            try {
+                val car = carRepository.getCar(carId)
+                if (car != null) {
+                    _currentCar.value = car
+                    carRepository.getDiagnosisMessages(carId).collect { history ->
+                        _state.update { it.copy(
+                            isLoading = false, 
+                            messages = history, 
+                            carName = "${car.make} ${car.model}"
+                        ) }
                     }
-                ) }
+                } else {
+                    _state.update { it.copy(isLoading = false, errorMessage = context.getString(R.string.error_car_not_found)) }
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(isLoading = false, errorMessage = e.localizedMessage ?: context.getString(R.string.error_generic)) }
             }
         }
     }
 
-    fun sendMessage(text: String) {
-        val carId = currentCarId ?: return
-        if (text.isBlank()) return
+    fun onSendMessage(carId: String, message: String) {
+        val car = _currentCar.value ?: return
+        val currentMessages = _state.value.messages
         
-        val userMessage = ChatMessage(text, true)
+        val newUserMessage = ChatMessage(text = message, isUser = true)
+        val updatedMessages = currentMessages + newUserMessage
         
-        viewModelScope.launch {
-            // Clear previous error
-            _state.update { it.copy(errorMessage = null) }
-            
-            // Save user message to Firestore
-            try {
-                carRepository.addDiagnosisMessage(carId, userMessage)
-            } catch (e: Exception) {
-                // If writing to Firestore fails (e.g. App Check), show error locally
-                _state.update { it.copy(
-                    errorMessage = "Firestore Error: ${e.localizedMessage ?: "Check your connection or App Check status"}"
-                ) }
-                return@launch
-            }
-            
-            _state.update { it.copy(isTyping = true) }
+        _state.update { it.copy(messages = updatedMessages, isTyping = true) }
 
+        viewModelScope.launch {
             try {
-                val currentMsgs = _state.value.messages
-                val locales = AppCompatDelegate.getApplicationLocales()
-                val currentLanguage = if (!locales.isEmpty) {
-                    if (locales.get(0)?.language == "ro") "Romanian" else "English"
-                } else {
-                    "English"
-                }
-                val response = geminiRepository.getDiagnosisResponse(text, carContext, currentMsgs, currentLanguage)
+                carRepository.addDiagnosisMessage(carId, newUserMessage)
                 
-                val aiResponseText = response.text
-                if (!aiResponseText.isNullOrBlank()) {
-                    val cleanedResponse = cleanAiResponse(aiResponseText)
-                    val aiMessage = ChatMessage(cleanedResponse, false)
-                    carRepository.addDiagnosisMessage(carId, aiMessage)
-                }
+                val carContext = "" // Simple context for now
+                val language = if (context.resources.configuration.locales[0].language == "ro") "Romanian" else "English"
                 
+                val response = geminiRepository.getDiagnosisResponse(
+                    prompt = message,
+                    carContext = carContext,
+                    history = updatedMessages,
+                    language = language
+                )
+
+                val aiText = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text ?: ""
+                val aiMessage = ChatMessage(text = aiText, isUser = false)
+                
+                carRepository.addDiagnosisMessage(carId, aiMessage)
+                
+                _state.update { it.copy(messages = updatedMessages + aiMessage, isTyping = false) }
             } catch (t: Throwable) {
-                val sha1 = DiagnosticUtils.getAppSignatureSha1(context, withColons = true)
-                val error = when {
+                val errorMessage = when {
                     t.message?.contains("403") == true || t.message?.contains("PERMISSION_DENIED") == true -> {
-                        "AI Access Denied: Please add this SHA-1 to Google Cloud Console for package ${context.packageName}: \n\n$sha1"
+                        val sha1 = DiagnosticUtils.getAppSignatureSha1(context, withColons = true)
+                        context.getString(R.string.error_ai_access_denied, context.packageName, sha1)
                     }
                     t.message?.contains("404") == true -> {
-                        "AI Model Not Found: Check if 'gemini-1.5-flash' is the correct model name in your config."
+                        context.getString(R.string.error_ai_model_not_found)
                     }
-                    else -> "AI Error: ${t.localizedMessage ?: "Unknown error"}"
+                    else -> context.getString(R.string.error_ai_generic, t.localizedMessage ?: context.getString(R.string.common_not_applicable))
                 }
-                
-                _state.update { it.copy(
-                    errorMessage = error
-                ) }
-            } finally {
-                _state.update { it.copy(isTyping = false) }
+                _state.update { it.copy(isTyping = false, errorMessage = errorMessage) }
             }
         }
     }
 
-    fun resetConversation() {
-        val carId = currentCarId ?: return
+    fun resetChat(carId: String) {
         viewModelScope.launch {
-            carRepository.clearDiagnosisMessages(carId)
+            try {
+                carRepository.clearDiagnosisMessages(carId)
+                _state.update { it.copy(messages = emptyList()) }
+            } catch (e: Exception) {
+                _state.update { it.copy(errorMessage = e.localizedMessage ?: context.getString(R.string.error_generic)) }
+            }
         }
     }
-
-    private fun cleanAiResponse(text: String): String {
-        return text.replace("*", "").replace("#", "")
-    }
 }
-

@@ -120,7 +120,7 @@ fun MileageHistoryScreen(
                 },
                 actions = {
                     IconButton(onClick = { showLogImportDialog = true }) {
-                        Icon(Icons.Default.History, contentDescription = "Import from other logs")
+                        Icon(Icons.Default.History, contentDescription = stringResource(R.string.mileage_import_action))
                     }
                 }
             )
@@ -149,7 +149,20 @@ fun MileageHistoryScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     item {
-                        MileageStatsCard(s.stats, unitLabel)
+                        Spacer(Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            StatItem(
+                                label = stringResource(R.string.stats_current_mileage), 
+                                value = "${s.stats.currentMileage.roundToInt()} $unitLabel"
+                            )
+                            StatItem(
+                                label = stringResource(R.string.stats_total_records), 
+                                value = "${s.stats.totalRecords}"
+                            )
+                        }
                         
                         if (s.mileageLogs.size >= 2) {
                             Spacer(Modifier.height(8.dp))
@@ -195,35 +208,6 @@ fun MileageHistoryScreen(
                     item { Spacer(Modifier.height(80.dp)) }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun MileageStatsCard(stats: MileageStats, unit: String) {
-    Card(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-    ) {
-        Column(Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                StatItem(
-                    label = stringResource(R.string.pdf_field_nickname), 
-                    value = stringResource(R.string.car_mileage_history)
-                )
-                StatItem(
-                    label = "Total Records", 
-                    value = "${stats.totalRecords}"
-                )
-            }
-            Spacer(Modifier.height(16.dp))
-            StatItem(
-                label = "Current Mileage", 
-                value = "${stats.currentMileage.roundToInt()} $unit"
-            )
         }
     }
 }

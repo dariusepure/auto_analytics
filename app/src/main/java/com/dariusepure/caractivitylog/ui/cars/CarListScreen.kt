@@ -47,13 +47,8 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material.icons.outlined.Language
-import androidx.compose.material.icons.filled.GridView
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import com.dariusepure.caractivitylog.ui.common.LanguageDialog
@@ -166,53 +161,6 @@ fun CarCard(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CarGridCard(
-    car: Car,
-    onClick: () -> Unit,
-    onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Card(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            AutoSizeText(
-                text = car.displayName,
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center
-            )
-            
-            if (car.licensePlate.isNotBlank()) {
-                Text(
-                    text = car.licensePlate,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.secondary,
-                    textAlign = TextAlign.Center
-                )
-            }
-
-            Spacer(Modifier.height(8.dp))
-
-            ActionButtons(
-                onEdit = onEditClick,
-                onDelete = onDeleteClick,
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            )
-        }
-    }
-}
-
 @Composable
 fun CarListScreen(
     onCarClick: (String) -> Unit,
@@ -226,7 +174,6 @@ fun CarListScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val sortOrder by viewModel.sortOrder.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
-    val viewMode by viewModel.viewMode.collectAsStateWithLifecycle()
     val isDarkMode by settingsViewModel.isDarkMode.collectAsStateWithLifecycle()
     val unitSystem by settingsViewModel.unitSystem.collectAsStateWithLifecycle()
     val systemDark = androidx.compose.foundation.isSystemInDarkTheme()
@@ -249,10 +196,8 @@ fun CarListScreen(
         onUnitSystemChange = { settingsViewModel.setUnitSystem(it) },
         onSortOrderChange = { viewModel.onSortOrderChanged(it) },
         onSearchQueryChange = { viewModel.onSearchQueryChanged(it) },
-        onViewModeChange = { viewModel.onViewModeChanged(it) },
         searchQuery = searchQuery,
         currentSortOrder = sortOrder,
-        currentViewMode = viewMode,
         currentUnitSystem = unitSystem,
         isDark = currentDark,
         state = state
@@ -271,10 +216,8 @@ private fun InnerCarListScreen(
     onUnitSystemChange: (com.dariusepure.caractivitylog.domain.UnitSystem) -> Unit,
     onSortOrderChange: (CarSortOrder) -> Unit,
     onSearchQueryChange: (String) -> Unit,
-    onViewModeChange: (CarListViewMode) -> Unit,
     searchQuery: String,
     currentSortOrder: CarSortOrder,
-    currentViewMode: CarListViewMode,
     currentUnitSystem: com.dariusepure.caractivitylog.domain.UnitSystem,
     isDark: Boolean,
     state: CarListUiState,
@@ -331,33 +274,6 @@ private fun InnerCarListScreen(
                     )
                 },
                 actions = {
-                    val viewModeTooltipState = rememberTooltipState()
-                    TooltipBox(
-                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                        tooltip = {
-                            PlainTooltip {
-                                Text(
-                                    if (currentViewMode == CarListViewMode.LIST) stringResource(R.string.car_view_mode_grid)
-                                    else stringResource(R.string.car_view_mode_list)
-                                )
-                            }
-                        },
-                        state = viewModeTooltipState
-                    ) {
-                        IconButton(
-                            onClick = {
-                                onViewModeChange(
-                                    if (currentViewMode == CarListViewMode.LIST) CarListViewMode.GRID
-                                    else CarListViewMode.LIST
-                                )
-                            }
-                        ) {
-                            Icon(
-                                imageVector = if (currentViewMode == CarListViewMode.LIST) Icons.Default.GridView else Icons.AutoMirrored.Filled.List,
-                                contentDescription = if (currentViewMode == CarListViewMode.LIST) stringResource(R.string.car_view_mode_grid) else stringResource(R.string.car_view_mode_list)
-                            )
-                        }
-                    }
                     Box {
                         val sortTooltipState = rememberTooltipState()
                         TooltipBox(
@@ -404,15 +320,8 @@ private fun InnerCarListScreen(
                         tooltip = { PlainTooltip { Text(stringResource(R.string.common_settings)) } },
                         state = settingsTooltipState
                     ) {
-                        FilledIconButton(
-                            onClick = { showSettingsSheet = true },
-                            colors = IconButtonDefaults.filledIconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                            ),
-                            modifier = Modifier.size(36.dp)
-                        ) {
-                            Icon(Icons.Default.Settings, null, modifier = Modifier.size(20.dp))
+                        IconButton(onClick = { showSettingsSheet = true }) {
+                            Icon(Icons.Default.Settings, null, tint = MaterialTheme.colorScheme.primary)
                         }
                     }
                 }
@@ -467,7 +376,7 @@ private fun InnerCarListScreen(
 
             Box(modifier = Modifier.weight(1f)) {
                 when (state) {
-                    CarListUiState.Loading -> if (currentViewMode == CarListViewMode.LIST) {
+                    CarListUiState.Loading -> {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
@@ -476,23 +385,13 @@ private fun InnerCarListScreen(
                             items(5) { CarCardSkeleton() }
                             item { Spacer(Modifier.height(80.dp)) }
                         }
-                    } else {
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(2),
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            items(6) { CarCardSkeleton() }
-                        }
                     }
                     CarListUiState.Empty -> EmptyState(
                         title = if (searchQuery.isEmpty()) stringResource(R.string.car_list_empty_title) else stringResource(R.string.car_list_no_results_title),
                         subtitle = if (searchQuery.isEmpty()) stringResource(R.string.car_list_empty_subtitle) else stringResource(R.string.car_list_no_results_subtitle),
                         icon = Icons.Outlined.DirectionsCar,
                     )
-                    is CarListUiState.Success -> if (currentViewMode == CarListViewMode.LIST) {
+                    is CarListUiState.Success -> {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
@@ -507,26 +406,6 @@ private fun InnerCarListScreen(
                                 )
                             }
                             item { Spacer(Modifier.height(80.dp)) }
-                        }
-                    } else {
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(2),
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            items(state.cars, key = { it.id }) { car ->
-                                CarGridCard(
-                                    car = car,
-                                    onClick = { onCarClick(car.id) },
-                                    onEditClick = { onEditCarClick(car.id) },
-                                    onDeleteClick = { carToDelete = car.id }
-                                )
-                            }
-                            item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) { 
-                                Spacer(Modifier.height(80.dp)) 
-                            }
                         }
                     }
                     is CarListUiState.Error -> ErrorState(
@@ -579,7 +458,9 @@ private fun SettingsSheetContent(
             leadingContent = { Icon(Icons.Default.Sync, null) },
             trailingContent = {
                 Text(
-                    text = if (currentUnitSystem == com.dariusepure.caractivitylog.domain.UnitSystem.METRIC) "Metric" else "Imperial",
+                    text = if (currentUnitSystem == com.dariusepure.caractivitylog.domain.UnitSystem.METRIC) 
+                        stringResource(R.string.unit_system_metric_label) 
+                    else stringResource(R.string.unit_system_imperial_label),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold

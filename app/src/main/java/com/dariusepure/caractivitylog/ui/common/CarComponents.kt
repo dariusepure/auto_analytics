@@ -351,6 +351,28 @@ fun StatusBadge(
     }
 }
 
+@Composable
+fun StatItem(
+    label: String, 
+    value: String, 
+    color: Color = MaterialTheme.colorScheme.primary,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = label, 
+            style = MaterialTheme.typography.labelSmall, 
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = value, 
+            style = MaterialTheme.typography.titleLarge, 
+            fontWeight = FontWeight.Bold, 
+            color = color
+        )
+    }
+}
+
 /**
  * Text component that automatically scales down font size to fit in 1 line.
  */

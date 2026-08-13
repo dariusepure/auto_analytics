@@ -25,11 +25,6 @@ enum class CarSortOrder(@StringRes val labelRes: Int) {
     YEAR(R.string.sort_year)
 }
 
-enum class CarListViewMode {
-    LIST,
-    GRID
-}
-
 @HiltViewModel
 class CarListViewModel @Inject constructor(
     private val carRepository: CarRepository,
@@ -41,9 +36,6 @@ class CarListViewModel @Inject constructor(
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
-
-    private val _viewMode = MutableStateFlow(CarListViewMode.LIST)
-    val viewMode = _viewMode.asStateFlow()
 
     val state: StateFlow<CarListUiState> = combine(
         carRepository.cars,
@@ -87,10 +79,6 @@ class CarListViewModel @Inject constructor(
 
     fun onSearchQueryChanged(query: String) {
         _searchQuery.value = query
-    }
-
-    fun onViewModeChanged(mode: CarListViewMode) {
-        _viewMode.value = mode
     }
 
     fun onDeleteCar(carId: String) {

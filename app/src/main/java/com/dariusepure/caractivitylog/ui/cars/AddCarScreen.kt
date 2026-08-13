@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.activity.compose.rememberLauncherForActivityResult
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.platform.LocalContext
 import android.graphics.Bitmap
@@ -704,6 +705,7 @@ fun AddCarScreen(
                         val filtered = upperInput.filter { it.isLetterOrDigit() && it !in listOf('I', 'O', 'Q') }
                         if (hasInvalidChars) {
                             showVinError = true
+                            Toast.makeText(context, context.getString(R.string.car_vin_invalid_chars), Toast.LENGTH_SHORT).show()
                         } else if (filtered.length > vin.length) {
                             showVinError = false
                         }

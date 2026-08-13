@@ -3,6 +3,10 @@
 
     <!-- Common -->
     <string name="common_save">Save</string>
+    <string name="common_save_pdf">SAVE PDF</string>
+    <string name="common_date_label">Date</string>
+    <string name="common_expires">Expires</string>
+    <string name="mileage_import_action">Import to Mileage History</string>
     <string name="common_cancel">Cancel</string>
     <string name="common_add">Add</string>
     <string name="common_update">Update</string>
@@ -26,10 +30,23 @@
     <string name="common_language">Language</string>
     <string name="common_sort">Sort</string>
     <string name="common_settings">Settings</string>
+    <string name="common_none">None</string>
+    <string name="common_inspection">Inspection</string>
+    <string name="common_expired">Expired</string>
     <string name="common_powered_by">Developed by Darius DevWorks</string>
     <string name="status_ok">OK</string>
     <string name="status_soon">Soon</string>
     <string name="status_expired">Expired</string>
+
+    <!-- Stats -->
+    <string name="stats_valid_until">Valid until</string>
+    <string name="stats_remaining">Remaining</string>
+    <string name="stats_current_mileage">Current Mileage</string>
+    <string name="stats_total_records">Total Records</string>
+    <string name="stats_avg_interval">Avg Interval</string>
+    <string name="stats_active_set">Active Set</string>
+    <string name="stats_total_sets">Total Sets</string>
+    <string name="stats_days_suffix">%d days</string>
 
     <!-- Units -->
     <string name="unit_days">Days</string>
@@ -172,6 +189,8 @@
     <string name="unit_system_label">Unit System</string>
     <string name="unit_system_metric">Metric (km, L/100km)</string>
     <string name="unit_system_imperial">Imperial (mi, MPG)</string>
+    <string name="unit_system_metric_label">Metric</string>
+    <string name="unit_system_imperial_label">Imperial</string>
 
     <!-- Sorting -->
     <string name="sort_default">Default</string>
@@ -551,4 +570,36 @@
     <string name="validation_negative_value">Value cannot be negative</string>
     <string name="validation_invalid_format">Invalid format</string>
     <string name="validation_dot_week_range">Week must be between 1 and 53</string>
+    <string name="validation_email_blank">Email cannot be blank</string>
+    <string name="validation_email_invalid">Invalid email</string>
+    <string name="validation_password_blank">Password cannot be blank</string>
+    <string name="validation_passwords_mismatch">Passwords do not match</string>
+    <string name="validation_fields_required">All fields are required</string>
+    <string name="validation_brand_model_required">Please provide Brand &amp; Model</string>
+    <string name="validation_vin_length">VIN must be exactly 17 characters if provided</string>
+    <string name="validation_numeric_format">Invalid numeric format for %s</string>
+
+    <!-- Errors -->
+    <string name="error_reset_email_failed">An unexpected error occurred while sending the reset email</string>
+    <string name="error_password_reset_failed">An unexpected error occurred while resetting the password</string>
+    <string name="error_signin_failed">An unexpected error occurred during Sign-In</string>
+    <string name="error_google_signin_failed">An unexpected error occurred during Google Sign-In</string>
+    <string name="error_signup_failed">An error occurred during sign up</string>
+    <string name="error_car_not_found">Car not found</string>
+    <string name="error_generic">An error occurred</string>
+    <string name="error_failed_to_load_car">Failed to load car</string>
+    <string name="error_failed_to_save_car">Failed to save car</string>
+    <string name="error_failed_to_sign_out">Failed to sign out</string>
+    <string name="error_ai_access_denied">AI Access Denied: Please add this SHA-1 to Google Cloud Console for package %1$s: \n\n%2$s</string>
+    <string name="error_ai_model_not_found">AI Model Not Found: Check if \'gemini-1.5-flash\' is the correct model name in your config.</string>
+    <string name="error_ai_generic">AI Error: %s</string>
+    <string name="error_ai_scan_api_key">AI Scan failed: Your API key is invalid or leaked. Please update it.</string>
+    <string name="error_ai_scan_failed">AI Scan failed</string>
+    <string name="error_firestore">Firestore Error: %s</string>
+
+    <!-- Toasts -->
+    <string name="toast_mileage_not_found_photo">No mileage found in photo</string>
+    <string name="toast_mileage_not_found_doc">No mileage records found in document</string>
+    <string name="toast_scan_failed">Scan failed: %s</string>
+    <string name="toast_import_success">Successfully imported %d records</string>
 </resources>

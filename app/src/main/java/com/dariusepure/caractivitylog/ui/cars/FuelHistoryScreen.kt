@@ -98,7 +98,26 @@ fun FuelHistoryScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     item {
-                        FuelStatsCard(s.stats, distUnit, consUnit, volUnit)
+                        Spacer(Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            StatItem(
+                                label = stringResource(R.string.fuel_stats_avg), 
+                                value = s.stats.avgConsumption?.let { String.format(Locale.getDefault(), "%.2f %s", it, consUnit) } ?: "-- $consUnit"
+                            )
+                            StatItem(
+                                label = stringResource(R.string.fuel_stats_total_dist), 
+                                value = "${s.stats.totalDistance.roundToInt()} $distUnit"
+                            )
+                        }
+                        
+                        Spacer(Modifier.height(12.dp))
+                        StatItem(
+                            label = stringResource(R.string.fuel_stats_total_fuel), 
+                            value = String.format(Locale.getDefault(), "%.1f %s", s.stats.totalLiters, volUnit)
+                        )
 
                         if (s.stats.avgConsumption == null && s.logs.isNotEmpty()) {
                             Surface(
@@ -196,40 +215,6 @@ fun FuelHistoryScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun FuelStatsCard(stats: FuelStats, distUnit: String, consUnit: String, volUnit: String) {
-    Card(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-    ) {
-        Column(Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                StatItem(
-                    label = stringResource(R.string.fuel_stats_avg), 
-                    value = stats.avgConsumption?.let { String.format(Locale.getDefault(), "%.2f %s", it, consUnit) } ?: "-- $consUnit"
-                )
-                StatItem(
-                    label = stringResource(R.string.fuel_stats_total_dist), 
-                    value = "${stats.totalDistance.roundToInt()} $distUnit"
-                )
-            }
-            Spacer(Modifier.height(16.dp))
-            StatItem(stringResource(R.string.fuel_stats_total_fuel), String.format(Locale.getDefault(), "%.1f %s", stats.totalLiters, volUnit))
-        }
-    }
-}
-
-@Composable
-fun StatItem(label: String, value: String) {
-    Column {
-        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f))
-        Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
     }
 }
 

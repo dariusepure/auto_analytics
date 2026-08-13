@@ -159,7 +159,7 @@ fun TechnicalSheetScreen(
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text("SAVE PDF")
+                        Text(stringResource(R.string.common_save_pdf))
                     }
                 }
             )
@@ -249,7 +249,7 @@ fun TechnicalSheetScreen(
                     }
 
                     TechnicalCategory(title = stringResource(R.string.car_dimensions_section)) {
-                        val mm = "mm"
+                        val mm = stringResource(R.string.pdf_unit_mm)
                         val dimensionSpecs = mutableListOf(
                             stringResource(R.string.car_tire_size_label) to tireSizeText,
                             stringResource(R.string.car_length_label) to if (car.length > 0) "${car.length}\u00A0$mm" else "",

@@ -207,23 +207,13 @@ fun CarDetailsScreen(
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
                                     containerColor = inspectionColor.copy(alpha = 0.15f)
                                 ) {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize(),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center
-                                    ) {
-                                        Icon(Icons.Default.AssignmentTurnedIn, null, modifier = Modifier.size(48.dp), tint = inspectionColor)
-                                        Spacer(Modifier.height(8.dp))
-                                        Text(
-                                            text = stringResource(R.string.car_inspection_title),
-                                            style = MaterialTheme.typography.titleSmall,
-                                            textAlign = TextAlign.Center
-                                        )
-                                        StatusBadge(
-                                            label = if (latestInspection == null) stringResource(R.string.common_not_applicable) else if (itpDays < 0) stringResource(R.string.status_expired) else if (itpDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
-                                            color = inspectionColor
-                                        )
-                                    }
+                                    Icon(Icons.Default.AssignmentTurnedIn, null, modifier = Modifier.size(48.dp), tint = inspectionColor)
+                                    Spacer(Modifier.height(8.dp))
+                                    Text(text = stringResource(R.string.car_inspection_title), style = MaterialTheme.typography.titleSmall)
+                                    StatusBadge(
+                                        label = if (latestInspection == null) stringResource(R.string.common_not_applicable) else if (itpDays < 0) stringResource(R.string.status_expired) else if (itpDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        color = inspectionColor
+                                    )
                                 }
                             }
                         }
@@ -238,23 +228,13 @@ fun CarDetailsScreen(
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
                                     containerColor = insuranceColor.copy(alpha = 0.15f)
                                 ) {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize(),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center
-                                    ) {
-                                        Icon(Icons.Default.Security, null, modifier = Modifier.size(48.dp), tint = insuranceColor)
-                                        Spacer(Modifier.height(8.dp))
-                                        Text(
-                                            text = stringResource(R.string.car_insurance_title),
-                                            style = MaterialTheme.typography.titleSmall,
-                                            textAlign = TextAlign.Center
-                                        )
-                                        StatusBadge(
-                                            label = if (latestInsurance == null) stringResource(R.string.common_not_applicable) else if (rcaDays < 0) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
-                                            color = insuranceColor
-                                        )
-                                    }
+                                    Icon(Icons.Default.Security, null, modifier = Modifier.size(48.dp), tint = insuranceColor)
+                                    Spacer(Modifier.height(8.dp))
+                                    Text(text = stringResource(R.string.car_insurance_title), style = MaterialTheme.typography.titleSmall)
+                                    StatusBadge(
+                                        label = if (latestInsurance == null) stringResource(R.string.common_not_applicable) else if (rcaDays < 0) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        color = insuranceColor
+                                    )
                                 }
                                 val latestVignette = s.vignettes.maxByOrNull { it.date }
                                 val vignetteColor = getStatusColor(latestVignette?.expiryDate)
@@ -265,23 +245,13 @@ fun CarDetailsScreen(
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
                                     containerColor = vignetteColor.copy(alpha = 0.15f)
                                 ) {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize(),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center
-                                    ) {
-                                        Icon(Icons.Default.ConfirmationNumber, null, modifier = Modifier.size(48.dp), tint = vignetteColor)
-                                        Spacer(Modifier.height(8.dp))
-                                        Text(
-                                            text = stringResource(R.string.car_vignette_title),
-                                            style = MaterialTheme.typography.titleSmall,
-                                            textAlign = TextAlign.Center
-                                        )
-                                        StatusBadge(
-                                            label = if (latestVignette == null) stringResource(R.string.common_not_applicable) else if (vigDays < 0) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
-                                            color = vignetteColor
-                                        )
-                                    }
+                                    Icon(Icons.Default.ConfirmationNumber, null, modifier = Modifier.size(48.dp), tint = vignetteColor)
+                                    Spacer(Modifier.height(8.dp))
+                                    Text(text = stringResource(R.string.car_vignette_title), style = MaterialTheme.typography.titleSmall)
+                                    StatusBadge(
+                                        label = if (latestVignette == null) stringResource(R.string.common_not_applicable) else if (vigDays < 0) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        color = vignetteColor
+                                    )
                                 }
                                 BentoCard(
                                     onClick = onFuelClick,
@@ -397,23 +367,18 @@ else {
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
                                     containerColor = inspectionColor.copy(alpha = 0.15f)
                                 ) {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize(),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center
-                                    ) {
-                                        Icon(Icons.Default.AssignmentTurnedIn, null, modifier = Modifier.size(56.dp), tint = inspectionColor)
-                                        Spacer(Modifier.weight(1f))
-                                        Text(
-                                            text = stringResource(R.string.car_inspection_title),
-                                            style = MaterialTheme.typography.titleSmall,
-                                            textAlign = TextAlign.Center
-                                        )
-                                        StatusBadge(
-                                            label = if (latestInspection == null) stringResource(R.string.common_not_applicable) else if (itpDays < 0) stringResource(R.string.status_expired) else if (itpDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
-                                            color = inspectionColor
-                                        )
-                                    }
+                                    Icon(Icons.Default.AssignmentTurnedIn, null, modifier = Modifier.size(56.dp), tint = inspectionColor)
+                                    Spacer(Modifier.weight(1f))
+                                    Text(
+                                        text = stringResource(R.string.car_inspection_title),
+                                        style = MaterialTheme.typography.titleSmall,
+                                        softWrap = true,
+                                        maxLines = 2
+                                    )
+                                    StatusBadge(
+                                        label = if (latestInspection == null) stringResource(R.string.common_not_applicable) else if (itpDays < 0) stringResource(R.string.status_expired) else if (itpDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        color = inspectionColor
+                                    )
                                 }
 
                                 val latestInsurance = s.insurances.maxByOrNull { it.date }
@@ -425,23 +390,18 @@ else {
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
                                     containerColor = insuranceColor.copy(alpha = 0.15f)
                                 ) {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize(),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center
-                                    ) {
-                                        Icon(Icons.Default.Security, null, modifier = Modifier.size(56.dp), tint = insuranceColor)
-                                        Spacer(Modifier.weight(1f))
-                                        Text(
-                                            text = stringResource(R.string.car_insurance_title),
-                                            style = MaterialTheme.typography.titleSmall,
-                                            textAlign = TextAlign.Center
-                                        )
-                                        StatusBadge(
-                                            label = if (latestInsurance == null) stringResource(R.string.common_not_applicable) else if (rcaDays < 0) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
-                                            color = insuranceColor
-                                        )
-                                    }
+                                    Icon(Icons.Default.Security, null, modifier = Modifier.size(56.dp), tint = insuranceColor)
+                                    Spacer(Modifier.weight(1f))
+                                    Text(
+                                        text = stringResource(R.string.car_insurance_title),
+                                        style = MaterialTheme.typography.titleSmall,
+                                        softWrap = true,
+                                        maxLines = 2
+                                    )
+                                    StatusBadge(
+                                        label = if (latestInsurance == null) stringResource(R.string.common_not_applicable) else if (rcaDays < 0) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        color = insuranceColor
+                                    )
                                 }
 
                                 val latestVignette = s.vignettes.maxByOrNull { it.date }
@@ -453,23 +413,18 @@ else {
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
                                     containerColor = vignetteColor.copy(alpha = 0.15f)
                                 ) {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize(),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center
-                                    ) {
-                                        Icon(Icons.Default.ConfirmationNumber, null, modifier = Modifier.size(56.dp), tint = vignetteColor)
-                                        Spacer(Modifier.weight(1f))
-                                        Text(
-                                            text = stringResource(R.string.car_vignette_title),
-                                            style = MaterialTheme.typography.titleSmall,
-                                            textAlign = TextAlign.Center
-                                        )
-                                        StatusBadge(
-                                            label = if (latestVignette == null) stringResource(R.string.common_not_applicable) else if (vigDays < 0) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
-                                            color = vignetteColor
-                                        )
-                                    }
+                                    Icon(Icons.Default.ConfirmationNumber, null, modifier = Modifier.size(56.dp), tint = vignetteColor)
+                                    Spacer(Modifier.weight(1f))
+                                    Text(
+                                        text = stringResource(R.string.car_vignette_title),
+                                        style = MaterialTheme.typography.titleSmall,
+                                        softWrap = true,
+                                        maxLines = 2
+                                    )
+                                    StatusBadge(
+                                        label = if (latestVignette == null) stringResource(R.string.common_not_applicable) else if (vigDays < 0) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        color = vignetteColor
+                                    )
                                 }
                             }
                         }

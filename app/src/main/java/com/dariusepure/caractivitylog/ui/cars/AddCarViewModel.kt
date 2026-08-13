@@ -19,19 +19,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
 import kotlin.math.roundToInt
+import com.dariusepure.caractivitylog.R
 
 @HiltViewModel
 class AddCarViewModel @Inject constructor(
     private val carRepository: CarRepository,
     private val authRepository: AuthRepository,
     private val geminiRepository: GeminiRepository,
-    private val preferenceRepository: PreferenceRepository
+    private val preferenceRepository: PreferenceRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<AddCarState>(AddCarState.Idle)
@@ -60,7 +60,7 @@ class AddCarViewModel @Inject constructor(
                     _state.value = AddCarState.Idle
                 }
             } catch (e: Exception) {
-                _state.value = AddCarState.Error(e.localizedMessage ?: "Failed to load car")
+                _state.value = AddCarState.Error(e.localizedMessage ?: context.getString(R.string.error_failed_to_load_car))
             }
         }
     }
@@ -78,9 +78,9 @@ class AddCarViewModel @Inject constructor(
                 .onFailure { e ->
                     val message = when {
                         e.message?.contains("403") == true || e.message?.contains("PERMISSION_DENIED") == true -> {
-                            "AI Scan failed: Your API key is invalid or leaked. Please update it."
+                            context.getString(R.string.error_ai_scan_api_key)
                         }
-                        else -> e.localizedMessage ?: "AI Scan failed"
+                        else -> e.localizedMessage ?: context.getString(R.string.error_ai_scan_failed)
                     }
                     _state.value = AddCarState.Error(message)
                 }
@@ -98,9 +98,9 @@ class AddCarViewModel @Inject constructor(
                 .onFailure { e ->
                     val message = when {
                         e.message?.contains("403") == true || e.message?.contains("PERMISSION_DENIED") == true -> {
-                            "AI Scan failed: Your API key is invalid or leaked. Please update it."
+                            context.getString(R.string.error_ai_scan_api_key)
                         }
-                        else -> e.localizedMessage ?: "AI Scan failed"
+                        else -> e.localizedMessage ?: context.getString(R.string.error_ai_scan_failed)
                     }
                     _state.value = AddCarState.Error(message)
                 }
@@ -158,53 +158,51 @@ class AddCarViewModel @Inject constructor(
         co2Emissions: String = ""
     ) {
         if (make.isBlank() || model.isBlank()) {
-            _state.value = AddCarState.Error("Please provide Brand & Model")
+            _state.value = AddCarState.Error(context.getString(R.string.validation_brand_model_required))
             return
         }
 
-        // VIN validation: empty is okay (optional), but if not empty must be 17 chars
         if (vin.isNotBlank() && vin.length != 17) {
-            _state.value = AddCarState.Error("VIN must be exactly 17 characters if provided")
+            _state.value = AddCarState.Error(context.getString(R.string.validation_vin_length))
             return
         }
 
-        // Numeric validations to prevent negative values
         val numericFields = mapOf(
-            "Year" to year,
-            "Power" to power,
-            "Torque" to torque,
-            "Length" to length,
-            "Width" to width,
-            "Height" to height,
-            "Wheelbase" to wheelbase,
-            "Fuel Tank Capacity" to fuelTankCapacity,
-            "Battery Capacity" to batteryCapacity,
-            "Top Speed" to topSpeed,
-            "Weight" to weight,
-            "Seats" to numberOfSeats,
-            "Cylinders" to numberOfCylinders,
-            "Valves/Cyl" to valvesPerCylinder,
-            "Doors" to numberOfDoors,
-            "Boot Space" to bootSpace,
-            "Tire Width" to tireWidth,
-            "Tire Ratio" to tireAspectRatio,
-            "Tire Diameter" to tireDiameter,
-            "Acceleration" to acceleration0to100,
-            "Consumption Mixed" to fuelConsumptionCombined,
-            "Consumption Urban" to fuelConsumptionUrban,
-            "Consumption Extra-Urban" to fuelConsumptionExtraUrban,
-            "CO2" to co2Emissions
+            context.getString(R.string.car_year_label) to year,
+            context.getString(R.string.car_power_label) to power,
+            context.getString(R.string.car_torque_label) to torque,
+            context.getString(R.string.car_length_label) to length,
+            context.getString(R.string.car_width_label) to width,
+            context.getString(R.string.car_height_label) to height,
+            context.getString(R.string.car_wheelbase_label) to wheelbase,
+            context.getString(R.string.car_fuel_tank_capacity_label) to fuelTankCapacity,
+            context.getString(R.string.car_battery_capacity_label) to batteryCapacity,
+            context.getString(R.string.car_top_speed_label) to topSpeed,
+            context.getString(R.string.car_weight_label) to weight,
+            context.getString(R.string.car_seats_label) to numberOfSeats,
+            context.getString(R.string.car_cylinders_label) to numberOfCylinders,
+            context.getString(R.string.car_valves_per_cyl_label) to valvesPerCylinder,
+            context.getString(R.string.car_doors_label) to numberOfDoors,
+            context.getString(R.string.car_boot_label) to bootSpace,
+            context.getString(R.string.car_tire_width_label) to tireWidth,
+            context.getString(R.string.car_tire_ratio_label) to tireAspectRatio,
+            context.getString(R.string.car_tire_diam_label) to tireDiameter,
+            context.getString(R.string.car_acceleration_label) to acceleration0to100,
+            context.getString(R.string.car_consumption_label) to fuelConsumptionCombined,
+            context.getString(R.string.car_consumption_urban_label) to fuelConsumptionUrban,
+            context.getString(R.string.car_consumption_extra_urban_label) to fuelConsumptionExtraUrban,
+            context.getString(R.string.car_co2_label) to co2Emissions
         )
 
         for ((label, value) in numericFields) {
             if (value.isNotBlank()) {
                 val dValue = value.toDoubleOrNull()
                 if (dValue == null) {
-                    _state.value = AddCarState.Error("Invalid numeric format for $label")
+                    _state.value = AddCarState.Error(context.getString(R.string.validation_numeric_format, label))
                     return
                 }
                 if (dValue < 0) {
-                    _state.value = AddCarState.Error("$label cannot be negative")
+                    _state.value = AddCarState.Error(context.getString(R.string.validation_negative_value))
                     return
                 }
             }
@@ -219,10 +217,6 @@ class AddCarViewModel @Inject constructor(
                 val inputTopSpeed = topSpeed.toDoubleOrNull() ?: 0.0
                 val canonicalTopSpeed = CarFormatters.toCanonicalSpeed(inputTopSpeed, usesMiles)
 
-                var finalPower = power.toDoubleOrNull()?.roundToInt() ?: 0
-                // If country changed and units differ, we could convert power too? 
-                // But request was specifically for mileage conversion and country selection.
-
                 val car = Car(
                     id = currentCarId ?: "",
                     name = "",
@@ -236,7 +230,7 @@ class AddCarViewModel @Inject constructor(
                     fuelType = fuelType,
                     fuelSystem = fuelSystem,
                     color = color,
-                    power = finalPower,
+                    power = power.toDoubleOrNull()?.roundToInt() ?: 0,
                     powerUnit = powerUnit,
                     torque = torque.toDoubleOrNull()?.roundToInt() ?: 0,
                     engineCode = engineCode,
@@ -279,12 +273,10 @@ class AddCarViewModel @Inject constructor(
 
                 carRepository.createCar(car)
                 _state.value = AddCarState.Success
-
-                // 2. Folosim trySend() care trimite instant semnalul de back și deblochează ecranul
                 _navigationEvent.trySend(Unit)
 
             } catch (e: Exception) {
-                _state.value = AddCarState.Error(e.localizedMessage ?: "Failed to save car")
+                _state.value = AddCarState.Error(e.localizedMessage ?: context.getString(R.string.error_failed_to_save_car))
             }
         }
     }
@@ -295,7 +287,7 @@ class AddCarViewModel @Inject constructor(
                 authRepository.signOut()
                 _logoutEvent.trySend(Unit)
             } catch (e: Exception) {
-                _state.value = AddCarState.Error(e.localizedMessage ?: "Failed to sign out")
+                _state.value = AddCarState.Error(e.localizedMessage ?: context.getString(R.string.error_failed_to_sign_out))
             }
         }
     }
@@ -305,4 +297,3 @@ class AddCarViewModel @Inject constructor(
         currentCarId = null
     }
 }
-

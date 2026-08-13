@@ -1,18 +1,22 @@
 package com.dariusepure.caractivitylog.ui.auth
 
-import android.util.Patterns
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.data.auth.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import android.util.Patterns
 
 @HiltViewModel
 class ForgotPasswordViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val _state = MutableStateFlow<ForgotPasswordState>(ForgotPasswordState.Idle)
     val state: StateFlow<ForgotPasswordState>
@@ -20,11 +24,11 @@ class ForgotPasswordViewModel @Inject constructor(
 
     fun onSendResetEmail(email: String) {
         if (email.isBlank()) {
-            _state.value = ForgotPasswordState.Error("Email cannot be blank")
+            _state.value = ForgotPasswordState.Error(context.getString(R.string.validation_email_blank))
             return
         }
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            _state.value = ForgotPasswordState.Error("Invalid email")
+            _state.value = ForgotPasswordState.Error(context.getString(R.string.validation_email_invalid))
             return
         }
 
@@ -35,13 +39,9 @@ class ForgotPasswordViewModel @Inject constructor(
                 _state.value = ForgotPasswordState.Success
             } catch (exception: Exception) {
                 _state.value = ForgotPasswordState.Error(
-                    exception.message ?: "An unexpected error occurred while sending the reset email"
+                    exception.message ?: context.getString(R.string.error_reset_email_failed)
                 )
             }
         }
-    }
-    
-    fun resetState() {
-        _state.value = ForgotPasswordState.Idle
     }
 }

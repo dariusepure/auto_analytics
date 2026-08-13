@@ -16,13 +16,14 @@
 
 ### 🛠️ Comprehensive Vehicle Management
 - **Exhaustive Technical Profiles**: Track everything from engine layout and cylinder configuration to tire dimensions and brake types.
+- **Bento-Style History Screens**: Redesigned history logs for **Service**, **Tires**, **ITP**, **RCA**, and **Vignettes** featuring real-time statistics cards and a modern list layout.
 - **Smart Mileage History**: 
-  - **Unified Log**: A central place to track your vehicle's odometer progress.
-  - **Intelligent Import**: One-tap import of mileage records from **Fuel**, **Service**, and **Technical Inspection (ITP)** logs.
-- **Maintenance & Service**: Keep a detailed technical log of every repair, oil change, or part replacement.
-- **Tire Management**: Track active and stored tire sets with DOT and size specifications.
-- **Fuel Consumption**: Log fillings, track efficiency, and visualize trends with interactive **Vico Charts**.
-- **Legal Document Tracking**: Stay ahead of deadlines with history and expiration alerts for **ITP**, **Insurance (RCA)**, and **Vignettes**.
+  - **Unified Log**: A central place to track your vehicle's odometer progress with interactive **Vico Charts**.
+  - **Intelligent Import**: One-tap import of mileage records from **Fuel**, **Service**, and **ITP** logs.
+- **Maintenance & Service**: Keep a detailed technical log of every repair, oil change, or part replacement with average interval tracking.
+- **Tire Management**: Track active and stored tire sets with DOT, seasonal classification, and size specifications.
+- **Fuel Consumption**: Log fillings in **Liters** or **Gallons**, track efficiency (L/100km or MPG), and visualize trends.
+- **Legal Document Tracking**: Stay ahead of deadlines for **ITP**, **Insurance (RCA)**, and **Vignettes** with color-coded status indicators and validity counters.
 
 ### 🔐 Secure Access & Sync
 - **Modern Authentication**: Sign in with Email/Password, **Google One Tap**, or explore as a **Guest**.
@@ -31,7 +32,8 @@
 
 ### 🌗 Premium UI/UX
 - **Material Design 3 (M3)**: A beautiful, modern interface using the latest adaptive components.
-- **Adaptive Theming**: Native support for Light Mode and a deep **OLED Black Dark Mode**.
+- **Global Unit System**: Full support for both **Metric** (km, L) and **Imperial** (mi, gal) units, switchable instantly from settings.
+- **Modern Settings Interface**: A centralized **Modal Bottom Sheet** for managing theme, language, and measurement units.
 - **Multi-Language Support**: Full localization for **English** and **Romanian**.
 - **Edge-to-Edge**: Immersive experience with content flowing elegantly behind system bars.
 
