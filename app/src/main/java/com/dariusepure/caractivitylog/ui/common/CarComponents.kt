@@ -1,12 +1,3 @@
-/*
- * Copyright (C) 2026 Darius Epure (Darius DevWorks)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
-
 package com.dariusepure.caractivitylog.ui.common
 
 import androidx.compose.animation.AnimatedVisibility
@@ -38,6 +29,7 @@ import com.dariusepure.caractivitylog.domain.TireSet
 import com.dariusepure.caractivitylog.domain.VehicleInspection
 import com.dariusepure.caractivitylog.domain.Vignette
 import com.dariusepure.caractivitylog.ui.cars.europeanCountries
+import com.dariusepure.caractivitylog.ui.theme.statusExpiredRed
 import java.util.Locale
 import kotlin.math.roundToInt
 
@@ -75,47 +67,14 @@ fun InsuranceItem(
             Text(
                 text = stringResource(R.string.formatter_inspection_valid_until, CarFormatters.formatDate(insurance.expiryDate)),
                 style = MaterialTheme.typography.labelSmall,
-                color = if (insurance.expiryDate.before(java.util.Date())) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
+                color = if (insurance.expiryDate.before(java.util.Date())) statusExpiredRed else MaterialTheme.colorScheme.secondary
             )
         }
 
-        val editTooltipState = rememberTooltipState()
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-            tooltip = {
-                PlainTooltip {
-                    Text(stringResource(R.string.common_edit))
-                }
-            },
-            state = editTooltipState
-        ) {
-            IconButton(onClick = onEditClick) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = stringResource(R.string.common_edit),
-                    tint = Color(0xFF1A73E8)
-                )
-            }
-        }
-        
-        val deleteTooltipState = rememberTooltipState()
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-            tooltip = {
-                PlainTooltip {
-                    Text(stringResource(R.string.common_delete))
-                }
-            },
-            state = deleteTooltipState
-        ) {
-            IconButton(onClick = onDeleteClick) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = stringResource(R.string.common_delete),
-                    tint = Color.Red
-                )
-            }
-        }
+        ActionButtons(
+            onEdit = onEditClick,
+            onDelete = onDeleteClick
+        )
     }
 }
 
@@ -158,47 +117,14 @@ fun VignetteItem(
             Text(
                 text = stringResource(R.string.formatter_inspection_valid_until, CarFormatters.formatDate(vignette.expiryDate)),
                 style = MaterialTheme.typography.labelSmall,
-                color = if (vignette.expiryDate.before(java.util.Date())) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
+                color = if (vignette.expiryDate.before(java.util.Date())) statusExpiredRed else MaterialTheme.colorScheme.secondary
             )
         }
 
-        val editTooltipState = rememberTooltipState()
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-            tooltip = {
-                PlainTooltip {
-                    Text(stringResource(R.string.common_edit))
-                }
-            },
-            state = editTooltipState
-        ) {
-            IconButton(onClick = onEditClick) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = stringResource(R.string.common_edit),
-                    tint = Color(0xFF1A73E8)
-                )
-            }
-        }
-        
-        val deleteTooltipState = rememberTooltipState()
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-            tooltip = {
-                PlainTooltip {
-                    Text(stringResource(R.string.common_delete))
-                }
-            },
-            state = deleteTooltipState
-        ) {
-            IconButton(onClick = onDeleteClick) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = stringResource(R.string.common_delete),
-                    tint = Color.Red
-                )
-            }
-        }
+        ActionButtons(
+            onEdit = onEditClick,
+            onDelete = onDeleteClick
+        )
     }
 }
 
@@ -265,43 +191,10 @@ fun TireSetItem(
             }
         }
 
-        val editTooltipState = rememberTooltipState()
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-            tooltip = {
-                PlainTooltip {
-                    Text(stringResource(R.string.common_edit))
-                }
-            },
-            state = editTooltipState
-        ) {
-            IconButton(onClick = onEditClick) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = stringResource(R.string.common_edit),
-                    tint = Color(0xFF1A73E8)
-                )
-            }
-        }
-        
-        val deleteTooltipState = rememberTooltipState()
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-            tooltip = {
-                PlainTooltip {
-                    Text(stringResource(R.string.common_delete))
-                }
-            },
-            state = deleteTooltipState
-        ) {
-            IconButton(onClick = onDeleteClick) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = stringResource(R.string.common_delete),
-                    tint = Color.Red
-                )
-            }
-        }
+        ActionButtons(
+            onEdit = onEditClick,
+            onDelete = onDeleteClick
+        )
     }
 }
 
@@ -371,16 +264,14 @@ fun InspectionItem(
             Text(
                 text = stringResource(R.string.formatter_inspection_valid_until, CarFormatters.formatDate(inspection.expiryDate)),
                 style = MaterialTheme.typography.labelSmall,
-                color = if (inspection.expiryDate.before(java.util.Date())) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary
+                color = if (inspection.expiryDate.before(java.util.Date())) statusExpiredRed else MaterialTheme.colorScheme.secondary
             )
         }
 
-        IconButton(onClick = onEditClick) {
-            Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.common_edit), tint = Color(0xFF1A73E8))
-        }
-        IconButton(onClick = onDeleteClick) {
-            Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.common_delete), tint = Color.Red)
-        }
+        ActionButtons(
+            onEdit = onEditClick,
+            onDelete = onDeleteClick
+        )
     }
 }
 
@@ -411,12 +302,10 @@ fun MileageItem(
             )
         }
 
-        IconButton(onClick = onEditClick) {
-            Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.common_edit), tint = Color(0xFF1A73E8))
-        }
-        IconButton(onClick = onDeleteClick) {
-            Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.common_delete), tint = Color.Red)
-        }
+        ActionButtons(
+            onEdit = onEditClick,
+            onDelete = onDeleteClick
+        )
     }
 }
 
@@ -500,5 +389,61 @@ fun AutoSizeText(
             }
         }
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ActionButtons(
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
+    editLabel: String = stringResource(R.string.common_edit),
+    deleteLabel: String = stringResource(R.string.common_delete),
+    accentColor: Color = Color(0xFF1A73E8),
+    deleteColor: Color = statusExpiredRed,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = verticalAlignment,
+        horizontalArrangement = horizontalArrangement
+    ) {
+        val editTooltipState = rememberTooltipState()
+        TooltipBox(
+            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+            tooltip = { PlainTooltip { Text(editLabel) } },
+            state = editTooltipState
+        ) {
+            FilledIconButton(
+                onClick = onEdit,
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = accentColor,
+                    contentColor = Color.White
+                ),
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(Icons.Default.Edit, null, modifier = Modifier.size(18.dp))
+            }
+        }
+        
+        val deleteTooltipState = rememberTooltipState()
+        TooltipBox(
+            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+            tooltip = { PlainTooltip { Text(deleteLabel) } },
+            state = deleteTooltipState
+        ) {
+            FilledIconButton(
+                onClick = onDelete,
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = deleteColor,
+                    contentColor = Color.White
+                ),
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(Icons.Default.Delete, null, modifier = Modifier.size(18.dp))
+            }
+        }
+    }
 }
 

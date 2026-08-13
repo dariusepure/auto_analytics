@@ -1,12 +1,3 @@
-/*
- * Copyright (C) 2026 Darius Epure (Darius DevWorks)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
-
 package com.dariusepure.caractivitylog.ui.common
 
 import com.dariusepure.caractivitylog.domain.Car
@@ -19,6 +10,8 @@ import kotlin.math.roundToInt
 object CarFormatters {
     private val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
     private const val MILE_RATIO = 1.609344
+    private const val GALLON_UK_TO_LITER = 4.54609
+    private const val MPG_UK_CONSTANT = 282.481
 
     fun toCanonicalDistance(value: Double, usesMiles: Boolean): Double {
         return if (usesMiles) value * MILE_RATIO else value
@@ -34,6 +27,40 @@ object CarFormatters {
 
     fun fromCanonicalSpeed(value: Double, usesMiles: Boolean): Double {
         return if (usesMiles) value / MILE_RATIO else value
+    }
+
+    /**
+     * Converts consumption to canonical (L/100km).
+     * If usesMiles is true, input is MPG (UK).
+     */
+    fun toCanonicalConsumption(value: Double, usesMiles: Boolean): Double {
+        if (value <= 0) return 0.0
+        return if (usesMiles) MPG_UK_CONSTANT / value else value
+    }
+
+    /**
+     * Converts canonical (L/100km) to display unit.
+     * If usesMiles is true, returns MPG (UK).
+     */
+    fun fromCanonicalConsumption(value: Double, usesMiles: Boolean): Double {
+        if (value <= 0) return 0.0
+        return if (usesMiles) MPG_UK_CONSTANT / value else value
+    }
+
+    /**
+     * Converts canonical (Liters) to display unit.
+     * If usesMiles is true, returns Gallons (UK).
+     */
+    fun fromCanonicalVolume(value: Double, usesMiles: Boolean): Double {
+        return if (usesMiles) value / GALLON_UK_TO_LITER else value
+    }
+
+    /**
+     * Converts display volume to canonical (Liters).
+     * If usesMiles is true, input is Gallons (UK).
+     */
+    fun toCanonicalVolume(value: Double, usesMiles: Boolean): Double {
+        return if (usesMiles) value * GALLON_UK_TO_LITER else value
     }
 
     fun formatPower(context: android.content.Context, car: Car): String {

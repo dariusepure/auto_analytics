@@ -1,20 +1,13 @@
-/*
- * Copyright (C) 2026 Darius Epure (Darius DevWorks)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
-
 package com.dariusepure.caractivitylog.ui.cars
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dariusepure.caractivitylog.data.cars.CarRepository
+import com.dariusepure.caractivitylog.data.prefs.PreferenceRepository
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.FuelLog
 import com.dariusepure.caractivitylog.domain.MileageLog
+import com.dariusepure.caractivitylog.domain.UnitSystem
 import com.dariusepure.caractivitylog.ui.common.CarFormatters
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,14 +34,16 @@ sealed class FuelHistoryUiState {
         val car: Car,
         val logs: List<FuelLogWithConsumption>,
         val stats: FuelStats,
-        val mileageLogs: List<MileageLog>
+        val mileageLogs: List<MileageLog>,
+        val unitSystem: UnitSystem
     ) : FuelHistoryUiState()
     data class Error(val message: String) : FuelHistoryUiState()
 }
 
 @HiltViewModel
 class FuelHistoryViewModel @Inject constructor(
-    private val carRepository: CarRepository
+    private val carRepository: CarRepository,
+    private val preferenceRepository: PreferenceRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<FuelHistoryUiState>(FuelHistoryUiState.Loading)
@@ -59,13 +54,14 @@ class FuelHistoryViewModel @Inject constructor(
             combine(
                 carRepository.getCarFlow(carId),
                 carRepository.getFuelLogs(carId),
-                carRepository.getMileageLogs(carId)
-            ) { car, fuelLogs, mileageLogs ->
+                carRepository.getMileageLogs(carId),
+                preferenceRepository.unitSystem
+            ) { car, fuelLogs, mileageLogs, unitSystem ->
                 if (car != null) {
-                    val usesMiles = europeanCountries.find { it.code == car.plateCountry }?.usesMiles == true
+                    val usesMiles = unitSystem == UnitSystem.IMPERIAL
                     val processedLogs = calculateConsumption(fuelLogs, usesMiles)
                     val stats = calculateStats(fuelLogs, usesMiles)
-                    FuelHistoryUiState.Success(car, processedLogs, stats, mileageLogs)
+                    FuelHistoryUiState.Success(car, processedLogs, stats, mileageLogs, unitSystem)
                 } else {
                     FuelHistoryUiState.Error("Car not found")
                 }
@@ -154,20 +150,22 @@ class FuelHistoryViewModel @Inject constructor(
         
         return FuelStats(
             avgConsumption = avgConsumption,
-            totalLiters = totalLiters,
+            totalLiters = CarFormatters.fromCanonicalVolume(totalLiters, usesMiles),
             totalDistance = CarFormatters.fromCanonicalDistance(totalDistanceCanonical, usesMiles)
         )
     }
 
-    fun addFuelLog(carId: String, kmCanonical: Double, liters: Double, isFullTank: Boolean, date: Date) {
+    fun addFuelLog(carId: String, kmCanonical: Double, litersDisplay: Double, isFullTank: Boolean, date: Date, usesMiles: Boolean) {
         viewModelScope.launch {
-            carRepository.addFuelLog(carId, FuelLog(km = kmCanonical, liters = liters, isFullTank = isFullTank, date = date))
+            val litersCanonical = CarFormatters.toCanonicalVolume(litersDisplay, usesMiles)
+            carRepository.addFuelLog(carId, FuelLog(km = kmCanonical, liters = litersCanonical, isFullTank = isFullTank, date = date))
         }
     }
 
-    fun updateFuelLog(carId: String, log: FuelLog) {
+    fun updateFuelLog(carId: String, log: FuelLog, litersDisplay: Double, usesMiles: Boolean) {
         viewModelScope.launch {
-            carRepository.updateFuelLog(carId, log)
+            val litersCanonical = CarFormatters.toCanonicalVolume(litersDisplay, usesMiles)
+            carRepository.updateFuelLog(carId, log.copy(liters = litersCanonical))
         }
     }
 

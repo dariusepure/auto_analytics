@@ -1,12 +1,3 @@
-/*
- * Copyright (C) 2026 Darius Epure (Darius DevWorks)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
-
 package com.dariusepure.caractivitylog.ui.cars
 
 import android.graphics.Bitmap
@@ -15,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dariusepure.caractivitylog.data.ai.GeminiRepository
 import com.dariusepure.caractivitylog.data.cars.CarRepository
+import com.dariusepure.caractivitylog.data.prefs.PreferenceRepository
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.FuelLog
 import com.dariusepure.caractivitylog.domain.MileageLog
@@ -23,6 +15,7 @@ import com.dariusepure.caractivitylog.domain.Vignette
 import com.dariusepure.caractivitylog.domain.TireSet
 import com.dariusepure.caractivitylog.domain.Maintenance
 import com.dariusepure.caractivitylog.domain.ScannedMileageEntry
+import com.dariusepure.caractivitylog.domain.UnitSystem
 import com.dariusepure.caractivitylog.domain.VehicleInspection
 import com.dariusepure.caractivitylog.util.DiagnosticUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -55,6 +48,7 @@ sealed class CarDetailsUiState {
         val tireSets: List<TireSet> = emptyList(),
         val fuelLogs: List<FuelLog> = emptyList(),
         val maintenanceLogs: List<Maintenance> = emptyList(),
+        val unitSystem: UnitSystem = UnitSystem.METRIC,
         val isScanning: Boolean = false
     ) : CarDetailsUiState()
     data class Error(val message: String) : CarDetailsUiState()
@@ -64,7 +58,8 @@ sealed class CarDetailsUiState {
 class CarDetailsViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val carRepository: CarRepository,
-    private val geminiRepository: GeminiRepository
+    private val geminiRepository: GeminiRepository,
+    private val preferenceRepository: PreferenceRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<CarDetailsUiState>(CarDetailsUiState.Loading)
@@ -100,7 +95,8 @@ class CarDetailsViewModel @Inject constructor(
                     vignettesFlow,
                     tireSetsFlow,
                     fuelLogsFlow,
-                    maintenanceFlow
+                    maintenanceFlow,
+                    preferenceRepository.unitSystem
                 ) { args: Array<Any?> ->
                     val car = args[0] as? Car
                     val logs = args[1] as List<MileageLog>
@@ -110,13 +106,14 @@ class CarDetailsViewModel @Inject constructor(
                     val tireSets = args[5] as List<TireSet>
                     val fuelLogs = args[6] as List<FuelLog>
                     val maintenance = args[7] as List<Maintenance>
+                    val unitSystem = args[8] as UnitSystem
 
                     if (car != null) {
                         val currentState = _state.value as? CarDetailsUiState.Success
                         val currentScanning = currentState?.isScanning ?: false
                         CarDetailsUiState.Success(
                             car, logs, inspections, insurances, vignettes, 
-                            tireSets, fuelLogs, maintenance, 
+                            tireSets, fuelLogs, maintenance, unitSystem,
                             currentScanning
                         )
                     } else {

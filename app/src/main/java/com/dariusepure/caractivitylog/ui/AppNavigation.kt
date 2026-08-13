@@ -1,12 +1,3 @@
-/*
- * Copyright (C) 2026 Darius Epure (Darius DevWorks)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
-
 package com.dariusepure.caractivitylog.ui
 
 import androidx.compose.material3.Text
@@ -41,7 +32,7 @@ import com.dariusepure.caractivitylog.ui.cars.ServiceHistoryScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.ui.common.LoadingState
-import com.dariusepure.caractivitylog.ui.theme.ThemeViewModel
+import com.dariusepure.caractivitylog.ui.theme.SettingsViewModel
 
 sealed class Screen(val route: String) {
     data object SignIn : Screen("signin")
@@ -96,10 +87,12 @@ fun AppNavigation(
     navController: NavHostController = rememberNavController(),
     startDestination: String? = null,
     mainViewModel: MainViewModel = hiltViewModel(),
-    themeViewModel: ThemeViewModel = hiltViewModel(),
+    settingsViewModel: SettingsViewModel = hiltViewModel(),
     windowSizeClass: WindowSizeClass? = null
 ) {
     val signedIn by mainViewModel.signedIn.collectAsStateWithLifecycle()
+
+    android.util.Log.d("AppNavigation", "signedIn state: $signedIn, startDestination: $startDestination")
 
     if (signedIn == null && startDestination == null) {
         LoadingState()
@@ -177,7 +170,7 @@ fun AppNavigation(
                         popUpTo(navController.graph.id) { inclusive = true }
                     }
                 },
-                themeViewModel = themeViewModel
+                settingsViewModel = settingsViewModel
             )
         }
         composable(Screen.CarDetails.route) { backStackEntry ->

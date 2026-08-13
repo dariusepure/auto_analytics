@@ -15,6 +15,7 @@
     <string name="common_error_title">Ceva nu a mers bine</string>
     <string name="common_date">Data</string>
     <string name="common_distance">Distanță (%s)</string>
+    <string name="common_mileage">Kilometraj (%s)</string>
     <string name="common_unit">Unitate</string>
     <string name="common_back">Înapoi</string>
     <string name="common_not_applicable">N/A</string>
@@ -22,6 +23,7 @@
     <string name="common_expand">Extinde</string>
     <string name="common_language">Limbă</string>
     <string name="common_sort">Sortare</string>
+    <string name="common_settings">Setări</string>
     <string name="status_ok">OK</string>
     <string name="status_soon">Curând</string>
     <string name="status_expired">Expirat</string>
@@ -126,10 +128,10 @@
     <string name="fuel_system_common_rail">Common Rail</string>
 
     <!-- Drivetrain -->
-    <string name="drivetrain_fwd">Tracțiune față</string>
-    <string name="drivetrain_rwd">Tracțiune spate</string>
-    <string name="drivetrain_awd">Tracțiune integrală</string>
-    <string name="drivetrain_4wd">Tracțiune 4x4</string>
+    <string name="drivetrain_fwd">Față</string>
+    <string name="drivetrain_rwd">Spate</string>
+    <string name="drivetrain_awd">Integrală</string>
+    <string name="drivetrain_4wd">Integrală</string>
 
     <!-- Relative Time -->
     <string name="relative_just_now">acum</string>
@@ -164,6 +166,9 @@
     <string name="auth_logout">Deconectare</string>
     <string name="theme_light_mode">Mod Luminos</string>
     <string name="theme_dark_mode">Mod Întunecat</string>
+    <string name="unit_system_label">Sistem de unități</string>
+    <string name="unit_system_metric">Metric (km, L/100km)</string>
+    <string name="unit_system_imperial">Imperial (mi, MPG)</string>
 
     <!-- Sorting -->
     <string name="sort_default">Implicit</string>
@@ -197,10 +202,10 @@
     <!-- Add/Edit Car -->
     <string name="car_add_title">Adaugă mașină nouă</string>
     <string name="car_edit_title">Editează mașina</string>
-    <string name="car_identity_section">Identitate și stil</string>
+    <string name="car_identity_section">Identitate</string>
     <string name="car_registration_section">Înregistrare</string>
-    <string name="car_engine_section">Motor și performanță</string>
-    <string name="car_engine_transmission_section">Motor și transmisie</string>
+    <string name="car_engine_section">Performanță</string>
+    <string name="car_engine_transmission_section">Performanță</string>
     <string name="car_dimensions_section">Dimensiuni</string>
     <string name="car_title_label">Titlu mașină (Pseudonim)</string>
     <string name="car_title_placeholder">%s</string>
@@ -233,6 +238,9 @@
     <string name="car_consumption_label">Mixt</string>
     <string name="car_consumption_urban_label">Urban</string>
     <string name="car_consumption_extra_urban_label">Extraurban</string>
+    <string name="car_consumption_urban_full">Consum Urban</string>
+    <string name="car_consumption_extra_urban_full">Consum Extraurban</string>
+    <string name="car_consumption_mixed_full">Consum Mixt</string>
     <string name="car_co2_label">Emisii CO2</string>
     <string name="car_fuel_type_label">Tip combustibil</string>
     <string name="car_fuel_system_label">Sistem combustibil</string>
@@ -348,7 +356,7 @@
     <!-- Fuel -->
     <string name="fuel_history_title">Consum combustibil</string>
     <string name="fuel_stats_avg">Consum mediu</string>
-    <string name="fuel_stats_total_dist">Distanță totală</string>
+    <string name="fuel_stats_total_dist">Kilometraj total</string>
     <string name="fuel_stats_total_fuel">Total combustibil</string>
     <string name="fuel_add_full_tank_hint">Adaugă cel puțin 2 înregistrări cu „Rezervor plin” pentru a vedea consumul mediu.</string>
     <string name="fuel_history_header">Istoric alimentări</string>
@@ -370,7 +378,7 @@
     <!-- Recycle Bin -->
 
     <!-- Formatters -->
-    <string name="formatter_power_dual">%1$d&#160;cp / %2$d&#160;kw</string>
+    <string name="formatter_power_dual">%1$d&#160;cp / %2$d&#160;kW</string>
     <string name="formatter_power_hp">%d&#160;cp</string>
     <string name="formatter_engine_size">%s&#160;cmc</string>
     <string name="formatter_no_inspection">Nicio inspecție înregistrată</string>
@@ -395,7 +403,7 @@
     <string name="pdf_unit_mph">mph</string>
     <string name="pdf_unit_nm">Nm</string>
     <string name="pdf_unit_hp">cp</string>
-    <string name="pdf_unit_kw">kw</string>
+    <string name="pdf_unit_kw">kW</string>
     <string name="pdf_unit_liters">L</string>
     <string name="pdf_unit_seconds">sec</string>
     <string name="pdf_unit_co2">g/km</string>

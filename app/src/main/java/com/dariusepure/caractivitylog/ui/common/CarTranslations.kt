@@ -1,12 +1,3 @@
-/*
- * Copyright (C) 2026 Darius Epure (Darius DevWorks)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
-
 package com.dariusepure.caractivitylog.ui.common
 
 import android.content.Context
@@ -99,8 +90,7 @@ object CarTranslations {
     fun getDrivetrainLabel(context: Context, option: String): String = when (option) {
         "FWD" -> context.getString(R.string.drivetrain_fwd)
         "RWD" -> context.getString(R.string.drivetrain_rwd)
-        "AWD" -> context.getString(R.string.drivetrain_awd)
-        "4WD" -> context.getString(R.string.drivetrain_4wd)
+        "AWD", "4WD" -> context.getString(R.string.drivetrain_awd)
         else -> option
     }
 
@@ -115,7 +105,7 @@ object CarTranslations {
         else -> standard
     }
 
-    fun getPowerUnitLabel(context: Context, unit: String): String = when (unit) {
+    fun getPowerUnitLabel(context: Context, unit: String): String = when (unit.lowercase()) {
         "hp" -> context.getString(R.string.pdf_unit_hp)
         "kw" -> context.getString(R.string.pdf_unit_kw)
         else -> unit

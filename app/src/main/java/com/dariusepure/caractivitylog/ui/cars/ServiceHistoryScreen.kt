@@ -1,12 +1,3 @@
-/*
- * Copyright (C) 2026 Darius Epure (Darius DevWorks)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
-
 package com.dariusepure.caractivitylog.ui.cars
 
 import androidx.compose.foundation.clickable
@@ -16,8 +7,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -41,8 +35,7 @@ import kotlin.math.roundToInt
 fun ServiceHistoryScreen(
     carId: String,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: CarDetailsViewModel = hiltViewModel()
+    viewModel: ServiceHistoryViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showAddDialog by remember { mutableStateOf(false) }
@@ -50,36 +43,7 @@ fun ServiceHistoryScreen(
     var recordToDelete by remember { mutableStateOf<Maintenance?>(null) }
 
     LaunchedEffect(carId) {
-        viewModel.loadCarData(carId)
-    }
-
-    if (showAddDialog || editingRecord != null) {
-        val successState = state as? CarDetailsUiState.Success
-        val existingLogs = successState?.mileageLogs ?: emptyList()
-
-        AddServiceDialog(
-            existingRecord = editingRecord,
-            existingLogs = existingLogs,
-            unit = successState?.let { s ->
-                val country = europeanCountries.find { it.code == s.car.plateCountry }
-                if (country?.usesMiles == true) "mi" else "km"
-            } ?: "km",
-            accentColor = Color(0xFF1A73E8),
-            onAccentColor = Color.White,
-            onDismiss = {
-                showAddDialog = false
-                editingRecord = null
-            },
-            onConfirm = { record ->
-                if (editingRecord != null) {
-                    viewModel.updateMaintenance(carId, record.copy(id = editingRecord!!.id, mileageLogId = editingRecord!!.mileageLogId))
-                } else {
-                    viewModel.addMaintenance(carId, record)
-                }
-                showAddDialog = false
-                editingRecord = null
-            }
-        )
+        viewModel.loadData(carId)
     }
 
     if (recordToDelete != null) {
@@ -93,13 +57,12 @@ fun ServiceHistoryScreen(
     }
 
     Scaffold(
-        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.service_history_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 }
             )
@@ -110,105 +73,81 @@ fun ServiceHistoryScreen(
                 containerColor = Color(0xFF1A73E8),
                 contentColor = Color.White
             ) {
-                Icon(Icons.Default.Add, contentDescription = null)
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.service_add_title))
             }
         }
     ) { padding ->
         when (val s = state) {
-            CarDetailsUiState.Loading -> LoadingState()
-            is CarDetailsUiState.Error -> ErrorState(s.message, onRetry = { viewModel.loadCarData(carId) })
-            is CarDetailsUiState.Success -> {
+            ServiceHistoryUiState.Loading -> LoadingState()
+            is ServiceHistoryUiState.Error -> ErrorState(message = s.message, onRetry = { viewModel.loadData(carId) })
+            is ServiceHistoryUiState.Success -> {
+                val usesMiles = s.unitSystem == com.dariusepure.caractivitylog.domain.UnitSystem.IMPERIAL
+                val unit = if (usesMiles) "mi" else "km"
+                val carAccentColor = Color(0xFF1A73E8)
+
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     item {
+                        ServiceStatsCard(s.stats, unit)
+                        Spacer(Modifier.height(8.dp))
                         Text(
-                            text = s.car.displayName,
+                            text = stringResource(R.string.service_history_title),
                             style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier.padding(vertical = 8.dp)
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
 
-                    if (s.maintenanceLogs.isEmpty()) {
+                    if (s.logs.isEmpty()) {
                         item {
-                            Text(
-                                stringResource(R.string.service_empty),
-                                modifier = Modifier.padding(vertical = 16.dp),
-                                style = MaterialTheme.typography.bodyMedium
+                            EmptyState(
+                                icon = Icons.Outlined.Build,
+                                title = stringResource(R.string.service_empty),
+                                subtitle = ""
                             )
-                        }
-                    } else {
-                        items(s.maintenanceLogs) { record ->
-                            ServiceItem(
-                                record = record,
-                                unit = europeanCountries.find { it.code == s.car.plateCountry }?.let { if (it.usesMiles) "mi" else "km" } ?: "km",
-                                onEdit = { editingRecord = record },
-                                onDelete = { recordToDelete = record }
-                            )
-                            HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                         }
                     }
-                }
-            }
-        }
-    }
-}
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ServiceItem(
-    record: Maintenance,
-    unit: String,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit
-) {
-    val context = LocalContext.current
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = CarTranslations.getServiceOperationLabel(context, record.description),
-                style = MaterialTheme.typography.titleMedium
-            )
-            val displayKm = CarFormatters.fromCanonicalDistance(record.km, unit == "mi")
-            Text(
-                text = "${CarFormatters.formatDate(record.date)} \u00B7 ${displayKm.toInt()} $unit",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        
-        val editTooltipState = rememberTooltipState()
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-            tooltip = {
-                PlainTooltip {
-                    Text(stringResource(R.string.common_edit))
+                    items(s.logs) { record ->
+                        ServiceLogItem(
+                            record = record,
+                            unit = unit,
+                            usesMiles = usesMiles,
+                            accentColor = carAccentColor,
+                            onEdit = { editingRecord = record },
+                            onDelete = { recordToDelete = record }
+                        )
+                    }
+                    
+                    item { Spacer(Modifier.height(80.dp)) }
                 }
-            },
-            state = editTooltipState
-        ) {
-            IconButton(onClick = onEdit) {
-                Icon(Icons.Default.Edit, null, tint = Color(0xFF1A73E8))
-            }
-        }
-        
-        val deleteTooltipState = rememberTooltipState()
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-            tooltip = {
-                PlainTooltip {
-                    Text(stringResource(R.string.common_delete))
+
+                if (showAddDialog || editingRecord != null) {
+                    AddServiceDialog(
+                        existingRecord = editingRecord,
+                        existingLogs = s.mileageLogs,
+                        unit = unit,
+                        accentColor = carAccentColor,
+                        onAccentColor = Color.White,
+                        onDismiss = {
+                            showAddDialog = false
+                            editingRecord = null
+                        },
+                        onConfirm = { record ->
+                            if (editingRecord != null) {
+                                viewModel.updateMaintenance(carId, record.copy(id = editingRecord!!.id, mileageLogId = editingRecord!!.mileageLogId))
+                            } else {
+                                viewModel.addMaintenance(carId, record)
+                            }
+                            showAddDialog = false
+                            editingRecord = null
+                        }
+                    )
                 }
-            },
-            state = deleteTooltipState
-        ) {
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, null, tint = Color.Red)
             }
         }
     }
@@ -430,3 +369,79 @@ fun AddServiceDialog(
     )
 }
 
+@Composable
+fun ServiceStatsCard(stats: ServiceStats, unit: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                StatItem(
+                    label = stringResource(R.string.pdf_section_service), 
+                    value = "${stats.totalServices}"
+                )
+                StatItem(
+                    label = stringResource(R.string.service_mileage_label, unit).replace(" ($unit)", ""), 
+                    value = stats.lastServiceKm?.let { "${it.roundToInt()} $unit" } ?: "-- $unit"
+                )
+            }
+            if (stats.averageIntervalKm != null) {
+                Spacer(Modifier.height(16.dp))
+                StatItem(
+                    label = "Avg Interval", 
+                    value = "${stats.averageIntervalKm.roundToInt()} $unit"
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ServiceLogItem(
+    record: Maintenance,
+    unit: String,
+    usesMiles: Boolean,
+    accentColor: Color,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
+    val context = LocalContext.current
+    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(Icons.Default.Build, null, tint = MaterialTheme.colorScheme.primary)
+            Spacer(Modifier.width(16.dp))
+            Column(Modifier.weight(1f)) {
+                Text(dateFormat.format(record.date), style = MaterialTheme.typography.labelSmall)
+                Text(
+                    text = CarTranslations.getServiceOperationLabel(context, record.description),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                val displayKm = CarFormatters.fromCanonicalDistance(record.km, usesMiles)
+                Text(
+                    text = "${displayKm.roundToInt()} $unit",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            
+            ActionButtons(
+                onEdit = onEdit,
+                onDelete = onDelete
+            )
+        }
+    }
+}

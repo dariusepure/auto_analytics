@@ -1,12 +1,3 @@
-/*
- * Copyright (C) 2026 Darius Epure (Darius DevWorks)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
-
 package com.dariusepure.caractivitylog.ui.cars
 
 import androidx.compose.foundation.layout.Column
@@ -182,7 +173,7 @@ fun TechnicalSheetScreen(
                 val powerText = CarFormatters.formatPower(context, car)
                 
                 val country = europeanCountries.find { it.code == car.plateCountry }
-                val usesMiles = country?.usesMiles == true
+                val usesMiles = s.unitSystem == com.dariusepure.caractivitylog.domain.UnitSystem.IMPERIAL
                 val speedUnit = if (usesMiles) "mph" else "km/h"
                 val displayTopSpeed = CarFormatters.fromCanonicalSpeed(car.topSpeed, usesMiles)
                 val topSpeedText = if (displayTopSpeed > 0) "${displayTopSpeed.roundToInt()}\u00A0$speedUnit" else "-"
@@ -190,6 +181,8 @@ fun TechnicalSheetScreen(
                 val tireSizeText = if (car.tireWidth > 0 && car.tireAspectRatio > 0 && car.tireDiameter > 0) {
                     "${car.tireWidth}/${car.tireAspectRatio} R${car.tireDiameter}"
                 } else "-"
+
+                val consumptionUnit = if (usesMiles) "MPG" else "L/100km"
 
                 Column(
                     modifier = Modifier
@@ -211,23 +204,23 @@ fun TechnicalSheetScreen(
                             specifications = listOf(
                                 stringResource(R.string.car_make_label) to car.make,
                                 stringResource(R.string.car_model_label) to car.model,
-                                stringResource(R.string.car_vehicle_type_label) to CarTranslations.getVehicleTypeLabel(context, car.vehicleType),
                                 stringResource(R.string.car_year_label) to car.year.takeIf { it != 0 }?.toString().orEmpty(),
                                 stringResource(R.string.car_color_label) to CarTranslations.getColorLabel(context, car.color),
                                 stringResource(R.string.car_license_plate_label) to car.licensePlate,
                                 stringResource(R.string.car_plate_country_label) to (country?.let { "${it.flag} ${CarTranslations.getCountryName(context, it.code, it.name)}" } ?: car.plateCountry),
                                 stringResource(R.string.car_vin_label) to car.vin,
+                                stringResource(R.string.car_vehicle_type_label) to CarTranslations.getVehicleTypeLabel(context, car.vehicleType),
                                 stringResource(R.string.car_manufacturing_country_label) to (europeanCountries.find { it.name == car.manufacturingCountry }?.let { "${it.flag} ${CarTranslations.getCountryName(context, it.code, it.name)}" } ?: car.manufacturingCountry)
                             )
                         )
                     }
 
-                    TechnicalCategory(title = stringResource(R.string.car_engine_section)) {
+                    TechnicalCategory(title = stringResource(R.string.car_engine_transmission_section)) {
                         SpecificationCard(
                             specifications = listOf(
                                 stringResource(R.string.car_engine_size_label) to if (car.engineSize.isNotBlank()) context.getString(R.string.formatter_engine_size, car.engineSize) else "",
                                 stringResource(R.string.car_fuel_type_label) to CarTranslations.getFuelTypeLabel(context, car.fuelType),
-                                stringResource(R.string.car_injection_system_label) to CarTranslations.getFuelSystemLabel(context, car.fuelSystem),
+                                (if (car.fuelType == "Diesel") stringResource(R.string.car_fuel_system_label) else stringResource(R.string.car_injection_system_label)) to CarTranslations.getFuelSystemLabel(context, car.fuelSystem),
                                 stringResource(R.string.car_aspiration_label) to CarTranslations.getAspirationLabel(context, car.aspiration),
                                 stringResource(R.string.car_power_label) to powerText,
                                 stringResource(R.string.car_torque_label) to if (car.torque > 0) "${car.torque}\u00A0Nm" else "",
@@ -239,18 +232,11 @@ fun TechnicalSheetScreen(
                                 stringResource(R.string.car_cylinder_layout_label) to CarTranslations.getCylinderLayoutLabel(context, car.cylinderLayout),
                                 stringResource(R.string.car_acceleration_label) to if (car.acceleration0to100 > 0) "${car.acceleration0to100}\u00A0sec" else "",
                                 stringResource(R.string.car_top_speed_label) to topSpeedText,
+                                stringResource(R.string.car_emission_standard_label) to CarTranslations.getEmissionStandardLabel(context, car.emissionStandard),
                                 stringResource(R.string.car_co2_label) to if (car.co2Emissions > 0) "${car.co2Emissions}\u00A0g/km" else "",
-                                stringResource(R.string.car_consumption_label) to if (car.fuelConsumptionCombined > 0) "${car.fuelConsumptionCombined}\u00A0L/100km" else "",
-                                stringResource(R.string.car_consumption_urban_label) to if (car.fuelConsumptionUrban > 0) "${car.fuelConsumptionUrban}\u00A0L/100km" else "",
-                                stringResource(R.string.car_consumption_extra_urban_label) to if (car.fuelConsumptionExtraUrban > 0) "${car.fuelConsumptionExtraUrban}\u00A0L/100km" else "",
-                                stringResource(R.string.car_emission_standard_label) to CarTranslations.getEmissionStandardLabel(context, car.emissionStandard)
-                            )
-                        )
-                    }
-
-                    TechnicalCategory(title = stringResource(R.string.car_transmission_section)) {
-                        SpecificationCard(
-                            specifications = listOf(
+                                stringResource(R.string.car_consumption_urban_full) to if (car.fuelConsumptionUrban > 0) String.format(java.util.Locale.US, "%.2f %s", CarFormatters.fromCanonicalConsumption(car.fuelConsumptionUrban, usesMiles), consumptionUnit) else "",
+                                stringResource(R.string.car_consumption_extra_urban_full) to if (car.fuelConsumptionExtraUrban > 0) String.format(java.util.Locale.US, "%.2f %s", CarFormatters.fromCanonicalConsumption(car.fuelConsumptionExtraUrban, usesMiles), consumptionUnit) else "",
+                                stringResource(R.string.car_consumption_mixed_full) to if (car.fuelConsumptionCombined > 0) String.format(java.util.Locale.US, "%.2f %s", CarFormatters.fromCanonicalConsumption(car.fuelConsumptionCombined, usesMiles), consumptionUnit) else "",
                                 stringResource(R.string.car_gearbox_type_label) to CarTranslations.getGearboxTypeLabel(context, car.gearboxType),
                                 stringResource(R.string.car_gears_count_label) to car.gears,
                                 stringResource(R.string.car_drivetrain_label) to CarTranslations.getDrivetrainLabel(context, car.drivetrain),
@@ -262,17 +248,18 @@ fun TechnicalSheetScreen(
                         )
                     }
 
-                    TechnicalCategory(title = stringResource(R.string.car_dimensions_capacity_section)) {
+                    TechnicalCategory(title = stringResource(R.string.car_dimensions_section)) {
                         val mm = "mm"
                         val dimensionSpecs = mutableListOf(
+                            stringResource(R.string.car_tire_size_label) to tireSizeText,
                             stringResource(R.string.car_length_label) to if (car.length > 0) "${car.length}\u00A0$mm" else "",
                             stringResource(R.string.car_width_label) to if (car.width > 0) "${car.width}\u00A0$mm" else "",
                             stringResource(R.string.car_height_label) to if (car.height > 0) "${car.height}\u00A0$mm" else "",
                             stringResource(R.string.car_wheelbase_label) to if (car.wheelbase > 0) "${car.wheelbase}\u00A0$mm" else "",
                             stringResource(R.string.car_weight_label) to if (car.weight > 0) "${car.weight}\u00A0kg" else "",
+                            stringResource(R.string.car_boot_label) to if (car.bootSpace > 0) "${car.bootSpace}\u00A0L" else "",
                             stringResource(R.string.car_seats_label) to car.numberOfSeats.takeIf { it != 0 }?.toString().orEmpty(),
-                            stringResource(R.string.car_doors_label) to car.numberOfDoors.takeIf { it != 0 }?.toString().orEmpty(),
-                            stringResource(R.string.car_boot_label) to if (car.bootSpace > 0) "${car.bootSpace}\u00A0L" else ""
+                            stringResource(R.string.car_doors_label) to car.numberOfDoors.takeIf { it != 0 }?.toString().orEmpty()
                         )
 
                         if (car.fuelType != "Electric") {
@@ -282,10 +269,9 @@ fun TechnicalSheetScreen(
                             dimensionSpecs.add(stringResource(R.string.car_battery_capacity_label) to if (car.batteryCapacity > 0) "${car.batteryCapacity}\u00A0kWh" else "")
                         }
 
-                        dimensionSpecs.add(stringResource(R.string.car_tire_size_label) to tireSizeText)
-
                         SpecificationCard(specifications = dimensionSpecs)
                     }
+
                 }
             }
         }

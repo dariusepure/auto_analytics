@@ -1,15 +1,7 @@
-/*
- * Copyright (C) 2026 Darius Epure (Darius DevWorks)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
-
 package com.dariusepure.caractivitylog.data.prefs
 
 import android.content.Context
+import com.dariusepure.caractivitylog.domain.UnitSystem
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,6 +19,11 @@ class PreferenceRepository @Inject constructor(
     )
     val isDarkMode = _isDarkMode.asStateFlow()
 
+    private val _unitSystem = MutableStateFlow(
+        UnitSystem.valueOf(prefs.getString("unit_system", UnitSystem.METRIC.name) ?: UnitSystem.METRIC.name)
+    )
+    val unitSystem = _unitSystem.asStateFlow()
+
     fun setDarkMode(enabled: Boolean?) {
         _isDarkMode.value = enabled
         if (enabled == null) {
@@ -34,6 +31,11 @@ class PreferenceRepository @Inject constructor(
         } else {
             prefs.edit().putBoolean("is_dark_mode", enabled).apply()
         }
+    }
+
+    fun setUnitSystem(system: UnitSystem) {
+        _unitSystem.value = system
+        prefs.edit().putString("unit_system", system.name).apply()
     }
 }
 

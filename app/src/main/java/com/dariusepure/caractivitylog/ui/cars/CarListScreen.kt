@@ -1,14 +1,6 @@
-/*
- * Copyright (C) 2026 Darius Epure (Darius DevWorks)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
-
 package com.dariusepure.caractivitylog.ui.cars
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,15 +31,22 @@ import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.outlined.DirectionsCar
 import com.dariusepure.caractivitylog.ui.common.CarFormatters
-import com.dariusepure.caractivitylog.ui.theme.ThemeViewModel
+import com.dariusepure.caractivitylog.ui.theme.SettingsViewModel
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -56,6 +55,7 @@ import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Settings
 import com.dariusepure.caractivitylog.ui.common.LanguageDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.PlainTooltip
@@ -63,6 +63,7 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -87,6 +88,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.domain.Car
+import com.dariusepure.caractivitylog.ui.common.ActionButtons
 import com.dariusepure.caractivitylog.ui.common.AutoSizeText
 import com.dariusepure.caractivitylog.ui.common.CarCardSkeleton
 import com.dariusepure.caractivitylog.ui.common.EmptyState
@@ -156,43 +158,10 @@ fun CarCard(
                 }
             }
             
-            val editTooltipState = rememberTooltipState()
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                tooltip = {
-                    PlainTooltip {
-                        Text(stringResource(R.string.common_edit))
-                    }
-                },
-                state = editTooltipState
-            ) {
-                IconButton(onClick = onEditClick) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = stringResource(R.string.car_edit_content_description),
-                        tint = Color(0xFF1A73E8)
-                    )
-                }
-            }
-            
-            val deleteTooltipState = rememberTooltipState()
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                tooltip = {
-                    PlainTooltip {
-                        Text(stringResource(R.string.common_delete))
-                    }
-                },
-                state = deleteTooltipState
-            ) {
-                IconButton(onClick = onDeleteClick) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = stringResource(R.string.car_delete_content_description),
-                        tint = Color.Red
-                    )
-                }
-            }
+            ActionButtons(
+                onEdit = onEditClick,
+                onDelete = onDeleteClick
+            )
         }
     }
 }
@@ -234,49 +203,12 @@ fun CarGridCard(
 
             Spacer(Modifier.height(8.dp))
 
-            Row(
+            ActionButtons(
+                onEdit = onEditClick,
+                onDelete = onDeleteClick,
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                val editTooltipState = rememberTooltipState()
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                tooltip = {
-                    PlainTooltip {
-                        Text(stringResource(R.string.common_edit))
-                    }
-                },
-                state = editTooltipState
-            ) {
-                IconButton(onClick = onEditClick) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = stringResource(R.string.car_edit_content_description),
-                        tint = Color(0xFF1A73E8)
-                    )
-                }
-            }
-            
-            val deleteTooltipState = rememberTooltipState()
-                TooltipBox(
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                    tooltip = {
-                        PlainTooltip {
-                            Text(stringResource(R.string.common_delete))
-                        }
-                    },
-                    state = deleteTooltipState
-                ) {
-                    IconButton(onClick = onDeleteClick, modifier = Modifier.size(32.dp)) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = stringResource(R.string.car_delete_content_description),
-                            tint = Color.Red,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                }
-            }
+            )
         }
     }
 }
@@ -288,14 +220,15 @@ fun CarListScreen(
     onEditCarClick: (String) -> Unit,
     onLogout: () -> Unit,
     viewModel: CarListViewModel = hiltViewModel(),
-    themeViewModel: ThemeViewModel = hiltViewModel(),
+    settingsViewModel: SettingsViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val sortOrder by viewModel.sortOrder.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val viewMode by viewModel.viewMode.collectAsStateWithLifecycle()
-    val isDarkMode by themeViewModel.isDarkMode.collectAsStateWithLifecycle()
+    val isDarkMode by settingsViewModel.isDarkMode.collectAsStateWithLifecycle()
+    val unitSystem by settingsViewModel.unitSystem.collectAsStateWithLifecycle()
     val systemDark = androidx.compose.foundation.isSystemInDarkTheme()
     val currentDark = isDarkMode ?: systemDark
     val haptic = LocalHapticFeedback.current
@@ -312,13 +245,15 @@ fun CarListScreen(
             viewModel.signOut()
             onLogout()
         },
-        onThemeToggle = { themeViewModel.toggleTheme(currentDark) },
+        onThemeToggle = { settingsViewModel.toggleTheme(currentDark) },
+        onUnitSystemChange = { settingsViewModel.setUnitSystem(it) },
         onSortOrderChange = { viewModel.onSortOrderChanged(it) },
         onSearchQueryChange = { viewModel.onSearchQueryChanged(it) },
         onViewModeChange = { viewModel.onViewModeChanged(it) },
         searchQuery = searchQuery,
         currentSortOrder = sortOrder,
         currentViewMode = viewMode,
+        currentUnitSystem = unitSystem,
         isDark = currentDark,
         state = state
     )
@@ -333,20 +268,24 @@ private fun InnerCarListScreen(
     onDeleteCar: (String) -> Unit,
     onLogoutClick: () -> Unit,
     onThemeToggle: () -> Unit,
+    onUnitSystemChange: (com.dariusepure.caractivitylog.domain.UnitSystem) -> Unit,
     onSortOrderChange: (CarSortOrder) -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onViewModeChange: (CarListViewMode) -> Unit,
     searchQuery: String,
     currentSortOrder: CarSortOrder,
     currentViewMode: CarListViewMode,
+    currentUnitSystem: com.dariusepure.caractivitylog.domain.UnitSystem,
     isDark: Boolean,
     state: CarListUiState,
     modifier: Modifier = Modifier,
 ) {
     var sortMenuExpanded by remember { mutableStateOf(false) }
-    var moreMenuExpanded by remember { mutableStateOf(false) }
+    var showSettingsSheet by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
     var carToDelete by remember { mutableStateOf<String?>(null) }
+
+    val sheetState = rememberModalBottomSheetState()
 
     if (carToDelete != null) {
         DeleteConfirmationDialog(
@@ -360,6 +299,25 @@ private fun InnerCarListScreen(
 
     if (showLanguageDialog) {
         LanguageDialog(onDismiss = { showLanguageDialog = false })
+    }
+
+    if (showSettingsSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showSettingsSheet = false },
+            sheetState = sheetState
+        ) {
+            SettingsSheetContent(
+                isDark = isDark,
+                currentUnitSystem = currentUnitSystem,
+                onThemeToggle = onThemeToggle,
+                onLanguageClick = { 
+                    showLanguageDialog = true
+                    showSettingsSheet = false 
+                },
+                onUnitSystemChange = onUnitSystemChange,
+                onLogoutClick = onLogoutClick
+            )
+        }
     }
 
     Scaffold(
@@ -440,39 +398,21 @@ private fun InnerCarListScreen(
                         }
                     }
 
-                    Box {
-                        IconButton(onClick = { moreMenuExpanded = true }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = "More options")
-                        }
-                        DropdownMenu(
-                            expanded = moreMenuExpanded,
-                            onDismissRequest = { moreMenuExpanded = false }
+                    val settingsTooltipState = rememberTooltipState()
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text(stringResource(R.string.common_settings)) } },
+                        state = settingsTooltipState
+                    ) {
+                        FilledIconButton(
+                            onClick = { showSettingsSheet = true },
+                            colors = IconButtonDefaults.filledIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            modifier = Modifier.size(36.dp)
                         ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(if (isDark) R.string.theme_light_mode else R.string.theme_dark_mode)) },
-                                onClick = {
-                                    onThemeToggle()
-                                    moreMenuExpanded = false
-                                },
-                                leadingIcon = { Icon(if (isDark) Icons.Default.LightMode else Icons.Default.DarkMode, null) }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.common_language)) },
-                                onClick = {
-                                    showLanguageDialog = true
-                                    moreMenuExpanded = false
-                                },
-                                leadingIcon = { Icon(Icons.Outlined.Language, null) }
-                            )
-                            HorizontalDivider()
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.auth_logout)) },
-                                onClick = {
-                                    onLogoutClick()
-                                    moreMenuExpanded = false
-                                },
-                                leadingIcon = { Icon(Icons.AutoMirrored.Filled.Logout, null) }
-                            )
+                            Icon(Icons.Default.Settings, null, modifier = Modifier.size(20.dp))
                         }
                     }
                 }
@@ -596,6 +536,82 @@ private fun InnerCarListScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun SettingsSheetContent(
+    isDark: Boolean,
+    currentUnitSystem: com.dariusepure.caractivitylog.domain.UnitSystem,
+    onThemeToggle: () -> Unit,
+    onLanguageClick: () -> Unit,
+    onUnitSystemChange: (com.dariusepure.caractivitylog.domain.UnitSystem) -> Unit,
+    onLogoutClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 32.dp, start = 16.dp, end = 16.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.common_settings),
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(vertical = 16.dp)
+        )
+
+        ListItem(
+            headlineContent = { Text(stringResource(if (isDark) R.string.theme_light_mode else R.string.theme_dark_mode)) },
+            leadingContent = { Icon(if (isDark) Icons.Default.LightMode else Icons.Default.DarkMode, null) },
+            trailingContent = {
+                Switch(checked = isDark, onCheckedChange = { onThemeToggle() })
+            },
+            modifier = Modifier.clickable { onThemeToggle() }
+        )
+
+        ListItem(
+            headlineContent = { Text(stringResource(R.string.common_language)) },
+            leadingContent = { Icon(Icons.Outlined.Language, null) },
+            modifier = Modifier.clickable { onLanguageClick() }
+        )
+
+        ListItem(
+            headlineContent = { Text(stringResource(R.string.unit_system_label)) },
+            leadingContent = { Icon(Icons.Default.Sync, null) },
+            trailingContent = {
+                Text(
+                    text = if (currentUnitSystem == com.dariusepure.caractivitylog.domain.UnitSystem.METRIC) "Metric" else "Imperial",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            modifier = Modifier.clickable {
+                onUnitSystemChange(
+                    if (currentUnitSystem == com.dariusepure.caractivitylog.domain.UnitSystem.METRIC) 
+                        com.dariusepure.caractivitylog.domain.UnitSystem.IMPERIAL 
+                    else com.dariusepure.caractivitylog.domain.UnitSystem.METRIC
+                )
+            }
+        )
+
+        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+        ListItem(
+            headlineContent = { 
+                Text(
+                    text = stringResource(R.string.auth_logout),
+                    color = MaterialTheme.colorScheme.error
+                ) 
+            },
+            leadingContent = { 
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Logout, 
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error
+                ) 
+            },
+            modifier = Modifier.clickable { onLogoutClick() }
+        )
     }
 }
 

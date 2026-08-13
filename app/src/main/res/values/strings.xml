@@ -17,6 +17,7 @@
     <string name="common_error_title">Something went wrong</string>
     <string name="common_date">Date</string>
     <string name="common_distance">Distance (%s)</string>
+    <string name="common_mileage">Mileage (%s)</string>
     <string name="common_unit">Unit</string>
     <string name="common_back">Back</string>
     <string name="common_not_applicable">N/A</string>
@@ -24,6 +25,7 @@
     <string name="common_expand">Expand</string>
     <string name="common_language">Language</string>
     <string name="common_sort">Sort</string>
+    <string name="common_settings">Settings</string>
     <string name="common_powered_by">Developed by Darius DevWorks</string>
     <string name="status_ok">OK</string>
     <string name="status_soon">Soon</string>
@@ -129,9 +131,9 @@
     <string name="fuel_system_common_rail">Common Rail</string>
 
     <!-- Drivetrain -->
-    <string name="drivetrain_fwd">FWD</string>
-    <string name="drivetrain_rwd">RWD</string>
-    <string name="drivetrain_awd">AWD</string>
+    <string name="drivetrain_fwd">Front-Wheel Drive</string>
+    <string name="drivetrain_rwd">Rear-Wheel Drive</string>
+    <string name="drivetrain_awd">All-Wheel Drive (AWD)</string>
     <string name="drivetrain_4wd">4WD</string>
 
     <!-- Relative Time -->
@@ -167,6 +169,9 @@
     <string name="auth_logout">Logout</string>
     <string name="theme_light_mode">Light Mode</string>
     <string name="theme_dark_mode">Dark Mode</string>
+    <string name="unit_system_label">Unit System</string>
+    <string name="unit_system_metric">Metric (km, L/100km)</string>
+    <string name="unit_system_imperial">Imperial (mi, MPG)</string>
 
     <!-- Sorting -->
     <string name="sort_default">Default</string>
@@ -200,10 +205,10 @@
     <!-- Add/Edit Car -->
     <string name="car_add_title">Add New Car</string>
     <string name="car_edit_title">Edit Car</string>
-    <string name="car_identity_section">Identity &amp; Style</string>
+    <string name="car_identity_section">Identity</string>
     <string name="car_registration_section">Registration</string>
-    <string name="car_engine_section">Engine &amp; Performance</string>
-    <string name="car_engine_transmission_section">Engine &amp; Transmission</string>
+    <string name="car_engine_section">Performance</string>
+    <string name="car_engine_transmission_section">Performance</string>
     <string name="car_dimensions_section">Dimensions</string>
     <string name="car_title_label">Car Title (Nickname)</string>
     <string name="car_title_placeholder">%s</string>
@@ -236,6 +241,9 @@
     <string name="car_consumption_label">Mixed</string>
     <string name="car_consumption_urban_label">Urban</string>
     <string name="car_consumption_extra_urban_label">Extra-Urban</string>
+    <string name="car_consumption_urban_full">Urban Consumption</string>
+    <string name="car_consumption_extra_urban_full">Extra-Urban Consumption</string>
+    <string name="car_consumption_mixed_full">Mixed Consumption</string>
     <string name="car_co2_label">CO2 Emissions</string>
     <string name="car_fuel_type_label">Fuel Type</string>
     <string name="car_fuel_system_label">Fuel System</string>
@@ -270,8 +278,8 @@
     <string name="car_technical_sheet_subtitle">View full specifications</string>
     <string name="car_mileage_history">Mileage History</string>
     <string name="car_mileage_history_subtitle">View and manage records</string>
-    <string name="car_inspection_title">Technical Inspection</string>
-    <string name="car_insurance_title">Insurance</string>
+    <string name="car_inspection_title">ITP</string>
+    <string name="car_insurance_title">RCA</string>
     <string name="car_vignette_title">Vignette</string>
     <string name="car_diagnosis_title">Virtual Mechanic</string>
     <string name="car_diagnosis_subtitle">AI-powered vehicle diagnosis</string>
@@ -330,9 +338,9 @@
     <string name="mileage_source_inspection">Inspection</string>
 
     <!-- Inspection -->
-    <string name="inspection_history_title">Technical Inspection History</string>
-    <string name="inspection_add_title">Add Technical Inspection</string>
-    <string name="insurance_history_title">Insurance History</string>
+    <string name="inspection_history_title">ITP History</string>
+    <string name="inspection_add_title">Add ITP</string>
+    <string name="insurance_history_title">RCA History</string>
     <string name="insurance_add_title">Add Insurance Policy</string>
     <string name="insurance_provider_label">Insurance Provider</string>
     <string name="vignette_history_title">Vignette History</string>
@@ -351,7 +359,7 @@
     <!-- Fuel -->
     <string name="fuel_history_title">Fuel Consumption</string>
     <string name="fuel_stats_avg">Avg Consumption</string>
-    <string name="fuel_stats_total_dist">Total Distance</string>
+    <string name="fuel_stats_total_dist">Total Mileage</string>
     <string name="fuel_stats_total_fuel">Total Fuel</string>
     <string name="fuel_add_full_tank_hint">Add at least 2 \'Full Tank\' records to see average consumption.</string>
     <string name="fuel_history_header">Filling History</string>
@@ -373,7 +381,7 @@
     <!-- Recycle Bin -->
 
     <!-- Formatters -->
-    <string name="formatter_power_dual">%1$d&#160;hp / %2$d&#160;kw</string>
+    <string name="formatter_power_dual">%1$d&#160;hp / %2$d&#160;kW</string>
     <string name="formatter_power_hp">%d&#160;hp</string>
     <string name="formatter_engine_size">%s&#160;cc</string>
     <string name="formatter_no_inspection">No inspection recorded</string>
@@ -398,7 +406,7 @@
     <string name="pdf_unit_mph">mph</string>
     <string name="pdf_unit_nm">Nm</string>
     <string name="pdf_unit_hp">hp</string>
-    <string name="pdf_unit_kw">kw</string>
+    <string name="pdf_unit_kw">kW</string>
     <string name="pdf_unit_liters">L</string>
     <string name="pdf_unit_seconds">sec</string>
     <string name="pdf_unit_co2">g/km</string>

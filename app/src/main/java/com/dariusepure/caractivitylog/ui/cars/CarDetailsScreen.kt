@@ -1,12 +1,3 @@
-/*
- * Copyright (C) 2026 Darius Epure (Darius DevWorks)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
-
 package com.dariusepure.caractivitylog.ui.cars
 
 import android.app.DatePickerDialog
@@ -33,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -42,6 +34,7 @@ import com.dariusepure.caractivitylog.domain.*
 import com.dariusepure.caractivitylog.ui.common.AutoSizeText
 import com.dariusepure.caractivitylog.ui.common.toRelativeString
 import com.dariusepure.caractivitylog.ui.common.*
+import com.dariusepure.caractivitylog.ui.theme.statusExpiredRed
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -120,7 +113,7 @@ fun CarDetailsScreen(
                     val days = diff / (1000 * 60 * 60 * 24)
                     
                     return when {
-                        expiryDate.before(now) -> MaterialTheme.colorScheme.error
+                        expiryDate.before(now) -> statusExpiredRed
                         days < 14 -> Color(0xFFFF9800) // Orange
                         else -> Color(0xFF4CAF50) // Green
                     }
@@ -214,13 +207,23 @@ fun CarDetailsScreen(
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
                                     containerColor = inspectionColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.AssignmentTurnedIn, null, modifier = Modifier.size(48.dp), tint = inspectionColor)
-                                    Spacer(Modifier.height(8.dp))
-                                    Text(text = stringResource(R.string.car_inspection_title), style = MaterialTheme.typography.titleSmall)
-                                    StatusBadge(
-                                        label = if (latestInspection == null) stringResource(R.string.common_not_applicable) else if (itpDays < 0) stringResource(R.string.status_expired) else if (itpDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
-                                        color = inspectionColor
-                                    )
+                                    Column(
+                                        modifier = Modifier.fillMaxSize(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        Icon(Icons.Default.AssignmentTurnedIn, null, modifier = Modifier.size(48.dp), tint = inspectionColor)
+                                        Spacer(Modifier.height(8.dp))
+                                        Text(
+                                            text = stringResource(R.string.car_inspection_title),
+                                            style = MaterialTheme.typography.titleSmall,
+                                            textAlign = TextAlign.Center
+                                        )
+                                        StatusBadge(
+                                            label = if (latestInspection == null) stringResource(R.string.common_not_applicable) else if (itpDays < 0) stringResource(R.string.status_expired) else if (itpDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                            color = inspectionColor
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -235,13 +238,23 @@ fun CarDetailsScreen(
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
                                     containerColor = insuranceColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.Security, null, modifier = Modifier.size(48.dp), tint = insuranceColor)
-                                    Spacer(Modifier.height(8.dp))
-                                    Text(text = stringResource(R.string.car_insurance_title), style = MaterialTheme.typography.titleSmall)
-                                    StatusBadge(
-                                        label = if (latestInsurance == null) stringResource(R.string.common_not_applicable) else if (rcaDays < 0) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
-                                        color = insuranceColor
-                                    )
+                                    Column(
+                                        modifier = Modifier.fillMaxSize(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        Icon(Icons.Default.Security, null, modifier = Modifier.size(48.dp), tint = insuranceColor)
+                                        Spacer(Modifier.height(8.dp))
+                                        Text(
+                                            text = stringResource(R.string.car_insurance_title),
+                                            style = MaterialTheme.typography.titleSmall,
+                                            textAlign = TextAlign.Center
+                                        )
+                                        StatusBadge(
+                                            label = if (latestInsurance == null) stringResource(R.string.common_not_applicable) else if (rcaDays < 0) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                            color = insuranceColor
+                                        )
+                                    }
                                 }
                                 val latestVignette = s.vignettes.maxByOrNull { it.date }
                                 val vignetteColor = getStatusColor(latestVignette?.expiryDate)
@@ -252,13 +265,23 @@ fun CarDetailsScreen(
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
                                     containerColor = vignetteColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.ConfirmationNumber, null, modifier = Modifier.size(48.dp), tint = vignetteColor)
-                                    Spacer(Modifier.height(8.dp))
-                                    Text(text = stringResource(R.string.car_vignette_title), style = MaterialTheme.typography.titleSmall)
-                                    StatusBadge(
-                                        label = if (latestVignette == null) stringResource(R.string.common_not_applicable) else if (vigDays < 0) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
-                                        color = vignetteColor
-                                    )
+                                    Column(
+                                        modifier = Modifier.fillMaxSize(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        Icon(Icons.Default.ConfirmationNumber, null, modifier = Modifier.size(48.dp), tint = vignetteColor)
+                                        Spacer(Modifier.height(8.dp))
+                                        Text(
+                                            text = stringResource(R.string.car_vignette_title),
+                                            style = MaterialTheme.typography.titleSmall,
+                                            textAlign = TextAlign.Center
+                                        )
+                                        StatusBadge(
+                                            label = if (latestVignette == null) stringResource(R.string.common_not_applicable) else if (vigDays < 0) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                            color = vignetteColor
+                                        )
+                                    }
                                 }
                                 BentoCard(
                                     onClick = onFuelClick,
@@ -374,18 +397,23 @@ else {
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
                                     containerColor = inspectionColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.AssignmentTurnedIn, null, modifier = Modifier.size(56.dp), tint = inspectionColor)
-                                    Spacer(Modifier.weight(1f))
-                                    Text(
-                                        text = stringResource(R.string.car_inspection_title),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        softWrap = true,
-                                        maxLines = 2
-                                    )
-                                    StatusBadge(
-                                        label = if (latestInspection == null) stringResource(R.string.common_not_applicable) else if (itpDays < 0) stringResource(R.string.status_expired) else if (itpDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
-                                        color = inspectionColor
-                                    )
+                                    Column(
+                                        modifier = Modifier.fillMaxSize(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        Icon(Icons.Default.AssignmentTurnedIn, null, modifier = Modifier.size(56.dp), tint = inspectionColor)
+                                        Spacer(Modifier.weight(1f))
+                                        Text(
+                                            text = stringResource(R.string.car_inspection_title),
+                                            style = MaterialTheme.typography.titleSmall,
+                                            textAlign = TextAlign.Center
+                                        )
+                                        StatusBadge(
+                                            label = if (latestInspection == null) stringResource(R.string.common_not_applicable) else if (itpDays < 0) stringResource(R.string.status_expired) else if (itpDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                            color = inspectionColor
+                                        )
+                                    }
                                 }
 
                                 val latestInsurance = s.insurances.maxByOrNull { it.date }
@@ -397,18 +425,23 @@ else {
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
                                     containerColor = insuranceColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.Security, null, modifier = Modifier.size(56.dp), tint = insuranceColor)
-                                    Spacer(Modifier.weight(1f))
-                                    Text(
-                                        text = stringResource(R.string.car_insurance_title),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        softWrap = true,
-                                        maxLines = 2
-                                    )
-                                    StatusBadge(
-                                        label = if (latestInsurance == null) stringResource(R.string.common_not_applicable) else if (rcaDays < 0) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
-                                        color = insuranceColor
-                                    )
+                                    Column(
+                                        modifier = Modifier.fillMaxSize(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        Icon(Icons.Default.Security, null, modifier = Modifier.size(56.dp), tint = insuranceColor)
+                                        Spacer(Modifier.weight(1f))
+                                        Text(
+                                            text = stringResource(R.string.car_insurance_title),
+                                            style = MaterialTheme.typography.titleSmall,
+                                            textAlign = TextAlign.Center
+                                        )
+                                        StatusBadge(
+                                            label = if (latestInsurance == null) stringResource(R.string.common_not_applicable) else if (rcaDays < 0) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                            color = insuranceColor
+                                        )
+                                    }
                                 }
 
                                 val latestVignette = s.vignettes.maxByOrNull { it.date }
@@ -420,18 +453,23 @@ else {
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
                                     containerColor = vignetteColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.ConfirmationNumber, null, modifier = Modifier.size(56.dp), tint = vignetteColor)
-                                    Spacer(Modifier.weight(1f))
-                                    Text(
-                                        text = stringResource(R.string.car_vignette_title),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        softWrap = true,
-                                        maxLines = 2
-                                    )
-                                    StatusBadge(
-                                        label = if (latestVignette == null) stringResource(R.string.common_not_applicable) else if (vigDays < 0) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
-                                        color = vignetteColor
-                                    )
+                                    Column(
+                                        modifier = Modifier.fillMaxSize(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        Icon(Icons.Default.ConfirmationNumber, null, modifier = Modifier.size(56.dp), tint = vignetteColor)
+                                        Spacer(Modifier.weight(1f))
+                                        Text(
+                                            text = stringResource(R.string.car_vignette_title),
+                                            style = MaterialTheme.typography.titleSmall,
+                                            textAlign = TextAlign.Center
+                                        )
+                                        StatusBadge(
+                                            label = if (latestVignette == null) stringResource(R.string.common_not_applicable) else if (vigDays < 0) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                            color = vignetteColor
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -512,322 +550,6 @@ else {
             }
         }
     }
-}
-
-@Composable
-fun AddMileageDialog(
-    existingLog: MileageLog? = null,
-    existingLogs: List<MileageLog> = emptyList(),
-    unit: String = "km",
-    accentColor: Color = MaterialTheme.colorScheme.primary,
-    onAccentColor: Color = MaterialTheme.colorScheme.onPrimary,
-    onDismiss: () -> Unit,
-    onConfirm: (Double, Date) -> Unit
-) {
-    val usesMiles = unit == "mi"
-    val initialKm = existingLog?.let { CarFormatters.fromCanonicalDistance(it.km, usesMiles) }
-    var km by remember { mutableStateOf(initialKm?.roundToInt()?.toString() ?: "") }
-    var selectedDate by remember { mutableStateOf(existingLog?.date ?: Date()) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-    val context = LocalContext.current
-    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
-
-    val calendar = Calendar.getInstance()
-    calendar.time = selectedDate
-    
-    val datePickerDialog = DatePickerDialog(
-        context,
-        { _, year, month, dayOfMonth ->
-            val newCalendar = Calendar.getInstance()
-            newCalendar.set(year, month, dayOfMonth)
-            selectedDate = newCalendar.time
-            errorMessage = null
-        },
-        calendar.get(Calendar.YEAR),
-        calendar.get(Calendar.MONTH),
-        calendar.get(Calendar.DAY_OF_MONTH)
-    )
-    
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(if (existingLog == null) stringResource(R.string.mileage_add_title) else stringResource(R.string.mileage_edit_title)) },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = km,
-                    onValueChange = { 
-                        if (it.all { char -> char.isDigit() }) {
-                            km = it
-                            errorMessage = null
-                        }
-                    },
-                    label = { Text(stringResource(R.string.common_distance, unit)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = errorMessage != null
-                )
-                
-                if (errorMessage != null) {
-                    Text(
-                        text = errorMessage!!,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-                OutlinedTextField(
-                    value = dateFormat.format(selectedDate),
-                    onValueChange = { },
-                    readOnly = true,
-                    label = { Text(stringResource(R.string.common_date)) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { datePickerDialog.show() },
-                    trailingIcon = {
-                        IconButton(onClick = { datePickerDialog.show() }) {
-                            Icon(imageVector = Icons.Default.Add, contentDescription = null, tint = Color(0xFF1A73E8))
-                        }
-                    },
-                    enabled = false,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                        disabledBorderColor = MaterialTheme.colorScheme.outline,
-                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                )
-            }
-        },
-                confirmButton = {
-            Button(
-                onClick = {
-                    val inputVal = km.toDoubleOrNull() ?: 0.0
-                    if (inputVal > 0) {
-                        val canonicalInput = CarFormatters.toCanonicalDistance(inputVal, unit == "mi")
-                        
-                        val conflict = existingLogs.find { log ->
-                            if (log.id == existingLog?.id) return@find false
-                            val kmBackwards = selectedDate.after(log.date) && canonicalInput < log.km
-                            val dateBackwards = selectedDate.before(log.date) && canonicalInput > log.km
-                            kmBackwards || dateBackwards
-                        }
-
-                        if (conflict != null) {
-                            val conflictDisplay = CarFormatters.fromCanonicalDistance(conflict.km, unit == "mi")
-                            errorMessage = if (selectedDate.after(conflict.date)) {
-                                context.getString(R.string.mileage_conflict_less, conflictDisplay.roundToInt(), unit, dateFormat.format(conflict.date))
-                            } else {
-                                context.getString(R.string.mileage_conflict_more, conflictDisplay.roundToInt(), unit, dateFormat.format(conflict.date))
-                            }
-                        } else {
-                            onConfirm(inputVal, selectedDate)
-                        }
-                    }
-                },
-                enabled = km.isNotBlank(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = accentColor,
-                    contentColor = onAccentColor
-                )
-            ) {
-                Text(if (existingLog == null) stringResource(R.string.common_add) else stringResource(R.string.common_update))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.common_cancel))
-            }
-        }
-    )
-}
-
-@Composable
-fun AddInspectionDialog(
-    existingInspection: VehicleInspection? = null,
-    existingLogs: List<MileageLog> = emptyList(),
-    unit: String = "km",
-    accentColor: Color = MaterialTheme.colorScheme.primary,
-    onAccentColor: Color = MaterialTheme.colorScheme.onPrimary,
-    onDismiss: () -> Unit,
-    onConfirm: (VehicleInspection) -> Unit
-) {
-    val usesMiles = unit == "mi"
-    val initialKm = existingInspection?.let { CarFormatters.fromCanonicalDistance(it.mileage, usesMiles) }
-    var km by remember { mutableStateOf(initialKm?.roundToInt()?.toString() ?: "") }
-    var selectedDate by remember { mutableStateOf(existingInspection?.date ?: Date()) }
-    var durationValue by remember { mutableStateOf(existingInspection?.durationValue?.toString() ?: "1") }
-    var durationUnit by remember { mutableStateOf(existingInspection?.durationUnit ?: InspectionDurationUnit.YEARS) }
-    var unitExpanded by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-
-    val context = LocalContext.current
-    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
-
-    val calendar = Calendar.getInstance()
-    calendar.time = selectedDate
-    
-    val datePickerDialog = DatePickerDialog(
-        context,
-        { _, year, month, dayOfMonth ->
-            val newCalendar = Calendar.getInstance()
-            newCalendar.set(year, month, dayOfMonth)
-            selectedDate = newCalendar.time
-        },
-        calendar.get(Calendar.YEAR),
-        calendar.get(Calendar.MONTH),
-        calendar.get(Calendar.DAY_OF_MONTH)
-    )
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.inspection_add_title)) },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = km,
-                    onValueChange = { 
-                        if (it.all { char -> char.isDigit() }) {
-                            km = it
-                            errorMessage = null
-                        }
-                    },
-                    label = { Text(stringResource(R.string.inspection_mileage_label, unit)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = errorMessage != null
-                )
-
-                if (errorMessage != null) {
-                    Text(
-                        text = errorMessage!!,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedTextField(
-                    value = dateFormat.format(selectedDate),
-                    onValueChange = { },
-                    readOnly = true,
-                    label = { Text(stringResource(R.string.inspection_date_label)) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { datePickerDialog.show() },
-                    trailingIcon = {
-                        IconButton(onClick = { datePickerDialog.show() }) {
-                            Icon(imageVector = Icons.Default.Add, contentDescription = null, tint = Color(0xFF1A73E8))
-                        }
-                    },
-                    enabled = false,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                        disabledBorderColor = MaterialTheme.colorScheme.outline,
-                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedTextField(
-                        value = durationValue,
-                        onValueChange = { if (it.all { char -> char.isDigit() }) durationValue = it },
-                        label = { Text(stringResource(R.string.inspection_validity_label)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Box(modifier = Modifier.weight(1f)) {
-                        OutlinedTextField(
-                            value = durationUnit.name.lowercase().replaceFirstChar { it.uppercase() },
-                            onValueChange = { },
-                            readOnly = true,
-                            label = { Text(stringResource(R.string.common_unit)) },
-                            trailingIcon = {
-                                IconButton(onClick = { unitExpanded = true }) {
-                                    Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = null)
-                                }
-                            },
-                            modifier = Modifier.clickable { unitExpanded = true },
-                            enabled = false,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                                disabledBorderColor = MaterialTheme.colorScheme.outline,
-                                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        )
-                        DropdownMenu(
-                            expanded = unitExpanded,
-                            onDismissRequest = { unitExpanded = false }
-                        ) {
-                            InspectionDurationUnit.entries.forEach { unit ->
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(unit.labelRes)) },
-                                    onClick = {
-                                        durationUnit = unit
-                                        unitExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    val inputVal = km.toDoubleOrNull() ?: 0.0
-                    val canonicalInput = CarFormatters.toCanonicalDistance(inputVal, unit == "mi")
-                    
-                    val conflict = existingLogs.find { log ->
-                        val kmBackwards = selectedDate.after(log.date) && canonicalInput < log.km
-                        val dateBackwards = selectedDate.before(log.date) && canonicalInput > log.km
-                        kmBackwards || dateBackwards
-                    }
-
-                    if (conflict != null) {
-                        val conflictDisplay = CarFormatters.fromCanonicalDistance(conflict.km, unit == "mi")
-                        errorMessage = if (selectedDate.after(conflict.date)) {
-                            context.getString(R.string.mileage_conflict_less, conflictDisplay.roundToInt(), unit, dateFormat.format(conflict.date))
-                        } else {
-                            context.getString(R.string.mileage_conflict_more, conflictDisplay.roundToInt(), unit, dateFormat.format(conflict.date))
-                        }
-                    } else {
-                        onConfirm(
-                            VehicleInspection(
-                                id = existingInspection?.id ?: "",
-                                date = selectedDate,
-                                mileage = canonicalInput,
-                                durationValue = durationValue.toIntOrNull() ?: 1,
-                                durationUnit = durationUnit,
-                                mileageLogId = existingInspection?.mileageLogId ?: ""
-                            )
-                        )
-                    }
-                },
-                enabled = km.isNotBlank() && durationValue.isNotBlank(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = accentColor,
-                    contentColor = onAccentColor
-                )
-            ) {
-                Text(stringResource(R.string.common_save))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.common_cancel))
-            }
-        }
-    )
 }
 
 @Composable

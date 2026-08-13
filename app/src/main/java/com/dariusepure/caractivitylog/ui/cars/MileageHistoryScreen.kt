@@ -1,12 +1,3 @@
-/*
- * Copyright (C) 2026 Darius Epure (Darius DevWorks)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
-
 package com.dariusepure.caractivitylog.ui.cars
 
 import androidx.compose.foundation.layout.*
@@ -16,7 +7,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -41,7 +36,7 @@ fun MileageHistoryScreen(
     carId: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: CarDetailsViewModel = hiltViewModel()
+    viewModel: MileageHistoryViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     
@@ -51,18 +46,18 @@ fun MileageHistoryScreen(
     var logToDelete by remember { mutableStateOf<MileageLog?>(null) }
 
     LaunchedEffect(carId) {
-        viewModel.loadCarData(carId)
+        viewModel.loadData(carId)
     }
 
     if (showLogImportDialog) {
-        val successState = state as? CarDetailsUiState.Success
+        val successState = state as? MileageHistoryUiState.Success
         if (successState != null) {
             LogImportDialog(
                 fuelLogs = successState.fuelLogs,
                 maintenanceLogs = successState.maintenanceLogs,
                 inspections = successState.inspections,
                 existingMileageLogs = successState.mileageLogs,
-                unit = if (europeanCountries.find { it.code == successState.car.plateCountry }?.usesMiles == true) "mi" else "km",
+                unit = if (successState.unitSystem == com.dariusepure.caractivitylog.domain.UnitSystem.IMPERIAL) "mi" else "km",
                 onDismiss = { showLogImportDialog = false },
                 onConfirm = { logsToImport ->
                     viewModel.addBatchMileageLogs(carId, logsToImport)
@@ -83,11 +78,9 @@ fun MileageHistoryScreen(
     }
 
     if (showAddMileageDialog || editingMileageLog != null) {
-        val successState = state as? CarDetailsUiState.Success
+        val successState = state as? MileageHistoryUiState.Success
         val existingLogs = successState?.mileageLogs ?: emptyList()
-        val car = successState?.car
-        val country = europeanCountries.find { it.code == car?.plateCountry }
-        val unitLabel = if (country?.usesMiles == true) "mi" else "km"
+        val unitLabel = if (successState?.unitSystem == com.dariusepure.caractivitylog.domain.UnitSystem.IMPERIAL) "mi" else "km"
 
         AddMileageDialog(
             existingLog = editingMileageLog,
@@ -100,7 +93,7 @@ fun MileageHistoryScreen(
                 editingMileageLog = null
             },
             onConfirm = { value, date ->
-                val usesMiles = country?.usesMiles == true
+                val usesMiles = successState?.unitSystem == com.dariusepure.caractivitylog.domain.UnitSystem.IMPERIAL
                 val canonicalValue = CarFormatters.toCanonicalDistance(value, usesMiles)
                 
                 val logToEdit = editingMileageLog
@@ -143,31 +136,26 @@ fun MileageHistoryScreen(
         }
     ) { padding ->
         when (val s = state) {
-            CarDetailsUiState.Loading -> LoadingState()
-            is CarDetailsUiState.Error -> ErrorState(message = s.message, onRetry = { viewModel.loadCarData(carId) })
-            is CarDetailsUiState.Success -> {
-                val car = s.car
-                val country = europeanCountries.find { it.code == car.plateCountry }
-                val unitLabel = if (country?.usesMiles == true) "mi" else "km"
+            MileageHistoryUiState.Loading -> LoadingState()
+            is MileageHistoryUiState.Error -> ErrorState(message = s.message, onRetry = { viewModel.loadData(carId) })
+            is MileageHistoryUiState.Success -> {
+                val usesMiles = s.unitSystem == com.dariusepure.caractivitylog.domain.UnitSystem.IMPERIAL
+                val unitLabel = if (usesMiles) "mi" else "km"
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     item {
-                        Spacer(Modifier.height(16.dp))
-                        Text(
-                            text = car.displayName,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.secondary
-                        )
-                        Spacer(Modifier.height(8.dp))
-
+                        MileageStatsCard(s.stats, unitLabel)
+                        
                         if (s.mileageLogs.size >= 2) {
+                            Spacer(Modifier.height(8.dp))
                             val chartData = s.mileageLogs.map { 
-                                val displayKm = CarFormatters.fromCanonicalDistance(it.km, country?.usesMiles == true)
-                                it.date to displayKm 
+                                val displayValue = CarFormatters.fromCanonicalDistance(it.km, usesMiles)
+                                it.date to displayValue 
                             }
                             MileageLineChart(
                                 data = chartData,
@@ -175,32 +163,105 @@ fun MileageHistoryScreen(
                                 modifier = Modifier.padding(vertical = 8.dp)
                             )
                         }
-
-                        Spacer(Modifier.height(16.dp))
+                        
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(R.string.mileage_history_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     }
 
                     if (s.mileageLogs.isEmpty()) {
                         item {
-                            Text(
-                                text = stringResource(R.string.mileage_empty),
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(vertical = 16.dp)
+                            EmptyState(
+                                icon = Icons.Outlined.History,
+                                title = stringResource(R.string.mileage_empty),
+                                subtitle = ""
                             )
                         }
                     } else {
                         items(s.mileageLogs) { log ->
-                            val displayValue = CarFormatters.fromCanonicalDistance(log.km, country?.usesMiles == true)
-                            MileageItem(
-                                log = log.copy(km = displayValue),
+                            MileageLogItem(
+                                log = log,
                                 unit = unitLabel,
-                                onEditClick = { editingMileageLog = log },
-                                onDeleteClick = { logToDelete = log }
+                                usesMiles = usesMiles,
+                                onEdit = { editingMileageLog = log },
+                                onDelete = { logToDelete = log }
                             )
-                            HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                         }
                     }
+                    
+                    item { Spacer(Modifier.height(80.dp)) }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun MileageStatsCard(stats: MileageStats, unit: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                StatItem(
+                    label = stringResource(R.string.pdf_field_nickname), 
+                    value = stringResource(R.string.car_mileage_history)
+                )
+                StatItem(
+                    label = "Total Records", 
+                    value = "${stats.totalRecords}"
+                )
+            }
+            Spacer(Modifier.height(16.dp))
+            StatItem(
+                label = "Current Mileage", 
+                value = "${stats.currentMileage.roundToInt()} $unit"
+            )
+        }
+    }
+}
+
+@Composable
+fun MileageLogItem(
+    log: com.dariusepure.caractivitylog.domain.MileageLog,
+    unit: String,
+    usesMiles: Boolean,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
+    val dateFormat = remember { java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.getDefault()) }
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(Icons.Default.Speed, null, tint = MaterialTheme.colorScheme.primary)
+            Spacer(Modifier.width(16.dp))
+            Column(Modifier.weight(1f)) {
+                Text(dateFormat.format(log.date), style = MaterialTheme.typography.labelSmall)
+                val displayValue = CarFormatters.fromCanonicalDistance(log.km, usesMiles)
+                Text(
+                    text = "${displayValue.roundToInt()} $unit",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            
+            ActionButtons(
+                onEdit = onEdit,
+                onDelete = onDelete
+            )
         }
     }
 }

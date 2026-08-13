@@ -1,12 +1,3 @@
-/*
- * Copyright (C) 2026 Darius Epure (Darius DevWorks)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
-
 package com.dariusepure.caractivitylog.ui.cars
 
 import androidx.compose.material3.ButtonDefaults
@@ -116,6 +107,7 @@ fun AddCarScreen(
     windowSizeClass: WindowSizeClass? = null
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val unitSystem by viewModel.unitSystem.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     val fuelTypes = listOf("Petrol", "Diesel", "Electric", "Hybrid", "LPG")
@@ -127,7 +119,7 @@ fun AddCarScreen(
     val brakeOptions = listOf("Ventilated Discs", "Solid Discs", "Drums", "Ceramic Discs")
     val frontSuspensionOptions = listOf("MacPherson", "Double Wishbone", "Multi-link")
     val rearSuspensionOptions = listOf("Torsion Beam", "Multi-link", "Solid Axle")
-    val drivetrainOptions = listOf("FWD", "RWD", "AWD", "4WD")
+    val drivetrainOptions = listOf("FWD", "RWD", "AWD")
     val vehicleTypes = listOf(
         "Saloon", "Estate", "Hatchback", "Liftback", "MPV", "SUV", "Crossover", "Coupe", "Convertible", "Van", "Pickup"
     )
@@ -143,7 +135,8 @@ fun AddCarScreen(
 
     var licensePlate by remember { mutableStateOf("") }
     var selectedCountry by remember { mutableStateOf<Country?>(null) }
-    val consumptionUnit = if (selectedCountry?.usesMiles == true) "mpg" else "L/100km"
+    val usesMiles = unitSystem == com.dariusepure.caractivitylog.domain.UnitSystem.IMPERIAL
+    val consumptionUnit = if (usesMiles) "mpg" else "L/100km"
     var make by remember { mutableStateOf("") }
     var model by remember { mutableStateOf("") }
     var modelExpanded by remember { mutableStateOf(false) }
@@ -256,6 +249,8 @@ fun AddCarScreen(
                 "fuelConsumptionCombined" to fuelConsumptionCombined,
                 "co2Emissions" to co2Emissions
             ),
+            usesMiles = usesMiles,
+            consumptionUnit = consumptionUnit,
             onDismiss = { dataToConfirm = null },
             onConfirm = { selectedData ->
                 if (make.isBlank()) selectedData.make?.let { 
@@ -267,7 +262,7 @@ fun AddCarScreen(
                 if (fuelType.isBlank()) selectedData.fuelType?.let { if (it in fuelTypes) fuelType = it }
                 if (engineSize.isBlank()) selectedData.engineSize?.let { engineSize = it.roundToInt().toString() }
                 if (power.isBlank()) selectedData.power?.let { power = it.roundToInt().toString() }
-                if (powerUnit.isBlank() || powerUnit == "hp") selectedData.powerUnit?.let { powerUnit = it }
+                if (powerUnit.isBlank() || powerUnit.lowercase() == "hp") selectedData.powerUnit?.let { powerUnit = it }
                 if (torque.isBlank()) selectedData.torque?.let { torque = it.roundToInt().toString() }
                 if (color.isBlank()) selectedData.color?.let { color = it }
                 if (licensePlate.isBlank()) selectedData.registrationPlate?.let { licensePlate = it.uppercase() }
@@ -319,7 +314,8 @@ fun AddCarScreen(
     var vehicleTypeExpanded by remember { mutableStateOf(false) }
 
     var powerUnitExpanded by remember { mutableStateOf(false) }
-    val powerUnits = listOf("hp", "kw")
+    val powerUnits = listOf("hp", "kW")
+
 
     val handleBack = {
         val hasRequiredData = make.isNotBlank() && model.isNotBlank()
@@ -409,13 +405,13 @@ fun AddCarScreen(
                 emissionStandard = car.emissionStandard
                 aspiration = car.aspiration
                 
-                val displayTopSpeed = CarFormatters.fromCanonicalSpeed(car.topSpeed, selectedCountry?.usesMiles == true)
+                val displayTopSpeed = CarFormatters.fromCanonicalSpeed(car.topSpeed, usesMiles)
                 topSpeed = displayTopSpeed.takeIf { it != 0.0 }?.roundToInt()?.toString() ?: ""
                 
                 acceleration0to100 = car.acceleration0to100.takeIf { it != 0.0 }?.toString() ?: ""
-                fuelConsumptionCombined = car.fuelConsumptionCombined.takeIf { it != 0.0 }?.toString() ?: ""
-                fuelConsumptionUrban = car.fuelConsumptionUrban.takeIf { it != 0.0 }?.toString() ?: ""
-                fuelConsumptionExtraUrban = car.fuelConsumptionExtraUrban.takeIf { it != 0.0 }?.toString() ?: ""
+                fuelConsumptionCombined = car.fuelConsumptionCombined.let { if (it == 0.0) "" else String.format(java.util.Locale.US, "%.2f", CarFormatters.fromCanonicalConsumption(it, usesMiles)) }
+                fuelConsumptionUrban = car.fuelConsumptionUrban.let { if (it == 0.0) "" else String.format(java.util.Locale.US, "%.2f", CarFormatters.fromCanonicalConsumption(it, usesMiles)) }
+                fuelConsumptionExtraUrban = car.fuelConsumptionExtraUrban.let { if (it == 0.0) "" else String.format(java.util.Locale.US, "%.2f", CarFormatters.fromCanonicalConsumption(it, usesMiles)) }
                 co2Emissions = car.co2Emissions.takeIf { it != 0 }?.toString() ?: ""
 
                 numberOfCylinders = car.numberOfCylinders.takeIf { it != 0 }?.toString() ?: ""
@@ -495,30 +491,30 @@ fun AddCarScreen(
                 }
             }
 
-            // --- 1. IDENTITY & REGISTRATION ---
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                ScanButton(
+                    onClick = { photoPicker.launch("image/*") },
+                    modifier = Modifier.weight(1f),
+                    state = state,
+                    label = stringResource(R.string.car_scan_photo)
+                )
+                ScanButton(
+                    onClick = { pdfPicker.launch("application/pdf") },
+                    modifier = Modifier.weight(1f),
+                    state = state,
+                    label = stringResource(R.string.car_scan_pdf)
+                )
+            }
+
+            // --- 1. IDENTITY ---
             CollapsibleSection(
                 title = stringResource(R.string.car_identity_section),
                 isExpanded = identityExpanded,
                 onToggle = { identityExpanded = !identityExpanded }
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    ScanButton(
-                        onClick = { photoPicker.launch("image/*") },
-                        modifier = Modifier.weight(1f),
-                        state = state,
-                        label = stringResource(R.string.car_scan_photo)
-                    )
-                    ScanButton(
-                        onClick = { pdfPicker.launch("application/pdf") },
-                        modifier = Modifier.weight(1f),
-                        state = state,
-                        label = stringResource(R.string.car_scan_pdf)
-                    )
-                }
-
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = make,
@@ -654,64 +650,45 @@ fun AddCarScreen(
 
                 Spacer(Modifier.height(8.dp))
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .clickable { countryExpanded = true }
-                            .padding(vertical = 12.dp, horizontal = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = selectedCountry?.let { CarTranslations.getCountryName(context, it.code, it.name) } ?: "",
+                        onValueChange = { },
+                        readOnly = true,
+                        label = { Text(stringResource(R.string.car_plate_country_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        trailingIcon = {
+                            Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { countryExpanded = true })
+                        }
+                    )
+                    Box(modifier = Modifier.matchParentSize().clickable { countryExpanded = true })
+                    DropdownMenu(
+                        expanded = countryExpanded,
+                        onDismissRequest = { countryExpanded = false },
+                        modifier = Modifier.fillMaxWidth(0.9f).sizeIn(maxHeight = 300.dp)
                     ) {
-                        Text(
-                            text = selectedCountry?.flag ?: "🌍",
-                            style = MaterialTheme.typography.headlineSmall
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Icon(Icons.Default.ArrowDropDown, null)
-
-                        DropdownMenu(
-                            expanded = countryExpanded,
-                            onDismissRequest = { countryExpanded = false },
-                            modifier = Modifier.sizeIn(maxHeight = 300.dp)
-                        ) {
-                            sortedCountries.forEach { country ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text(country.flag)
-                                            Spacer(Modifier.width(8.dp))
-                                            Text(CarTranslations.getCountryName(context, country.code, country.name))
-                                        }
-                                    },
-                                    onClick = {
-                                        val previousUsesMiles = selectedCountry?.usesMiles ?: false
-                                        selectedCountry = country
-                                        countryExpanded = false
-
-                                        if (previousUsesMiles != country.usesMiles && topSpeed.isNotBlank()) {
-                                            val currentSpeed = topSpeed.toDoubleOrNull() ?: 0.0
-                                            val converted = if (country.usesMiles) {
-                                                currentSpeed / 1.609344
-                                            } else {
-                                                currentSpeed * 1.609344
-                                            }
-                                            topSpeed = converted.roundToInt().toString()
-                                        }
-                                    }
-                                )
-                            }
+                        sortedCountries.forEach { country ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text(CarTranslations.getCountryName(context, country.code, country.name))
+                                },
+                                onClick = {
+                                    selectedCountry = country
+                                    countryExpanded = false
+                                }
+                            )
                         }
                     }
+                }
 
-                    Spacer(Modifier.width(8.dp))
+                if (selectedCountry != null) {
+                    Spacer(Modifier.height(8.dp))
 
                     OutlinedTextField(
                         value = licensePlate,
                         onValueChange = { licensePlate = it.uppercase() },
                         label = { Text(stringResource(R.string.car_license_plate_label)) },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         enabled = state !is AddCarState.Pending
                     )
@@ -743,8 +720,6 @@ fun AddCarScreen(
                     },
                     isError = (vin.isNotEmpty() && vin.length != 17) || showVinError
                 )
-
-                Spacer(Modifier.height(8.dp))
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
@@ -817,7 +792,7 @@ fun AddCarScreen(
 
             // --- 2. ENGINE & TRANSMISSION ---
             CollapsibleSection(
-                title = stringResource(R.string.car_engine_section),
+                title = stringResource(R.string.car_engine_transmission_section),
                 isExpanded = engineExpanded,
                 onToggle = { engineExpanded = !engineExpanded }
             ) {
@@ -1095,7 +1070,7 @@ fun AddCarScreen(
                         onValueChange = { if (it.all { char -> char.isDigit() }) topSpeed = it },
                         label = { Text(stringResource(R.string.car_top_speed_label)) },
                         modifier = Modifier.weight(1f),
-                        suffix = { Text(if (selectedCountry?.usesMiles == true) "mph" else "km/h") },
+                        suffix = { Text(if (usesMiles) "mph" else "km/h") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                 }
@@ -1157,14 +1132,6 @@ fun AddCarScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OutlinedTextField(
-                        value = fuelConsumptionCombined,
-                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelConsumptionCombined = it },
-                        label = { AutoSizeText(text = stringResource(R.string.car_consumption_label), style = MaterialTheme.typography.bodyMedium, minFontSize = 9.sp) },
-                        modifier = Modifier.weight(1f),
-                        suffix = { Text(consumptionUnit) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-                    )
-                    OutlinedTextField(
                         value = fuelConsumptionUrban,
                         onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelConsumptionUrban = it },
                         label = { AutoSizeText(text = stringResource(R.string.car_consumption_urban_label), style = MaterialTheme.typography.bodyMedium, minFontSize = 9.sp) },
@@ -1176,6 +1143,14 @@ fun AddCarScreen(
                         value = fuelConsumptionExtraUrban,
                         onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelConsumptionExtraUrban = it },
                         label = { AutoSizeText(text = stringResource(R.string.car_consumption_extra_urban_label), style = MaterialTheme.typography.bodyMedium, minFontSize = 9.sp) },
+                        modifier = Modifier.weight(1f),
+                        suffix = { Text(consumptionUnit) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                    )
+                    OutlinedTextField(
+                        value = fuelConsumptionCombined,
+                        onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelConsumptionCombined = it },
+                        label = { AutoSizeText(text = stringResource(R.string.car_consumption_label), style = MaterialTheme.typography.bodyMedium, minFontSize = 9.sp) },
                         modifier = Modifier.weight(1f),
                         suffix = { Text(consumptionUnit) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
@@ -1648,13 +1623,15 @@ private fun ScanButton(
 fun ScannedCarDataConfirmationDialog(
     data: ScannedCarData,
     existingData: Map<String, String>,
+    usesMiles: Boolean,
+    consumptionUnit: String,
     onDismiss: () -> Unit,
     onConfirm: (ScannedCarData) -> Unit
 ) {
     val context = LocalContext.current
     // We create a map of keys to values and labels for easy display, 
     // but ONLY for fields that are empty in the form.
-    val fields = remember(data, existingData) {
+    val fields = remember(data, existingData, usesMiles, consumptionUnit) {
         val list = mutableListOf<Triple<String, String, String>>() // Label, Value, Key
         
         fun shouldAdd(key: String) = existingData[key].isNullOrBlank()
@@ -1664,7 +1641,7 @@ fun ScannedCarDataConfirmationDialog(
         if (shouldAdd("vin")) data.vin?.let { list.add(Triple(context.getString(R.string.car_vin_label), it, "vin")) }
         if (shouldAdd("year")) data.year?.let { list.add(Triple(context.getString(R.string.car_year_label), it.roundToInt().toString(), "year")) }
         if (shouldAdd("fuelType")) data.fuelType?.let { list.add(Triple(context.getString(R.string.car_fuel_type_label), getFuelTypeLabel(context, it), "fuelType")) }
-        if (shouldAdd("engineSize")) data.engineSize?.let { list.add(Triple(context.getString(R.string.car_engine_size_label), "${it.roundToInt()} cc", "engineSize")) }
+        if (shouldAdd("engineSize")) data.engineSize?.let { list.add(Triple(context.getString(R.string.car_engine_size_label), "${it.roundToInt()} ${if (context.resources.configuration.locales[0].language == "ro") "cmc" else "cc"}", "engineSize")) }
         if (shouldAdd("power")) data.power?.let { list.add(Triple(context.getString(R.string.car_power_label), "${it.roundToInt()} ${data.powerUnit ?: "hp"}", "power")) }
         if (shouldAdd("torque")) data.torque?.let { list.add(Triple(context.getString(R.string.car_torque_label), "${it.roundToInt()} Nm", "torque")) }
         if (shouldAdd("color")) data.color?.let { list.add(Triple(context.getString(R.string.car_color_label), it, "color")) }
@@ -1679,9 +1656,15 @@ fun ScannedCarDataConfirmationDialog(
         if (shouldAdd("engineLayout")) data.engineLayout?.let { list.add(Triple(context.getString(R.string.car_engine_layout_label), getEngineLayoutLabel(context, it), "engineLayout")) }
         if (shouldAdd("cylinderLayout")) data.cylinderLayout?.let { list.add(Triple(context.getString(R.string.car_cylinder_layout_label), getCylinderLayoutLabel(context, it), "cylinderLayout")) }
         if (shouldAdd("fuelTankCapacity")) data.fuelTankCapacity?.let { list.add(Triple(context.getString(R.string.car_fuel_tank_capacity_label), "$it L", "fuelTankCapacity")) }
-        if (shouldAdd("topSpeed")) data.topSpeed?.let { list.add(Triple(context.getString(R.string.car_top_speed_label), "${it.roundToInt()} km/h", "topSpeed")) }
+        if (shouldAdd("topSpeed")) data.topSpeed?.let { 
+            val displaySpeed = CarFormatters.fromCanonicalSpeed(it, usesMiles)
+            list.add(Triple(context.getString(R.string.car_top_speed_label), "${displaySpeed.roundToInt()} ${if (usesMiles) "mph" else "km/h"}", "topSpeed")) 
+        }
         if (shouldAdd("acceleration0to100")) data.acceleration0to100?.let { list.add(Triple(context.getString(R.string.car_acceleration_label), "$it sec", "acceleration0to100")) }
-        if (shouldAdd("fuelConsumptionCombined")) data.fuelConsumptionCombined?.let { list.add(Triple(context.getString(R.string.car_consumption_label), "$it L/100km", "fuelConsumptionCombined")) }
+        if (shouldAdd("fuelConsumptionCombined")) data.fuelConsumptionCombined?.let { 
+            val displayCons = CarFormatters.fromCanonicalConsumption(it, usesMiles)
+            list.add(Triple(context.getString(R.string.car_consumption_label), String.format(java.util.Locale.US, "%.2f %s", displayCons, consumptionUnit), "fuelConsumptionCombined")) 
+        }
         if (shouldAdd("co2Emissions")) data.co2Emissions?.let { list.add(Triple(context.getString(R.string.car_co2_label), "${it.roundToInt()} g/km", "co2Emissions")) }
         list
     }

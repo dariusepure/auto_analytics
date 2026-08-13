@@ -1,12 +1,3 @@
-/*
- * Copyright (C) 2026 Darius Epure (Darius DevWorks)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
-
 package com.dariusepure.caractivitylog
 
 import android.Manifest
@@ -37,7 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.dariusepure.caractivitylog.ui.AppNavigation
 import com.dariusepure.caractivitylog.ui.Screen
 import com.dariusepure.caractivitylog.ui.theme.CarActivityLogTheme
-import com.dariusepure.caractivitylog.ui.theme.ThemeViewModel
+import com.dariusepure.caractivitylog.ui.theme.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -55,8 +46,8 @@ class MainActivity : AppCompatActivity() {
 
         enableEdgeToEdge()
         setContent {
-            val themeViewModel: ThemeViewModel = hiltViewModel()
-            val isDarkMode by themeViewModel.isDarkMode.collectAsState()
+            val settingsViewModel: SettingsViewModel = hiltViewModel()
+            val isDarkMode by settingsViewModel.isDarkMode.collectAsState()
             
             val systemDark = isSystemInDarkTheme()
             val useDarkTheme = isDarkMode ?: systemDark
@@ -77,7 +68,7 @@ class MainActivity : AppCompatActivity() {
                 ) {
                     AppNavigation(
                         startDestination = deepLinkRoute,
-                        themeViewModel = themeViewModel,
+                        settingsViewModel = settingsViewModel,
                         windowSizeClass = calculateWindowSizeClass(this)
                     )
                 }

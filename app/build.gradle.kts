@@ -1,5 +1,6 @@
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.gradle.api.plugins.ExtensionAware
 
 // Machine-local, uncommitted config (secrets, signing) is read from
 // local.properties. The Web client ID (Credential Manager sign-in) becomes a
@@ -19,6 +20,7 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.firebase.appdistribution)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -29,8 +31,8 @@ android {
         applicationId = "com.dariusepure.caractivitylog"
         minSdk = 26
         targetSdk = 36
-        versionCode = 17
-        versionName = "2.5"
+        versionCode = 18
+        versionName = "2.6"
 
         multiDexEnabled = true
 
@@ -106,6 +108,16 @@ android {
         buildConfig = true
         resValues = true
     }
+}
+
+googleServices {
+    (this as ExtensionAware).extra.set("generateResources", false)
+}
+
+// Ensure the Google Services resource generation task is disabled to avoid duplicate resource errors
+// since we provide these values manually via resValue
+tasks.matching { it.name.startsWith("process") && it.name.endsWith("GoogleServices") }.configureEach {
+    enabled = false
 }
 
 kotlin {

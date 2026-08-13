@@ -1,15 +1,7 @@
-/*
- * Copyright (C) 2026 Darius Epure (Darius DevWorks)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
-
 package com.dariusepure.caractivitylog.ui.cars
 
 import com.dariusepure.caractivitylog.data.ai.GeminiRepository
+import com.dariusepure.caractivitylog.data.prefs.PreferenceRepository
 import com.dariusepure.caractivitylog.domain.ScannedCarData
 import android.graphics.Bitmap
 import android.net.Uri
@@ -38,11 +30,14 @@ import kotlin.math.roundToInt
 class AddCarViewModel @Inject constructor(
     private val carRepository: CarRepository,
     private val authRepository: AuthRepository,
-    private val geminiRepository: GeminiRepository
+    private val geminiRepository: GeminiRepository,
+    private val preferenceRepository: PreferenceRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<AddCarState>(AddCarState.Idle)
     val state = _state.asStateFlow()
+
+    val unitSystem = preferenceRepository.unitSystem
 
     private val _navigationEvent = Channel<Unit>(Channel.BUFFERED)
     val navigationEvent = _navigationEvent.receiveAsFlow()
@@ -218,8 +213,8 @@ class AddCarViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = AddCarState.Pending
             try {
-                val country = europeanCountries.find { it.code == plateCountry }
-                val usesMiles = country?.usesMiles == true
+                val unitSystemValue = preferenceRepository.unitSystem.first()
+                val usesMiles = unitSystemValue == com.dariusepure.caractivitylog.domain.UnitSystem.IMPERIAL
                 
                 val inputTopSpeed = topSpeed.toDoubleOrNull() ?: 0.0
                 val canonicalTopSpeed = CarFormatters.toCanonicalSpeed(inputTopSpeed, usesMiles)
@@ -275,9 +270,9 @@ class AddCarViewModel @Inject constructor(
                     tireAspectRatio = tireAspectRatio.toDoubleOrNull()?.roundToInt() ?: 0,
                     tireDiameter = tireDiameter.toDoubleOrNull()?.roundToInt() ?: 0,
                     acceleration0to100 = acceleration0to100.toDoubleOrNull() ?: 0.0,
-                    fuelConsumptionCombined = fuelConsumptionCombined.toDoubleOrNull() ?: 0.0,
-                    fuelConsumptionUrban = fuelConsumptionUrban.toDoubleOrNull() ?: 0.0,
-                    fuelConsumptionExtraUrban = fuelConsumptionExtraUrban.toDoubleOrNull() ?: 0.0,
+                    fuelConsumptionCombined = CarFormatters.toCanonicalConsumption(fuelConsumptionCombined.toDoubleOrNull() ?: 0.0, usesMiles),
+                    fuelConsumptionUrban = CarFormatters.toCanonicalConsumption(fuelConsumptionUrban.toDoubleOrNull() ?: 0.0, usesMiles),
+                    fuelConsumptionExtraUrban = CarFormatters.toCanonicalConsumption(fuelConsumptionExtraUrban.toDoubleOrNull() ?: 0.0, usesMiles),
                     co2Emissions = co2Emissions.toDoubleOrNull()?.roundToInt() ?: 0,
                     updatedAt = Date()
                 )

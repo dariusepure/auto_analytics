@@ -1,12 +1,3 @@
-/*
- * Copyright (C) 2026 Darius Epure (Darius DevWorks)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
-
 package com.dariusepure.caractivitylog.di
 
 import com.google.firebase.Firebase
@@ -95,15 +86,15 @@ object AppModule {
                 - frontBrakes / rearBrakes: [Ventilated Discs, Solid Discs, Drums, Ceramic Discs]
                 - frontSuspension: [MacPherson, Double Wishbone, Multi-link]
                 - rearSuspension: [Torsion Beam, Multi-link, Solid Axle]
-                - drivetrain: [FWD, RWD, AWD, 4WD]
+                - drivetrain: [FWD, RWD, AWD]
                 - vehicleType: [Saloon, Estate, Hatchback, MPV, SUV, Coupe, Convertible, Van, Pickup]
                 - fuelSystem (Petrol/LPG): [Carburetor, Multi Point Injection, Direct Injection]
                 - fuelSystem (Diesel): [Injection Pump, Pumpe Duse, Common Rail]
-                - powerUnit: [hp, kw]
+                - powerUnit: [hp, kW]
                 
                 ROMANIAN TO ENGLISH MAPPING RULES:
                 - fuelType: Benzină -> Petrol, Motorină -> Diesel, Hibrid -> Hybrid, GPL -> LPG.
-                - drivetrain: Tracțiune față -> FWD, Tracțiune spate -> RWD, Integrală -> AWD, 4x4 -> 4WD.
+                - drivetrain: Față -> FWD, Spate -> RWD, Integrală -> AWD, 4x4 -> AWD, 4wd -> AWD.
                 - gearboxType: Manuală -> Manual, Automată -> Automatic.
                 - engineLayout: Transversal -> Transverse, Longitudinal -> Longitudinal.
                 - cylinderLayout: În linie -> Inline.

@@ -1,12 +1,3 @@
-/*
- * Copyright (C) 2026 Darius Epure (Darius DevWorks)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
-
 package com.dariusepure.caractivitylog.ui.cars
 
 import androidx.compose.foundation.clickable
@@ -17,20 +8,26 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import com.dariusepure.caractivitylog.R
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dariusepure.caractivitylog.ui.common.*
-import com.dariusepure.caractivitylog.domain.displayName
+import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.domain.Insurance
 import com.dariusepure.caractivitylog.domain.InspectionDurationUnit
+import com.dariusepure.caractivitylog.domain.displayName
+import com.dariusepure.caractivitylog.ui.common.*
+import com.dariusepure.caractivitylog.ui.theme.statusExpiredRed
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -39,8 +36,7 @@ import java.util.*
 fun InsuranceHistoryScreen(
     carId: String,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: CarDetailsViewModel = hiltViewModel()
+    viewModel: InsuranceHistoryViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showAddDialog by remember { mutableStateOf(false) }
@@ -48,7 +44,7 @@ fun InsuranceHistoryScreen(
     var insuranceToDelete by remember { mutableStateOf<Insurance?>(null) }
 
     LaunchedEffect(carId) {
-        viewModel.loadCarData(carId)
+        viewModel.loadData(carId)
     }
 
     if (insuranceToDelete != null) {
@@ -61,29 +57,9 @@ fun InsuranceHistoryScreen(
         )
     }
 
-    if (showAddDialog || editingInsurance != null) {
-        AddInsuranceDialog(
-            existingInsurance = editingInsurance,
-            onDismiss = { 
-                showAddDialog = false
-                editingInsurance = null
-            },
-            onConfirm = { insurance ->
-                if (editingInsurance != null) {
-                    viewModel.updateInsurance(carId, insurance.copy(id = editingInsurance!!.id))
-                } else {
-                    viewModel.addInsurance(carId, insurance)
-                }
-                showAddDialog = false
-                editingInsurance = null
-            }
-        )
-    }
-
     Scaffold(
-        modifier = modifier,
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = { Text(stringResource(R.string.insurance_history_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -103,45 +79,68 @@ fun InsuranceHistoryScreen(
         }
     ) { padding ->
         when (val s = state) {
-            CarDetailsUiState.Loading -> LoadingState()
-            is CarDetailsUiState.Error -> ErrorState(message = s.message, onRetry = { viewModel.loadCarData(carId) })
-            is CarDetailsUiState.Success -> {
-                val car = s.car
+            InsuranceHistoryUiState.Loading -> LoadingState()
+            is InsuranceHistoryUiState.Error -> ErrorState(message = s.message, onRetry = { viewModel.loadData(carId) })
+            is InsuranceHistoryUiState.Success -> {
+                val carAccentColor = Color(0xFF1A73E8)
 
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     item {
-                        Spacer(Modifier.height(16.dp))
-                        Text(
-                            text = car.displayName,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.secondary
-                        )
+                        InsuranceStatsCard(s.stats)
                         Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(R.string.insurance_history_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
                     }
 
                     if (s.insurances.isEmpty()) {
                         item {
-                            Text(
-                                text = stringResource(R.string.insurance_empty),
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(vertical = 16.dp)
+                            EmptyState(
+                                icon = Icons.Outlined.Security,
+                                title = stringResource(R.string.insurance_empty),
+                                subtitle = ""
                             )
-                        }
-                    } else {
-                        items(s.insurances) { insurance ->
-                            InsuranceItem(
-                                insurance = insurance,
-                                onEditClick = { editingInsurance = insurance },
-                                onDeleteClick = { insuranceToDelete = insurance }
-                            )
-                            HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                         }
                     }
+
+                    items(s.insurances) { insurance ->
+                        InsuranceLogItem(
+                            insurance = insurance,
+                            onEdit = { editingInsurance = insurance },
+                            onDelete = { insuranceToDelete = insurance }
+                        )
+                    }
+                    
+                    item { Spacer(Modifier.height(80.dp)) }
+                }
+
+                if (showAddDialog || editingInsurance != null) {
+                    AddInsuranceDialog(
+                        existingInsurance = editingInsurance,
+                        onDismiss = { 
+                            showAddDialog = false
+                            editingInsurance = null
+                        },
+                        onConfirm = { insurance: Insurance ->
+                            if (editingInsurance != null) {
+                                viewModel.updateInsurance(carId, insurance.copy(id = editingInsurance!!.id))
+                            } else {
+                                viewModel.addInsurance(carId, insurance)
+                            }
+                            showAddDialog = false
+                            editingInsurance = null
+                        }
+                    )
                 }
             }
         }
@@ -288,3 +287,74 @@ fun AddInsuranceDialog(
     )
 }
 
+@Composable
+fun InsuranceStatsCard(stats: InsuranceStats) {
+    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
+    val statusColor = when {
+        stats.daysRemaining == null -> Color(0xFF1A73E8)
+        stats.daysRemaining < 0 -> statusExpiredRed
+        stats.daysRemaining < 14 -> Color(0xFFFF9800)
+        else -> Color(0xFF4CAF50)
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = statusColor.copy(alpha = 0.15f))
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                StatItem(
+                    label = "Valid until", 
+                    value = stats.latestExpiryDate?.let { dateFormat.format(it) } ?: "--"
+                )
+                StatItem(
+                    label = "Remaining", 
+                    value = stats.daysRemaining?.let { if (it < 0) "Expired" else "$it days" } ?: "--"
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun InsuranceLogItem(
+    insurance: Insurance,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
+    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(Icons.Default.Security, null, tint = MaterialTheme.colorScheme.primary)
+            Spacer(Modifier.width(16.dp))
+            Column(Modifier.weight(1f)) {
+                Text(dateFormat.format(insurance.date), style = MaterialTheme.typography.labelSmall)
+                Text(
+                    text = insurance.provider.ifBlank { "Insurance Policy" },
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Expires: ${dateFormat.format(insurance.expiryDate)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            
+            ActionButtons(
+                onEdit = onEdit,
+                onDelete = onDelete
+            )
+        }
+    }
+}
