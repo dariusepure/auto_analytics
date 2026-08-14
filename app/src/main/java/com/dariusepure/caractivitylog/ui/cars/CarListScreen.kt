@@ -320,8 +320,15 @@ private fun InnerCarListScreen(
                         tooltip = { PlainTooltip { Text(stringResource(R.string.common_settings)) } },
                         state = settingsTooltipState
                     ) {
-                        IconButton(onClick = { showSettingsSheet = true }) {
-                            Icon(Icons.Default.Settings, null, tint = MaterialTheme.colorScheme.primary)
+                        FilledIconButton(
+                            onClick = { showSettingsSheet = true },
+                            colors = IconButtonDefaults.filledIconButtonColors(
+                                containerColor = Color(0xFF1C1B1F),
+                                contentColor = Color.White
+                            ),
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(Icons.Default.Settings, null, modifier = Modifier.size(20.dp))
                         }
                     }
                 }
