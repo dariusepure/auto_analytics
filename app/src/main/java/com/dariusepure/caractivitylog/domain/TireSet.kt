@@ -3,6 +3,9 @@ package com.dariusepure.caractivitylog.domain
 import androidx.annotation.StringRes
 import com.dariusepure.caractivitylog.R
 
+import androidx.compose.runtime.Stable
+
+@Stable
 data class TireSet(
     val id: String = "",
     val season: TireSeason = TireSeason.SUMMER,

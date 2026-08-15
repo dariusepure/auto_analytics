@@ -12,6 +12,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import com.dariusepure.caractivitylog.ui.auth.SignInScreen
 import com.dariusepure.caractivitylog.ui.auth.SignUpScreen
 import com.dariusepure.caractivitylog.ui.auth.ForgotPasswordScreen
@@ -104,7 +106,11 @@ fun AppNavigation(
     NavHost(
         navController = navController,
         startDestination = finalStartDestination,
-        modifier = modifier
+        modifier = modifier,
+        enterTransition = { EnterTransition.None },
+        exitTransition = { ExitTransition.None },
+        popEnterTransition = { EnterTransition.None },
+        popExitTransition = { ExitTransition.None }
     ) {
         composable(Screen.SignIn.route) {
             SignInScreen(

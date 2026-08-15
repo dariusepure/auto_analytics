@@ -92,40 +92,6 @@ fun TireHistoryScreen(
                 ) {
                     item {
                         Spacer(Modifier.height(8.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            StatItem(
-                                label = stringResource(R.string.stats_active_set), 
-                                value = s.stats.activeTireSet?.brand ?: stringResource(R.string.common_none)
-                            )
-                            StatItem(
-                                label = stringResource(R.string.stats_total_sets), 
-                                value = "${s.stats.totalSets}"
-                            )
-                        }
-                        if (s.stats.activeTireSet != null) {
-                            Spacer(Modifier.height(8.dp))
-                            Text(
-                                text = stringResource(
-                                    R.string.tire_summary,
-                                    s.stats.activeTireSet.brand,
-                                    s.stats.activeTireSet.width,
-                                    s.stats.activeTireSet.ratio,
-                                    s.stats.activeTireSet.diameter
-                                ),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = stringResource(R.string.tire_management_title),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
                     }
 
                     if (s.tireSets.isEmpty()) {
@@ -138,7 +104,11 @@ fun TireHistoryScreen(
                         }
                     }
 
-                    items(s.tireSets) { tireSet ->
+                    items(
+                        items = s.tireSets,
+                        key = { it.id },
+                        contentType = { "tire_set" }
+                    ) { tireSet ->
                         TireSetLogItem(
                             tireSet = tireSet,
                             onEdit = { editingTireSet = tireSet },
@@ -146,7 +116,7 @@ fun TireHistoryScreen(
                         )
                     }
                     
-                    item { Spacer(Modifier.height(80.dp)) }
+                    item(contentType = { "spacer" }) { Spacer(Modifier.height(80.dp)) }
                 }
 
                 if (showAddDialog || editingTireSet != null) {

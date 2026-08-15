@@ -3,8 +3,10 @@ package com.dariusepure.caractivitylog.domain
 import androidx.annotation.StringRes
 import com.dariusepure.caractivitylog.R
 import java.util.Calendar
+import androidx.compose.runtime.Stable
 import java.util.Date
 
+@Stable
 data class VehicleInspection(
     val id: String = "",
     val date: Date = Date(),

@@ -1,8 +1,10 @@
 package com.dariusepure.caractivitylog.domain
 
 import java.util.Calendar
+import androidx.compose.runtime.Stable
 import java.util.Date
 
+@Stable
 data class Insurance(
     val id: String = "",
     val date: Date = Date(),

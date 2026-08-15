@@ -75,7 +75,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.animation.AnimatedVisibility
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.ui.graphics.Color
@@ -1817,7 +1816,7 @@ private fun CollapsibleSection(
                 tint = MaterialTheme.colorScheme.primary
             )
         }
-        AnimatedVisibility(visible = isExpanded) {
+        if (isExpanded) {
             Column {
                 content()
             }

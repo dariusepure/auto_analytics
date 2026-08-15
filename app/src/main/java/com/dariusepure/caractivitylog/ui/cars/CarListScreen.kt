@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
@@ -52,6 +53,9 @@ import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import com.dariusepure.caractivitylog.ui.common.LanguageDialog
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
+import com.dariusepure.caractivitylog.ui.common.supportedLanguages
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.TooltipBox
@@ -180,22 +184,46 @@ fun CarListScreen(
     val currentDark = isDarkMode ?: systemDark
     val haptic = LocalHapticFeedback.current
 
+    val onDeleteCarLambda = remember(viewModel, haptic) {
+        { carId: String ->
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            viewModel.onDeleteCar(carId)
+        }
+    }
+    
+    val onLogoutClickLambda = remember(viewModel, onLogout) {
+        {
+            viewModel.signOut()
+            onLogout()
+        }
+    }
+    
+    val onThemeToggleLambda = remember(settingsViewModel, currentDark) {
+        { settingsViewModel.toggleTheme(currentDark) }
+    }
+    
+    val onUnitSystemChangeLambda = remember(settingsViewModel) {
+        { system: com.dariusepure.caractivitylog.domain.UnitSystem -> settingsViewModel.setUnitSystem(system) }
+    }
+    
+    val onSortOrderChangeLambda = remember(viewModel) {
+        { order: CarSortOrder -> viewModel.onSortOrderChanged(order) }
+    }
+    
+    val onSearchQueryChangeLambda = remember(viewModel) {
+        { query: String -> viewModel.onSearchQueryChanged(query) }
+    }
+
     InnerCarListScreen(
         onCarClick = onCarClick,
         onAddCarClick = onAddCarClick,
         onEditCarClick = onEditCarClick,
-        onDeleteCar = { carId -> 
-            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-            viewModel.onDeleteCar(carId) 
-        },
-        onLogoutClick = {
-            viewModel.signOut()
-            onLogout()
-        },
-        onThemeToggle = { settingsViewModel.toggleTheme(currentDark) },
-        onUnitSystemChange = { settingsViewModel.setUnitSystem(it) },
-        onSortOrderChange = { viewModel.onSortOrderChanged(it) },
-        onSearchQueryChange = { viewModel.onSearchQueryChanged(it) },
+        onDeleteCar = onDeleteCarLambda,
+        onLogoutClick = onLogoutClickLambda,
+        onThemeToggle = onThemeToggleLambda,
+        onUnitSystemChange = onUnitSystemChangeLambda,
+        onSortOrderChange = onSortOrderChangeLambda,
+        onSearchQueryChange = onSearchQueryChangeLambda,
         searchQuery = searchQuery,
         currentSortOrder = sortOrder,
         currentUnitSystem = unitSystem,
@@ -253,10 +281,6 @@ private fun InnerCarListScreen(
                 isDark = isDark,
                 currentUnitSystem = currentUnitSystem,
                 onThemeToggle = onThemeToggle,
-                onLanguageClick = { 
-                    showLanguageDialog = true
-                    showSettingsSheet = false 
-                },
                 onUnitSystemChange = onUnitSystemChange,
                 onLogoutClick = onLogoutClick
             )
@@ -404,7 +428,11 @@ private fun InnerCarListScreen(
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
-                            items(state.cars, key = { it.id }) { car ->
+                            items(
+                                items = state.cars,
+                                key = { it.id },
+                                contentType = { "car_card" }
+                            ) { car ->
                                 CarCard(
                                     car = car,
                                     onClick = { onCarClick(car.id) },
@@ -412,7 +440,7 @@ private fun InnerCarListScreen(
                                     onDeleteClick = { carToDelete = car.id }
                                 )
                             }
-                            item { Spacer(Modifier.height(80.dp)) }
+                            item(contentType = { "spacer" }) { Spacer(Modifier.height(80.dp)) }
                         }
                     }
                     is CarListUiState.Error -> ErrorState(
@@ -430,10 +458,16 @@ private fun SettingsSheetContent(
     isDark: Boolean,
     currentUnitSystem: com.dariusepure.caractivitylog.domain.UnitSystem,
     onThemeToggle: () -> Unit,
-    onLanguageClick: () -> Unit,
     onUnitSystemChange: (com.dariusepure.caractivitylog.domain.UnitSystem) -> Unit,
     onLogoutClick: () -> Unit
 ) {
+    var languageMenuExpanded by remember { mutableStateOf(false) }
+    var unitMenuExpanded by remember { mutableStateOf(false) }
+
+    val locales = AppCompatDelegate.getApplicationLocales()
+    val currentLocale = if (!locales.isEmpty) locales.get(0)?.language ?: "en" else "en"
+    val currentLanguage = supportedLanguages.find { it.code == currentLocale } ?: supportedLanguages[0]
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -457,46 +491,121 @@ private fun SettingsSheetContent(
         ListItem(
             headlineContent = { Text(stringResource(R.string.common_language)) },
             leadingContent = { Icon(Icons.Outlined.Language, null) },
-            modifier = Modifier.clickable { onLanguageClick() }
+            trailingContent = {
+                Box {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable { languageMenuExpanded = true }
+                    ) {
+                        Text(
+                            text = "${currentLanguage.flag} ${currentLanguage.name}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = languageMenuExpanded,
+                        onDismissRequest = { languageMenuExpanded = false },
+                        offset = androidx.compose.ui.unit.DpOffset(x = 0.dp, y = 4.dp)
+                    ) {
+                        supportedLanguages.forEach { language ->
+                            DropdownMenuItem(
+                                text = { Text("${language.flag} ${language.name}") },
+                                onClick = {
+                                    val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(language.code)
+                                    AppCompatDelegate.setApplicationLocales(appLocale)
+                                    languageMenuExpanded = false
+                                },
+                                trailingIcon = {
+                                    if (language.code == currentLocale) {
+                                        Icon(Icons.Default.CheckCircle, null, Modifier.size(18.dp))
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            },
+            modifier = Modifier.clickable { languageMenuExpanded = true }
         )
 
         ListItem(
             headlineContent = { Text(stringResource(R.string.unit_system_label)) },
             leadingContent = { Icon(Icons.Default.Sync, null) },
             trailingContent = {
-                Text(
-                    text = if (currentUnitSystem == com.dariusepure.caractivitylog.domain.UnitSystem.METRIC) 
-                        stringResource(R.string.unit_system_metric_label) 
-                    else stringResource(R.string.unit_system_imperial_label),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
-                )
+                Box {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable { unitMenuExpanded = true }
+                    ) {
+                        Text(
+                            text = if (currentUnitSystem == com.dariusepure.caractivitylog.domain.UnitSystem.METRIC)
+                                stringResource(R.string.unit_system_metric_label)
+                            else stringResource(R.string.unit_system_imperial_label),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = unitMenuExpanded,
+                        onDismissRequest = { unitMenuExpanded = false },
+                        offset = androidx.compose.ui.unit.DpOffset(x = 0.dp, y = 4.dp)
+                    ) {
+                        com.dariusepure.caractivitylog.domain.UnitSystem.entries.forEach { system ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        if (system == com.dariusepure.caractivitylog.domain.UnitSystem.METRIC)
+                                            stringResource(R.string.unit_system_metric_label)
+                                        else stringResource(R.string.unit_system_imperial_label)
+                                    )
+                                },
+                                onClick = {
+                                    onUnitSystemChange(system)
+                                    unitMenuExpanded = false
+                                },
+                                trailingIcon = {
+                                    if (system == currentUnitSystem) {
+                                        Icon(Icons.Default.CheckCircle, null, Modifier.size(18.dp))
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
             },
-            modifier = Modifier.clickable {
-                onUnitSystemChange(
-                    if (currentUnitSystem == com.dariusepure.caractivitylog.domain.UnitSystem.METRIC) 
-                        com.dariusepure.caractivitylog.domain.UnitSystem.IMPERIAL 
-                    else com.dariusepure.caractivitylog.domain.UnitSystem.METRIC
-                )
-            }
+            modifier = Modifier.clickable { unitMenuExpanded = true }
         )
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
         ListItem(
-            headlineContent = { 
+            headlineContent = {
                 Text(
                     text = stringResource(R.string.auth_logout),
                     color = MaterialTheme.colorScheme.error
-                ) 
+                )
             },
-            leadingContent = { 
+            leadingContent = {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Logout, 
+                    imageVector = Icons.AutoMirrored.Filled.Logout,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error
-                ) 
+                )
             },
             modifier = Modifier.clickable { onLogoutClick() }
         )

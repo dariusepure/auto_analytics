@@ -3,9 +3,13 @@ package com.dariusepure.caractivitylog.data.cars
 import com.dariusepure.caractivitylog.domain.VehicleInspection
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.MileageLog
@@ -20,20 +24,25 @@ class CarRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val authRepository: AuthRepository
 ) {
+    private val repositoryScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
+    init {
+        repositoryScope.launch {
+            authRepository.signedIn.collect {
+                if (authRepository.isGuestMode) {
+                    firestore.disableNetwork()
+                } else {
+                    firestore.enableNetwork()
+                }
+            }
+        }
+    }
+
     private fun getUid(): String {
         return authRepository.getUserId() ?: throw Exception("Utilizatorul nu este logat!")
     }
 
-    private fun checkNetwork() {
-        if (authRepository.isGuestMode) {
-            firestore.disableNetwork()
-        } else {
-            firestore.enableNetwork()
-        }
-    }
-
     val cars: Flow<List<Car>> = callbackFlow {
-        checkNetwork()
         val uid = authRepository.getUserId() ?: run {
             trySend(emptyList())
             close()
@@ -61,7 +70,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun createCar(car: Car) {
-        checkNetwork()
         val uid = getUid()
         val firestoreCar = car.toFirebase()
 
@@ -81,7 +89,6 @@ class CarRepository @Inject constructor(
     }
 
     fun getCarFlow(carId: String): Flow<Car?> = callbackFlow {
-        checkNetwork()
         val uid = authRepository.getUserId() ?: run {
             trySend(null)
             close()
@@ -106,7 +113,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun getCar(carId: String): Car? {
-        checkNetwork()
         val uid = authRepository.getUserId() ?: return null
         return firestore.collection("users")
             .document(uid)
@@ -119,7 +125,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteCar(carId: String) {
-        checkNetwork()
         val uid = getUid()
         
         firestore.collection("users")
@@ -131,7 +136,6 @@ class CarRepository @Inject constructor(
     }
 
     fun getMileageLogs(carId: String): Flow<List<MileageLog>> = callbackFlow {
-        checkNetwork()
         val uid = authRepository.getUserId() ?: run {
             trySend(emptyList())
             close()
@@ -161,7 +165,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun addMileageLog(carId: String, log: MileageLog) {
-        checkNetwork()
         val uid = getUid()
         firestore.collection("users")
             .document(uid)
@@ -173,7 +176,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun updateMileageLog(carId: String, log: MileageLog) {
-        checkNetwork()
         val uid = getUid()
         firestore.collection("users")
             .document(uid)
@@ -186,7 +188,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteMileageLog(carId: String, logId: String) {
-        checkNetwork()
         val uid = getUid()
         firestore.collection("users")
             .document(uid)
@@ -200,7 +201,6 @@ class CarRepository @Inject constructor(
 
 
     fun getInspections(carId: String): Flow<List<VehicleInspection>> = callbackFlow {
-        checkNetwork()
         val uid = authRepository.getUserId() ?: run {
             trySend(emptyList())
             close()
@@ -230,7 +230,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun addInspection(carId: String, inspection: VehicleInspection) {
-        checkNetwork()
         val uid = getUid()
         
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
@@ -243,7 +242,6 @@ class CarRepository @Inject constructor(
 
 
     suspend fun updateInspection(carId: String, inspection: VehicleInspection) {
-        checkNetwork()
         val uid = getUid()
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
         
@@ -252,7 +250,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteInspection(carId: String, inspection: VehicleInspection) {
-        checkNetwork()
         val uid = getUid()
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
         
@@ -260,7 +257,6 @@ class CarRepository @Inject constructor(
     }
 
     fun getInsurances(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.Insurance>> = callbackFlow {
-        checkNetwork()
         val uid = authRepository.getUserId() ?: run {
             trySend(emptyList())
             close()
@@ -290,7 +286,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun addInsurance(carId: String, insurance: com.dariusepure.caractivitylog.domain.Insurance) {
-        checkNetwork()
         val uid = getUid()
         firestore.collection("users")
             .document(uid)
@@ -302,7 +297,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun updateInsurance(carId: String, insurance: com.dariusepure.caractivitylog.domain.Insurance) {
-        checkNetwork()
         val uid = getUid()
         firestore.collection("users")
             .document(uid)
@@ -315,7 +309,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteInsurance(carId: String, insuranceId: String) {
-        checkNetwork()
         val uid = getUid()
         firestore.collection("users")
             .document(uid)
@@ -328,7 +321,6 @@ class CarRepository @Inject constructor(
     }
 
     fun getVignettes(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.Vignette>> = callbackFlow {
-        checkNetwork()
         val uid = authRepository.getUserId() ?: run {
             trySend(emptyList())
             close()
@@ -358,7 +350,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun addVignette(carId: String, vignette: com.dariusepure.caractivitylog.domain.Vignette) {
-        checkNetwork()
         val uid = getUid()
         firestore.collection("users")
             .document(uid)
@@ -370,7 +361,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun updateVignette(carId: String, vignette: com.dariusepure.caractivitylog.domain.Vignette) {
-        checkNetwork()
         val uid = getUid()
         firestore.collection("users")
             .document(uid)
@@ -383,7 +373,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteVignette(carId: String, vignetteId: String) {
-        checkNetwork()
         val uid = getUid()
         firestore.collection("users")
             .document(uid)
@@ -396,7 +385,6 @@ class CarRepository @Inject constructor(
     }
 
     fun getTireSets(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.TireSet>> = callbackFlow {
-        checkNetwork()
         val uid = authRepository.getUserId() ?: run {
             trySend(emptyList())
             close()
@@ -426,7 +414,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun addTireSet(carId: String, tireSet: com.dariusepure.caractivitylog.domain.TireSet) {
-        checkNetwork()
         val uid = getUid()
         
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
@@ -444,7 +431,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun updateTireSet(carId: String, tireSet: com.dariusepure.caractivitylog.domain.TireSet) {
-        checkNetwork()
         val uid = getUid()
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
         val tireSetRef = carRef.collection("tire_sets").document(tireSet.id)
@@ -463,7 +449,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteTireSet(carId: String, tireSetId: String) {
-        checkNetwork()
         val uid = getUid()
         firestore.collection("users")
             .document(uid)
@@ -476,7 +461,6 @@ class CarRepository @Inject constructor(
     }
 
     fun getDiagnosisMessages(carId: String): Flow<List<ChatMessage>> = callbackFlow {
-        checkNetwork()
         val uid = authRepository.getUserId() ?: run {
             trySend(emptyList())
             close()
@@ -506,7 +490,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun addDiagnosisMessage(carId: String, message: ChatMessage) {
-        checkNetwork()
         val uid = getUid()
         firestore.collection("users")
             .document(uid)
@@ -518,7 +501,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun clearDiagnosisMessages(carId: String) {
-        checkNetwork()
         val uid = getUid()
         val collection = firestore.collection("users")
             .document(uid)
@@ -533,7 +515,6 @@ class CarRepository @Inject constructor(
     }
 
     fun getFuelLogs(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.FuelLog>> = callbackFlow {
-        checkNetwork()
         val uid = authRepository.getUserId() ?: run {
             trySend(emptyList())
             close()
@@ -563,7 +544,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun addFuelLog(carId: String, log: com.dariusepure.caractivitylog.domain.FuelLog) {
-        checkNetwork()
         val uid = getUid()
         
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
@@ -574,21 +554,18 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun updateFuelLog(carId: String, log: com.dariusepure.caractivitylog.domain.FuelLog) {
-        checkNetwork()
         val uid = getUid()
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
         carRef.collection("fuel_logs").document(log.id).set(log.toFirebase()).await()
     }
 
     suspend fun deleteFuelLog(carId: String, log: com.dariusepure.caractivitylog.domain.FuelLog) {
-        checkNetwork()
         val uid = getUid()
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
         carRef.collection("fuel_logs").document(log.id).delete().await()
     }
 
     fun getMaintenanceLogs(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.Maintenance>> = callbackFlow {
-        checkNetwork()
         val uid = authRepository.getUserId() ?: run {
             trySend(emptyList())
             close()
@@ -618,7 +595,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun addMaintenanceLog(carId: String, log: com.dariusepure.caractivitylog.domain.Maintenance) {
-        checkNetwork()
         val uid = getUid()
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
         val maintenanceRef = carRef.collection("maintenance").document()
@@ -628,21 +604,18 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun updateMaintenanceLog(carId: String, log: com.dariusepure.caractivitylog.domain.Maintenance) {
-        checkNetwork()
         val uid = getUid()
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
         carRef.collection("maintenance").document(log.id).set(log.toFirebase()).await()
     }
 
     suspend fun deleteMaintenanceLog(carId: String, log: com.dariusepure.caractivitylog.domain.Maintenance) {
-        checkNetwork()
         val uid = getUid()
         val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
         carRef.collection("maintenance").document(log.id).delete().await()
     }
 
     fun getCarReports(carId: String): Flow<List<CarReport>> = callbackFlow {
-        checkNetwork()
         val uid = authRepository.getUserId() ?: run {
             trySend(emptyList())
             close()
@@ -671,7 +644,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun addCarReport(carId: String, report: CarReport) {
-        checkNetwork()
         val uid = getUid()
         firestore.collection("users")
             .document(uid)
@@ -683,7 +655,6 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteCarReport(carId: String, reportId: String) {
-        checkNetwork()
         val uid = getUid()
         firestore.collection("users")
             .document(uid)

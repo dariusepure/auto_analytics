@@ -150,22 +150,8 @@ fun MileageHistoryScreen(
                 ) {
                     item {
                         Spacer(Modifier.height(8.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            StatItem(
-                                label = stringResource(R.string.stats_current_mileage), 
-                                value = "${s.stats.currentMileage.roundToInt()} $unitLabel"
-                            )
-                            StatItem(
-                                label = stringResource(R.string.stats_total_records), 
-                                value = "${s.stats.totalRecords}"
-                            )
-                        }
                         
                         if (s.mileageLogs.size >= 2) {
-                            Spacer(Modifier.height(8.dp))
                             val chartData = s.mileageLogs.map { 
                                 val displayValue = CarFormatters.fromCanonicalDistance(it.km, usesMiles)
                                 it.date to displayValue 
@@ -176,13 +162,6 @@ fun MileageHistoryScreen(
                                 modifier = Modifier.padding(vertical = 8.dp)
                             )
                         }
-                        
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = stringResource(R.string.mileage_history_title),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
                     }
 
                     if (s.mileageLogs.isEmpty()) {
@@ -194,7 +173,11 @@ fun MileageHistoryScreen(
                             )
                         }
                     } else {
-                        items(s.mileageLogs) { log ->
+                        items(
+                            items = s.mileageLogs,
+                            key = { it.id },
+                            contentType = { "mileage_log" }
+                        ) { log ->
                             MileageLogItem(
                                 log = log,
                                 unit = unitLabel,
@@ -205,7 +188,7 @@ fun MileageHistoryScreen(
                         }
                     }
                     
-                    item { Spacer(Modifier.height(80.dp)) }
+                    item(contentType = { "spacer" }) { Spacer(Modifier.height(80.dp)) }
                 }
             }
         }

@@ -57,7 +57,7 @@ fun DiagnosisScreen(
     // Auto-scroll to latest message
     LaunchedEffect(state.messages.size) {
         if (state.messages.isNotEmpty()) {
-            listState.animateScrollToItem(state.messages.size - 1)
+            listState.scrollToItem(state.messages.size - 1)
         }
     }
 

@@ -1,7 +1,9 @@
 package com.dariusepure.caractivitylog.domain
 
+import androidx.compose.runtime.Stable
 import java.util.Date
 
+@Stable
 data class Car(
     val id: String = "",
     val name: String = "", // Used for Car Title / Nickname

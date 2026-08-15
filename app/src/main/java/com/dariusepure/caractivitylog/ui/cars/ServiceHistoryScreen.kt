@@ -94,33 +94,12 @@ fun ServiceHistoryScreen(
                 ) {
                     item {
                         Spacer(Modifier.height(8.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            StatItem(
-                                label = stringResource(R.string.pdf_section_service), 
-                                value = "${s.stats.totalServices}"
-                            )
-                            StatItem(
-                                label = stringResource(R.string.service_mileage_label, unit).replace(" ($unit)", ""), 
-                                value = s.stats.lastServiceKm?.let { "${it.roundToInt()} $unit" } ?: "-- $unit"
-                            )
-                        }
                         if (s.stats.averageIntervalKm != null) {
-                            Spacer(Modifier.height(12.dp))
                             StatItem(
                                 label = stringResource(R.string.stats_avg_interval), 
                                 value = "${s.stats.averageIntervalKm.roundToInt()} $unit"
                             )
                         }
-                        
-                        Spacer(Modifier.height(16.dp))
-                        Text(
-                            text = stringResource(R.string.service_history_title),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
                     }
 
                     if (s.logs.isEmpty()) {
@@ -133,7 +112,11 @@ fun ServiceHistoryScreen(
                         }
                     }
 
-                    items(s.logs) { record ->
+                    items(
+                        items = s.logs,
+                        key = { it.id },
+                        contentType = { "service_log" }
+                    ) { record ->
                         ServiceLogItem(
                             record = record,
                             unit = unit,
@@ -144,7 +127,7 @@ fun ServiceHistoryScreen(
                         )
                     }
                     
-                    item { Spacer(Modifier.height(80.dp)) }
+                    item(contentType = { "spacer" }) { Spacer(Modifier.height(80.dp)) }
                 }
 
                 if (showAddDialog || editingRecord != null) {

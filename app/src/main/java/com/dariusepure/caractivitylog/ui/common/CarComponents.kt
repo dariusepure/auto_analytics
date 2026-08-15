@@ -1,6 +1,5 @@
 package com.dariusepure.caractivitylog.ui.common
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -314,6 +313,7 @@ fun BentoCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.surface,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
@@ -326,6 +326,7 @@ fun BentoCard(
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxSize(),
+            horizontalAlignment = horizontalAlignment,
             content = content
         )
     }
@@ -403,9 +404,9 @@ fun AutoSizeText(
         color = color,
         onTextLayout = { textLayoutResult ->
             if (textLayoutResult.hasVisualOverflow && fontSizeValue.isSp && fontSizeValue.value > minFontSize.value) {
-                // Optimize: Use a larger jump for the first few attempts on low-end devices
-                val scaleFactor = if (fontSizeValue.value > style.fontSize.value * 0.8f) 0.85f else 0.92f
-                fontSizeValue = (fontSizeValue.value * scaleFactor).sp
+                // Use a faster stepping algorithm for font scaling
+                val nextSize = (fontSizeValue.value * 0.9f).coerceAtLeast(minFontSize.value)
+                fontSizeValue = nextSize.sp
             } else {
                 readyToDraw = true
             }
