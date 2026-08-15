@@ -670,7 +670,11 @@ fun AddCarScreen(
                         sortedCountries.forEach { country ->
                             DropdownMenuItem(
                                 text = {
-                                    Text(CarTranslations.getCountryName(context, country.code, country.name))
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(country.flag)
+                                        Spacer(Modifier.width(8.dp))
+                                        Text(CarTranslations.getCountryName(context, country.code, country.name))
+                                    }
                                 },
                                 onClick = {
                                     selectedCountry = country

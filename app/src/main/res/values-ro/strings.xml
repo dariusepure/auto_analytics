@@ -11,6 +11,8 @@
     <string name="common_add">Adaugă</string>
     <string name="common_update">Actualizează</string>
     <string name="common_delete">Șterge</string>
+    <string name="common_delete_confirmation">Confirmare ștergere</string>
+    <string name="common_delete_msg">Ești sigur că vrei să ștergi acest element?</string>
     <string name="common_delete_permanently">Șterge definitiv</string>
     <string name="common_edit">Editează</string>
     <string name="common_apply_selected">Aplică selecția (%d)</string>

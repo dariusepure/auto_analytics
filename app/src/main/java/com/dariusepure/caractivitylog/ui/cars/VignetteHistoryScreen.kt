@@ -241,7 +241,7 @@ fun AddVignetteDialog(
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(c.flag)
                                         Spacer(Modifier.width(8.dp))
-                                        Text(c.name)
+                                        Text(CarTranslations.getCountryName(context, c.code, c.name))
                                     }
                                 },
                                 onClick = {

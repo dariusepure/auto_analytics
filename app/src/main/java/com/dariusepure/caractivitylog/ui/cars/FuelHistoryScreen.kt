@@ -328,6 +328,7 @@ fun AddFuelDialog(
                         }
                     },
                     label = { Text(stringResource(R.string.common_mileage, unit)) },
+                    suffix = { Text(unit) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
                     isError = errorMessage != null
@@ -346,6 +347,7 @@ fun AddFuelDialog(
                         value = vol,
                         onValueChange = { if (it.all { c -> c.isDigit() || c == '.' }) vol = it },
                         label = { Text("${stringResource(R.string.fuel_liters_label).replace("Litri", "").replace("Liters", "").trim()} ($volUnit)") },
+                        suffix = { Text(volUnit) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         modifier = Modifier.fillMaxWidth()
                     )

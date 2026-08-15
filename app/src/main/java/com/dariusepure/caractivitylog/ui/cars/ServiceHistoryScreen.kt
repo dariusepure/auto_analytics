@@ -298,6 +298,7 @@ fun AddServiceDialog(
                         }
                     },
                     label = { Text(stringResource(R.string.service_mileage_label, unit)) },
+                    suffix = { Text(unit) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
                     isError = errorMessage != null

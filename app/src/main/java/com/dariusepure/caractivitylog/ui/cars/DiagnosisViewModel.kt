@@ -62,7 +62,40 @@ class DiagnosisViewModel @Inject constructor(
             try {
                 carRepository.addDiagnosisMessage(carId, newUserMessage)
                 
-                val carContext = "" // Simple context for now
+                // Fetch snapshots of car history for rich context
+                val mileageLogs = carRepository.getMileageLogs(carId).firstOrNull() ?: emptyList()
+                val maintenanceLogs = carRepository.getMaintenanceLogs(carId).firstOrNull() ?: emptyList()
+                val fuelLogs = carRepository.getFuelLogs(carId).firstOrNull() ?: emptyList()
+                val tireSets = carRepository.getTireSets(carId).firstOrNull() ?: emptyList()
+                val inspections = carRepository.getInspections(carId).firstOrNull() ?: emptyList()
+                val insurances = carRepository.getInsurances(carId).firstOrNull() ?: emptyList()
+                val vignettes = carRepository.getVignettes(carId).firstOrNull() ?: emptyList()
+
+                val currentMileage = mileageLogs.firstOrNull()?.km ?: 0.0
+                val activeTire = tireSets.find { it.isActive }
+                val lastMaintenance = maintenanceLogs.firstOrNull()
+                val avgConsumption = if (fuelLogs.isNotEmpty()) {
+                    // Simple average for context
+                    val totalKm = fuelLogs.maxOfOrNull { it.km } ?: 0.0
+                    val totalLiters = fuelLogs.sumOf { it.liters }
+                    if (totalKm > 0) (totalLiters / totalKm) * 100 else null
+                } else null
+
+                val carContext = """
+                    Informații complete despre vehicul:
+                    - Marcă și Model: ${car.make} ${car.model} (${car.year})
+                    - Kilometraj actual: ${currentMileage.toInt()} km
+                    - Motorizare: ${car.engineSize} cc, ${car.fuelType}, ${car.power} ${car.powerUnit}
+                    - Ultima revizie: ${lastMaintenance?.let { "${it.description} la ${it.km.toInt()} km pe data de ${it.date}" } ?: "Nicio înregistrare"}
+                    - Anvelope active: ${activeTire?.let { "${it.brand} ${it.width}/${it.ratio} R${it.diameter} (${it.season})" } ?: "Nespecificat"}
+                    - Consum mediu: ${avgConsumption?.let { "%.2f L/100km".format(it) } ?: "Necunoscut"}
+                    - Status documente (valabilitate):
+                        * ITP: ${inspections.firstOrNull()?.expiryDate ?: "Necunoscut"}
+                        * RCA: ${insurances.firstOrNull()?.expiryDate ?: "Necunoscut"}
+                        * Rovinietă: ${vignettes.firstOrNull()?.expiryDate ?: "Necunoscut"}
+                    - Detalii tehnice: Transmisie ${car.gearboxType}, Tracțiune ${car.drivetrain}, Serie șasiu (final): ${car.vin.takeLast(6)}
+                """.trimIndent()
+                
                 val language = if (context.resources.configuration.locales[0].language == "ro") "Romanian" else "English"
                 
                 val response = geminiRepository.getDiagnosisResponse(

@@ -226,11 +226,23 @@ class GeminiRepository @Inject constructor(
                 )
             }
 
+        val isFirstMessage = validatedHistory.isEmpty()
+        val greetingRule = if (isFirstMessage) {
+            "Always start with a brief, friendly mechanic's greeting."
+        } else {
+            "Do not repeat the greeting or introduction. Get straight to the point and answer the user's question directly."
+        }
+
+        val personaInstruction = "Act as a professional, experienced car mechanic. $greetingRule Use human-friendly terms only; NEVER use internal data names or variable names like 'fuelType', 'vin', or 'make' in your sentences—use natural language like 'tip de combustibil', 'serie sasiu', or 'marca' instead. NEVER mention that you are reading from a 'context' or 'database'. Talk to the user as if you are standing next to their car in a garage. If you see recent maintenance or relevant history, mention it naturally (e.g., 'Am văzut că ai făcut recent revizia, e foarte bine pentru motor')."
+        val formattingInstruction = "STRICTLY PROHIBIT the use of markdown bold (**text**) or italics (_text_). Respond using ONLY plain text. Use simple paragraphs or plain lists with dashes (-) if needed."
+        val languageInstruction = "IMPORTANT: Please respond in $language."
+        
         val finalizedPrompt = systemPrompt.replace("{{context}}", carContext)
-        val languageInstruction = "\n\nIMPORTANT: Please respond in $language."
+        val fullPrompt = "$finalizedPrompt\n\nINSTRUCTIONS:\n- $personaInstruction\n- $formattingInstruction\n- $languageInstruction\n\nUser: $prompt"
+
         val userContent = Content(
             role = "user",
-            parts = listOf(Part(text = "$finalizedPrompt\n\nUser: $prompt$languageInstruction"))
+            parts = listOf(Part(text = fullPrompt))
         )
 
         val request = GeminiRequest(
