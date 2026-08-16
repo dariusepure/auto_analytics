@@ -108,16 +108,10 @@ fun FuelHistoryScreen(
                                 value = s.stats.avgConsumption?.let { String.format(Locale.getDefault(), "%.2f %s", it, consUnit) } ?: "-- $consUnit"
                             )
                             StatItem(
-                                label = stringResource(R.string.fuel_stats_total_dist), 
-                                value = "${s.stats.totalDistance.roundToInt()} $distUnit"
+                                label = stringResource(R.string.fuel_stats_total_fuel), 
+                                value = String.format(Locale.getDefault(), "%.1f %s", s.stats.totalLiters, volUnit)
                             )
                         }
-                        
-                        Spacer(Modifier.height(12.dp))
-                        StatItem(
-                            label = stringResource(R.string.fuel_stats_total_fuel), 
-                            value = String.format(Locale.getDefault(), "%.1f %s", s.stats.totalLiters, volUnit)
-                        )
 
                         if (s.stats.avgConsumption == null && s.logs.isNotEmpty()) {
                             Surface(
@@ -327,7 +321,7 @@ fun AddFuelDialog(
                             errorMessage = null
                         }
                     },
-                    label = { Text(stringResource(R.string.common_mileage, unit)) },
+                    label = { Text(stringResource(R.string.common_mileage)) },
                     suffix = { Text(unit) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
@@ -346,7 +340,7 @@ fun AddFuelDialog(
                     OutlinedTextField(
                         value = vol,
                         onValueChange = { if (it.all { c -> c.isDigit() || c == '.' }) vol = it },
-                        label = { Text("${stringResource(R.string.fuel_liters_label).replace("Litri", "").replace("Liters", "").trim()} ($volUnit)") },
+                        label = { Text(stringResource(R.string.fuel_liters_label)) },
                         suffix = { Text(volUnit) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         modifier = Modifier.fillMaxWidth()

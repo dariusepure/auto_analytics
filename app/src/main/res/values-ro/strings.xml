@@ -21,7 +21,7 @@
     <string name="common_error_title">Ceva nu a mers bine</string>
     <string name="common_date">Data</string>
     <string name="common_distance">Distanță (%s)</string>
-    <string name="common_mileage">Kilometraj (%s)</string>
+    <string name="common_mileage">Kilometraj</string>
     <string name="common_unit">Unitate</string>
     <string name="common_back">Înapoi</string>
     <string name="common_not_applicable">N/A</string>
@@ -364,7 +364,7 @@
     <string name="vignette_history_title">Istoric Rovinietă</string>
     <string name="vignette_add_title">Adaugă Rovinietă</string>
     <string name="vignette_country_label">Țara</string>
-    <string name="inspection_mileage_label">Kilometraj (%s)</string>
+    <string name="inspection_mileage_label">Kilometraj</string>
     <string name="inspection_date_label">Data inspecției</string>
     <string name="inspection_validity_label">Valabilitate</string>
     <string name="inspection_empty">Nu s-au găsit înregistrări de inspecție.</string>
@@ -383,7 +383,7 @@
     <string name="fuel_history_header">Istoric alimentări</string>
     <string name="fuel_history_empty">Nicio înregistrare încă. Adaugă prima alimentare!</string>
     <string name="fuel_add_title">Adaugă alimentare</string>
-    <string name="fuel_liters_label">Litri</string>
+    <string name="fuel_liters_label">Cantitate</string>
     <string name="fuel_full_tank_label">Rezervor plin</string>
     <string name="fuel_partial_tank">Parțial</string>
     <string name="fuel_mileage_conflict">Conflict de kilometraj cu înregistrările din %s</string>
@@ -536,7 +536,7 @@
     <string name="service_edit_title">Editează înregistrare service</string>
     <string name="service_description_label">Descriere (Ce s-a reparat?)</string>
     <string name="service_description_placeholder">Schimb ulei și filtre</string>
-    <string name="service_mileage_label">Kilometraj (%s)</string>
+    <string name="service_mileage_label">Kilometraj</string>
     <string name="service_empty">Nu s-au găsit înregistrări de service.</string>
     <string name="service_delete_confirm">Ești sigur că vrei să ștergi această înregistrare? Kilometrajul asociat va fi de asemenea șters.</string>
     <string name="common_permanent_delete_msg">Această acțiune nu poate fi anulată.</string>

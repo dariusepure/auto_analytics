@@ -388,29 +388,15 @@ fun AutoSizeText(
     textAlign: TextAlign? = null,
     color: Color = Color.Unspecified
 ) {
-    var fontSizeValue by remember(text) { mutableStateOf(style.fontSize) }
-    var readyToDraw by remember(text) { mutableStateOf(false) }
-
     Text(
         text = text,
-        modifier = modifier.drawWithContent {
-            if (readyToDraw) drawContent()
-        },
-        style = style.copy(fontSize = fontSizeValue),
+        modifier = modifier,
+        style = style,
         maxLines = maxLines,
         softWrap = softWrap,
-        overflow = TextOverflow.Clip,
+        overflow = TextOverflow.Ellipsis,
         textAlign = textAlign,
-        color = color,
-        onTextLayout = { textLayoutResult ->
-            if (textLayoutResult.hasVisualOverflow && fontSizeValue.isSp && fontSizeValue.value > minFontSize.value) {
-                // Use a faster stepping algorithm for font scaling
-                val nextSize = (fontSizeValue.value * 0.9f).coerceAtLeast(minFontSize.value)
-                fontSizeValue = nextSize.sp
-            } else {
-                readyToDraw = true
-            }
-        }
+        color = color
     )
 }
 

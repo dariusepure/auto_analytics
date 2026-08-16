@@ -94,12 +94,6 @@ fun ServiceHistoryScreen(
                 ) {
                     item {
                         Spacer(Modifier.height(8.dp))
-                        if (s.stats.averageIntervalKm != null) {
-                            StatItem(
-                                label = stringResource(R.string.stats_avg_interval), 
-                                value = "${s.stats.averageIntervalKm.roundToInt()} $unit"
-                            )
-                        }
                     }
 
                     if (s.logs.isEmpty()) {
@@ -297,7 +291,7 @@ fun AddServiceDialog(
                             errorMessage = null
                         }
                     },
-                    label = { Text(stringResource(R.string.service_mileage_label, unit)) },
+                    label = { Text(stringResource(R.string.service_mileage_label)) },
                     suffix = { Text(unit) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),

@@ -116,15 +116,6 @@ fun InsuranceHistoryScreen(
                                 color = statusColor
                             )
                         }
-
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = stringResource(R.string.insurance_history_title),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                        )
                     }
 
                     if (s.insurances.isEmpty()) {

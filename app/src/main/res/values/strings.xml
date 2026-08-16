@@ -21,7 +21,7 @@
     <string name="common_error_title">Something went wrong</string>
     <string name="common_date">Date</string>
     <string name="common_distance">Distance (%s)</string>
-    <string name="common_mileage">Mileage (%s)</string>
+    <string name="common_mileage">Mileage</string>
     <string name="common_unit">Unit</string>
     <string name="common_back">Back</string>
     <string name="common_not_applicable">N/A</string>
@@ -365,7 +365,7 @@
     <string name="vignette_history_title">Vignette History</string>
     <string name="vignette_add_title">Add Vignette</string>
     <string name="vignette_country_label">Country</string>
-    <string name="inspection_mileage_label">Mileage (%s)</string>
+    <string name="inspection_mileage_label">Mileage</string>
     <string name="inspection_date_label">Inspection Date</string>
     <string name="inspection_validity_label">Validity</string>
     <string name="inspection_empty">No inspection records found.</string>
@@ -384,7 +384,7 @@
     <string name="fuel_history_header">Filling History</string>
     <string name="fuel_history_empty">No records yet. Add your first filling!</string>
     <string name="fuel_add_title">Add Filling</string>
-    <string name="fuel_liters_label">Liters</string>
+    <string name="fuel_liters_label">Quantity</string>
     <string name="fuel_full_tank_label">Full Tank</string>
     <string name="fuel_partial_tank">Partial</string>
     <string name="fuel_mileage_conflict">Mileage conflict with records on %s</string>
@@ -538,7 +538,7 @@
     <string name="service_edit_title">Edit Service Record</string>
     <string name="service_description_label">Description (What was fixed?)</string>
     <string name="service_description_placeholder">Oil change and filters</string>
-    <string name="service_mileage_label">Mileage (%s)</string>
+    <string name="service_mileage_label">Mileage</string>
     <string name="service_empty">No service records found.</string>
     <string name="service_delete_confirm">Are you sure you want to delete this service record? The associated mileage entry will also be removed.</string>
     <string name="common_permanent_delete_msg">This action cannot be undone.</string>

@@ -71,7 +71,7 @@ fun AddMileageDialog(
                             errorMessage = null
                         }
                     },
-                    label = { Text(stringResource(R.string.common_mileage, unit)) },
+                    label = { Text(stringResource(R.string.common_mileage)) },
                     suffix = { Text(unit) },
                     keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
@@ -204,7 +204,7 @@ fun AddInspectionDialog(
                             errorMessage = null
                         }
                     },
-                    label = { Text(stringResource(R.string.inspection_mileage_label, unit)) },
+                    label = { Text(stringResource(R.string.inspection_mileage_label)) },
                     suffix = { Text(unit) },
                     keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),

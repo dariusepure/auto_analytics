@@ -16,19 +16,8 @@ val provider = GoogleFont.Provider(
     certificates = R.array.com_google_android_gms_fonts_certs
 )
 
-val bodyFontFamily = FontFamily(
-    Font(
-        googleFont = GoogleFont("Inter"),
-        fontProvider = provider,
-    )
-)
-
-val displayFontFamily = FontFamily(
-    Font(
-        googleFont = GoogleFont("Inter"),
-        fontProvider = provider,
-    )
-)
+val bodyFontFamily = FontFamily.Default
+val displayFontFamily = FontFamily.Default
 
 // Default Material 3 typography values
 val baseline = Typography()

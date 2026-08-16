@@ -144,15 +144,6 @@ fun InspectionHistoryScreen(
                                 color = statusColor
                             )
                         }
-
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = stringResource(R.string.inspection_history_title),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                        )
                     }
 
                     if (s.inspections.isEmpty()) {
