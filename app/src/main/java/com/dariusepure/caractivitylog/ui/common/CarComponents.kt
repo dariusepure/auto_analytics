@@ -217,7 +217,8 @@ fun SpecificationCard(specifications: List<Pair<String, String>>) {
                         style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier.weight(1f),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        minFontSize = 9.sp
+                        minFontSize = 9.sp,
+                        maxLines = 2
                     )
                     Text(
                         text = value.ifBlank { "-" },

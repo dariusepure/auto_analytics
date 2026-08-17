@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -95,8 +97,7 @@ fun SignInContent(
     val context = LocalContext.current
 
     Scaffold(
-        modifier = modifier,
-        bottomBar = { AuthFooter() }
+        modifier = modifier
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -245,6 +246,10 @@ fun SignInContent(
             LanguageSelector(
                 modifier = Modifier.padding(top = 8.dp)
             )
+
+            Spacer(Modifier.height(32.dp))
+            AuthFooter()
+            Spacer(Modifier.height(16.dp))
         }
     }
 }

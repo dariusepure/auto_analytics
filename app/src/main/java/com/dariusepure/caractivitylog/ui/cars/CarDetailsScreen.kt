@@ -468,7 +468,7 @@ else {
                                     Spacer(Modifier.weight(1f))
                                     AutoSizeText(
                                         text = stringResource(R.string.car_fuel_consumption),
-                                        style = MaterialTheme.typography.titleMedium,
+                                        style = MaterialTheme.typography.titleSmall,
                                         maxLines = 2,
                                         minFontSize = 10.sp
                                     )
@@ -483,7 +483,7 @@ else {
                                     Spacer(Modifier.weight(1f))
                                     AutoSizeText(
                                         text = stringResource(R.string.tire_management_title),
-                                        style = MaterialTheme.typography.titleMedium,
+                                        style = MaterialTheme.typography.titleSmall,
                                         maxLines = 2,
                                         minFontSize = 10.sp
                                     )

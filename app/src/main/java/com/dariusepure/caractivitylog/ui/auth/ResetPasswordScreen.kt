@@ -2,8 +2,10 @@ package com.dariusepure.caractivitylog.ui.auth
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -99,8 +101,7 @@ fun ResetPasswordContent(
                     }
                 }
             )
-        },
-        bottomBar = { AuthFooter() }
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -225,6 +226,10 @@ fun ResetPasswordContent(
                     }
                 }
             }
+
+            Spacer(Modifier.height(32.dp))
+            AuthFooter()
+            Spacer(Modifier.height(16.dp))
         }
     }
 }

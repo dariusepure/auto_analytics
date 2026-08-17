@@ -278,8 +278,8 @@
     <string name="car_height_label">Height</string>
     <string name="car_wheelbase_label">Wheelbase</string>
     <string name="car_weight_label">Weight</string>
-    <string name="car_seats_label">Number of Seats</string>
-    <string name="car_doors_label">Number of Doors</string>
+    <string name="car_seats_label">Seats</string>
+    <string name="car_doors_label">Doors</string>
     <string name="car_boot_label">Boot Space</string>
     <string name="car_tire_size_label">Tires</string>
     <string name="car_tire_width_label">Width</string>
@@ -488,7 +488,7 @@
     <!-- Technical Sheet Extras -->
     <string name="car_transmission_section">Transmission &amp; Chassis</string>
     <string name="car_dimensions_capacity_section">Dimensions &amp; Capacity</string>
-    <string name="car_gears_count_label">Number of Gears</string>
+    <string name="car_gears_count_label">Gears</string>
     <string name="car_valves_label">Valves</string>
     <string name="car_plate_country_label">Plate Country</string>
     <string name="car_dimensions_lxwxh">Dimensions</string>

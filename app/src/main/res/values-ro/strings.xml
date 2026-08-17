@@ -105,7 +105,7 @@
     <!-- Suspension Options -->
     <string name="suspension_macpherson">MacPherson</string>
     <string name="suspension_double_wishbone">Brațe duble</string>
-    <string name="suspension_multi_link">Suspensie independentă</string>
+    <string name="suspension_multi_link">Independentă</string>
     <string name="suspension_torsion_beam">Bară de torsiune</string>
     <string name="suspension_solid_axle">Punte rigidă</string>
 
@@ -277,8 +277,8 @@
     <string name="car_height_label">Înălțime</string>
     <string name="car_wheelbase_label">Ampatament</string>
     <string name="car_weight_label">Greutate</string>
-    <string name="car_seats_label">Număr locuri</string>
-    <string name="car_doors_label">Număr uși</string>
+    <string name="car_seats_label">Locuri</string>
+    <string name="car_doors_label">Uși</string>
     <string name="car_boot_label">Portbagaj</string>
     <string name="car_tire_size_label">Anvelope</string>
     <string name="car_tire_width_label">Lățime</string>
@@ -485,9 +485,9 @@
     <!-- Technical Sheet Extras -->
     <string name="car_transmission_section">Transmisie și șasiu</string>
     <string name="car_dimensions_capacity_section">Dimensiuni și capacitate</string>
-    <string name="car_gears_count_label">Număr viteze</string>
+    <string name="car_gears_count_label">Viteze</string>
     <string name="car_valves_label">Valve</string>
-    <string name="car_plate_country_label">Țara nr. înmatriculare</string>
+    <string name="car_plate_country_label">Țara număr înmatriculare</string>
     <string name="car_dimensions_lxwxh">Dimensiuni</string>
     <string name="car_fuel_tank_label">Rezervor</string>
     <string name="car_country_label">Țară</string>

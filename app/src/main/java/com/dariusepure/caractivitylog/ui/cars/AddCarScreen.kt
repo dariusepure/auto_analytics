@@ -121,7 +121,8 @@ fun AddCarScreen(
     val rearSuspensionOptions = listOf("Torsion Beam", "Multi-link", "Solid Axle")
     val drivetrainOptions = listOf("FWD", "RWD", "AWD")
     val vehicleTypes = listOf(
-        "Saloon", "Estate", "Hatchback", "Liftback", "MPV", "SUV", "Crossover", "Coupe", "Convertible", "Van", "Pickup"
+        "Saloon", "Estate", "Hatchback", "Liftback", "MPV", "SUV", "Crossover", "Coupe", "Convertible", "Van", "Pickup",
+        "Fastback", "Targa", "Roadster", "Spider", "Coupe-Cabriolet", "Shooting Brake", "Minivan"
     )
     val carColors = listOf("White", "Black", "Silver", "Gray", "Blue", "Red", "Brown", "Green", "Yellow", "Orange")
 
