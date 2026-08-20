@@ -81,22 +81,44 @@ class DiagnosisViewModel @Inject constructor(
                     if (totalKm > 0) (totalLiters / totalKm) * 100 else null
                 } else null
 
-                val carContext = """
-                    Informații complete despre vehicul:
-                    - Marcă și Model: ${car.make} ${car.model} (${car.year})
-                    - Kilometraj actual: ${currentMileage.toInt()} km
-                    - Motorizare: ${car.engineSize} cc, ${car.fuelType}, ${car.power} ${car.powerUnit}
-                    - Ultima revizie: ${lastMaintenance?.let { "${it.description} la ${it.km.toInt()} km pe data de ${it.date}" } ?: "Nicio înregistrare"}
-                    - Anvelope active: ${activeTire?.let { "${it.brand} ${it.width}/${it.ratio} R${it.diameter} (${it.season})" } ?: "Nespecificat"}
-                    - Consum mediu: ${avgConsumption?.let { "%.2f L/100km".format(it) } ?: "Necunoscut"}
-                    - Status documente (valabilitate):
-                        * ITP: ${inspections.firstOrNull()?.expiryDate ?: "Necunoscut"}
-                        * RCA: ${insurances.firstOrNull()?.expiryDate ?: "Necunoscut"}
-                        * Rovinietă: ${vignettes.firstOrNull()?.expiryDate ?: "Necunoscut"}
-                    - Detalii tehnice: Transmisie ${car.gearboxType}, Tracțiune ${car.drivetrain}, Serie șasiu (final): ${car.vin.takeLast(6)}
-                """.trimIndent()
+                val isRomanian = context.resources.configuration.locales[0].language == "ro"
+                val inspectionLabel = if (isRomanian) "ITP" else "Inspection"
+                val insuranceLabel = if (isRomanian) "RCA" else "Insurance"
+                val vignetteLabel = if (isRomanian) "Rovinietă" else "Vignette"
+
+                val carContext = if (isRomanian) {
+                    """
+                        Informații complete despre vehicul:
+                        - Marcă și Model: ${car.make} ${car.model} (${car.year})
+                        - Kilometraj actual: ${currentMileage.toInt()} km
+                        - Motorizare: ${car.engineSize} cc, ${car.fuelType}, ${car.power} ${car.powerUnit}
+                        - Ultima revizie: ${lastMaintenance?.let { "${it.description} la ${it.km.toInt()} km pe data de ${it.date}" } ?: "Nicio înregistrare"}
+                        - Anvelope active: ${activeTire?.let { "${it.brand} ${it.width}/${it.ratio} R${it.diameter} (${it.season})" } ?: "Nespecificat"}
+                        - Consum mediu: ${avgConsumption?.let { "%.2f L/100km".format(it) } ?: "Necunoscut"}
+                        - Status documente (valabilitate):
+                            * $inspectionLabel: ${inspections.firstOrNull()?.expiryDate ?: "Necunoscut"}
+                            * $insuranceLabel: ${insurances.firstOrNull()?.expiryDate ?: "Necunoscut"}
+                            * $vignetteLabel: ${vignettes.firstOrNull()?.expiryDate ?: "Necunoscut"}
+                        - Detalii tehnice: Transmisie ${car.gearboxType}, Tracțiune ${car.drivetrain}, Serie șasiu (final): ${car.vin.takeLast(6)}
+                    """.trimIndent()
+                } else {
+                    """
+                        Complete vehicle information:
+                        - Make and Model: ${car.make} ${car.model} (${car.year})
+                        - Current mileage: ${currentMileage.toInt()} km
+                        - Engine: ${car.engineSize} cc, ${car.fuelType}, ${car.power} ${car.powerUnit}
+                        - Last service: ${lastMaintenance?.let { "${it.description} at ${it.km.toInt()} km on ${it.date}" } ?: "No records"}
+                        - Active tires: ${activeTire?.let { "${it.brand} ${it.width}/${it.ratio} R${it.diameter} (${it.season})" } ?: "Not specified"}
+                        - Avg consumption: ${avgConsumption?.let { "%.2f L/100km".format(it) } ?: "Unknown"}
+                        - Document status (validity):
+                            * $inspectionLabel: ${inspections.firstOrNull()?.expiryDate ?: "Unknown"}
+                            * $insuranceLabel: ${insurances.firstOrNull()?.expiryDate ?: "Unknown"}
+                            * $vignetteLabel: ${vignettes.firstOrNull()?.expiryDate ?: "Unknown"}
+                        - Technical details: Transmission ${car.gearboxType}, Drivetrain ${car.drivetrain}, VIN (last 6): ${car.vin.takeLast(6)}
+                    """.trimIndent()
+                }
                 
-                val language = if (context.resources.configuration.locales[0].language == "ro") "Romanian" else "English"
+                val language = if (isRomanian) "Romanian" else "English"
                 
                 val response = geminiRepository.getDiagnosisResponse(
                     prompt = message,

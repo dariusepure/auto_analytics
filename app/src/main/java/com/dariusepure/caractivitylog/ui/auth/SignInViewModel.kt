@@ -65,10 +65,6 @@ class SignInViewModel @Inject constructor(
         }
     }
 
-    fun continueAsGuest() {
-        authRepository.setGuestMode(true)
-    }
-
     fun resetState() {
         _state.value = SignInState.Idle
     }

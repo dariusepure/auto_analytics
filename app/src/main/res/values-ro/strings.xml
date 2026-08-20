@@ -199,7 +199,7 @@
     <string name="auth_save_new_password">Salvează parola nouă</string>
     <string name="auth_back_to_signin">Înapoi la autentificare</string>
     <string name="auth_continue_google">Continuă cu Google</string>
-    <string name="auth_continue_offline">Continuă Offline (Mod Guest)</string>
+
     <string name="auth_no_account">Nu ai cont?</string>
     <string name="auth_have_account">Ai deja un cont?</string>
 

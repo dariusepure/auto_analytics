@@ -200,7 +200,7 @@
     <string name="auth_save_new_password">Save New Password</string>
     <string name="auth_back_to_signin">Back to Sign In</string>
     <string name="auth_continue_google">Continue with Google</string>
-    <string name="auth_continue_offline">Continue Offline (Guest Mode)</string>
+
     <string name="auth_no_account">Don\'t have an account?</string>
     <string name="auth_have_account">Already have an account?</string>
 
@@ -297,8 +297,8 @@
     <string name="car_technical_sheet_subtitle">View full specifications</string>
     <string name="car_mileage_history">Mileage History</string>
     <string name="car_mileage_history_subtitle">View and manage records</string>
-    <string name="car_inspection_title">ITP</string>
-    <string name="car_insurance_title">RCA</string>
+    <string name="car_inspection_title">Inspection</string>
+    <string name="car_insurance_title">Insurance</string>
     <string name="car_vignette_title">Vignette</string>
     <string name="car_diagnosis_title">Virtual Mechanic</string>
     <string name="car_diagnosis_subtitle">AI-powered vehicle diagnosis</string>
@@ -357,9 +357,9 @@
     <string name="mileage_source_inspection">Inspection</string>
 
     <!-- Inspection -->
-    <string name="inspection_history_title">ITP History</string>
-    <string name="inspection_add_title">Add ITP</string>
-    <string name="insurance_history_title">RCA History</string>
+    <string name="inspection_history_title">Inspection History</string>
+    <string name="inspection_add_title">Add Inspection</string>
+    <string name="insurance_history_title">Insurance History</string>
     <string name="insurance_add_title">Add Insurance Policy</string>
     <string name="insurance_provider_label">Insurance Provider</string>
     <string name="vignette_history_title">Vignette History</string>

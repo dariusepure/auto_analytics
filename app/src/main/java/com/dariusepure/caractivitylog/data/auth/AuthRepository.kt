@@ -18,9 +18,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import com.dariusepure.caractivitylog.BuildConfig
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,40 +25,23 @@ import javax.inject.Singleton
 @Singleton
 class AuthRepository @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    private val firestore: FirebaseFirestore,
-    @ApplicationContext private val context: Context
+    private val firestore: FirebaseFirestore
 ) {
-    private val sharedPrefs = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
-    private val _isGuestMode = MutableStateFlow(sharedPrefs.getBoolean("is_guest_mode", false))
-    
     private val TAG = "AuthRepository"
 
-    val signedIn: Flow<Boolean> = combine(
-        callbackFlow {
-            val listener = FirebaseAuth.AuthStateListener {
-                trySend(firebaseAuth.currentUser != null)
-            }
-            firebaseAuth.addAuthStateListener(listener)
-            awaitClose { firebaseAuth.removeAuthStateListener(listener) }
-        },
-        _isGuestMode
-    ) { firebaseSignedIn, guestMode ->
-        firebaseSignedIn || guestMode
+    val signedIn: Flow<Boolean> = callbackFlow {
+        val listener = FirebaseAuth.AuthStateListener {
+            trySend(firebaseAuth.currentUser != null)
+        }
+        firebaseAuth.addAuthStateListener(listener)
+        awaitClose { firebaseAuth.removeAuthStateListener(listener) }
     }.distinctUntilChanged()
 
     val isCurrentlySignedIn: Boolean
-        get() = firebaseAuth.currentUser != null || _isGuestMode.value
-
-    val isGuestMode: Boolean
-        get() = _isGuestMode.value
+        get() = firebaseAuth.currentUser != null
 
     fun getUserId(): String? {
-        return if (_isGuestMode.value) "guest_user" else firebaseAuth.currentUser?.uid
-    }
-
-    fun setGuestMode(enabled: Boolean) {
-        sharedPrefs.edit().putBoolean("is_guest_mode", enabled).apply()
-        _isGuestMode.value = enabled
+        return firebaseAuth.currentUser?.uid
     }
 
     suspend fun signUp(email: String, password: String) {

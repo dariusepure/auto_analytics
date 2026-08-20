@@ -71,7 +71,6 @@ fun SignInScreen(
         state = state,
         onSignIn = viewModel::onSignIn,
         onSignInWithGoogle = viewModel::onSignInWithGoogle,
-        onContinueAsGuest = viewModel::continueAsGuest,
         onSignUpClick = onSignUpClick,
         onForgotPasswordClick = onForgotPasswordClick,
         modifier = modifier
@@ -83,7 +82,6 @@ fun SignInContent(
     state: SignInState,
     onSignIn: (String, String) -> Unit,
     onSignInWithGoogle: (Context) -> Unit,
-    onContinueAsGuest: () -> Unit,
     onSignUpClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -215,22 +213,6 @@ fun SignInContent(
             }
 
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                TextButton(
-                    onClick = onContinueAsGuest,
-                    enabled = !submitting,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.auth_continue_offline))
-                }
-            }
-
-            Row(
                 modifier = Modifier.padding(top = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -262,7 +244,6 @@ private fun SignInScreenPreview() {
             state = SignInState.Idle,
             onSignIn = { _, _ -> },
             onSignInWithGoogle = {},
-            onContinueAsGuest = {},
             onSignUpClick = {},
             onForgotPasswordClick = {}
         )

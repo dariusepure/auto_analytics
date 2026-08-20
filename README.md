@@ -26,7 +26,7 @@
 - **Legal Document Tracking**: Stay ahead of deadlines for **ITP**, **Insurance (RCA)**, and **Vignettes** with color-coded status indicators and validity counters.
 
 ### 🔐 Secure Access & Sync
-- **Modern Authentication**: Sign in with Email/Password, **Google One Tap**, or explore as a **Guest**.
+- **Modern Authentication**: Sign in with Email/Password or **Google One Tap** for a secure, synced experience.
 - **Seamless Sync**: Powered by Firebase for real-time data synchronization across all your devices.
 - **Offline-First**: Built with a robust local-first strategy; data stays on your device and syncs whenever you're online.
 
