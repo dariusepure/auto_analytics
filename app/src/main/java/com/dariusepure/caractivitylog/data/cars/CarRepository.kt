@@ -106,6 +106,17 @@ class CarRepository @Inject constructor(
             ?.fromFirebase()
     }
 
+    suspend fun isVinDuplicate(vin: String, excludeCarId: String?): Boolean {
+        val uid = authRepository.getUserId() ?: return false
+        val query = firestore.collection("users")
+            .document(uid)
+            .collection("cars")
+            .whereEqualTo("vin", vin.uppercase())
+
+        val snapshots = query.get().await()
+        return snapshots.documents.any { it.id != excludeCarId }
+    }
+
     fun deleteCar(carId: String) {
         val uid = getUid()
         

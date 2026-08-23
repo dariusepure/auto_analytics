@@ -16,19 +16,20 @@
 
 ### 🛠️ Comprehensive Vehicle Management
 - **Exhaustive Technical Profiles**: Track everything from engine layout and cylinder configuration to tire dimensions and brake types.
-- **Bento-Style History Screens**: Redesigned history logs for **Service**, **Tires**, **ITP**, **RCA**, and **Vignettes** featuring real-time statistics cards and a modern list layout.
+- **Advanced Search**: Instantly find vehicles in your collection by **Make**, **Model**, **License Plate**, or **VIN**.
+- **Duplicate Prevention**: Built-in validation to prevent adding multiple vehicles with the same **VIN**.
+- **Bento-Style History Screens**: Redesigned history logs for **Service**, **Tires**, **Inspections**, **Insurance**, and **Vignettes** featuring real-time statistics cards and a modern list layout.
 - **Smart Mileage History**: 
   - **Unified Log**: A central place to track your vehicle's odometer progress with interactive **Vico Charts**.
-  - **Intelligent Import**: One-tap import of mileage records from **Fuel**, **Service**, and **ITP** logs.
+  - **Intelligent Import**: One-tap import of mileage records from **Fuel**, **Service**, and **Inspection** logs.
 - **Maintenance & Service**: Keep a detailed technical log of every repair, oil change, or part replacement with average interval tracking.
 - **Tire Management**: Track active and stored tire sets with DOT, seasonal classification, and size specifications.
 - **Fuel Consumption**: Log fillings in **Liters** or **Gallons**, track efficiency (L/100km or MPG), and visualize trends.
-- **Legal Document Tracking**: Stay ahead of deadlines for **ITP**, **Insurance (RCA)**, and **Vignettes** with color-coded status indicators and validity counters.
+- **Legal Document Tracking**: Stay ahead of deadlines for **Technical Inspections**, **Insurance**, and **Vignettes** with color-coded status indicators and validity counters.
 
 ### 🔐 Secure Access & Sync
 - **Modern Authentication**: Sign in with Email/Password or **Google One Tap** for a secure, synced experience.
-- **Seamless Sync**: Powered by Firebase for real-time data synchronization across all your devices.
-- **Offline-First**: Built with a robust local-first strategy; data stays on your device and syncs whenever you're online.
+- **Cloud Backup**: Securely store your vehicle data and history in the cloud for access across all your devices.
 
 ### 🌗 Premium UI/UX
 - **Material Design 3 (M3)**: A beautiful, modern interface using the latest adaptive components.

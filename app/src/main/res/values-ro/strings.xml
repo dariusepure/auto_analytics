@@ -70,6 +70,8 @@
     <string name="fuel_electric">Electric</string>
     <string name="fuel_hybrid">Hibrid</string>
     <string name="fuel_lpg">GPL</string>
+    <string name="fuel_cng">GNC</string>
+    <string name="fuel_hydrogen">Hidrogen</string>
 
     <!-- Gearbox Types -->
     <string name="gearbox_manual">Manuală</string>
@@ -89,12 +91,9 @@
     <string name="cylinder_layout_boxer">Boxer</string>
 
     <!-- Aspiration -->
-    <string name="aspiration_naturally_aspirated">Aspirat Natural</string>
+    <string name="aspiration_naturally_aspirated">Aspirat natural</string>
     <string name="aspiration_turbocharged">Turbo</string>
-    <string name="aspiration_supercharged">Supercharged</string>
-    <string name="aspiration_twin_turbo">Twin-Turbo</string>
-    <string name="aspiration_quad_turbo">Quad-Turbo</string>
-    <string name="aspiration_electric">Electric</string>
+    <string name="aspiration_supercharged">Compresor mecanic</string>
 
     <!-- Brake Options -->
     <string name="brakes_ventilated_discs">Discuri ventilate</string>
@@ -556,7 +555,8 @@
     <string name="validation_passwords_mismatch">Parolele nu coincid</string>
     <string name="validation_fields_required">Toate câmpurile sunt obligatorii</string>
     <string name="validation_brand_model_required">Te rugăm să introduci Marca și Modelul</string>
-    <string name="validation_vin_length">VIN-ul trebuie să aibă exact 17 caractere</string>
+    <string name="validation_vin_length">Seria de șasiu (VIN) trebuie să aibă exact 17 caractere</string>
+    <string name="validation_vin_exists">O mașină cu această serie de șasiu există deja în listă</string>
     <string name="validation_numeric_format">Format numeric invalid pentru %s</string>
 
     <!-- Errors -->

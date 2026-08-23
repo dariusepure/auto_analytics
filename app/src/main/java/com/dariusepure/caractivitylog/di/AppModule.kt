@@ -77,10 +77,10 @@ object AppModule {
                 CONTEXT: {{context}}
                 
                 TECHNICAL STANDARDS (MUST pick from these lists for dropdown fields):
-                - fuelType: [Petrol, Diesel, Electric, Hybrid, LPG]
+                - fuelType: [Petrol, Diesel, Electric, Hybrid, LPG, CNG, Hydrogen]
                 - engineLayout: [Transverse, Longitudinal]
                 - cylinderLayout: [Inline, V, W, Boxer]
-                - aspiration: [Naturally Aspirated, Turbocharged, Supercharged, Twin-Turbo, Quad-Turbo, Electric]
+                - aspiration: [Naturally Aspirated, Turbocharged, Supercharged]
                 - emissionStandard: [Non-Euro, Euro 1, Euro 2, Euro 3, Euro 4, Euro 5, Euro 6]
                 - gearboxType: [Manual, Automatic, CVT, DCT, AMT]
                 - frontBrakes / rearBrakes: [Ventilated Discs, Solid Discs, Drums, Ceramic Discs]
@@ -93,12 +93,12 @@ object AppModule {
                 - powerUnit: [hp, kW]
                 
                 ROMANIAN TO ENGLISH MAPPING RULES:
-                - fuelType: Benzină -> Petrol, Motorină -> Diesel, Hibrid -> Hybrid, GPL -> LPG.
+                - fuelType: Benzină -> Petrol, Motorină -> Diesel, Hibrid -> Hybrid, GPL -> LPG, GNC -> CNG, Hidrogen -> Hydrogen.
                 - drivetrain: Față -> FWD, Spate -> RWD, Integrală -> AWD, 4x4 -> AWD, 4wd -> AWD.
                 - gearboxType: Manuală -> Manual, Automată -> Automatic.
                 - engineLayout: Transversal -> Transverse, Longitudinal -> Longitudinal.
                 - cylinderLayout: În linie -> Inline.
-                - aspiration: Aspirat -> Naturally Aspirated, Turbo -> Turbocharged.
+                - aspiration: Aspirat -> Naturally Aspirated, Turbo -> Turbocharged, Compresor -> Supercharged.
                 - fuelSystem: Injecție directă -> Direct Injection, Rampa comuna -> Common Rail.
                 - brakes: Discuri ventilate -> Ventilated Discs, Tamburi -> Drums.
                 - suspension: Brațe duble -> Double Wishbone, Bară torsiune -> Torsion Beam, Punte rigidă -> Solid Axle, Independentă -> Multi-link.

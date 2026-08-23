@@ -10,6 +10,8 @@ object CarTranslations {
         "Electric" -> context.getString(R.string.fuel_electric)
         "Hybrid" -> context.getString(R.string.fuel_hybrid)
         "LPG" -> context.getString(R.string.fuel_lpg)
+        "CNG" -> context.getString(R.string.fuel_cng)
+        "Hydrogen" -> context.getString(R.string.fuel_hydrogen)
         else -> type
     }
 
@@ -54,9 +56,6 @@ object CarTranslations {
         "Naturally Aspirated" -> context.getString(R.string.aspiration_naturally_aspirated)
         "Turbocharged" -> context.getString(R.string.aspiration_turbocharged)
         "Supercharged" -> context.getString(R.string.aspiration_supercharged)
-        "Twin-Turbo" -> context.getString(R.string.aspiration_twin_turbo)
-        "Quad-Turbo" -> context.getString(R.string.aspiration_quad_turbo)
-        "Electric" -> context.getString(R.string.aspiration_electric)
         else -> option
     }
 

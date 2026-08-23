@@ -58,8 +58,7 @@ data class Car(
     val accentColor: Long? = null,
     val createdAt: Date = Date(),
     val updatedAt: Date = Date(),
-    val activityCount: Int = 0,
-    val isSynced: Boolean = true
+    val activityCount: Int = 0
 )
 
 val Car.displayName: String

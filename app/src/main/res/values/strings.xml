@@ -71,6 +71,8 @@
     <string name="fuel_electric">Electric</string>
     <string name="fuel_hybrid">Hybrid</string>
     <string name="fuel_lpg">LPG</string>
+    <string name="fuel_cng">CNG</string>
+    <string name="fuel_hydrogen">Hydrogen</string>
 
     <!-- Gearbox Types -->
     <string name="gearbox_manual">Manual</string>
@@ -93,9 +95,6 @@
     <string name="aspiration_naturally_aspirated">Naturally Aspirated</string>
     <string name="aspiration_turbocharged">Turbocharged</string>
     <string name="aspiration_supercharged">Supercharged</string>
-    <string name="aspiration_twin_turbo">Twin-Turbo</string>
-    <string name="aspiration_quad_turbo">Quad-Turbo</string>
-    <string name="aspiration_electric">Electric</string>
 
     <!-- Brake Options -->
     <string name="brakes_ventilated_discs">Ventilated Discs</string>
@@ -559,6 +558,7 @@
     <string name="validation_fields_required">All fields are required</string>
     <string name="validation_brand_model_required">Please provide Brand &amp; Model</string>
     <string name="validation_vin_length">VIN must be exactly 17 characters if provided</string>
+    <string name="validation_vin_exists">A car with this VIN already exists in your list</string>
     <string name="validation_numeric_format">Invalid numeric format for %s</string>
 
     <!-- Errors -->

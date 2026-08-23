@@ -110,10 +110,10 @@ fun AddCarScreen(
     val unitSystem by viewModel.unitSystem.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    val fuelTypes = listOf("Petrol", "Diesel", "Electric", "Hybrid", "LPG")
+    val fuelTypes = listOf("Petrol", "Diesel", "Electric", "Hybrid", "LPG", "CNG", "Hydrogen")
     val engineLayouts = listOf("Transverse", "Longitudinal")
     val cylinderLayouts = listOf("Inline", "V", "W", "Boxer")
-    val aspirationOptions = listOf("Naturally Aspirated", "Turbocharged", "Supercharged", "Twin-Turbo", "Quad-Turbo", "Electric")
+    val aspirationOptions = listOf("Naturally Aspirated", "Turbocharged", "Supercharged")
     val emissionStandards = listOf("Non-Euro", "Euro 1", "Euro 2", "Euro 3", "Euro 4", "Euro 5", "Euro 6")
     val gearboxTypes = listOf("Manual", "Automatic", "CVT", "DCT", "AMT")
     val brakeOptions = listOf("Ventilated Discs", "Solid Discs", "Drums", "Ceramic Discs")
@@ -1650,7 +1650,7 @@ fun ScannedCarDataConfirmationDialog(
         if (shouldAdd("engineSize")) data.engineSize?.let { list.add(Triple(context.getString(R.string.car_engine_size_label), "${it.roundToInt()} ${if (context.resources.configuration.locales[0].language == "ro") "cmc" else "cc"}", "engineSize")) }
         if (shouldAdd("power")) data.power?.let { list.add(Triple(context.getString(R.string.car_power_label), "${it.roundToInt()} ${data.powerUnit ?: "hp"}", "power")) }
         if (shouldAdd("torque")) data.torque?.let { list.add(Triple(context.getString(R.string.car_torque_label), "${it.roundToInt()} Nm", "torque")) }
-        if (shouldAdd("color")) data.color?.let { list.add(Triple(context.getString(R.string.car_color_label), it, "color")) }
+        if (shouldAdd("color")) data.color?.let { list.add(Triple(context.getString(R.string.car_color_label), CarTranslations.getColorLabel(context, it), "color")) }
         if (shouldAdd("registrationPlate")) data.registrationPlate?.let { list.add(Triple(context.getString(R.string.car_license_plate_label), it, "registrationPlate")) }
         if (shouldAdd("numberOfSeats")) data.numberOfSeats?.let { list.add(Triple(context.getString(R.string.car_seats_label), it.roundToInt().toString(), "numberOfSeats")) }
         if (shouldAdd("numberOfDoors")) data.numberOfDoors?.let { list.add(Triple(context.getString(R.string.car_doors_label), it.roundToInt().toString(), "numberOfDoors")) }

@@ -96,6 +96,12 @@ class GeminiRepository @Inject constructor(
                 Analyze the document and look for these fields:
                 - make, model, vin (MUST be 17 chars), year (4 digits), fuelType, engineSize (cc), power (hp or kW), torque (Nm), color, gears, registrationPlate.
                 
+                COLOR MAPPING (Return one of these standard values for 'color'):
+                - White, Black, Silver, Gray, Blue, Red, Brown, Green, Yellow, Orange.
+                
+                ROMANIAN TO ENGLISH COLOR RULES:
+                - Alb -> White, Negru -> Black, Argintiu -> Silver, Gri -> Gray, Albastru -> Blue, Rosu -> Red, Maro -> Brown, Verde -> Green, Galben -> Yellow, Portocaliu -> Orange.
+                
                 CRITICAL VALIDATION:
                 1. Verify VIN format: must be 17 characters, only letters and digits (excluding I, O, Q).
                 2. Verify Year: must be a realistic year (e.g., 1900-2026).
@@ -159,6 +165,12 @@ class GeminiRepository @Inject constructor(
                 The document might have multiple pages or be a complex PDF. Scan all visible text carefully.
                 Analyze the document and look for these fields:
                 - make, model, vin (MUST be 17 chars), year (4 digits), fuelType, engineSize (cc), power (hp or kW), torque (Nm), color, gears, registrationPlate.
+                
+                COLOR MAPPING (Return one of these standard values for 'color'):
+                - White, Black, Silver, Gray, Blue, Red, Brown, Green, Yellow, Orange.
+                
+                ROMANIAN TO ENGLISH COLOR RULES:
+                - Alb -> White, Negru -> Black, Argintiu -> Silver, Gri -> Gray, Albastru -> Blue, Rosu -> Red, Maro -> Brown, Verde -> Green, Galben -> Yellow, Portocaliu -> Orange.
                 
                 CRITICAL VALIDATION:
                 1. Verify VIN format: must be 17 characters, only letters and digits (excluding I, O, Q).

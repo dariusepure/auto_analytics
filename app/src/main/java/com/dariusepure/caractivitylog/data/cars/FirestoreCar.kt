@@ -118,7 +118,7 @@ fun Car.toFirebase() = FirestoreCar(
     activityCount = this.activityCount
 )
 
-fun FirestoreCar.fromFirebase(isSynced: Boolean = true) = Car(
+fun FirestoreCar.fromFirebase() = Car(
     id = this.id,
     name = this.name,
     licensePlate = this.licensePlate,
@@ -172,7 +172,6 @@ fun FirestoreCar.fromFirebase(isSynced: Boolean = true) = Car(
     accentColor = this.accentColor,
     createdAt = this.createdAt.toDate(),
     updatedAt = this.updatedAt.toDate(),
-    activityCount = this.activityCount,
-    isSynced = isSynced
+    activityCount = this.activityCount
 )
 

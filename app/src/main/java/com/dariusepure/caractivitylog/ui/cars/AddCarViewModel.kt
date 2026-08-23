@@ -211,6 +211,15 @@ class AddCarViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = AddCarState.Pending
             try {
+                // Duplicate VIN Check
+                if (vin.isNotBlank()) {
+                    val isDuplicate = carRepository.isVinDuplicate(vin.trim(), currentCarId)
+                    if (isDuplicate) {
+                        _state.value = AddCarState.Error(context.getString(R.string.validation_vin_exists))
+                        return@launch
+                    }
+                }
+
                 val unitSystemValue = preferenceRepository.unitSystem.first()
                 val usesMiles = unitSystemValue == com.dariusepure.caractivitylog.domain.UnitSystem.IMPERIAL
                 

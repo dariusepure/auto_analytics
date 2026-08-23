@@ -26,10 +26,10 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Restore
-import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.outlined.DirectionsCar
 import com.dariusepure.caractivitylog.ui.common.CarFormatters
 import com.dariusepure.caractivitylog.ui.theme.SettingsViewModel
@@ -126,24 +126,6 @@ fun CarCard(
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.weight(1f, fill = false)
                     )
-                    
-                    Spacer(Modifier.width(8.dp))
-                    
-                    if (!car.isSynced) {
-                        Icon(
-                            imageVector = Icons.Default.Sync,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.CheckCircle,
-                            contentDescription = null,
-                            tint = Color(0xFF4CAF50), // Green
-                            modifier = Modifier.size(14.dp)
-                        )
-                    }
                 }
                 Spacer(Modifier.height(4.dp))
                 
@@ -538,7 +520,7 @@ private fun SettingsSheetContent(
 
         ListItem(
             headlineContent = { Text(stringResource(R.string.unit_system_label)) },
-            leadingContent = { Icon(Icons.Default.Sync, null) },
+            leadingContent = { Icon(Icons.Default.Speed, null) },
             trailingContent = {
                 Box {
                     Row(

@@ -52,7 +52,8 @@ class CarListViewModel @Inject constructor(
                     car.make.contains(query, ignoreCase = true) ||
                             car.model.contains(query, ignoreCase = true) ||
                             car.displayName.contains(query, ignoreCase = true) ||
-                            car.licensePlate.contains(query, ignoreCase = true)
+                            car.licensePlate.contains(query, ignoreCase = true) ||
+                            car.vin.contains(query, ignoreCase = true)
                 }
             }
 
