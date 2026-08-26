@@ -6,6 +6,7 @@ import com.google.firebase.firestore.Query
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.MileageLog
@@ -107,14 +108,14 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun isVinDuplicate(vin: String, excludeCarId: String?): Boolean {
-        val uid = authRepository.getUserId() ?: return false
-        val query = firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .whereEqualTo("vin", vin.uppercase())
-
-        val snapshots = query.get().await()
-        return snapshots.documents.any { it.id != excludeCarId }
+        return try {
+            // We use our existing 'cars' flow which provides a locally-cached list of cars.
+            // This is much safer than a direct query.get() which can hang offline.
+            val currentCars = cars.first()
+            currentCars.any { it.vin.equals(vin.trim(), ignoreCase = true) && it.id != excludeCarId }
+        } catch (e: Exception) {
+            false // If something goes wrong, we let the save attempt proceed
+        }
     }
 
     fun deleteCar(carId: String) {

@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import com.dariusepure.caractivitylog.BuildConfig
+import com.dariusepure.caractivitylog.R
 import kotlinx.coroutines.flow.distinctUntilChanged
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -62,12 +63,12 @@ class AuthRepository @Inject constructor(
     }
 
     suspend fun signInWithGoogle(context: Context) {
-        val webClientId = BuildConfig.WEB_CLIENT_ID
-        Log.d(TAG, "Starting Google Sign-In with WEB_CLIENT_ID: '$webClientId'")
+        val webClientId = context.getString(R.string.default_web_client_id)
+        Log.d(TAG, "Starting Google Sign-In with auto-generated WEB_CLIENT_ID: '$webClientId'")
         
         if (webClientId.isBlank()) {
             Log.e(TAG, "WEB_CLIENT_ID is empty! Google Sign-In will fail.")
-            throw IllegalStateException("Autentificarea Google nu este configurată corect în acest build.")
+            throw IllegalStateException(context.getString(R.string.error_google_config_mismatch))
         }
 
         val googleIdOption = GetGoogleIdOption.Builder()
@@ -100,11 +101,11 @@ class AuthRepository @Inject constructor(
                 Log.d(TAG, "Firebase sign-in successful")
             } else {
                 Log.e(TAG, "Unexpected credential type: ${credential.type}")
-                throw IllegalStateException("Unexpected credential type: ${credential.type}")
+                throw IllegalStateException(context.getString(R.string.error_google_config_mismatch))
             }
         } catch (e: NoCredentialException) {
-            Log.e(TAG, "No credentials found. This usually means the SHA-1 is not registered in Firebase or no Google account is available on device.", e)
-            throw Exception("No Google accounts found or configuration issue (check SHA-1 in Firebase).")
+            Log.e(TAG, "No credentials found", e)
+            throw Exception(context.getString(R.string.error_google_no_credentials))
         } catch (e: GetCredentialException) {
             Log.e(TAG, "Credential Manager error: ${e.type}", e)
             throw Exception("Google Sign-In failed: ${e.message}")

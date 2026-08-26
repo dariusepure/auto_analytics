@@ -189,6 +189,10 @@ fun AddCarScreen(
     var vehicleType by remember { mutableStateOf("") }
     var manufacturingCountry by remember { mutableStateOf("") }
 
+    var hasAbs by remember { mutableStateOf(false) }
+    var hasEsp by remember { mutableStateOf(false) }
+    var airbags by remember { mutableStateOf("") }
+
     val photoPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
@@ -289,6 +293,11 @@ fun AddCarScreen(
                 if (acceleration0to100.isBlank()) selectedData.acceleration0to100?.let { acceleration0to100 = it.toString() }
                 if (fuelConsumptionCombined.isBlank()) selectedData.fuelConsumptionCombined?.let { fuelConsumptionCombined = it.toString() }
                 if (co2Emissions.isBlank()) selectedData.co2Emissions?.let { co2Emissions = it.roundToInt().toString() }
+                
+                selectedData.hasAbs?.let { hasAbs = it }
+                selectedData.hasEsp?.let { hasEsp = it }
+                if (airbags.isBlank()) selectedData.airbags?.let { airbags = it.roundToInt().toString() }
+
                 dataToConfirm = null
             }
         )
@@ -297,6 +306,7 @@ fun AddCarScreen(
     var identityExpanded by remember { mutableStateOf(true) }
     var engineExpanded by remember { mutableStateOf(false) }
     var dimensionsExpanded by remember { mutableStateOf(false) }
+    var safetyExpanded by remember { mutableStateOf(false) }
 
     var countryExpanded by remember { mutableStateOf(false) }
     var manufacturingCountryExpanded by remember { mutableStateOf(false) }
@@ -371,7 +381,10 @@ fun AddCarScreen(
                 fuelConsumptionCombined = fuelConsumptionCombined,
                 fuelConsumptionUrban = fuelConsumptionUrban,
                 fuelConsumptionExtraUrban = fuelConsumptionExtraUrban,
-                co2Emissions = co2Emissions
+                co2Emissions = co2Emissions,
+                hasAbs = hasAbs,
+                hasEsp = hasEsp,
+                airbags = airbags
             )
         } else {
             onBack()
@@ -441,6 +454,10 @@ fun AddCarScreen(
                 rearBrakes = car.rearBrakes
                 vehicleType = car.vehicleType
                 manufacturingCountry = car.manufacturingCountry
+
+                hasAbs = car.hasAbs
+                hasEsp = car.hasEsp
+                airbags = car.airbags.takeIf { it != 0 }?.toString() ?: ""
             }
         }
     }
@@ -462,6 +479,82 @@ fun AddCarScreen(
                 navigationIcon = {
                     IconButton(onClick = handleBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
+                    }
+                },
+                actions = {
+                    val canSave = (make.isNotBlank() && model.isNotBlank()) && state !is AddCarState.Pending
+                    if (state is AddCarState.Pending) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(40.dp).padding(end = 16.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    } else {
+                        TextButton(
+                            onClick = {
+                                viewModel.onAddOrUpdateCar(
+                                    licensePlate = licensePlate,
+                                    plateCountry = selectedCountry?.code ?: "",
+                                    make = make,
+                                    model = model,
+                                    vin = vin,
+                                    year = year,
+                                    engineSize = engineSize,
+                                    fuelType = fuelType,
+                                    fuelSystem = fuelSystem,
+                                    color = color,
+                                    power = power,
+                                    powerUnit = powerUnit,
+                                    torque = torque,
+                                    engineCode = engineCode,
+                                    engineLayout = engineLayout,
+                                    cylinderLayout = cylinderLayout,
+                                    emissionStandard = emissionStandard,
+                                    length = length,
+                                    width = width,
+                                    height = height,
+                                    wheelbase = wheelbase,
+                                    fuelTankCapacity = fuelTankCapacity,
+                                    batteryCapacity = batteryCapacity,
+                                    drivetrain = drivetrain,
+                                    gearboxType = gearboxType,
+                                    gears = gears,
+                                    frontSuspension = frontSuspension,
+                                    rearSuspension = rearSuspension,
+                                    vehicleType = vehicleType,
+                                    manufacturingCountry = manufacturingCountry,
+                                    topSpeed = topSpeed,
+                                    weight = weight,
+                                    numberOfSeats = numberOfSeats,
+                                    numberOfCylinders = numberOfCylinders,
+                                    valvesPerCylinder = valvesPerCylinder,
+                                    numberOfDoors = numberOfDoors,
+                                    bootSpace = bootSpace,
+                                    tireWidth = tireWidth,
+                                    tireAspectRatio = tireAspectRatio,
+                                    tireDiameter = tireDiameter,
+                                    aspiration = aspiration,
+                                    frontBrakes = frontBrakes,
+                                    rearBrakes = rearBrakes,
+                                    acceleration0to100 = acceleration0to100,
+                                    fuelConsumptionCombined = fuelConsumptionCombined,
+                                    fuelConsumptionUrban = fuelConsumptionUrban,
+                                    fuelConsumptionExtraUrban = fuelConsumptionExtraUrban,
+                                    co2Emissions = co2Emissions,
+                                    hasAbs = hasAbs,
+                                    hasEsp = hasEsp,
+                                    airbags = airbags
+                                )
+                            },
+                            enabled = canSave
+                        ) {
+                            Text(
+                                stringResource(R.string.common_save),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = if (canSave) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                            )
+                        }
                     }
                 }
             )
@@ -1516,78 +1609,49 @@ fun AddCarScreen(
                 }
             }
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(16.dp))
 
-            Button(
-                onClick = {
-                    viewModel.onAddOrUpdateCar(
-                        licensePlate = licensePlate,
-                        plateCountry = selectedCountry?.code ?: "",
-                        make = make,
-                        model = model,
-                        vin = vin,
-                        year = year,
-                        engineSize = engineSize,
-                        fuelType = fuelType,
-                        fuelSystem = fuelSystem,
-                        color = color,
-                        power = power,
-                        powerUnit = powerUnit,
-                        torque = torque,
-                        engineCode = engineCode,
-                        engineLayout = engineLayout,
-                        cylinderLayout = cylinderLayout,
-                        emissionStandard = emissionStandard,
-                        length = length,
-                        width = width,
-                        height = height,
-                        wheelbase = wheelbase,
-                        fuelTankCapacity = fuelTankCapacity,
-                        batteryCapacity = batteryCapacity,
-                        drivetrain = drivetrain,
-                        gearboxType = gearboxType,
-                        gears = gears,
-                        frontSuspension = frontSuspension,
-                        rearSuspension = rearSuspension,
-                        vehicleType = vehicleType,
-                        manufacturingCountry = manufacturingCountry,
-                        topSpeed = topSpeed,
-                        weight = weight,
-                        numberOfSeats = numberOfSeats,
-                        numberOfCylinders = numberOfCylinders,
-                        valvesPerCylinder = valvesPerCylinder,
-                        numberOfDoors = numberOfDoors,
-                        bootSpace = bootSpace,
-                        tireWidth = tireWidth,
-                        tireAspectRatio = tireAspectRatio,
-                        tireDiameter = tireDiameter,
-                        aspiration = aspiration,
-                        frontBrakes = frontBrakes,
-                        rearBrakes = rearBrakes,
-                        acceleration0to100 = acceleration0to100,
-                        fuelConsumptionCombined = fuelConsumptionCombined,
-                        fuelConsumptionUrban = fuelConsumptionUrban,
-                        fuelConsumptionExtraUrban = fuelConsumptionExtraUrban,
-                        co2Emissions = co2Emissions
-                    )
-                },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = (make.isNotBlank() && model.isNotBlank()) && state !is AddCarState.Pending,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+            // --- 4. SAFETY ---
+            CollapsibleSection(
+                title = stringResource(R.string.car_safety_section),
+                isExpanded = safetyExpanded,
+                onToggle = { safetyExpanded = !safetyExpanded }
             ) {
-                if (state is AddCarState.Pending) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = hasAbs,
+                        onCheckedChange = { hasAbs = it }
                     )
-                } else {
-                    Text(stringResource(R.string.common_save))
+                    Text(
+                        text = stringResource(R.string.car_abs_label),
+                        modifier = Modifier.clickable { hasAbs = !hasAbs }
+                    )
+                    Spacer(Modifier.width(24.dp))
+                    Checkbox(
+                        checked = hasEsp,
+                        onCheckedChange = { hasEsp = it }
+                    )
+                    Text(
+                        text = stringResource(R.string.car_esp_label),
+                        modifier = Modifier.clickable { hasEsp = !hasEsp }
+                    )
                 }
+
+                Spacer(Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = airbags,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) airbags = it },
+                    label = { Text(stringResource(R.string.car_airbags_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
             }
+
+            Spacer(Modifier.height(24.dp))
         }
     }
 }
@@ -1672,6 +1736,9 @@ fun ScannedCarDataConfirmationDialog(
             list.add(Triple(context.getString(R.string.car_consumption_label), String.format(java.util.Locale.US, "%.2f %s", displayCons, consumptionUnit), "fuelConsumptionCombined")) 
         }
         if (shouldAdd("co2Emissions")) data.co2Emissions?.let { list.add(Triple(context.getString(R.string.car_co2_label), "${it.roundToInt()} g/km", "co2Emissions")) }
+        if (shouldAdd("hasAbs")) data.hasAbs?.let { list.add(Triple(context.getString(R.string.car_abs_label), if (it) context.getString(R.string.status_ok) else context.getString(R.string.common_none), "hasAbs")) }
+        if (shouldAdd("hasEsp")) data.hasEsp?.let { list.add(Triple(context.getString(R.string.car_esp_label), if (it) context.getString(R.string.status_ok) else context.getString(R.string.common_none), "hasEsp")) }
+        if (shouldAdd("airbags")) data.airbags?.let { list.add(Triple(context.getString(R.string.car_airbags_label), it.roundToInt().toString(), "airbags")) }
         list
     }
 
@@ -1764,6 +1831,9 @@ fun ScannedCarDataConfirmationDialog(
                         acceleration0to100 = if ("acceleration0to100" in selectedKeys) data.acceleration0to100 else null,
                         fuelConsumptionCombined = if ("fuelConsumptionCombined" in selectedKeys) data.fuelConsumptionCombined else null,
                         co2Emissions = if ("co2Emissions" in selectedKeys) data.co2Emissions else null,
+                        hasAbs = if ("hasAbs" in selectedKeys) data.hasAbs else null,
+                        hasEsp = if ("hasEsp" in selectedKeys) data.hasEsp else null,
+                        airbags = if ("airbags" in selectedKeys) data.airbags else null,
                         mileage = if ("mileage" in selectedKeys) data.mileage else null
                     )
                     onConfirm(confirmedData)

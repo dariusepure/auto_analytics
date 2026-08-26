@@ -94,7 +94,7 @@ class GeminiRepository @Inject constructor(
             val prompt = """
                 Extract technical details from this vehicle document (registration certificate, invoice, insurance, or technical sheet).
                 Analyze the document and look for these fields:
-                - make, model, vin (MUST be 17 chars), year (4 digits), fuelType, engineSize (cc), power (hp or kW), torque (Nm), color, gears, registrationPlate.
+                - make, model, vin (MUST be 17 chars), year (4 digits), fuelType, engineSize (cc), power (hp or kW), torque (Nm), color, gears, registrationPlate, hasAbs (boolean), hasEsp (boolean), airbags (number).
                 
                 COLOR MAPPING (Return one of these standard values for 'color'):
                 - White, Black, Silver, Gray, Blue, Red, Brown, Green, Yellow, Orange.
@@ -115,6 +115,7 @@ class GeminiRepository @Inject constructor(
                 registrationPlate, numberOfSeats, numberOfDoors, weight, engineCode, 
                 emissionStandard, gearboxType, gears, drivetrain, engineLayout, cylinderLayout, 
                 fuelTankCapacity, topSpeed, acceleration0to100, fuelConsumptionCombined, co2Emissions,
+                hasAbs, hasEsp, airbags,
                 mileage,
                 mileageHistory (a list of objects with 'km' and 'date' in YYYY-MM-DD format).
                 
@@ -164,7 +165,7 @@ class GeminiRepository @Inject constructor(
                 Extract technical details from this vehicle document (registration certificate, invoice, insurance, or technical sheet).
                 The document might have multiple pages or be a complex PDF. Scan all visible text carefully.
                 Analyze the document and look for these fields:
-                - make, model, vin (MUST be 17 chars), year (4 digits), fuelType, engineSize (cc), power (hp or kW), torque (Nm), color, gears, registrationPlate.
+                - make, model, vin (MUST be 17 chars), year (4 digits), fuelType, engineSize (cc), power (hp or kW), torque (Nm), color, gears, registrationPlate, hasAbs (boolean), hasEsp (boolean), airbags (number).
                 
                 COLOR MAPPING (Return one of these standard values for 'color'):
                 - White, Black, Silver, Gray, Blue, Red, Brown, Green, Yellow, Orange.
@@ -185,6 +186,7 @@ class GeminiRepository @Inject constructor(
                 registrationPlate, numberOfSeats, numberOfDoors, weight, engineCode, 
                 emissionStandard, gearboxType, gears, drivetrain, engineLayout, cylinderLayout, 
                 fuelTankCapacity, topSpeed, acceleration0to100, fuelConsumptionCombined, co2Emissions,
+                hasAbs, hasEsp, airbags,
                 mileage,
                 mileageHistory (a list of objects with 'km' and 'date' in YYYY-MM-DD format).
                 

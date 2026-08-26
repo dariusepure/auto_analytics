@@ -228,6 +228,7 @@
     <string name="car_engine_section">Performance</string>
     <string name="car_engine_transmission_section">Performance</string>
     <string name="car_dimensions_section">Dimensions</string>
+    <string name="car_safety_section">Safety</string>
     <string name="car_title_label">Car Title (Nickname)</string>
     <string name="car_title_placeholder">%s</string>
     <string name="car_title_placeholder_fallback">My Daily Driver</string>
@@ -491,6 +492,9 @@
     <string name="car_valves_label">Valves</string>
     <string name="car_plate_country_label">Plate Country</string>
     <string name="car_dimensions_lxwxh">Dimensions</string>
+    <string name="car_abs_label">ABS</string>
+    <string name="car_esp_label">ESP</string>
+    <string name="car_airbags_label">Airbags</string>
     <string name="car_fuel_tank_label">Fuel Tank</string>
     <string name="car_country_label">Country</string>
     <string name="car_select_country">Select</string>
@@ -566,6 +570,8 @@
     <string name="error_password_reset_failed">An unexpected error occurred while resetting the password</string>
     <string name="error_signin_failed">An unexpected error occurred during Sign-In</string>
     <string name="error_google_signin_failed">An unexpected error occurred during Google Sign-In</string>
+    <string name="error_google_no_credentials">No Google accounts found on this device.</string>
+    <string name="error_google_config_mismatch">Google Sign-In configuration mismatch. Check Client ID and SHA-1.</string>
     <string name="error_signup_failed">An error occurred during sign up</string>
     <string name="error_car_not_found">Car not found</string>
     <string name="error_generic">An error occurred</string>

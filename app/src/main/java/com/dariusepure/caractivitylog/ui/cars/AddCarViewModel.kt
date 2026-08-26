@@ -155,7 +155,10 @@ class AddCarViewModel @Inject constructor(
         fuelConsumptionCombined: String = "",
         fuelConsumptionUrban: String = "",
         fuelConsumptionExtraUrban: String = "",
-        co2Emissions: String = ""
+        co2Emissions: String = "",
+        hasAbs: Boolean = false,
+        hasEsp: Boolean = false,
+        airbags: String = ""
     ) {
         if (make.isBlank() || model.isBlank()) {
             _state.value = AddCarState.Error(context.getString(R.string.validation_brand_model_required))
@@ -191,7 +194,8 @@ class AddCarViewModel @Inject constructor(
             context.getString(R.string.car_consumption_label) to fuelConsumptionCombined,
             context.getString(R.string.car_consumption_urban_label) to fuelConsumptionUrban,
             context.getString(R.string.car_consumption_extra_urban_label) to fuelConsumptionExtraUrban,
-            context.getString(R.string.car_co2_label) to co2Emissions
+            context.getString(R.string.car_co2_label) to co2Emissions,
+            context.getString(R.string.car_airbags_label) to airbags
         )
 
         for ((label, value) in numericFields) {
@@ -277,7 +281,10 @@ class AddCarViewModel @Inject constructor(
                     fuelConsumptionUrban = CarFormatters.toCanonicalConsumption(fuelConsumptionUrban.toDoubleOrNull() ?: 0.0, usesMiles),
                     fuelConsumptionExtraUrban = CarFormatters.toCanonicalConsumption(fuelConsumptionExtraUrban.toDoubleOrNull() ?: 0.0, usesMiles),
                     co2Emissions = co2Emissions.toDoubleOrNull()?.roundToInt() ?: 0,
-                    updatedAt = Date()
+                    updatedAt = Date(),
+                    hasAbs = hasAbs,
+                    hasEsp = hasEsp,
+                    airbags = airbags.toDoubleOrNull()?.roundToInt() ?: 0
                 )
 
                 carRepository.createCar(car)

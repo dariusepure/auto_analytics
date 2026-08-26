@@ -272,6 +272,18 @@ fun TechnicalSheetScreen(
                         SpecificationCard(specifications = dimensionSpecs)
                     }
 
+                    TechnicalCategory(title = stringResource(R.string.car_safety_section)) {
+                        val yes = stringResource(R.string.status_ok)
+                        val no = stringResource(R.string.common_none)
+                        SpecificationCard(
+                            specifications = listOf(
+                                stringResource(R.string.car_abs_label) to if (car.hasAbs) yes else no,
+                                stringResource(R.string.car_esp_label) to if (car.hasEsp) yes else no,
+                                stringResource(R.string.car_airbags_label) to if (car.airbags > 0) car.airbags.toString() else no
+                            )
+                        )
+                    }
+
                 }
             }
         }

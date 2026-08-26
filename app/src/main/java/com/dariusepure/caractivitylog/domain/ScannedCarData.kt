@@ -51,6 +51,10 @@ data class ScannedCarData(
     val fuelConsumptionCombined: Double? = null,
     @Serializable(with = FlexibleDoubleSerializer::class)
     val co2Emissions: Double? = null,
+    val hasAbs: Boolean? = null,
+    val hasEsp: Boolean? = null,
+    @Serializable(with = FlexibleDoubleSerializer::class)
+    val airbags: Double? = null,
     @Serializable(with = FlexibleDoubleSerializer::class)
     val mileage: Double? = null,
     val mileageHistory: List<ScannedMileageEntry>? = null

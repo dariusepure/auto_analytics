@@ -58,7 +58,10 @@ data class FirestoreCar(
     val accentColor: Long? = null,
     val createdAt: Timestamp = Timestamp.now(),
     val updatedAt: Timestamp = Timestamp.now(),
-    val activityCount: Int = 0
+    val activityCount: Int = 0,
+    val hasAbs: Boolean = false,
+    val hasEsp: Boolean = false,
+    val airbags: Int = 0
 )
 
 fun Car.toFirebase() = FirestoreCar(
@@ -115,7 +118,10 @@ fun Car.toFirebase() = FirestoreCar(
     accentColor = this.accentColor,
     createdAt = Timestamp(this.createdAt),
     updatedAt = Timestamp(this.updatedAt),
-    activityCount = this.activityCount
+    activityCount = this.activityCount,
+    hasAbs = this.hasAbs,
+    hasEsp = this.hasEsp,
+    airbags = this.airbags
 )
 
 fun FirestoreCar.fromFirebase() = Car(
@@ -172,6 +178,9 @@ fun FirestoreCar.fromFirebase() = Car(
     accentColor = this.accentColor,
     createdAt = this.createdAt.toDate(),
     updatedAt = this.updatedAt.toDate(),
-    activityCount = this.activityCount
+    activityCount = this.activityCount,
+    hasAbs = this.hasAbs,
+    hasEsp = this.hasEsp,
+    airbags = this.airbags
 )
 
