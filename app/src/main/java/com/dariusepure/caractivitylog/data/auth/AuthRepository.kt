@@ -63,8 +63,8 @@ class AuthRepository @Inject constructor(
     }
 
     suspend fun signInWithGoogle(context: Context) {
-        val webClientId = context.getString(R.string.default_web_client_id)
-        Log.d(TAG, "Starting Google Sign-In with auto-generated WEB_CLIENT_ID: '$webClientId'")
+        val webClientId = BuildConfig.WEB_CLIENT_ID.trim()
+        Log.d(TAG, "Starting Google Sign-In with direct WEB_CLIENT_ID: '$webClientId'")
         
         if (webClientId.isBlank()) {
             Log.e(TAG, "WEB_CLIENT_ID is empty! Google Sign-In will fail.")
@@ -104,8 +104,9 @@ class AuthRepository @Inject constructor(
                 throw IllegalStateException(context.getString(R.string.error_google_config_mismatch))
             }
         } catch (e: NoCredentialException) {
-            Log.e(TAG, "No credentials found", e)
-            throw Exception(context.getString(R.string.error_google_no_credentials))
+            val currentSha1 = com.dariusepure.caractivitylog.util.DiagnosticUtils.getAppSignatureSha1(context, true)
+            Log.e(TAG, "No credentials found. Current SHA-1: $currentSha1", e)
+            throw Exception(context.getString(R.string.error_google_no_credentials, currentSha1))
         } catch (e: GetCredentialException) {
             Log.e(TAG, "Credential Manager error: ${e.type}", e)
             throw Exception("Google Sign-In failed: ${e.message}")

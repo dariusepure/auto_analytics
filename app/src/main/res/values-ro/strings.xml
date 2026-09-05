@@ -568,7 +568,7 @@
     <string name="error_password_reset_failed">A apărut o eroare neașteptată la resetarea parolei</string>
     <string name="error_signin_failed">A apărut o eroare neașteptată la autentificare</string>
     <string name="error_google_signin_failed">A apărut o eroare neașteptată la autentificarea cu Google</string>
-    <string name="error_google_no_credentials">Nu s-au găsit conturi Google pe acest dispozitiv.</string>
+    <string name="error_google_no_credentials">Nu s-au găsit conturi Google. Asigură-te că SHA-1 este înregistrat în Firebase: %s</string>
     <string name="error_google_config_mismatch">Eroare de configurare Google Sign-In. Verifică Client ID și SHA-1.</string>
     <string name="error_signup_failed">A apărut o eroare la înregistrare</string>
     <string name="error_car_not_found">Mașina nu a fost găsită</string>

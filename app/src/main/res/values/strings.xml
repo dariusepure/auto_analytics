@@ -570,7 +570,7 @@
     <string name="error_password_reset_failed">An unexpected error occurred while resetting the password</string>
     <string name="error_signin_failed">An unexpected error occurred during Sign-In</string>
     <string name="error_google_signin_failed">An unexpected error occurred during Google Sign-In</string>
-    <string name="error_google_no_credentials">No Google accounts found on this device.</string>
+    <string name="error_google_no_credentials">No Google accounts found. Ensure your SHA-1 is registered in Firebase: %s</string>
     <string name="error_google_config_mismatch">Google Sign-In configuration mismatch. Check Client ID and SHA-1.</string>
     <string name="error_signup_failed">An error occurred during sign up</string>
     <string name="error_car_not_found">Car not found</string>
