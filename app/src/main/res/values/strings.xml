@@ -236,6 +236,7 @@
     <string name="car_scan_pdf">Import PDF</string>
     <string name="car_make_label">Make</string>
     <string name="car_model_label">Model</string>
+    <string name="car_generation_label">Generation</string>
     <string name="car_year_label">Year</string>
     <string name="car_vehicle_type_label">Vehicle Type</string>
     <string name="car_color_label">Color</string>

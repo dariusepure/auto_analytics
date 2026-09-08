@@ -61,9 +61,17 @@ data class Car(
     val activityCount: Int = 0,
     val hasAbs: Boolean = false,
     val hasEsp: Boolean = false,
-    val airbags: Int = 0
+    val airbags: Int = 0,
+    val generation: String = ""
 )
 
 val Car.displayName: String
-    get() = name.ifBlank { "$make $model".trim() }.ifBlank { "Unnamed car" }
+    get() {
+        val base = if (name.isNotBlank()) name else "$make $model".trim()
+        return if (generation.isNotBlank()) {
+            "$base ($generation)"
+        } else {
+            base.ifBlank { "Unnamed car" }
+        }
+    }
 

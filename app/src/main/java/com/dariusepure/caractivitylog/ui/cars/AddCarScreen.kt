@@ -140,6 +140,7 @@ fun AddCarScreen(
     val consumptionUnit = if (usesMiles) "mpg" else "L/100km"
     var make by remember { mutableStateOf("") }
     var model by remember { mutableStateOf("") }
+    var generation by remember { mutableStateOf("") }
     var modelExpanded by remember { mutableStateOf(false) }
     var vin by remember { mutableStateOf("") }
     var showVinError by remember { mutableStateOf(false) }
@@ -338,6 +339,7 @@ fun AddCarScreen(
                 plateCountry = selectedCountry?.code ?: "",
                 make = make,
                 model = model,
+                generation = generation,
                 vin = vin,
                 year = year,
                 engineSize = engineSize,
@@ -403,6 +405,7 @@ fun AddCarScreen(
                 
                 make = car.make
                 model = car.model
+                generation = car.generation
                 vin = car.vin
                 year = car.year.takeIf { it != 0 }?.toString() ?: ""
                 engineSize = car.engineSize
@@ -497,6 +500,7 @@ fun AddCarScreen(
                                     plateCountry = selectedCountry?.code ?: "",
                                     make = make,
                                     model = model,
+                                    generation = generation,
                                     vin = vin,
                                     year = year,
                                     engineSize = engineSize,
@@ -689,6 +693,17 @@ fun AddCarScreen(
                         }
                     }
                 }
+
+                Spacer(Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = generation,
+                    onValueChange = { generation = it },
+                    label = { Text(stringResource(R.string.car_generation_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    enabled = state !is AddCarState.Pending
+                )
 
                 Spacer(Modifier.height(8.dp))
 

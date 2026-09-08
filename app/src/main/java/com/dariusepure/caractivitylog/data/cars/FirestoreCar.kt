@@ -61,7 +61,8 @@ data class FirestoreCar(
     val activityCount: Int = 0,
     val hasAbs: Boolean = false,
     val hasEsp: Boolean = false,
-    val airbags: Int = 0
+    val airbags: Int = 0,
+    val generation: String = ""
 )
 
 fun Car.toFirebase() = FirestoreCar(
@@ -121,7 +122,8 @@ fun Car.toFirebase() = FirestoreCar(
     activityCount = this.activityCount,
     hasAbs = this.hasAbs,
     hasEsp = this.hasEsp,
-    airbags = this.airbags
+    airbags = this.airbags,
+    generation = this.generation
 )
 
 fun FirestoreCar.fromFirebase() = Car(
@@ -181,6 +183,7 @@ fun FirestoreCar.fromFirebase() = Car(
     activityCount = this.activityCount,
     hasAbs = this.hasAbs,
     hasEsp = this.hasEsp,
-    airbags = this.airbags
+    airbags = this.airbags,
+    generation = this.generation
 )
 

@@ -204,6 +204,7 @@ fun TechnicalSheetScreen(
                             specifications = listOf(
                                 stringResource(R.string.car_make_label) to car.make,
                                 stringResource(R.string.car_model_label) to car.model,
+                                stringResource(R.string.car_generation_label) to car.generation,
                                 stringResource(R.string.car_year_label) to car.year.takeIf { it != 0 }?.toString().orEmpty(),
                                 stringResource(R.string.car_color_label) to CarTranslations.getColorLabel(context, car.color),
                                 stringResource(R.string.car_license_plate_label) to car.licensePlate,

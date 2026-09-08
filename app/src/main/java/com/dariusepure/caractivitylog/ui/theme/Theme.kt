@@ -260,8 +260,8 @@ val unspecified_scheme = ColorFamily(
 @Composable
 fun CarActivityLogTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    // Set dynamicColor to false to preserve branding
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
   val colorScheme = when {

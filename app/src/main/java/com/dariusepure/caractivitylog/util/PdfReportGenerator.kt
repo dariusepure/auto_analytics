@@ -177,6 +177,7 @@ object PdfReportGenerator {
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_nickname) to car.name,
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_make) to car.make,
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_model) to car.model,
+                context.getString(com.dariusepure.caractivitylog.R.string.car_generation_label) to car.generation,
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_year) to car.year.takeIf { it != 0 }?.toString().orEmpty(),
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_color) to car.color,
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_vin) to car.vin,

@@ -235,6 +235,7 @@
     <string name="car_scan_pdf">Importă PDF</string>
     <string name="car_make_label">Marcă</string>
     <string name="car_model_label">Model</string>
+    <string name="car_generation_label">Generație</string>
     <string name="car_year_label">An</string>
     <string name="car_vehicle_type_label">Tip vehicul</string>
     <string name="car_color_label">Culoare</string>
