@@ -43,6 +43,7 @@ android {
         buildConfigField("String", "FIREBASE_API_KEY", "\"$firebaseApiKey\"")
         buildConfigField("String", "RELEASE_SHA1", "\"67615688F76E557769CAB626F4F20C81B8749483\"")
         buildConfigField("String", "DEBUG_SHA1", "\"C10C6DF2FB85FC2373F01DA647F4F40CCB3F685C\"")
+        buildConfigField("String", "DEBUG_SHA256", "\"622282FCCC26E5CE6EFF61D7FCD031C223F9B171944D8D568EEE6BAD573355B8\"")
 
         // Firebase identifiers (can be public, but kept here for convenience)
         buildConfigField("String", "FIREBASE_PROJECT_ID", "\"car-activity-log\"")

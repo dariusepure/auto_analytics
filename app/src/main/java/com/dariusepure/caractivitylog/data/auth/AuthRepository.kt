@@ -83,7 +83,7 @@ class AuthRepository @Inject constructor(
 
         try {
             val credentialManager = CredentialManager.create(context)
-            Log.d(TAG, "Calling getCredential...")
+            Log.d(TAG, "Calling getCredential with WEB_CLIENT_ID: $webClientId")
             val response = credentialManager.getCredential(context, request)
             val credential = response.credential
 
@@ -94,7 +94,7 @@ class AuthRepository @Inject constructor(
             ) {
                 val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                 val idToken = googleIdTokenCredential.idToken
-                Log.d(TAG, "ID Token obtained successfully")
+                Log.d(TAG, "ID Token obtained successfully (length: ${idToken.length})")
                 
                 val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
                 firebaseAuth.signInWithCredential(firebaseCredential).await()
@@ -104,14 +104,13 @@ class AuthRepository @Inject constructor(
                 throw IllegalStateException(context.getString(R.string.error_google_config_mismatch))
             }
         } catch (e: NoCredentialException) {
-            val currentSha1 = com.dariusepure.caractivitylog.util.DiagnosticUtils.getAppSignatureSha1(context, true)
-            Log.e(TAG, "No credentials found. Current SHA-1: $currentSha1", e)
-            throw Exception(context.getString(R.string.error_google_no_credentials, currentSha1))
+            Log.e(TAG, "NoCredentialException: ${e.message}", e)
+            throw Exception(context.getString(R.string.error_google_no_credentials))
         } catch (e: GetCredentialException) {
-            Log.e(TAG, "Credential Manager error: ${e.type}", e)
+            Log.e(TAG, "GetCredentialException (Type: ${e.type}): ${e.message}", e)
             throw Exception("Google Sign-In failed: ${e.message}")
         } catch (e: Exception) {
-            Log.e(TAG, "Unexpected error during Google Sign-In", e)
+            Log.e(TAG, "Unexpected Exception during Google Sign-In: ${e.javaClass.simpleName} - ${e.message}", e)
             throw e
         }
     }

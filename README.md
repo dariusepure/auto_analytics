@@ -15,7 +15,8 @@
   - **Manual Data Confirmation**: Review and select which scanned details (VIN, Make, Model, Year, etc.) to apply to your car profile.
 
 ### 🛠️ Comprehensive Vehicle Management
-- **Exhaustive Technical Profiles**: Track everything from engine layout and cylinder configuration to tire dimensions and brake types.
+- **Exhaustive Technical Profiles**: Track everything from **Vehicle Generation** and engine layout to tire dimensions and safety equipment (ABS, ESP, Airbags).
+- **Smart Vehicle Titles**: Vehicle generations are automatically integrated into display names (e.g., "Volkswagen Golf (Mk7)") for easier identification.
 - **Advanced Search**: Instantly find vehicles in your collection by **Make**, **Model**, **License Plate**, or **VIN**.
 - **Duplicate Prevention**: Built-in validation to prevent adding multiple vehicles with the same **VIN**.
 - **Bento-Style History Screens**: Redesigned history logs for **Service**, **Tires**, **Inspections**, **Insurance**, and **Vignettes** featuring real-time statistics cards and a modern list layout.

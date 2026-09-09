@@ -621,6 +621,7 @@ fun AddCarScreen(
                         },
                         label = { Text(stringResource(R.string.car_make_label)) },
                         modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
                         leadingIcon = {
                             Icon(Icons.Outlined.DirectionsCar, null, modifier = Modifier.size(24.dp))
                         },
@@ -1032,6 +1033,7 @@ fun AddCarScreen(
                         onValueChange = { if (it.all { char -> char.isDigit() }) power = it },
                         label = { Text(stringResource(R.string.car_power_label)) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                     Spacer(Modifier.width(8.dp))
@@ -1070,6 +1072,7 @@ fun AddCarScreen(
                     onValueChange = { if (it.all { char -> char.isDigit() }) torque = it },
                     label = { Text(stringResource(R.string.car_torque_label)) },
                     modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
                     suffix = { Text("Nm") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
@@ -1125,6 +1128,7 @@ fun AddCarScreen(
                         onValueChange = { if (it.all { char -> char.isDigit() }) numberOfCylinders = it },
                         label = { Text(stringResource(R.string.car_cylinders_label)) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                     OutlinedTextField(
@@ -1132,6 +1136,7 @@ fun AddCarScreen(
                         onValueChange = { if (it.all { char -> char.isDigit() }) valvesPerCylinder = it },
                         label = { Text(stringResource(R.string.car_valves_per_cyl_label)) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                 }
@@ -1176,6 +1181,7 @@ fun AddCarScreen(
                         onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) acceleration0to100 = it },
                         label = { Text(stringResource(R.string.car_acceleration_label)) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         suffix = { Text("sec") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                     )
@@ -1184,6 +1190,7 @@ fun AddCarScreen(
                         onValueChange = { if (it.all { char -> char.isDigit() }) topSpeed = it },
                         label = { Text(stringResource(R.string.car_top_speed_label)) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         suffix = { Text(if (usesMiles) "mph" else "km/h") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
@@ -1226,6 +1233,7 @@ fun AddCarScreen(
                         onValueChange = { if (it.all { char -> char.isDigit() }) co2Emissions = it },
                         label = { Text(stringResource(R.string.car_co2_label)) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         suffix = { Text("g/km") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
@@ -1250,6 +1258,7 @@ fun AddCarScreen(
                         onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelConsumptionUrban = it },
                         label = { AutoSizeText(text = stringResource(R.string.car_consumption_urban_label), style = MaterialTheme.typography.bodyMedium, minFontSize = 9.sp) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         suffix = { Text(consumptionUnit) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                     )
@@ -1258,6 +1267,7 @@ fun AddCarScreen(
                         onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelConsumptionExtraUrban = it },
                         label = { AutoSizeText(text = stringResource(R.string.car_consumption_extra_urban_label), style = MaterialTheme.typography.bodyMedium, minFontSize = 9.sp) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         suffix = { Text(consumptionUnit) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                     )
@@ -1266,6 +1276,7 @@ fun AddCarScreen(
                         onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelConsumptionCombined = it },
                         label = { AutoSizeText(text = stringResource(R.string.car_consumption_label), style = MaterialTheme.typography.bodyMedium, minFontSize = 9.sp) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         suffix = { Text(consumptionUnit) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                     )
@@ -1522,6 +1533,7 @@ fun AddCarScreen(
                         onValueChange = { if (it.all { char -> char.isDigit() }) length = it },
                         label = { Text(stringResource(R.string.car_length_label)) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         suffix = { Text("mm") }
                     )
@@ -1530,6 +1542,7 @@ fun AddCarScreen(
                         onValueChange = { if (it.all { char -> char.isDigit() }) width = it },
                         label = { Text(stringResource(R.string.car_width_label)) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         suffix = { Text("mm") }
                     )
@@ -1543,6 +1556,7 @@ fun AddCarScreen(
                         onValueChange = { if (it.all { char -> char.isDigit() }) height = it },
                         label = { Text(stringResource(R.string.car_height_label)) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         suffix = { Text("mm") }
                     )
@@ -1551,6 +1565,7 @@ fun AddCarScreen(
                         onValueChange = { if (it.all { char -> char.isDigit() }) wheelbase = it },
                         label = { Text(stringResource(R.string.car_wheelbase_label)) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         suffix = { Text("mm") }
                     )
@@ -1564,6 +1579,7 @@ fun AddCarScreen(
                         onValueChange = { if (it.all { char -> char.isDigit() }) weight = it },
                         label = { Text(stringResource(R.string.car_weight_label)) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         suffix = { Text("kg") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
@@ -1572,6 +1588,7 @@ fun AddCarScreen(
                         onValueChange = { if (it.all { char -> char.isDigit() }) bootSpace = it },
                         label = { Text(stringResource(R.string.car_boot_label)) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         suffix = { Text("L") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
@@ -1585,6 +1602,7 @@ fun AddCarScreen(
                         onValueChange = { if (it.all { char -> char.isDigit() }) numberOfSeats = it },
                         label = { Text(stringResource(R.string.car_seats_label)) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                     OutlinedTextField(
@@ -1592,6 +1610,7 @@ fun AddCarScreen(
                         onValueChange = { if (it.all { char -> char.isDigit() }) numberOfDoors = it },
                         label = { Text(stringResource(R.string.car_doors_label)) },
                         modifier = Modifier.weight(1f),
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                 }
@@ -1606,6 +1625,7 @@ fun AddCarScreen(
                             onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) fuelTankCapacity = it },
                             label = { Text(stringResource(R.string.car_fuel_tank_capacity_label)) },
                             modifier = Modifier.weight(1f),
+                            singleLine = true,
                             suffix = { Text("L") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                         )
@@ -1617,6 +1637,7 @@ fun AddCarScreen(
                             onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) batteryCapacity = it },
                             label = { Text(stringResource(R.string.car_battery_capacity_label)) },
                             modifier = Modifier.weight(1f),
+                            singleLine = true,
                             suffix = { Text("kWh") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                         )
@@ -1662,6 +1683,7 @@ fun AddCarScreen(
                     onValueChange = { if (it.all { char -> char.isDigit() }) airbags = it },
                     label = { Text(stringResource(R.string.car_airbags_label)) },
                     modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
             }
