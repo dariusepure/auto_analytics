@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.activity.compose.rememberLauncherForActivityResult
 import android.widget.Toast
@@ -63,6 +64,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.PopupProperties
 import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -72,6 +74,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.HorizontalDivider
@@ -613,11 +616,17 @@ fun AddCarScreen(
                 isExpanded = identityExpanded,
                 onToggle = { identityExpanded = !identityExpanded }
             ) {
+                val filteredBrands = remember(make) {
+                    if (make.isEmpty()) carBrands.filter { it != "Other" }
+                    else carBrands.filter { it.startsWith(make, ignoreCase = true) && it != "Other" }
+                }
+
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = make,
                         onValueChange = { 
                             make = it.lowercase().replaceFirstChar { char -> char.uppercase() } 
+                            makeExpanded = make.isNotEmpty() && filteredBrands.isNotEmpty()
                         },
                         label = { Text(stringResource(R.string.car_make_label)) },
                         modifier = Modifier.fillMaxWidth(),
@@ -626,10 +635,20 @@ fun AddCarScreen(
                             Icon(Icons.Outlined.DirectionsCar, null, modifier = Modifier.size(24.dp))
                         },
                         trailingIcon = {
-                            Icon(
-                                Icons.Default.ArrowDropDown,
-                                "dropdown",
-                                Modifier.clickable { makeExpanded = true })
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (make.isNotEmpty()) {
+                                    IconButton(onClick = { 
+                                        make = "" 
+                                        makeExpanded = false
+                                    }) {
+                                        Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                    }
+                                }
+                                Icon(
+                                    Icons.Default.ArrowDropDown,
+                                    "dropdown",
+                                    Modifier.clickable { makeExpanded = !makeExpanded })
+                            }
                         },
                         keyboardOptions = KeyboardOptions(
                             capitalization = KeyboardCapitalization.Characters
@@ -638,18 +657,17 @@ fun AddCarScreen(
                     DropdownMenu(
                         expanded = makeExpanded,
                         onDismissRequest = { makeExpanded = false },
-                        modifier = Modifier.fillMaxWidth(0.9f).sizeIn(maxHeight = 300.dp)
+                        modifier = Modifier.fillMaxWidth(0.9f).sizeIn(maxHeight = 300.dp),
+                        properties = PopupProperties(focusable = false)
                     ) {
-                        carBrands.forEach { brand ->
-                            if (brand != "Other") {
-                                DropdownMenuItem(
-                                    text = { Text(brand) },
-                                    onClick = {
-                                        make = brand
-                                        makeExpanded = false
-                                    }
-                                )
-                            }
+                        filteredBrands.forEach { brand ->
+                            DropdownMenuItem(
+                                text = { Text(brand) },
+                                onClick = {
+                                    make = brand
+                                    makeExpanded = false
+                                }
+                            )
                         }
                     }
                 }
@@ -658,31 +676,49 @@ fun AddCarScreen(
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     val modelsForBrand = remember(make) { carModels[make.uppercase()] ?: emptyList() }
-                    
+                    val filteredModels = remember(model, modelsForBrand) {
+                        if (model.isEmpty()) modelsForBrand
+                        else modelsForBrand.filter { it.startsWith(model, ignoreCase = true) }
+                    }
+
                     OutlinedTextField(
                         value = model,
-                        onValueChange = { model = it },
+                        onValueChange = { 
+                            model = it 
+                            modelExpanded = model.isNotEmpty() && filteredModels.isNotEmpty()
+                        },
                         label = { Text(stringResource(R.string.car_model_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         enabled = state !is AddCarState.Pending,
-                        trailingIcon = if (modelsForBrand.isNotEmpty()) {
-                            {
-                                Icon(
-                                    Icons.Default.ArrowDropDown,
-                                    "dropdown",
-                                    Modifier.clickable { modelExpanded = true })
+                        trailingIcon = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (model.isNotEmpty()) {
+                                    IconButton(onClick = { 
+                                        model = "" 
+                                        modelExpanded = false
+                                    }) {
+                                        Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                    }
+                                }
+                                if (modelsForBrand.isNotEmpty()) {
+                                    Icon(
+                                        Icons.Default.ArrowDropDown,
+                                        "dropdown",
+                                        Modifier.clickable { modelExpanded = !modelExpanded })
+                                }
                             }
-                        } else null
+                        }
                     )
                     
-                    if (modelsForBrand.isNotEmpty()) {
+                    if (filteredModels.isNotEmpty()) {
                         DropdownMenu(
                             expanded = modelExpanded,
                             onDismissRequest = { modelExpanded = false },
-                            modifier = Modifier.fillMaxWidth(0.9f).sizeIn(maxHeight = 300.dp)
+                            modifier = Modifier.fillMaxWidth(0.9f).sizeIn(maxHeight = 300.dp),
+                            properties = PopupProperties(focusable = false)
                         ) {
-                            modelsForBrand.forEach { carModel ->
+                            filteredModels.forEach { carModel ->
                                 DropdownMenuItem(
                                     text = { Text(carModel) },
                                     onClick = {
@@ -703,7 +739,14 @@ fun AddCarScreen(
                     label = { Text(stringResource(R.string.car_generation_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    enabled = state !is AddCarState.Pending
+                    enabled = state !is AddCarState.Pending,
+                    trailingIcon = if (generation.isNotEmpty()) {
+                        {
+                            IconButton(onClick = { generation = "" }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Clear")
+                            }
+                        }
+                    } else null
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -716,7 +759,14 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        enabled = state !is AddCarState.Pending
+                        enabled = state !is AddCarState.Pending,
+                        trailingIcon = if (year.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { year = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                     
                     var colorExpanded by remember { mutableStateOf(false) }
@@ -729,10 +779,17 @@ fun AddCarScreen(
                             singleLine = true,
                             enabled = state !is AddCarState.Pending,
                             trailingIcon = {
-                                Icon(
-                                    Icons.Default.ArrowDropDown,
-                                    "dropdown",
-                                    Modifier.clickable { colorExpanded = true })
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    if (color.isNotEmpty()) {
+                                        IconButton(onClick = { color = "" }) {
+                                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                        }
+                                    }
+                                    Icon(
+                                        Icons.Default.ArrowDropDown,
+                                        "dropdown",
+                                        Modifier.clickable { colorExpanded = true })
+                                }
                             }
                         )
                         Box(
@@ -768,7 +825,14 @@ fun AddCarScreen(
                         label = { Text(stringResource(R.string.car_plate_country_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
-                            Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { countryExpanded = true })
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (selectedCountry != null) {
+                                    IconButton(onClick = { selectedCountry = null }) {
+                                        Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                    }
+                                }
+                                Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { countryExpanded = true })
+                            }
                         }
                     )
                     Box(modifier = Modifier.matchParentSize().clickable { countryExpanded = true })
@@ -804,7 +868,14 @@ fun AddCarScreen(
                         label = { Text(stringResource(R.string.car_license_plate_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        enabled = state !is AddCarState.Pending
+                        enabled = state !is AddCarState.Pending,
+                        trailingIcon = if (licensePlate.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { licensePlate = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                 }
 
@@ -828,6 +899,13 @@ fun AddCarScreen(
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     enabled = state !is AddCarState.Pending,
+                    trailingIcon = if (vin.isNotEmpty()) {
+                        {
+                            IconButton(onClick = { vin = "" }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Clear")
+                            }
+                        }
+                    } else null,
                     supportingText = {
                         if (vin.isNotEmpty()) {
                             Text("${vin.length}/17")
@@ -844,7 +922,14 @@ fun AddCarScreen(
                         label = { Text(stringResource(R.string.car_vehicle_type_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
-                            Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { vehicleTypeExpanded = true })
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (vehicleType.isNotEmpty()) {
+                                    IconButton(onClick = { vehicleType = "" }) {
+                                        Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                    }
+                                }
+                                Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { vehicleTypeExpanded = true })
+                            }
                         }
                     )
                     Box(modifier = Modifier.matchParentSize().clickable { vehicleTypeExpanded = true })
@@ -875,7 +960,14 @@ fun AddCarScreen(
                         label = { Text(stringResource(R.string.car_manufacturing_country_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
-                            Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { manufacturingCountryExpanded = true })
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (manufacturingCountry.isNotEmpty()) {
+                                    IconButton(onClick = { manufacturingCountry = "" }) {
+                                        Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                    }
+                                }
+                                Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { manufacturingCountryExpanded = true })
+                            }
                         }
                     )
                     Box(modifier = Modifier.matchParentSize().clickable { manufacturingCountryExpanded = true })
@@ -918,7 +1010,14 @@ fun AddCarScreen(
                     label = { Text(stringResource(R.string.car_engine_size_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    suffix = { Text(if (context.resources.configuration.locales[0].language == "ro") "cmc" else "cc") }
+                    suffix = { Text(if (context.resources.configuration.locales[0].language == "ro") "cmc" else "cc") },
+                    trailingIcon = if (engineSize.isNotEmpty()) {
+                        {
+                            IconButton(onClick = { engineSize = "" }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Clear")
+                            }
+                        }
+                    } else null
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -932,6 +1031,7 @@ fun AddCarScreen(
                             readOnly = true,
                             label = { Text(stringResource(R.string.car_fuel_type_label)) },
                             modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(28.dp),
                             trailingIcon = {
                                 Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { fuelTypeExpanded = true })
                             }
@@ -970,7 +1070,14 @@ fun AddCarScreen(
                                 label = { Text(if (fuelType == "Diesel") stringResource(R.string.car_fuel_system_label) else stringResource(R.string.car_injection_system_label)) },
                                 modifier = Modifier.fillMaxWidth(),
                                 trailingIcon = {
-                                    Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { fuelSystemExpanded = true })
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        if (fuelSystem.isNotEmpty()) {
+                                            IconButton(onClick = { fuelSystem = "" }) {
+                                                Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                            }
+                                        }
+                                        Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { fuelSystemExpanded = true })
+                                    }
                                 }
                             )
                             Box(modifier = Modifier.matchParentSize().clickable { fuelSystemExpanded = true })
@@ -1003,7 +1110,14 @@ fun AddCarScreen(
                         label = { Text(stringResource(R.string.car_aspiration_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
-                            Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { aspirationExpanded = true })
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (aspiration.isNotEmpty()) {
+                                    IconButton(onClick = { aspiration = "" }) {
+                                        Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                    }
+                                }
+                                Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { aspirationExpanded = true })
+                            }
                         }
                     )
                     Box(modifier = Modifier.matchParentSize().clickable { aspirationExpanded = true })
@@ -1034,6 +1148,7 @@ fun AddCarScreen(
                         label = { Text(stringResource(R.string.car_power_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
+                        shape = RoundedCornerShape(28.dp),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                     Spacer(Modifier.width(8.dp))
@@ -1044,7 +1159,14 @@ fun AddCarScreen(
                             readOnly = true,
                             label = { Text(stringResource(R.string.common_unit)) },
                             trailingIcon = {
-                                Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { powerUnitExpanded = true })
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    if (powerUnit.isNotEmpty()) {
+                                        IconButton(onClick = { powerUnit = "" }) {
+                                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                        }
+                                    }
+                                    Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { powerUnitExpanded = true })
+                                }
                             }
                         )
                         Box(modifier = Modifier.matchParentSize().clickable { powerUnitExpanded = true })
@@ -1074,7 +1196,14 @@ fun AddCarScreen(
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     suffix = { Text("Nm") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    trailingIcon = if (torque.isNotEmpty()) {
+                        {
+                            IconButton(onClick = { torque = "" }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Clear")
+                            }
+                        }
+                    } else null
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -1085,7 +1214,14 @@ fun AddCarScreen(
                     onValueChange = { engineCode = it.uppercase() },
                     label = { Text(stringResource(R.string.car_engine_code_label)) },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    trailingIcon = if (engineCode.isNotEmpty()) {
+                        {
+                            IconButton(onClick = { engineCode = "" }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Clear")
+                            }
+                        }
+                    } else null
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -1099,7 +1235,14 @@ fun AddCarScreen(
                         label = { Text(stringResource(R.string.car_engine_layout_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
-                            Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { engineLayoutExpanded = true })
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (engineLayout.isNotEmpty()) {
+                                    IconButton(onClick = { engineLayout = "" }) {
+                                        Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                    }
+                                }
+                                Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { engineLayoutExpanded = true })
+                            }
                         }
                     )
                     Box(modifier = Modifier.matchParentSize().clickable { engineLayoutExpanded = true })
@@ -1129,7 +1272,14 @@ fun AddCarScreen(
                         label = { Text(stringResource(R.string.car_cylinders_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        trailingIcon = if (numberOfCylinders.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { numberOfCylinders = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                     OutlinedTextField(
                         value = valvesPerCylinder,
@@ -1137,7 +1287,14 @@ fun AddCarScreen(
                         label = { Text(stringResource(R.string.car_valves_per_cyl_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        trailingIcon = if (valvesPerCylinder.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { valvesPerCylinder = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                 }
 
@@ -1152,7 +1309,14 @@ fun AddCarScreen(
                         label = { Text(stringResource(R.string.car_cylinder_layout_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
-                            Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { cylinderLayoutExpanded = true })
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (cylinderLayout.isNotEmpty()) {
+                                    IconButton(onClick = { cylinderLayout = "" }) {
+                                        Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                    }
+                                }
+                                Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { cylinderLayoutExpanded = true })
+                            }
                         }
                     )
                     Box(modifier = Modifier.matchParentSize().clickable { cylinderLayoutExpanded = true })
@@ -1183,7 +1347,14 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         suffix = { Text("sec") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        trailingIcon = if (acceleration0to100.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { acceleration0to100 = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                     OutlinedTextField(
                         value = topSpeed,
@@ -1192,7 +1363,14 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         suffix = { Text(if (usesMiles) "mph" else "km/h") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        trailingIcon = if (topSpeed.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { topSpeed = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                 }
 
@@ -1208,7 +1386,14 @@ fun AddCarScreen(
                             label = { Text(stringResource(R.string.car_emission_standard_label)) },
                             modifier = Modifier.fillMaxWidth(),
                             trailingIcon = {
-                                Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { emissionStandardExpanded = true })
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    if (emissionStandard.isNotEmpty()) {
+                                        IconButton(onClick = { emissionStandard = "" }) {
+                                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                        }
+                                    }
+                                    Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { emissionStandardExpanded = true })
+                                }
                             }
                         )
                         Box(modifier = Modifier.matchParentSize().clickable { emissionStandardExpanded = true })
@@ -1235,7 +1420,14 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         suffix = { Text("g/km") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        trailingIcon = if (co2Emissions.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { co2Emissions = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                 }
 
@@ -1260,7 +1452,14 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         suffix = { Text(consumptionUnit) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        trailingIcon = if (fuelConsumptionUrban.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { fuelConsumptionUrban = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                     OutlinedTextField(
                         value = fuelConsumptionExtraUrban,
@@ -1269,7 +1468,14 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         suffix = { Text(consumptionUnit) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        trailingIcon = if (fuelConsumptionExtraUrban.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { fuelConsumptionExtraUrban = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                     OutlinedTextField(
                         value = fuelConsumptionCombined,
@@ -1278,7 +1484,14 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         suffix = { Text(consumptionUnit) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        trailingIcon = if (fuelConsumptionCombined.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { fuelConsumptionCombined = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                 }
 
@@ -1294,7 +1507,14 @@ fun AddCarScreen(
                             label = { Text(stringResource(R.string.car_gearbox_type_label)) },
                             modifier = Modifier.fillMaxWidth(),
                             trailingIcon = {
-                                Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { gearboxTypeExpanded = true })
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    if (gearboxType.isNotEmpty()) {
+                                        IconButton(onClick = { gearboxType = "" }) {
+                                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                        }
+                                    }
+                                    Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { gearboxTypeExpanded = true })
+                                }
                             }
                         )
                         Box(modifier = Modifier.matchParentSize().clickable { gearboxTypeExpanded = true })
@@ -1320,7 +1540,14 @@ fun AddCarScreen(
                         label = { Text(stringResource(R.string.car_gears_label)) },
                         modifier = Modifier.weight(0.8f),
                         singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        trailingIcon = if (gears.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { gears = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                 }
 
@@ -1335,7 +1562,14 @@ fun AddCarScreen(
                         label = { Text(stringResource(R.string.car_drivetrain_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
-                            Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { drivetrainExpanded = true })
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (drivetrain.isNotEmpty()) {
+                                    IconButton(onClick = { drivetrain = "" }) {
+                                        Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                    }
+                                }
+                                Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { drivetrainExpanded = true })
+                            }
                         }
                     )
                     Box(modifier = Modifier.matchParentSize().clickable { drivetrainExpanded = true })
@@ -1368,7 +1602,14 @@ fun AddCarScreen(
                             label = { Text(stringResource(R.string.car_front_suspension_label)) },
                             modifier = Modifier.fillMaxWidth(),
                             trailingIcon = {
-                                Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { frontSuspensionExpanded = true })
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    if (frontSuspension.isNotEmpty()) {
+                                        IconButton(onClick = { frontSuspension = "" }) {
+                                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                        }
+                                    }
+                                    Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { frontSuspensionExpanded = true })
+                                }
                             }
                         )
                         Box(modifier = Modifier.matchParentSize().clickable { frontSuspensionExpanded = true })
@@ -1395,7 +1636,14 @@ fun AddCarScreen(
                             label = { Text(stringResource(R.string.car_rear_suspension_label)) },
                             modifier = Modifier.fillMaxWidth(),
                             trailingIcon = {
-                                Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { rearSuspensionExpanded = true })
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    if (rearSuspension.isNotEmpty()) {
+                                        IconButton(onClick = { rearSuspension = "" }) {
+                                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                        }
+                                    }
+                                    Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { rearSuspensionExpanded = true })
+                                }
                             }
                         )
                         Box(modifier = Modifier.matchParentSize().clickable { rearSuspensionExpanded = true })
@@ -1428,7 +1676,14 @@ fun AddCarScreen(
                             label = { Text(stringResource(R.string.car_front_brakes_label)) },
                             modifier = Modifier.fillMaxWidth(),
                             trailingIcon = {
-                                Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { frontBrakesExpanded = true })
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    if (frontBrakes.isNotEmpty()) {
+                                        IconButton(onClick = { frontBrakes = "" }) {
+                                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                        }
+                                    }
+                                    Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { frontBrakesExpanded = true })
+                                }
                             }
                         )
                         Box(modifier = Modifier.matchParentSize().clickable { frontBrakesExpanded = true })
@@ -1455,7 +1710,14 @@ fun AddCarScreen(
                             label = { Text(stringResource(R.string.car_rear_brakes_label)) },
                             modifier = Modifier.fillMaxWidth(),
                             trailingIcon = {
-                                Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { rearBrakesExpanded = true })
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    if (rearBrakes.isNotEmpty()) {
+                                        IconButton(onClick = { rearBrakes = "" }) {
+                                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                        }
+                                    }
+                                    Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { rearBrakesExpanded = true })
+                                }
                             }
                         )
                         Box(modifier = Modifier.matchParentSize().clickable { rearBrakesExpanded = true })
@@ -1503,7 +1765,14 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        suffix = { Text("mm") }
+                        suffix = { Text("mm") },
+                        trailingIcon = if (tireWidth.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { tireWidth = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                     OutlinedTextField(
                         value = tireAspectRatio,
@@ -1512,7 +1781,14 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        suffix = { Text("%") }
+                        suffix = { Text("%") },
+                        trailingIcon = if (tireAspectRatio.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { tireAspectRatio = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                     OutlinedTextField(
                         value = tireDiameter,
@@ -1521,7 +1797,14 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        suffix = { Text("\"") }
+                        suffix = { Text("\"") },
+                        trailingIcon = if (tireDiameter.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { tireDiameter = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                 }
 
@@ -1535,7 +1818,14 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        suffix = { Text("mm") }
+                        suffix = { Text("mm") },
+                        trailingIcon = if (length.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { length = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                     OutlinedTextField(
                         value = width,
@@ -1544,7 +1834,14 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        suffix = { Text("mm") }
+                        suffix = { Text("mm") },
+                        trailingIcon = if (width.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { width = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                 }
 
@@ -1558,7 +1855,14 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        suffix = { Text("mm") }
+                        suffix = { Text("mm") },
+                        trailingIcon = if (height.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { height = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                     OutlinedTextField(
                         value = wheelbase,
@@ -1567,7 +1871,14 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        suffix = { Text("mm") }
+                        suffix = { Text("mm") },
+                        trailingIcon = if (wheelbase.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { wheelbase = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                 }
 
@@ -1581,7 +1892,14 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         suffix = { Text("kg") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        trailingIcon = if (weight.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { weight = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                     OutlinedTextField(
                         value = bootSpace,
@@ -1590,7 +1908,14 @@ fun AddCarScreen(
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         suffix = { Text("L") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        trailingIcon = if (bootSpace.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { bootSpace = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                 }
 
@@ -1603,7 +1928,14 @@ fun AddCarScreen(
                         label = { Text(stringResource(R.string.car_seats_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        trailingIcon = if (numberOfSeats.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { numberOfSeats = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                     OutlinedTextField(
                         value = numberOfDoors,
@@ -1611,7 +1943,14 @@ fun AddCarScreen(
                         label = { Text(stringResource(R.string.car_doors_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        trailingIcon = if (numberOfDoors.isNotEmpty()) {
+                            {
+                                IconButton(onClick = { numberOfDoors = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                }
+                            }
+                        } else null
                     )
                 }
 
@@ -1627,7 +1966,14 @@ fun AddCarScreen(
                             modifier = Modifier.weight(1f),
                             singleLine = true,
                             suffix = { Text("L") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            trailingIcon = if (fuelTankCapacity.isNotEmpty()) {
+                                {
+                                    IconButton(onClick = { fuelTankCapacity = "" }) {
+                                        Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                    }
+                                }
+                            } else null
                         )
                     }
 
@@ -1639,7 +1985,14 @@ fun AddCarScreen(
                             modifier = Modifier.weight(1f),
                             singleLine = true,
                             suffix = { Text("kWh") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            trailingIcon = if (batteryCapacity.isNotEmpty()) {
+                                {
+                                    IconButton(onClick = { batteryCapacity = "" }) {
+                                        Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                    }
+                                }
+                            } else null
                         )
                     }
                 }
@@ -1684,7 +2037,14 @@ fun AddCarScreen(
                     label = { Text(stringResource(R.string.car_airbags_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    trailingIcon = if (airbags.isNotEmpty()) {
+                        {
+                            IconButton(onClick = { airbags = "" }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Clear")
+                            }
+                        }
+                    } else null
                 )
             }
 
