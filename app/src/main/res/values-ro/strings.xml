@@ -189,6 +189,9 @@
     <string name="unit_system_imperial">Imperial (mi, MPG)</string>
     <string name="unit_system_metric_label">Metric</string>
     <string name="unit_system_imperial_label">Imperial</string>
+    <string name="settings_section_appearance">Aspect</string>
+    <string name="settings_section_regional">Regional</string>
+    <string name="settings_section_account">Cont</string>
 
     <!-- Sorting -->
     <string name="sort_default">Implicit</string>

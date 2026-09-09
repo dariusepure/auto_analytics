@@ -31,6 +31,7 @@ import com.dariusepure.caractivitylog.ui.cars.VignetteHistoryScreen
 import com.dariusepure.caractivitylog.ui.cars.TireHistoryScreen
 import com.dariusepure.caractivitylog.ui.cars.CarReportsScreen
 import com.dariusepure.caractivitylog.ui.cars.ServiceHistoryScreen
+import com.dariusepure.caractivitylog.ui.settings.SettingsScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.ui.common.LoadingState
@@ -81,6 +82,7 @@ sealed class Screen(val route: String) {
     data object FuelHistory : Screen("fuelhistory/{carId}") {
         fun createRoute(carId: String) = "fuelhistory/$carId"
     }
+    data object Settings : Screen("settings")
 }
 
 @Composable
@@ -171,12 +173,20 @@ fun AppNavigation(
                 onEditCarClick = { carId ->
                     navController.navigate(Screen.EditCar.createRoute(carId))
                 },
+                onSettingsClick = {
+                    navController.navigate(Screen.Settings.route)
+                }
+            )
+        }
+        composable(Screen.Settings.route) {
+            SettingsScreen(
+                onBack = { navController.popBackStack() },
                 onLogout = {
                     navController.navigate(Screen.SignIn.route) {
                         popUpTo(navController.graph.id) { inclusive = true }
                     }
                 },
-                settingsViewModel = settingsViewModel
+                viewModel = settingsViewModel
             )
         }
         composable(Screen.CarDetails.route) { backStackEntry ->
