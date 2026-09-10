@@ -31,7 +31,7 @@ android {
         applicationId = "com.dariusepure.caractivitylog"
         minSdk = 26
         targetSdk = 36
-        versionCode = 25
+        versionCode = 26
         versionName = "1.0.4"
 
         multiDexEnabled = true
@@ -128,6 +128,7 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.auth.credentials)
     implementation(libs.androidx.auth.credentials.play)
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
 
     // Compose BOM ensures all compose libs use compatible versions
     implementation(platform(libs.androidx.compose.bom))

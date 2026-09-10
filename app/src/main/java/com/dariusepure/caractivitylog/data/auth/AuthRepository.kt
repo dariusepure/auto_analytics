@@ -41,6 +41,9 @@ class AuthRepository @Inject constructor(
     val isCurrentlySignedIn: Boolean
         get() = firebaseAuth.currentUser != null
 
+    val currentUserEmail: String?
+        get() = firebaseAuth.currentUser?.email
+
     fun getUserId(): String? {
         return firebaseAuth.currentUser?.uid
     }

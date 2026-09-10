@@ -1,5 +1,6 @@
 package com.dariusepure.caractivitylog.ui.theme
 
+import com.dariusepure.caractivitylog.data.auth.AuthRepository
 import com.dariusepure.caractivitylog.data.prefs.PreferenceRepository
 import com.dariusepure.caractivitylog.domain.UnitSystem
 import javax.inject.Inject
@@ -7,11 +8,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val preferenceRepository: PreferenceRepository
+    private val preferenceRepository: PreferenceRepository,
+    private val authRepository: AuthRepository
 ) : androidx.lifecycle.ViewModel() {
     
     val isDarkMode = preferenceRepository.isDarkMode
     val unitSystem = preferenceRepository.unitSystem
+    val userEmail = authRepository.currentUserEmail
 
     fun toggleTheme(currentDark: Boolean) {
         preferenceRepository.setDarkMode(!currentDark)

@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -65,6 +66,49 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
+            // Account Info Header
+            viewModel.userEmail?.let { email ->
+                Surface(
+                    shape = MaterialTheme.shapes.large,
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            modifier = Modifier.size(48.dp),
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.primary
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
+                        Spacer(Modifier.width(16.dp))
+                        Column {
+                            Text(
+                                text = stringResource(R.string.settings_account_signed_in_as),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = email,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+            }
+
             // Appearance Section
             SettingsSection(title = stringResource(R.string.settings_section_appearance)) {
                 SettingsItem(

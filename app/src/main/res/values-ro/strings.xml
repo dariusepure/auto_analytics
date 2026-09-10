@@ -192,6 +192,7 @@
     <string name="settings_section_appearance">Aspect</string>
     <string name="settings_section_regional">Regional</string>
     <string name="settings_section_account">Cont</string>
+    <string name="settings_account_signed_in_as">Conectat ca</string>
 
     <!-- Sorting -->
     <string name="sort_default">Implicit</string>

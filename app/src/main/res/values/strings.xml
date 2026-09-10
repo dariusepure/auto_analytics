@@ -193,6 +193,7 @@
     <string name="settings_section_appearance">Appearance</string>
     <string name="settings_section_regional">Regional</string>
     <string name="settings_section_account">Account</string>
+    <string name="settings_account_signed_in_as">Signed in as</string>
 
     <!-- Sorting -->
     <string name="sort_default">Default</string>
