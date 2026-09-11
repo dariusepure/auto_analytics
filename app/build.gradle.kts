@@ -31,8 +31,8 @@ android {
         applicationId = "com.dariusepure.caractivitylog"
         minSdk = 26
         targetSdk = 36
-        versionCode = 26
-        versionName = "1.0.4"
+        versionCode = 28
+        versionName = "1.0.5"
 
         multiDexEnabled = true
 
@@ -41,9 +41,9 @@ android {
         
         buildConfigField("String", "WEB_CLIENT_ID", "\"$webClientId\"")
         buildConfigField("String", "FIREBASE_API_KEY", "\"$firebaseApiKey\"")
-        buildConfigField("String", "RELEASE_SHA1", "\"67615688F76E557769CAB626F4F20C81B8749483\"")
-        buildConfigField("String", "DEBUG_SHA1", "\"C10C6DF2FB85FC2373F01DA647F4F40CCB3F685C\"")
-        buildConfigField("String", "DEBUG_SHA256", "\"622282FCCC26E5CE6EFF61D7FCD031C223F9B171944D8D568EEE6BAD573355B8\"")
+        buildConfigField("String", "RELEASE_SHA1", "\"786fabf61b393c0e18cd5bf176a633f8012265ed\"")
+        buildConfigField("String", "DEBUG_SHA1", "\"c10c6df2fb85fc2373f01da647f4f40ccb3f685c\"")
+        buildConfigField("String", "DEBUG_SHA256", "\"622282fccc26e5ce6eff61d7fcd031c223f9b171944d8d568eee6bad573355b8\"")
 
         // Firebase identifiers (can be public, but kept here for convenience)
         buildConfigField("String", "FIREBASE_PROJECT_ID", "\"car-activity-log\"")
@@ -75,12 +75,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            isMinifyEnabled = false
+            isShrinkResources = false
             signingConfig = if (signingConfigs.findByName("release") != null) {
                 signingConfigs.getByName("release")
             } else {
@@ -128,7 +124,7 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.auth.credentials)
     implementation(libs.androidx.auth.credentials.play)
-    implementation("com.google.android.gms:play-services-auth:21.3.0")
+    implementation(libs.play.services.auth)
 
     // Compose BOM ensures all compose libs use compatible versions
     implementation(platform(libs.androidx.compose.bom))

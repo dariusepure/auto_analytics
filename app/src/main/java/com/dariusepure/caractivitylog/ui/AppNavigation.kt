@@ -96,6 +96,14 @@ fun AppNavigation(
 ) {
     val signedIn by mainViewModel.signedIn.collectAsStateWithLifecycle()
 
+    androidx.compose.runtime.LaunchedEffect(signedIn) {
+        if (signedIn == false) {
+            navController.navigate(Screen.SignIn.route) {
+                popUpTo(navController.graph.id) { inclusive = true }
+            }
+        }
+    }
+
     android.util.Log.d("AppNavigation", "signedIn state: $signedIn, startDestination: $startDestination")
 
     if (signedIn == null && startDestination == null) {

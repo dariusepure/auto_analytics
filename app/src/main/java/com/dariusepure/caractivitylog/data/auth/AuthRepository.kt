@@ -1,6 +1,8 @@
 package com.dariusepure.caractivitylog.data.auth
 
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -67,17 +69,20 @@ class AuthRepository @Inject constructor(
 
     suspend fun signInWithGoogle(context: Context) {
         val webClientId = BuildConfig.WEB_CLIENT_ID.trim()
-        Log.d(TAG, "Starting Google Sign-In with direct WEB_CLIENT_ID: '$webClientId'")
+        Log.d(TAG, "Starting Google Sign-In with WEB_CLIENT_ID: '$webClientId'")
         
         if (webClientId.isBlank()) {
-            Log.e(TAG, "WEB_CLIENT_ID is empty! Google Sign-In will fail.")
+            Log.e(TAG, "WEB_CLIENT_ID is empty!")
             throw IllegalStateException(context.getString(R.string.error_google_config_mismatch))
         }
+
+        val activity = findActivity(context) ?: throw IllegalStateException("Context is not an Activity")
 
         val googleIdOption = GetGoogleIdOption.Builder()
             .setServerClientId(webClientId)
             .setFilterByAuthorizedAccounts(false)
             .setAutoSelectEnabled(false)
+            .setNonce(java.util.UUID.randomUUID().toString())
             .build()
 
         val request = GetCredentialRequest.Builder()
@@ -85,9 +90,9 @@ class AuthRepository @Inject constructor(
             .build()
 
         try {
-            val credentialManager = CredentialManager.create(context)
-            Log.d(TAG, "Calling getCredential with WEB_CLIENT_ID: $webClientId")
-            val response = credentialManager.getCredential(context, request)
+            val credentialManager = CredentialManager.create(activity)
+            Log.d(TAG, "Calling getCredential")
+            val response = credentialManager.getCredential(activity, request)
             val credential = response.credential
 
             Log.d(TAG, "Received credential type: ${credential.type}")
@@ -97,25 +102,34 @@ class AuthRepository @Inject constructor(
             ) {
                 val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                 val idToken = googleIdTokenCredential.idToken
-                Log.d(TAG, "ID Token obtained successfully (length: ${idToken.length})")
                 
                 val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
                 firebaseAuth.signInWithCredential(firebaseCredential).await()
                 Log.d(TAG, "Firebase sign-in successful")
             } else {
                 Log.e(TAG, "Unexpected credential type: ${credential.type}")
-                throw IllegalStateException(context.getString(R.string.error_google_config_mismatch))
+                throw IllegalStateException("Unexpected credential type: ${credential.type}")
             }
         } catch (e: NoCredentialException) {
-            Log.e(TAG, "NoCredentialException: ${e.message}", e)
+            Log.e(TAG, "NoCredentialException: ${e.message}")
             throw Exception(context.getString(R.string.error_google_no_credentials))
         } catch (e: GetCredentialException) {
-            Log.e(TAG, "GetCredentialException (Type: ${e.type}): ${e.message}", e)
+            Log.e(TAG, "GetCredentialException: Type=${e.type}, Message=${e.message}")
+            // Specific handling for some types if needed
             throw Exception("Google Sign-In failed: ${e.message}")
         } catch (e: Exception) {
-            Log.e(TAG, "Unexpected Exception during Google Sign-In: ${e.javaClass.simpleName} - ${e.message}", e)
+            Log.e(TAG, "Unexpected Exception: ${e.message}", e)
             throw e
         }
+    }
+
+    private fun findActivity(context: Context): Activity? {
+        var currentContext = context
+        while (currentContext is ContextWrapper) {
+            if (currentContext is Activity) return currentContext
+            currentContext = currentContext.baseContext
+        }
+        return null
     }
 
     fun signOut() {

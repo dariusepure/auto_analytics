@@ -135,6 +135,7 @@ fun CarDetailsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 CarHeaderPhoto(
+                                    make = car.make,
                                     carAccentColor = carAccentColor
                                 )
                                 Spacer(Modifier.width(24.dp))
@@ -148,6 +149,7 @@ fun CarDetailsScreen(
                                 Spacer(Modifier.height(8.dp))
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     CarHeaderPhoto(
+                                        make = car.make,
                                         carAccentColor = carAccentColor
                                     )
                                     Spacer(Modifier.width(16.dp))
@@ -536,8 +538,11 @@ else {
 
 @Composable
 private fun CarHeaderPhoto(
+    make: String,
     carAccentColor: Color
 ) {
+    val logoRes = CarFormatters.getBrandLogoResource(make)
+    
     Box(
         modifier = Modifier
             .size(64.dp)
@@ -545,12 +550,23 @@ private fun CarHeaderPhoto(
             .background(MaterialTheme.colorScheme.surfaceVariant),
         contentAlignment = Alignment.Center
     ) {
-        Icon(
-            imageVector = Icons.Outlined.DirectionsCar,
-            contentDescription = null,
-            modifier = Modifier.size(36.dp),
-            tint = carAccentColor
-        )
+        if (logoRes != null) {
+            androidx.compose.foundation.Image(
+                painter = androidx.compose.ui.res.painterResource(logoRes),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape),
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Outlined.DirectionsCar,
+                contentDescription = null,
+                modifier = Modifier.size(36.dp),
+                tint = carAccentColor
+            )
+        }
     }
 }
 

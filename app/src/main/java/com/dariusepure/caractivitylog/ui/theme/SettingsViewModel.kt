@@ -27,4 +27,8 @@ class SettingsViewModel @Inject constructor(
     fun setUnitSystem(system: UnitSystem) {
         preferenceRepository.setUnitSystem(system)
     }
+
+    fun signOut() {
+        authRepository.signOut()
+    }
 }

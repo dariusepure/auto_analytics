@@ -119,5 +119,96 @@ object CarFormatters {
         
         return if (dims.isEmpty()) "-" else dims.joinToString("\n")
     }
+
+    fun getBrandLogoResource(make: String): Int? {
+        if (make.isBlank()) return null
+        
+        val normalizedMake = make.lowercase()
+            .replace(" ", "-")
+            .replace("\u00EB", "e") // ë -> e (Citroën)
+        
+        return when (normalizedMake) {
+            "abarth" -> com.dariusepure.caractivitylog.R.drawable.abarth
+            "acura" -> com.dariusepure.caractivitylog.R.drawable.acura
+            "alfa-romeo" -> com.dariusepure.caractivitylog.R.drawable.alfa_romeo
+            "alpine" -> com.dariusepure.caractivitylog.R.drawable.alpine
+            "aston-martin" -> com.dariusepure.caractivitylog.R.drawable.aston_martin
+            "audi" -> com.dariusepure.caractivitylog.R.drawable.audi
+            "bentley" -> com.dariusepure.caractivitylog.R.drawable.bentley
+            "bmw" -> com.dariusepure.caractivitylog.R.drawable.bmw
+            "bugatti" -> com.dariusepure.caractivitylog.R.drawable.bugatti
+            "buick" -> com.dariusepure.caractivitylog.R.drawable.buick
+            "byd" -> com.dariusepure.caractivitylog.R.drawable.byd
+            "cadillac" -> com.dariusepure.caractivitylog.R.drawable.cadillac
+            "caterham" -> com.dariusepure.caractivitylog.R.drawable.caterham
+            "chevrolet" -> com.dariusepure.caractivitylog.R.drawable.chevrolet
+            "chrysler" -> com.dariusepure.caractivitylog.R.drawable.chrysler
+            "citroen" -> com.dariusepure.caractivitylog.R.drawable.citroen
+            "cupra" -> com.dariusepure.caractivitylog.R.drawable.cupra
+            "dacia" -> com.dariusepure.caractivitylog.R.drawable.dacia
+            "daewoo" -> com.dariusepure.caractivitylog.R.drawable.daewoo
+            "daihatsu" -> com.dariusepure.caractivitylog.R.drawable.daihatsu
+            "dodge" -> com.dariusepure.caractivitylog.R.drawable.dodge
+            "ds" -> com.dariusepure.caractivitylog.R.drawable.ds
+            "ferrari" -> com.dariusepure.caractivitylog.R.drawable.ferrari
+            "fiat" -> com.dariusepure.caractivitylog.R.drawable.fiat
+            "ford" -> com.dariusepure.caractivitylog.R.drawable.ford
+            "genesis" -> com.dariusepure.caractivitylog.R.drawable.genesis
+            "gmc" -> com.dariusepure.caractivitylog.R.drawable.gmc
+            "honda" -> com.dariusepure.caractivitylog.R.drawable.honda
+            "hummer" -> com.dariusepure.caractivitylog.R.drawable.hummer
+            "hyundai" -> com.dariusepure.caractivitylog.R.drawable.hyundai
+            "infiniti" -> com.dariusepure.caractivitylog.R.drawable.infiniti
+            "isuzu" -> com.dariusepure.caractivitylog.R.drawable.isuzu
+            "jaguar" -> com.dariusepure.caractivitylog.R.drawable.jaguar
+            "jeep" -> com.dariusepure.caractivitylog.R.drawable.jeep
+            "kia" -> com.dariusepure.caractivitylog.R.drawable.kia
+            "koenigsegg" -> com.dariusepure.caractivitylog.R.drawable.koenigsegg
+            "lada" -> com.dariusepure.caractivitylog.R.drawable.lada
+            "lamborghini" -> com.dariusepure.caractivitylog.R.drawable.lamborghini
+            "lancia" -> com.dariusepure.caractivitylog.R.drawable.lancia
+            "land-rover" -> com.dariusepure.caractivitylog.R.drawable.land_rover
+            "lexus" -> com.dariusepure.caractivitylog.R.drawable.lexus
+            "lincoln" -> com.dariusepure.caractivitylog.R.drawable.lincoln
+            "lotus" -> com.dariusepure.caractivitylog.R.drawable.lotus
+            "lucid" -> com.dariusepure.caractivitylog.R.drawable.lucid
+            "maserati" -> com.dariusepure.caractivitylog.R.drawable.maserati
+            "maybach" -> com.dariusepure.caractivitylog.R.drawable.maybach
+            "mazda" -> com.dariusepure.caractivitylog.R.drawable.mazda
+            "mclaren" -> com.dariusepure.caractivitylog.R.drawable.mclaren
+            "mercedes-benz" -> com.dariusepure.caractivitylog.R.drawable.mercedes_benz
+            "mg" -> com.dariusepure.caractivitylog.R.drawable.mg
+            "mini" -> com.dariusepure.caractivitylog.R.drawable.mini
+            "mitsubishi" -> com.dariusepure.caractivitylog.R.drawable.mitsubishi
+            "morgan" -> com.dariusepure.caractivitylog.R.drawable.morgan
+            "nissan" -> com.dariusepure.caractivitylog.R.drawable.nissan
+            "opel" -> com.dariusepure.caractivitylog.R.drawable.opel
+            "pagani" -> com.dariusepure.caractivitylog.R.drawable.pagani
+            "peugeot" -> com.dariusepure.caractivitylog.R.drawable.peugeot
+            "polestar" -> com.dariusepure.caractivitylog.R.drawable.polestar
+            "porsche" -> com.dariusepure.caractivitylog.R.drawable.porsche
+            "ram" -> com.dariusepure.caractivitylog.R.drawable.ram
+            "renault" -> com.dariusepure.caractivitylog.R.drawable.renault
+            "rimac" -> com.dariusepure.caractivitylog.R.drawable.rimac
+            "rolls-royce" -> com.dariusepure.caractivitylog.R.drawable.rolls_royce
+            "rover" -> com.dariusepure.caractivitylog.R.drawable.rover
+            "saab" -> com.dariusepure.caractivitylog.R.drawable.saab
+            "seat" -> com.dariusepure.caractivitylog.R.drawable.seat
+            "skoda" -> com.dariusepure.caractivitylog.R.drawable.skoda
+            "smart" -> com.dariusepure.caractivitylog.R.drawable.smart
+            "ssangyong" -> com.dariusepure.caractivitylog.R.drawable.ssangyong
+            "subaru" -> com.dariusepure.caractivitylog.R.drawable.subaru
+            "suzuki" -> com.dariusepure.caractivitylog.R.drawable.suzuki
+            "tesla" -> com.dariusepure.caractivitylog.R.drawable.tesla
+            "toyota" -> com.dariusepure.caractivitylog.R.drawable.toyota
+            "triumph" -> com.dariusepure.caractivitylog.R.drawable.triumph
+            "tvr" -> com.dariusepure.caractivitylog.R.drawable.tvr
+            "vauxhall" -> com.dariusepure.caractivitylog.R.drawable.vauxhall
+            "volkswagen" -> com.dariusepure.caractivitylog.R.drawable.volkswagen
+            "volvo" -> com.dariusepure.caractivitylog.R.drawable.volvo
+            "wartburg" -> com.dariusepure.caractivitylog.R.drawable.wartburg
+            else -> null
+        }
+    }
 }
 

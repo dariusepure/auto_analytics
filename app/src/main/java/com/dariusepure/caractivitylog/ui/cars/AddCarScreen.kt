@@ -661,8 +661,32 @@ fun AddCarScreen(
                         properties = PopupProperties(focusable = false)
                     ) {
                         filteredBrands.forEach { brand ->
+                            val logoRes = CarFormatters.getBrandLogoResource(brand)
                             DropdownMenuItem(
-                                text = { Text(brand) },
+                                text = { 
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        if (logoRes != null) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(32.dp)
+                                                    .clip(CircleShape)
+                                                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                androidx.compose.foundation.Image(
+                                                    painter = androidx.compose.ui.res.painterResource(logoRes),
+                                                    contentDescription = null,
+                                                    modifier = Modifier
+                                                        .size(32.dp)
+                                                        .clip(CircleShape),
+                                                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                                                )
+                                            }
+                                            Spacer(Modifier.width(12.dp))
+                                        }
+                                        Text(brand)
+                                    }
+                                },
                                 onClick = {
                                     make = brand
                                     makeExpanded = false

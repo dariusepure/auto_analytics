@@ -223,7 +223,10 @@ fun SettingsScreen(
                 SettingsItem(
                     label = stringResource(R.string.auth_logout),
                     icon = Icons.AutoMirrored.Filled.Logout,
-                    onClick = onLogout,
+                    onClick = {
+                        viewModel.signOut()
+                        onLogout()
+                    },
                     labelColor = MaterialTheme.colorScheme.error,
                     iconColor = MaterialTheme.colorScheme.error
                 )
