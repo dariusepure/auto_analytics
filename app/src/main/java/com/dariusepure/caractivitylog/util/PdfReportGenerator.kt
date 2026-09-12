@@ -253,6 +253,20 @@ object PdfReportGenerator {
                 context.getString(com.dariusepure.caractivitylog.R.string.car_airbags_label) to if (car.airbags > 0) car.airbags.toString() else no
             )
             drawThreeColumns(safetySpecs)
+
+            // 5. Equipment
+            drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.car_equipment_section))
+            val equipmentSpecs = listOf(
+                context.getString(com.dariusepure.caractivitylog.R.string.car_ac_label) to if (car.hasAc) yes else no,
+                context.getString(com.dariusepure.caractivitylog.R.string.car_climate_control_label) to if (car.hasClimateControl) yes else no,
+                context.getString(com.dariusepure.caractivitylog.R.string.car_heated_seats_label) to if (car.hasHeatedSeats) yes else no,
+                context.getString(com.dariusepure.caractivitylog.R.string.car_cruise_control_label) to if (car.hasCruiseControl) yes else no,
+                context.getString(com.dariusepure.caractivitylog.R.string.car_navigation_label) to if (car.hasNavigation) yes else no,
+                context.getString(com.dariusepure.caractivitylog.R.string.car_parking_sensors_label) to if (car.hasParkingSensors) yes else no,
+                context.getString(com.dariusepure.caractivitylog.R.string.car_back_camera_label) to if (car.hasBackCamera) yes else no,
+                context.getString(com.dariusepure.caractivitylog.R.string.car_sunroof_label) to if (car.hasSunroof) yes else no
+            )
+            drawThreeColumns(equipmentSpecs)
         }
 
         // --- LISTS SECTION ---

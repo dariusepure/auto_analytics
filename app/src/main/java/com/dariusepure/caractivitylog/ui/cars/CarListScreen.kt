@@ -80,8 +80,9 @@ fun CarCard(
                         contentDescription = null,
                         modifier = Modifier
                             .size(48.dp)
+                            .padding(6.dp)
                             .clip(CircleShape),
-                        contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                        contentScale = androidx.compose.ui.layout.ContentScale.Fit
                     )
                 } else {
                     Icon(

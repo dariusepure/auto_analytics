@@ -197,6 +197,15 @@ fun AddCarScreen(
     var hasEsp by remember { mutableStateOf(false) }
     var airbags by remember { mutableStateOf("") }
 
+    var hasAc by remember { mutableStateOf(false) }
+    var hasClimateControl by remember { mutableStateOf(false) }
+    var hasHeatedSeats by remember { mutableStateOf(false) }
+    var hasCruiseControl by remember { mutableStateOf(false) }
+    var hasNavigation by remember { mutableStateOf(false) }
+    var hasParkingSensors by remember { mutableStateOf(false) }
+    var hasBackCamera by remember { mutableStateOf(false) }
+    var hasSunroof by remember { mutableStateOf(false) }
+
     val photoPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
@@ -311,6 +320,7 @@ fun AddCarScreen(
     var engineExpanded by remember { mutableStateOf(false) }
     var dimensionsExpanded by remember { mutableStateOf(false) }
     var safetyExpanded by remember { mutableStateOf(false) }
+    var equipmentExpanded by remember { mutableStateOf(false) }
 
     var countryExpanded by remember { mutableStateOf(false) }
     var manufacturingCountryExpanded by remember { mutableStateOf(false) }
@@ -389,7 +399,15 @@ fun AddCarScreen(
                 co2Emissions = co2Emissions,
                 hasAbs = hasAbs,
                 hasEsp = hasEsp,
-                airbags = airbags
+                airbags = airbags,
+                hasAc = hasAc,
+                hasClimateControl = hasClimateControl,
+                hasHeatedSeats = hasHeatedSeats,
+                hasCruiseControl = hasCruiseControl,
+                hasNavigation = hasNavigation,
+                hasParkingSensors = hasParkingSensors,
+                hasBackCamera = hasBackCamera,
+                hasSunroof = hasSunroof
             )
         } else {
             onBack()
@@ -464,6 +482,15 @@ fun AddCarScreen(
                 hasAbs = car.hasAbs
                 hasEsp = car.hasEsp
                 airbags = car.airbags.takeIf { it != 0 }?.toString() ?: ""
+
+                hasAc = car.hasAc
+                hasClimateControl = car.hasClimateControl
+                hasHeatedSeats = car.hasHeatedSeats
+                hasCruiseControl = car.hasCruiseControl
+                hasNavigation = car.hasNavigation
+                hasParkingSensors = car.hasParkingSensors
+                hasBackCamera = car.hasBackCamera
+                hasSunroof = car.hasSunroof
             }
         }
     }
@@ -550,7 +577,15 @@ fun AddCarScreen(
                                     co2Emissions = co2Emissions,
                                     hasAbs = hasAbs,
                                     hasEsp = hasEsp,
-                                    airbags = airbags
+                                    airbags = airbags,
+                                    hasAc = hasAc,
+                                    hasClimateControl = hasClimateControl,
+                                    hasHeatedSeats = hasHeatedSeats,
+                                    hasCruiseControl = hasCruiseControl,
+                                    hasNavigation = hasNavigation,
+                                    hasParkingSensors = hasParkingSensors,
+                                    hasBackCamera = hasBackCamera,
+                                    hasSunroof = hasSunroof
                                 )
                             },
                             enabled = canSave
@@ -678,8 +713,9 @@ fun AddCarScreen(
                                                     contentDescription = null,
                                                     modifier = Modifier
                                                         .size(32.dp)
+                                                        .padding(4.dp)
                                                         .clip(CircleShape),
-                                                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                                                    contentScale = androidx.compose.ui.layout.ContentScale.Fit
                                                 )
                                             }
                                             Spacer(Modifier.width(12.dp))
@@ -812,7 +848,7 @@ fun AddCarScreen(
                                     Icon(
                                         Icons.Default.ArrowDropDown,
                                         "dropdown",
-                                        Modifier.clickable { colorExpanded = true })
+                                        Modifier.clickable { colorExpanded = true } )
                                 }
                             }
                         )
@@ -2072,6 +2108,56 @@ fun AddCarScreen(
                 )
             }
 
+            Spacer(Modifier.height(16.dp))
+
+
+            // --- 5. EQUIPMENT ---
+            CollapsibleSection(
+                title = stringResource(R.string.car_equipment_section),
+                isExpanded = equipmentExpanded,
+                onToggle = { equipmentExpanded = !equipmentExpanded }
+            ) {
+                val items = listOf(
+                    Triple(hasAc, { v: Boolean -> hasAc = v }, R.string.car_ac_label),
+                    Triple(hasClimateControl, { v: Boolean -> hasClimateControl = v }, R.string.car_climate_control_label),
+                    Triple(hasHeatedSeats, { v: Boolean -> hasHeatedSeats = v }, R.string.car_heated_seats_label),
+                    Triple(hasCruiseControl, { v: Boolean -> hasCruiseControl = v }, R.string.car_cruise_control_label),
+                    Triple(hasNavigation, { v: Boolean -> hasNavigation = v }, R.string.car_navigation_label),
+                    Triple(hasParkingSensors, { v: Boolean -> hasParkingSensors = v }, R.string.car_parking_sensors_label),
+                    Triple(hasBackCamera, { v: Boolean -> hasBackCamera = v }, R.string.car_back_camera_label),
+                    Triple(hasSunroof, { v: Boolean -> hasSunroof = v }, R.string.car_sunroof_label)
+                )
+
+                items.chunked(2).forEach { rowItems ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        rowItems.forEach { (checked, onCheckedChange, labelRes) ->
+                            Row(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable { onCheckedChange(!checked) }
+                                    .padding(vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = checked,
+                                    onCheckedChange = onCheckedChange
+                                )
+                                Text(
+                                    text = stringResource(labelRes),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                        if (rowItems.size < 2) {
+                            Spacer(Modifier.weight(1f))
+                        }
+                    }
+                }
+            }
+
             Spacer(Modifier.height(24.dp))
         }
     }
@@ -2323,4 +2409,3 @@ private fun CollapsibleSection(
         )
     }
 }
-

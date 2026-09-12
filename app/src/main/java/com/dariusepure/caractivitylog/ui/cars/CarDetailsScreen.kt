@@ -556,8 +556,9 @@ private fun CarHeaderPhoto(
                 contentDescription = null,
                 modifier = Modifier
                     .size(64.dp)
+                    .padding(8.dp)
                     .clip(CircleShape),
-                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                contentScale = androidx.compose.ui.layout.ContentScale.Fit
             )
         } else {
             Icon(
@@ -588,6 +589,17 @@ private fun CarHeaderText(
                 color = MaterialTheme.colorScheme.secondary
             )
         }
+        
+        val summary = CarFormatters.getCarSummary(context, car)
+        if (summary.isNotEmpty()) {
+            Text(
+                text = summary,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(2.dp))
+        }
+
         Text(
             text = stringResource(R.string.car_last_update, car.updatedAt.toRelativeString(context)),
             style = MaterialTheme.typography.bodySmall,

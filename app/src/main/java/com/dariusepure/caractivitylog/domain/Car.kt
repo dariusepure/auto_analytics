@@ -62,7 +62,15 @@ data class Car(
     val hasAbs: Boolean = false,
     val hasEsp: Boolean = false,
     val airbags: Int = 0,
-    val generation: String = ""
+    val generation: String = "",
+    val hasAc: Boolean = false,
+    val hasClimateControl: Boolean = false,
+    val hasHeatedSeats: Boolean = false,
+    val hasCruiseControl: Boolean = false,
+    val hasNavigation: Boolean = false,
+    val hasParkingSensors: Boolean = false,
+    val hasBackCamera: Boolean = false,
+    val hasSunroof: Boolean = false
 )
 
 val Car.displayName: String

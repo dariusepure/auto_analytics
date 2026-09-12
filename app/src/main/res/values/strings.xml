@@ -233,6 +233,7 @@
     <string name="car_engine_transmission_section">Performance</string>
     <string name="car_dimensions_section">Dimensions</string>
     <string name="car_safety_section">Safety</string>
+    <string name="car_equipment_section">Equipment</string>
     <string name="car_title_label">Car Title (Nickname)</string>
     <string name="car_title_placeholder">%s</string>
     <string name="car_title_placeholder_fallback">My Daily Driver</string>
@@ -500,6 +501,14 @@
     <string name="car_abs_label">ABS</string>
     <string name="car_esp_label">ESP</string>
     <string name="car_airbags_label">Airbags</string>
+    <string name="car_ac_label">Air Conditioning</string>
+    <string name="car_climate_control_label">Automatic Climate Control</string>
+    <string name="car_heated_seats_label">Heated Seats</string>
+    <string name="car_cruise_control_label">Cruise Control</string>
+    <string name="car_navigation_label">Navigation System</string>
+    <string name="car_parking_sensors_label">Parking Sensors</string>
+    <string name="car_back_camera_label">Rear View Camera</string>
+    <string name="car_sunroof_label">Sunroof</string>
     <string name="car_fuel_tank_label">Fuel Tank</string>
     <string name="car_country_label">Country</string>
     <string name="car_select_country">Select</string>

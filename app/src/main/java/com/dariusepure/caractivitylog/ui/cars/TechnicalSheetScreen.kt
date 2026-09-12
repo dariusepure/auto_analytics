@@ -285,6 +285,23 @@ fun TechnicalSheetScreen(
                         )
                     }
 
+                    TechnicalCategory(title = stringResource(R.string.car_equipment_section)) {
+                        val yes = stringResource(R.string.status_ok)
+                        val no = stringResource(R.string.common_none)
+                        SpecificationCard(
+                            specifications = listOf(
+                                stringResource(R.string.car_ac_label) to if (car.hasAc) yes else no,
+                                stringResource(R.string.car_climate_control_label) to if (car.hasClimateControl) yes else no,
+                                stringResource(R.string.car_heated_seats_label) to if (car.hasHeatedSeats) yes else no,
+                                stringResource(R.string.car_cruise_control_label) to if (car.hasCruiseControl) yes else no,
+                                stringResource(R.string.car_navigation_label) to if (car.hasNavigation) yes else no,
+                                stringResource(R.string.car_parking_sensors_label) to if (car.hasParkingSensors) yes else no,
+                                stringResource(R.string.car_back_camera_label) to if (car.hasBackCamera) yes else no,
+                                stringResource(R.string.car_sunroof_label) to if (car.hasSunroof) yes else no
+                            )
+                        )
+                    }
+
                 }
             }
         }

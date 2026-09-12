@@ -33,6 +33,7 @@
     <string name="common_none">Niciunul</string>
     <string name="common_inspection">Inspecție</string>
     <string name="common_expired">Expirat</string>
+    <string name="common_powered_by">Dezvoltat de Darius DevWorks</string>
     <string name="status_ok">OK</string>
     <string name="status_soon">Curând</string>
     <string name="status_expired">Expirat</string>
@@ -232,6 +233,7 @@
     <string name="car_engine_transmission_section">Performanță</string>
     <string name="car_dimensions_section">Dimensiuni</string>
     <string name="car_safety_section">Siguranță</string>
+    <string name="car_equipment_section">Echipamente</string>
     <string name="car_title_label">Titlu mașină (Pseudonim)</string>
     <string name="car_title_placeholder">%s</string>
     <string name="car_title_placeholder_fallback">Mașina mea zilnică</string>
@@ -458,7 +460,9 @@
     <string name="pdf_field_aspiration">Aspirație</string>
     <string name="pdf_field_emission_standard">Normă de poluare</string>
     <string name="pdf_field_top_speed">Viteză maximă</string>
+    <string name="pdf_field_acceleration">0-100 km/h</string>
     <string name="pdf_field_consumption">Mixt</string>
+    <string name="pdf_field_co2">Emisii CO2</string>
     <string name="pdf_field_cylinders">Cilindri</string>
     <string name="pdf_field_valves_per_cylinder">Valve pe cilindru</string>
     <string name="pdf_field_engine_layout">Dispunere motor</string>
@@ -497,6 +501,14 @@
     <string name="car_abs_label">ABS</string>
     <string name="car_esp_label">ESP</string>
     <string name="car_airbags_label">Airbag-uri</string>
+    <string name="car_ac_label">Aer condiționat</string>
+    <string name="car_climate_control_label">Climatizare automată</string>
+    <string name="car_heated_seats_label">Scaune încălzite</string>
+    <string name="car_cruise_control_label">Pilot automat</string>
+    <string name="car_navigation_label">Sistem navigație</string>
+    <string name="car_parking_sensors_label">Senzori de parcare</string>
+    <string name="car_back_camera_label">Cameră marșarier</string>
+    <string name="car_sunroof_label">Trapă / Plafon panoramic</string>
     <string name="car_fuel_tank_label">Rezervor</string>
     <string name="car_country_label">Țară</string>
     <string name="car_select_country">Selectează</string>

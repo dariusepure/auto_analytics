@@ -62,7 +62,15 @@ data class FirestoreCar(
     val hasAbs: Boolean = false,
     val hasEsp: Boolean = false,
     val airbags: Int = 0,
-    val generation: String = ""
+    val generation: String = "",
+    val hasAc: Boolean = false,
+    val hasClimateControl: Boolean = false,
+    val hasHeatedSeats: Boolean = false,
+    val hasCruiseControl: Boolean = false,
+    val hasNavigation: Boolean = false,
+    val hasParkingSensors: Boolean = false,
+    val hasBackCamera: Boolean = false,
+    val hasSunroof: Boolean = false
 )
 
 fun Car.toFirebase() = FirestoreCar(
@@ -123,7 +131,15 @@ fun Car.toFirebase() = FirestoreCar(
     hasAbs = this.hasAbs,
     hasEsp = this.hasEsp,
     airbags = this.airbags,
-    generation = this.generation
+    generation = this.generation,
+    hasAc = this.hasAc,
+    hasClimateControl = this.hasClimateControl,
+    hasHeatedSeats = this.hasHeatedSeats,
+    hasCruiseControl = this.hasCruiseControl,
+    hasNavigation = this.hasNavigation,
+    hasParkingSensors = this.hasParkingSensors,
+    hasBackCamera = this.hasBackCamera,
+    hasSunroof = this.hasSunroof
 )
 
 fun FirestoreCar.fromFirebase() = Car(
@@ -184,6 +200,14 @@ fun FirestoreCar.fromFirebase() = Car(
     hasAbs = this.hasAbs,
     hasEsp = this.hasEsp,
     airbags = this.airbags,
-    generation = this.generation
+    generation = this.generation,
+    hasAc = this.hasAc,
+    hasClimateControl = this.hasClimateControl,
+    hasHeatedSeats = this.hasHeatedSeats,
+    hasCruiseControl = this.hasCruiseControl,
+    hasNavigation = this.hasNavigation,
+    hasParkingSensors = this.hasParkingSensors,
+    hasBackCamera = this.hasBackCamera,
+    hasSunroof = this.hasSunroof
 )
 
