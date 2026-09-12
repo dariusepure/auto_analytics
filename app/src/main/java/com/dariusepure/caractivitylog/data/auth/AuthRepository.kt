@@ -68,12 +68,19 @@ class AuthRepository @Inject constructor(
     }
 
     suspend fun signInWithGoogle(context: Context) {
-        // 💡 REZOLVARE: Introducem direct string-ul din JSON-ul tău (client_type 3) pentru a evita erorile de compilare Gradle
-        val webClientId = "://googleusercontent.com"
-        Log.d(TAG, "Starting Google Sign-In with HARDCODED WEB_CLIENT_ID: '$webClientId'")
+        val webClientId = com.dariusepure.caractivitylog.BuildConfig.WEB_CLIENT_ID.trim()
+        Log.d(TAG, "Starting Google Sign-In with WEB_CLIENT_ID: '$webClientId'")
 
         val activity = findActivity(context) ?: throw IllegalStateException("Context is not an Activity")
         val credentialManager = CredentialManager.create(activity)
+
+        // Resetăm starea cache-ului pentru a elimina erori de tip "Account reauth failed"
+        try {
+            Log.d(TAG, "Clearing cached credential state...")
+            credentialManager.clearCredentialState(androidx.credentials.ClearCredentialStateRequest())
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to clear credential state: ${e.message}")
+        }
 
         // 1. Încercarea primară: Folosim opțiunea modernă Google Id
         val googleIdOption = GetGoogleIdOption.Builder()
@@ -91,28 +98,28 @@ class AuthRepository @Inject constructor(
             val response = credentialManager.getCredential(activity, primaryRequest)
             processCredentialResult(response.credential)
 
-        } catch (e: NoCredentialException) {
-            // 2. CATCH & FALLBACK: Dacă noul API eșuează local, forțăm dialogul clasic nativ Google
-            Log.w(TAG, "No credentials found in primary flow. Launching Legacy Fallback Flow...", e)
-
-            val legacyGoogleOption = GetSignInWithGoogleOption.Builder(webClientId)
-                .build()
-
-            val fallbackRequest = GetCredentialRequest.Builder()
-                .addCredentialOption(legacyGoogleOption)
-                .build()
-
-            try {
-                val response = credentialManager.getCredential(activity, fallbackRequest)
-                processCredentialResult(response.credential)
-            } catch (fallbackError: GetCredentialException) {
-                Log.e(TAG, "Fallback Google Sign-In failed: ${fallbackError.type}", fallbackError)
-                throw Exception("Google Sign-In failed: ${fallbackError.message}")
-            }
-
         } catch (e: GetCredentialException) {
-            Log.e(TAG, "GetCredentialException: Type=${e.type}, Message=${e.message}")
-            throw Exception("Google Sign-In failed: ${e.message}")
+            if (e is NoCredentialException || e !is androidx.credentials.exceptions.GetCredentialCancellationException) {
+                Log.w(TAG, "Primary flow failed (Type=${e.type}). Launching Legacy Fallback Flow...", e)
+
+                val legacyGoogleOption = GetSignInWithGoogleOption.Builder(webClientId)
+                    .build()
+
+                val fallbackRequest = GetCredentialRequest.Builder()
+                    .addCredentialOption(legacyGoogleOption)
+                    .build()
+
+                try {
+                    val response = credentialManager.getCredential(activity, fallbackRequest)
+                    processCredentialResult(response.credential)
+                } catch (fallbackError: GetCredentialException) {
+                    Log.e(TAG, "Fallback Google Sign-In failed: ${fallbackError.type}", fallbackError)
+                    throw Exception("Google Sign-In failed: ${fallbackError.message}")
+                }
+            } else {
+                Log.i(TAG, "User canceled Google Sign-In.")
+                throw Exception("Google Sign-In failed: ${e.message}")
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Unexpected Exception: ${e.message}", e)
             throw e
