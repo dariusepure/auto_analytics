@@ -43,6 +43,17 @@ class MainActivity : AppCompatActivity() {
 
             var deepLinkRoute by remember { mutableStateOf<String?>(null) }
 
+            // Handle Guest Mode Firestore Network
+            val isGuestMode by settingsViewModel.isGuestMode.collectAsState()
+            LaunchedEffect(isGuestMode) {
+                val firestore = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                if (isGuestMode) {
+                    firestore.disableNetwork()
+                } else {
+                    firestore.enableNetwork()
+                }
+            }
+
             // Handle Password Reset Intent
             LaunchedEffect(intent) {
                 handleIntent(intent) { oobCode ->

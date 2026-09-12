@@ -67,7 +67,9 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             // Account Info Header
-            viewModel.userEmail?.let { email ->
+            val userData by viewModel.userData.collectAsStateWithLifecycle()
+            
+            (userData ?: viewModel.userEmail?.let { email -> com.dariusepure.caractivitylog.domain.User("", email) })?.let { user ->
                 Surface(
                     shape = MaterialTheme.shapes.large,
                     color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
@@ -94,16 +96,32 @@ fun SettingsScreen(
                         Spacer(Modifier.width(16.dp))
                         Column {
                             Text(
-                                text = stringResource(R.string.settings_account_signed_in_as),
+                                text = if (viewModel.isAnonymous) stringResource(R.string.settings_guest_user) else stringResource(R.string.settings_account_signed_in_as),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            Text(
-                                text = email,
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                            if (!viewModel.isAnonymous && user.name.isNotBlank()) {
+                                Text(
+                                    text = user.name,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                if (user.email.isNotBlank()) {
+                                    Text(
+                                        text = user.email,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            } else {
+                                Text(
+                                    text = if (viewModel.isAnonymous) stringResource(R.string.settings_guest_hint) else user.email,
+                                    style = if (viewModel.isAnonymous) MaterialTheme.typography.bodySmall else MaterialTheme.typography.titleMedium,
+                                    fontWeight = if (viewModel.isAnonymous) FontWeight.Normal else FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
                         }
                     }
                 }

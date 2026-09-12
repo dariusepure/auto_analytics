@@ -24,6 +24,9 @@ class PreferenceRepository @Inject constructor(
     )
     val unitSystem = _unitSystem.asStateFlow()
 
+    private val _isGuestMode = MutableStateFlow(prefs.getBoolean("is_guest_mode", false))
+    val isGuestMode = _isGuestMode.asStateFlow()
+
     fun setDarkMode(enabled: Boolean?) {
         _isDarkMode.value = enabled
         if (enabled == null) {
@@ -36,6 +39,11 @@ class PreferenceRepository @Inject constructor(
     fun setUnitSystem(system: UnitSystem) {
         _unitSystem.value = system
         prefs.edit().putString("unit_system", system.name).apply()
+    }
+
+    fun setGuestMode(enabled: Boolean) {
+        _isGuestMode.value = enabled
+        prefs.edit().putBoolean("is_guest_mode", enabled).apply()
     }
 }
 

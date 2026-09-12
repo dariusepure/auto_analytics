@@ -194,6 +194,8 @@
     <string name="settings_section_regional">Regional</string>
     <string name="settings_section_account">Account</string>
     <string name="settings_account_signed_in_as">Signed in as</string>
+    <string name="settings_guest_user">Guest User</string>
+    <string name="settings_guest_hint">Sign up to save your data permanently</string>
 
     <!-- Sorting -->
     <string name="sort_default">Default</string>
@@ -203,6 +205,7 @@
     <string name="auth_save_new_password">Save New Password</string>
     <string name="auth_back_to_signin">Back to Sign In</string>
     <string name="auth_continue_google">Continue with Google</string>
+    <string name="auth_continue_guest">Continue as Guest</string>
 
     <string name="auth_no_account">Don\'t have an account?</string>
     <string name="auth_have_account">Already have an account?</string>

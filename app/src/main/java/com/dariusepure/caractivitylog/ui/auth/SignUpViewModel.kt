@@ -24,8 +24,8 @@ class SignUpViewModel @Inject constructor(
 
     val signedIn = authRepository.signedIn
 
-    fun onSignUp(email: String, password: String, confirmPassword: String) {
-        if (email.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
+    fun onSignUp(name: String, email: String, password: String, confirmPassword: String) {
+        if (name.isBlank() || email.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
             _state.value = SignUpState.Error(context.getString(R.string.validation_fields_required))
             return
         }
@@ -41,7 +41,7 @@ class SignUpViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = SignUpState.Pending
             try {
-                authRepository.signUp(email, password)
+                authRepository.signUp(email, password, name)
                 _state.value = SignUpState.Idle
             } catch (e: Exception) {
                 _state.value = SignUpState.Error(

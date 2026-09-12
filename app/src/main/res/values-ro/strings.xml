@@ -194,6 +194,8 @@
     <string name="settings_section_regional">Regional</string>
     <string name="settings_section_account">Cont</string>
     <string name="settings_account_signed_in_as">Conectat ca</string>
+    <string name="settings_guest_user">Utilizator Oaspete</string>
+    <string name="settings_guest_hint">Înregistrează-te pentru a salva datele permanent</string>
 
     <!-- Sorting -->
     <string name="sort_default">Implicit</string>
@@ -203,6 +205,7 @@
     <string name="auth_save_new_password">Salvează parola nouă</string>
     <string name="auth_back_to_signin">Înapoi la autentificare</string>
     <string name="auth_continue_google">Continuă cu Google</string>
+    <string name="auth_continue_guest">Continuă ca Oaspete</string>
 
     <string name="auth_no_account">Nu ai cont?</string>
     <string name="auth_have_account">Ai deja un cont?</string>

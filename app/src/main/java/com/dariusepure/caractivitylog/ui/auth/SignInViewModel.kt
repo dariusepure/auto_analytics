@@ -65,6 +65,20 @@ class SignInViewModel @Inject constructor(
         }
     }
 
+    fun onContinueAsGuest() {
+        viewModelScope.launch {
+            _state.value = SignInState.Pending
+            try {
+                authRepository.continueAsGuest()
+                _state.value = SignInState.Idle
+            } catch (exception: Exception) {
+                _state.value = SignInState.Error(
+                    exception.message ?: context.getString(R.string.error_generic)
+                )
+            }
+        }
+    }
+
     fun resetState() {
         _state.value = SignInState.Idle
     }

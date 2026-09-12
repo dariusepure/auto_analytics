@@ -75,6 +75,7 @@ fun SignInScreen(
         state = state,
         onSignIn = viewModel::onSignIn,
         onSignInWithGoogle = viewModel::onSignInWithGoogle,
+        onContinueAsGuest = viewModel::onContinueAsGuest,
         onSignUpClick = onSignUpClick,
         onForgotPasswordClick = onForgotPasswordClick,
         modifier = modifier
@@ -86,6 +87,7 @@ fun SignInContent(
     state: SignInState,
     onSignIn: (String, String) -> Unit,
     onSignInWithGoogle: (Context) -> Unit,
+    onContinueAsGuest: () -> Unit,
     onSignUpClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -230,6 +232,26 @@ fun SignInContent(
                 )
             }
 
+            OutlinedButton(
+                onClick = onContinueAsGuest,
+                enabled = !submitting,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                border = androidx.compose.foundation.BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.primary
+                ),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                Text(
+                    text = stringResource(R.string.auth_continue_guest),
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
             Row(
                 modifier = Modifier.padding(top = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -262,6 +284,7 @@ private fun SignInScreenPreview() {
             state = SignInState.Idle,
             onSignIn = { _, _ -> },
             onSignInWithGoogle = {},
+            onContinueAsGuest = {},
             onSignUpClick = {},
             onForgotPasswordClick = {}
         )

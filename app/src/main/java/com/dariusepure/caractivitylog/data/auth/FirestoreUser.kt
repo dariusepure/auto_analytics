@@ -4,16 +4,19 @@ import com.dariusepure.caractivitylog.domain.User
 
 data class FirestoreUser(
     val id: String = "",
-    val email: String = ""
+    val email: String = "",
+    val name: String = ""
 )
 
 fun User.toFirebase() = FirestoreUser(
     id = this.id,
-    email = this.email
+    email = this.email,
+    name = this.name
 )
 
 fun FirestoreUser.fromFirebase() = User(
     id = this.id,
-    email = this.email
+    email = this.email,
+    name = this.name
 )
 

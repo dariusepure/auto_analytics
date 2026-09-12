@@ -28,9 +28,14 @@ import javax.inject.Singleton
 @Singleton
 class AuthRepository @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val preferenceRepository: com.dariusepure.caractivitylog.data.prefs.PreferenceRepository
 ) {
     private val TAG = "AuthRepository"
+
+    companion object {
+        const val GUEST_UID = "local_guest_user"
+    }
 
     val signedIn: Flow<Boolean> = callbackFlow {
         val listener = FirebaseAuth.AuthStateListener {
@@ -46,17 +51,53 @@ class AuthRepository @Inject constructor(
     val currentUserEmail: String?
         get() = firebaseAuth.currentUser?.email
 
+    val isAnonymous: Boolean
+        get() = firebaseAuth.currentUser?.isAnonymous == true
+
+    val isGuestMode: Flow<Boolean> = preferenceRepository.isGuestMode
+
+    val isCurrentlyGuest: Boolean
+        get() = preferenceRepository.isGuestMode.value
+
     fun getUserId(): String? {
+        if (isCurrentlyGuest) return GUEST_UID
         return firebaseAuth.currentUser?.uid
     }
 
-    suspend fun signUp(email: String, password: String) {
+    fun getUserData(uid: String): Flow<com.dariusepure.caractivitylog.domain.User?> = callbackFlow {
+        if (uid == GUEST_UID) {
+            trySend(com.dariusepure.caractivitylog.domain.User(GUEST_UID, "", "Guest"))
+            close()
+            return@callbackFlow
+        }
+        val listener = firestore.collection("users").document(uid)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                val user = snapshot?.toObject(FirestoreUser::class.java)?.fromFirebase()
+                trySend(user)
+            }
+        awaitClose { listener.remove() }
+    }
+
+    suspend fun signInAnonymously() {
+        firebaseAuth.signInAnonymously().await()
+    }
+
+    fun continueAsGuest() {
+        preferenceRepository.setGuestMode(true)
+    }
+
+    suspend fun signUp(email: String, password: String, name: String) {
         val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
         val uid = authResult.user?.uid ?: throw Exception("Failed to get user ID")
 
         val user = FirestoreUser(
             id = uid,
-            email = email
+            email = email,
+            name = name
         )
 
         firestore.collection("users").document(uid).set(user).await()
@@ -134,10 +175,23 @@ class AuthRepository @Inject constructor(
         ) {
             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
             val idToken = googleIdTokenCredential.idToken
+            val displayName = googleIdTokenCredential.displayName ?: ""
 
             val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
-            firebaseAuth.signInWithCredential(firebaseCredential).await()
-            Log.d(TAG, "Firebase sign-in successful")
+            val authResult = firebaseAuth.signInWithCredential(firebaseCredential).await()
+            val user = authResult.user
+
+            if (user != null) {
+                // Sync Google profile info to Firestore
+                val firestoreUser = FirestoreUser(
+                    id = user.uid,
+                    email = user.email ?: "",
+                    name = if (displayName.isNotEmpty()) displayName else (user.displayName ?: "")
+                )
+                firestore.collection("users").document(user.uid).set(firestoreUser).await()
+            }
+            
+            Log.d(TAG, "Firebase sign-in and Firestore sync successful")
         } else {
             Log.e(TAG, "Unexpected credential type: ${credential.type}")
             throw IllegalStateException("Unexpected credential type: ${credential.type}")

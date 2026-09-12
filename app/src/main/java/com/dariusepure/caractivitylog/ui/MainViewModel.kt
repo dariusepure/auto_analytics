@@ -13,7 +13,15 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
-    val signedIn: StateFlow<Boolean?> = authRepository.signedIn.stateIn(
+    private val _signedIn = authRepository.signedIn
+    private val _isGuestMode = authRepository.isGuestMode
+
+    val signedIn: StateFlow<Boolean?> = kotlinx.coroutines.flow.combine(
+        _signedIn,
+        _isGuestMode
+    ) { signedIn, isGuest ->
+        signedIn || isGuest
+    }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = null

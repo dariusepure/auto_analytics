@@ -35,7 +35,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.ui.common.AuthFooter
-import com.dariusepure.caractivitylog.ui.common.ModernAppLogo
 import com.dariusepure.caractivitylog.ui.common.LanguageSelector
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -74,12 +73,13 @@ fun SignUpScreen(
 @Composable
 fun SignUpContent(
     state: SignUpState,
-    onSignUp: (String, String, String) -> Unit,
+    onSignUp: (String, String, String, String) -> Unit,
     onBackToSignIn: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val submitting = state == SignUpState.Pending
 
+    var name by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var confirmPassword by rememberSaveable { mutableStateOf("") }
@@ -98,9 +98,6 @@ fun SignUpContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            ModernAppLogo(
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
             Text(
                 text = stringResource(R.string.auth_signup_title),
                 style = MaterialTheme.typography.displaySmall,
@@ -134,13 +131,21 @@ fun SignUpContent(
             }
 
             OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text(stringResource(R.string.auth_full_name_label)) },
+                singleLine = true,
+                enabled = !submitting,
+                modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+            )
+            OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
                 label = { Text(stringResource(R.string.auth_email_label)) },
                 singleLine = true,
                 enabled = !submitting,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
             )
             OutlinedTextField(
                 value = password,
@@ -184,9 +189,9 @@ fun SignUpContent(
 
             Button(
                 onClick = {
-                    onSignUp(email, password, confirmPassword)
+                    onSignUp(name, email, password, confirmPassword)
                 },
-                enabled = !submitting && email.isNotBlank() && password.isNotBlank() && 
+                enabled = !submitting && name.isNotBlank() && email.isNotBlank() && password.isNotBlank() && 
                         confirmPassword.isNotBlank(),
                 modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
             ) {
@@ -228,7 +233,7 @@ private fun SignUpScreenPreview() {
     CarActivityLogTheme {
         SignUpContent(
             state = SignUpState.Idle,
-            onSignUp = { _, _, _ -> },
+            onSignUp = { _, _, _, _ -> },
             onBackToSignIn = {}
         )
     }
