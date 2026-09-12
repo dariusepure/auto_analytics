@@ -22,6 +22,22 @@
           }
         },
         {
+          "client_id": "1050502217992-5s8j54mnb0muuthl8au6t6o25sq3627d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dariusepure.caractivitylog",
+            "certificate_hash": "b80a041d2b9f0d06bb94d1981f4af8d2adde620c"
+          }
+        },
+        {
+          "client_id": "1050502217992-md5nur6k4tv7qkdaa3f8osvfjddgqsnv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dariusepure.caractivitylog",
+            "certificate_hash": "c2cb3ea8752ccd172409bb600994d5e3ccb00946"
+          }
+        },
+        {
           "client_id": "1050502217992-rt5mfdape2mtgkgna7pg9gajrik6sklt.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

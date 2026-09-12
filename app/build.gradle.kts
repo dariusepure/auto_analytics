@@ -31,7 +31,7 @@ android {
         applicationId = "com.dariusepure.caractivitylog"
         minSdk = 26
         targetSdk = 36
-        versionCode = 28
+        versionCode = 32
         versionName = "1.0.5"
 
         multiDexEnabled = true
@@ -142,6 +142,8 @@ dependencies {
 
     // Other
     implementation(libs.kotlinx.serialization)
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1") // sau versiunea pe care o ai deja
+
 
     // Hilt
     implementation(libs.hilt.android)

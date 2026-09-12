@@ -10,6 +10,7 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
@@ -19,7 +20,6 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
-import com.dariusepure.caractivitylog.BuildConfig
 import com.dariusepure.caractivitylog.R
 import kotlinx.coroutines.flow.distinctUntilChanged
 import javax.inject.Inject
@@ -68,58 +68,72 @@ class AuthRepository @Inject constructor(
     }
 
     suspend fun signInWithGoogle(context: Context) {
-        val webClientId = BuildConfig.WEB_CLIENT_ID.trim()
-        Log.d(TAG, "Starting Google Sign-In with WEB_CLIENT_ID: '$webClientId'")
-        
-        if (webClientId.isBlank()) {
-            Log.e(TAG, "WEB_CLIENT_ID is empty!")
-            throw IllegalStateException(context.getString(R.string.error_google_config_mismatch))
-        }
+        // 💡 REZOLVARE: Introducem direct string-ul din JSON-ul tău (client_type 3) pentru a evita erorile de compilare Gradle
+        val webClientId = "://googleusercontent.com"
+        Log.d(TAG, "Starting Google Sign-In with HARDCODED WEB_CLIENT_ID: '$webClientId'")
 
         val activity = findActivity(context) ?: throw IllegalStateException("Context is not an Activity")
+        val credentialManager = CredentialManager.create(activity)
 
+        // 1. Încercarea primară: Folosim opțiunea modernă Google Id
         val googleIdOption = GetGoogleIdOption.Builder()
             .setServerClientId(webClientId)
             .setFilterByAuthorizedAccounts(false)
             .setAutoSelectEnabled(false)
-            .setNonce(java.util.UUID.randomUUID().toString())
             .build()
 
-        val request = GetCredentialRequest.Builder()
+        val primaryRequest = GetCredentialRequest.Builder()
             .addCredentialOption(googleIdOption)
             .build()
 
         try {
-            val credentialManager = CredentialManager.create(activity)
-            Log.d(TAG, "Calling getCredential")
-            val response = credentialManager.getCredential(activity, request)
-            val credential = response.credential
+            Log.d(TAG, "Calling getCredential with Primary Flow...")
+            val response = credentialManager.getCredential(activity, primaryRequest)
+            processCredentialResult(response.credential)
 
-            Log.d(TAG, "Received credential type: ${credential.type}")
-
-            if (credential is CustomCredential &&
-                credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-            ) {
-                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                val idToken = googleIdTokenCredential.idToken
-                
-                val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
-                firebaseAuth.signInWithCredential(firebaseCredential).await()
-                Log.d(TAG, "Firebase sign-in successful")
-            } else {
-                Log.e(TAG, "Unexpected credential type: ${credential.type}")
-                throw IllegalStateException("Unexpected credential type: ${credential.type}")
-            }
         } catch (e: NoCredentialException) {
-            Log.e(TAG, "NoCredentialException: ${e.message}")
-            throw Exception(context.getString(R.string.error_google_no_credentials))
+            // 2. CATCH & FALLBACK: Dacă noul API eșuează local, forțăm dialogul clasic nativ Google
+            Log.w(TAG, "No credentials found in primary flow. Launching Legacy Fallback Flow...", e)
+
+            val legacyGoogleOption = GetSignInWithGoogleOption.Builder(webClientId)
+                .build()
+
+            val fallbackRequest = GetCredentialRequest.Builder()
+                .addCredentialOption(legacyGoogleOption)
+                .build()
+
+            try {
+                val response = credentialManager.getCredential(activity, fallbackRequest)
+                processCredentialResult(response.credential)
+            } catch (fallbackError: GetCredentialException) {
+                Log.e(TAG, "Fallback Google Sign-In failed: ${fallbackError.type}", fallbackError)
+                throw Exception("Google Sign-In failed: ${fallbackError.message}")
+            }
+
         } catch (e: GetCredentialException) {
             Log.e(TAG, "GetCredentialException: Type=${e.type}, Message=${e.message}")
-            // Specific handling for some types if needed
             throw Exception("Google Sign-In failed: ${e.message}")
         } catch (e: Exception) {
             Log.e(TAG, "Unexpected Exception: ${e.message}", e)
             throw e
+        }
+    }
+
+    private suspend fun processCredentialResult(credential: androidx.credentials.Credential) {
+        Log.d(TAG, "Received credential type: ${credential.type}")
+
+        if (credential is CustomCredential &&
+            credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+        ) {
+            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+            val idToken = googleIdTokenCredential.idToken
+
+            val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
+            firebaseAuth.signInWithCredential(firebaseCredential).await()
+            Log.d(TAG, "Firebase sign-in successful")
+        } else {
+            Log.e(TAG, "Unexpected credential type: ${credential.type}")
+            throw IllegalStateException("Unexpected credential type: ${credential.type}")
         }
     }
 
@@ -138,7 +152,7 @@ class AuthRepository @Inject constructor(
 
     suspend fun sendPasswordResetEmail(email: String) {
         val actionCodeSettings = ActionCodeSettings.newBuilder()
-            .setUrl("https://caractivitylog.page.link/reset")
+            .setUrl("https://page.link")
             .setHandleCodeInApp(true)
             .setAndroidPackageName(
                 "com.dariusepure.caractivitylog",
@@ -146,7 +160,7 @@ class AuthRepository @Inject constructor(
                 "1"
             )
             .build()
-        
+
         firebaseAuth.sendPasswordResetEmail(email, actionCodeSettings).await()
     }
 
