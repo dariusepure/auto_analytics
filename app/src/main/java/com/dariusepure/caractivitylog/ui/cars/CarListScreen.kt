@@ -54,6 +54,9 @@ fun CarCard(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val logoRes = remember(car.make) { CarFormatters.getBrandLogoResource(car.make) }
+    val summary = remember(car, context) { CarFormatters.getCarSummary(context, car) }
+
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
@@ -65,12 +68,10 @@ fun CarCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val logoRes = CarFormatters.getBrandLogoResource(car.make)
-            
             Box(
                 modifier = Modifier
                     .size(48.dp)
-                    .clip(androidx.compose.foundation.shape.CircleShape)
+                    .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
@@ -97,21 +98,20 @@ fun CarCard(
             Spacer(Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    AutoSizeText(
-                        text = car.displayName,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.weight(1f, fill = false)
-                    )
-                }
-                Spacer(Modifier.height(4.dp))
+                AutoSizeText(
+                    text = car.displayName,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.fillMaxWidth()
+                )
                 
-                val summary = CarFormatters.getCarSummary(context, car)
                 if (summary.isNotEmpty()) {
+                    Spacer(Modifier.height(4.dp))
                     Text(
                         text = summary,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                     )
                 }
             }

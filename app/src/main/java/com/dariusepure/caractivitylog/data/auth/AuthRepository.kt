@@ -12,10 +12,12 @@ import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.auth.ActionCodeSettings
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -243,5 +245,37 @@ class AuthRepository @Inject constructor(
 
     suspend fun confirmPasswordReset(oobCode: String, newPassword: String) {
         firebaseAuth.confirmPasswordReset(oobCode, newPassword).await()
+    }
+
+    suspend fun reauthenticate(password: String) {
+        val user = firebaseAuth.currentUser ?: throw Exception("No user signed in")
+        val email = user.email ?: throw Exception("User has no email")
+        val credential = EmailAuthProvider.getCredential(email, password)
+        user.reauthenticate(credential).await()
+    }
+
+    suspend fun updatePassword(newPassword: String) {
+        val user = firebaseAuth.currentUser ?: throw Exception("No user signed in")
+        user.updatePassword(newPassword).await()
+    }
+
+    suspend fun deleteAccount() {
+        val user = firebaseAuth.currentUser ?: throw Exception("No user signed in")
+        val uid = user.uid
+        
+        // 1. Delete Firestore user document
+        firestore.collection("users").document(uid).delete().await()
+        
+        // Note: Sub-collections like 'cars' will remain as orphans unless deleted recursively.
+        // For a client-side implementation, we prioritize deleting the Auth account and profile doc.
+        
+        // 2. Delete Auth account
+        user.delete().await()
+    }
+
+    fun isPasswordUser(): Boolean {
+        return firebaseAuth.currentUser?.providerData?.any { 
+            it.providerId == EmailAuthProvider.PROVIDER_ID 
+        } ?: false
     }
 }

@@ -24,8 +24,12 @@ import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.R
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import com.dariusepure.caractivitylog.ui.common.supportedLanguages
+import com.dariusepure.caractivitylog.ui.theme.SettingsEvent
 import com.dariusepure.caractivitylog.ui.theme.SettingsViewModel
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +48,30 @@ fun SettingsScreen(
     var languageMenuExpanded by remember { mutableStateOf(false) }
     var unitMenuExpanded by remember { mutableStateOf(false) }
 
+    // Dialog states
+    var showChangePasswordDialog by remember { mutableStateOf(false) }
+    var showDeleteAccountDialog by remember { mutableStateOf(false) }
+    
+    val snackbarHostState = remember { SnackbarHostState() }
+    
+    LaunchedEffect(Unit) {
+        viewModel.settingsEvent.collectLatest { event ->
+            when (event) {
+                is SettingsEvent.PasswordChanged -> {
+                    showChangePasswordDialog = false
+                    snackbarHostState.showSnackbar("Password updated!")
+                }
+                is SettingsEvent.AccountDeleted -> {
+                    showDeleteAccountDialog = false
+                    onLogout()
+                }
+                is SettingsEvent.Error -> {
+                    snackbarHostState.showSnackbar(event.message)
+                }
+            }
+        }
+    }
+
     val locales = AppCompatDelegate.getApplicationLocales()
     val currentLocale = if (!locales.isEmpty) locales.get(0)?.language ?: "en" else "en"
     val currentLanguage = supportedLanguages.find { it.code == currentLocale } ?: supportedLanguages[0]
@@ -58,7 +86,8 @@ fun SettingsScreen(
                     }
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -246,13 +275,172 @@ fun SettingsScreen(
                     onClick = {
                         viewModel.signOut()
                         onLogout()
-                    },
-                    labelColor = MaterialTheme.colorScheme.error,
-                    iconColor = MaterialTheme.colorScheme.error
+                    }
                 )
+
+                if (!isAnonymous && viewModel.isPasswordUser) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                    )
+                    SettingsItem(
+                        label = stringResource(R.string.settings_change_password),
+                        icon = Icons.Default.Lock,
+                        onClick = { showChangePasswordDialog = true }
+                    )
+                }
+
+                if (!isAnonymous) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                    )
+                    SettingsItem(
+                        label = stringResource(R.string.settings_delete_account),
+                        icon = Icons.Default.DeleteForever,
+                        onClick = { showDeleteAccountDialog = true },
+                        labelColor = MaterialTheme.colorScheme.error,
+                        iconColor = MaterialTheme.colorScheme.error
+                    )
+                }
             }
         }
     }
+
+    if (showChangePasswordDialog) {
+        ChangePasswordDialog(
+            onDismiss = { showChangePasswordDialog = false },
+            onConfirm = { current, new -> viewModel.changePassword(current, new) }
+        )
+    }
+
+    if (showDeleteAccountDialog) {
+        DeleteAccountDialog(
+            isPasswordUser = viewModel.isPasswordUser,
+            onDismiss = { showDeleteAccountDialog = false },
+            onConfirm = { password -> viewModel.deleteAccount(password) }
+        )
+    }
+}
+
+@Composable
+fun ChangePasswordDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (String, String) -> Unit
+) {
+    var currentPassword by remember { mutableStateOf("") }
+    var newPassword by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.settings_change_password_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = currentPassword,
+                    onValueChange = { currentPassword = it },
+                    label = { Text(stringResource(R.string.settings_current_password_label)) },
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                OutlinedTextField(
+                    value = newPassword,
+                    onValueChange = { newPassword = it },
+                    label = { Text(stringResource(R.string.settings_new_password_label)) },
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                OutlinedTextField(
+                    value = confirmPassword,
+                    onValueChange = { confirmPassword = it },
+                    label = { Text(stringResource(R.string.settings_confirm_new_password_label)) },
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    trailingIcon = {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                contentDescription = null
+                            )
+                        }
+                    }
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirm(currentPassword, newPassword) },
+                enabled = currentPassword.isNotBlank() && newPassword.isNotBlank() && newPassword == confirmPassword
+            ) {
+                Text(stringResource(R.string.common_save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.common_cancel))
+            }
+        }
+    )
+}
+
+@Composable
+fun DeleteAccountDialog(
+    isPasswordUser: Boolean,
+    onDismiss: () -> Unit,
+    onConfirm: (String?) -> Unit
+) {
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.settings_delete_account_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text(stringResource(R.string.settings_delete_account_message))
+                if (isPasswordUser) {
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text(stringResource(R.string.auth_password_label)) },
+                        placeholder = { Text(stringResource(R.string.settings_delete_account_reauth_hint)) },
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(
+                                    if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    contentDescription = null
+                                )
+                            }
+                        }
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirm(if (isPasswordUser) password else null) },
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                enabled = !isPasswordUser || password.isNotBlank()
+            ) {
+                Text(stringResource(R.string.settings_delete_account_confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.common_cancel))
+            }
+        }
+    )
 }
 
 @Composable

@@ -8,7 +8,9 @@ import com.dariusepure.caractivitylog.domain.UnitSystem
 import com.dariusepure.caractivitylog.domain.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,6 +28,11 @@ class SettingsViewModel @Inject constructor(
         
     val isAnonymous: StateFlow<Boolean> = authRepository.isAnonymousFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), authRepository.isCurrentlyGuest || authRepository.isAnonymous)
+
+    val isPasswordUser = authRepository.isPasswordUser()
+
+    private val _settingsEvent = Channel<SettingsEvent>()
+    val settingsEvent = _settingsEvent.receiveAsFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val userData: StateFlow<User?> = authRepository.userId
@@ -55,4 +62,36 @@ class SettingsViewModel @Inject constructor(
         authRepository.signOut()
         preferenceRepository.setGuestMode(false)
     }
+
+    fun changePassword(currentPassword: String, newPassword: String) {
+        viewModelScope.launch {
+            try {
+                authRepository.reauthenticate(currentPassword)
+                authRepository.updatePassword(newPassword)
+                _settingsEvent.send(SettingsEvent.PasswordChanged)
+            } catch (e: Exception) {
+                _settingsEvent.send(SettingsEvent.Error(e.message ?: "Unknown error"))
+            }
+        }
+    }
+
+    fun deleteAccount(password: String?) {
+        viewModelScope.launch {
+            try {
+                if (isPasswordUser && password != null) {
+                    authRepository.reauthenticate(password)
+                }
+                authRepository.deleteAccount()
+                _settingsEvent.send(SettingsEvent.AccountDeleted)
+            } catch (e: Exception) {
+                _settingsEvent.send(SettingsEvent.Error(e.message ?: "Unknown error"))
+            }
+        }
+    }
+}
+
+sealed class SettingsEvent {
+    data object PasswordChanged : SettingsEvent()
+    data object AccountDeleted : SettingsEvent()
+    data class Error(val message: String) : SettingsEvent()
 }

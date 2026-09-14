@@ -401,7 +401,6 @@ fun AutoSizeText(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActionButtons(
     onEdit: () -> Unit,
@@ -419,40 +418,34 @@ fun ActionButtons(
         verticalAlignment = verticalAlignment,
         horizontalArrangement = horizontalArrangement
     ) {
-        val editTooltipState = rememberTooltipState()
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-            tooltip = { PlainTooltip { Text(editLabel) } },
-            state = editTooltipState
+        FilledIconButton(
+            onClick = onEdit,
+            colors = IconButtonDefaults.filledIconButtonColors(
+                containerColor = accentColor,
+                contentColor = Color.White
+            ),
+            modifier = Modifier.size(36.dp)
         ) {
-            FilledIconButton(
-                onClick = onEdit,
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = accentColor,
-                    contentColor = Color.White
-                ),
-                modifier = Modifier.size(36.dp)
-            ) {
-                Icon(Icons.Default.Edit, null, modifier = Modifier.size(18.dp))
-            }
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = editLabel,
+                modifier = Modifier.size(18.dp)
+            )
         }
         
-        val deleteTooltipState = rememberTooltipState()
-        TooltipBox(
-            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-            tooltip = { PlainTooltip { Text(deleteLabel) } },
-            state = deleteTooltipState
+        FilledIconButton(
+            onClick = onDelete,
+            colors = IconButtonDefaults.filledIconButtonColors(
+                containerColor = deleteColor,
+                contentColor = Color.White
+            ),
+            modifier = Modifier.size(36.dp)
         ) {
-            FilledIconButton(
-                onClick = onDelete,
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = deleteColor,
-                    contentColor = Color.White
-                ),
-                modifier = Modifier.size(36.dp)
-            ) {
-                Icon(Icons.Default.Delete, null, modifier = Modifier.size(18.dp))
-            }
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = deleteLabel,
+                modifier = Modifier.size(18.dp)
+            )
         }
     }
 }

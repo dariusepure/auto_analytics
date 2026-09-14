@@ -1,29 +1,24 @@
 package com.dariusepure.caractivitylog.ui.cars
 
-import android.app.DatePickerDialog
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Collections
 import androidx.compose.material.icons.outlined.DirectionsCar
 import androidx.compose.material3.*
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,9 +30,7 @@ import com.dariusepure.caractivitylog.ui.common.AutoSizeText
 import com.dariusepure.caractivitylog.ui.common.toRelativeString
 import com.dariusepure.caractivitylog.ui.common.*
 import com.dariusepure.caractivitylog.ui.theme.statusExpiredRed
-import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,17 +98,49 @@ fun CarDetailsScreen(
             is CarDetailsUiState.Success -> {
                 val car = s.car
 
-                @Composable
-                fun getStatusColor(expiryDate: Date?): Color {
-                    if (expiryDate == null) return Color(0xFF1A73E8) // Default Blue
+                val latestInspection = remember(s.inspections) { s.inspections.maxByOrNull { it.date } }
+                val latestInsurance = remember(s.insurances) { s.insurances.maxByOrNull { it.date } }
+                val latestVignette = remember(s.vignettes) { s.vignettes.maxByOrNull { it.date } }
+
+                val (inspectionColor, inspectionLabelRes) = remember(latestInspection) {
+                    val expiryDate = latestInspection?.expiryDate
+                    if (expiryDate == null) return@remember Color(0xFF1A73E8) to R.string.common_not_applicable
                     val now = Date()
                     val diff = expiryDate.time - now.time
                     val days = diff / (1000 * 60 * 60 * 24)
                     
-                    return when {
-                        expiryDate.before(now) -> statusExpiredRed
-                        days < 14 -> Color(0xFFFF9800) // Orange
-                        else -> Color(0xFF4CAF50) // Green
+                    when {
+                        expiryDate.before(now) -> statusExpiredRed to R.string.status_expired
+                        days < 14 -> Color(0xFFFF9800) to R.string.status_soon
+                        else -> Color(0xFF4CAF50) to R.string.status_ok
+                    }
+                }
+
+                val (insuranceColor, insuranceLabelRes) = remember(latestInsurance) {
+                    val expiryDate = latestInsurance?.expiryDate
+                    if (expiryDate == null) return@remember Color(0xFF1A73E8) to R.string.common_not_applicable
+                    val now = Date()
+                    val diff = expiryDate.time - now.time
+                    val days = diff / (1000 * 60 * 60 * 24)
+                    
+                    when {
+                        expiryDate.before(now) -> statusExpiredRed to R.string.status_expired
+                        days < 14 -> Color(0xFFFF9800) to R.string.status_soon
+                        else -> Color(0xFF4CAF50) to R.string.status_ok
+                    }
+                }
+
+                val (vignetteColor, vignetteLabelRes) = remember(latestVignette) {
+                    val expiryDate = latestVignette?.expiryDate
+                    if (expiryDate == null) return@remember Color(0xFF1A73E8) to R.string.common_not_applicable
+                    val now = Date()
+                    val diff = expiryDate.time - now.time
+                    val days = diff / (1000 * 60 * 60 * 24)
+                    
+                    when {
+                        expiryDate.before(now) -> statusExpiredRed to R.string.status_expired
+                        days < 14 -> Color(0xFFFF9800) to R.string.status_soon
+                        else -> Color(0xFF4CAF50) to R.string.status_ok
                     }
                 }
 
@@ -200,10 +225,6 @@ fun CarDetailsScreen(
                                         maxLines = 2
                                     )
                                 }
-                                val latestInspection = s.inspections.maxByOrNull { it.date }
-                                val inspectionColor = getStatusColor(latestInspection?.expiryDate)
-                                val itpDays = latestInspection?.let { (it.expiryDate.time - Date().time) / (1000 * 60 * 60 * 24) } ?: -1
-                                
                                 BentoCard(
                                     onClick = onInspectionClick,
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
@@ -219,7 +240,7 @@ fun CarDetailsScreen(
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                     StatusBadge(
-                                        label = if (latestInspection == null) stringResource(R.string.common_not_applicable) else if (itpDays < 0) stringResource(R.string.status_expired) else if (itpDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        label = stringResource(inspectionLabelRes),
                                         color = inspectionColor
                                     )
                                 }
@@ -227,10 +248,6 @@ fun CarDetailsScreen(
                         }
                         item {
                             Row(modifier = Modifier.fillMaxWidth().height(120.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                val latestInsurance = s.insurances.maxByOrNull { it.date }
-                                val insuranceColor = getStatusColor(latestInsurance?.expiryDate)
-                                val rcaDays = latestInsurance?.let { (it.expiryDate.time - Date().time) / (1000 * 60 * 60 * 24) } ?: -1
-                                
                                 BentoCard(
                                     onClick = onInsuranceClick,
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
@@ -246,14 +263,10 @@ fun CarDetailsScreen(
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                     StatusBadge(
-                                        label = if (latestInsurance == null) stringResource(R.string.common_not_applicable) else if (rcaDays < 0) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        label = stringResource(insuranceLabelRes),
                                         color = insuranceColor
                                     )
                                 }
-                                val latestVignette = s.vignettes.maxByOrNull { it.date }
-                                val vignetteColor = getStatusColor(latestVignette?.expiryDate)
-                                val vigDays = latestVignette?.let { (it.expiryDate.time - Date().time) / (1000 * 60 * 60 * 24) } ?: -1
-                                
                                 BentoCard(
                                     onClick = onVignetteClick,
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
@@ -269,7 +282,7 @@ fun CarDetailsScreen(
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                     StatusBadge(
-                                        label = if (latestVignette == null) stringResource(R.string.common_not_applicable) else if (vigDays < 0) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        label = stringResource(vignetteLabelRes),
                                         color = vignetteColor
                                     )
                                 }
@@ -336,7 +349,7 @@ fun CarDetailsScreen(
                             }
                         }
                     }
-else {
+                    else {
                         // Bento Row 1: Technical & Mileage
                         item {
                             Row(modifier = Modifier.fillMaxWidth().height(110.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -378,10 +391,6 @@ else {
                         // Bento Row 2: ITP, RCA, Vignette (Squares)
                         item {
                             Row(modifier = Modifier.fillMaxWidth().height(160.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                val latestInspection = s.inspections.maxByOrNull { it.date }
-                                val inspectionColor = getStatusColor(latestInspection?.expiryDate)
-                                val itpDays = latestInspection?.let { (it.expiryDate.time - Date().time) / (1000 * 60 * 60 * 24) } ?: -1
-                                
                                 BentoCard(
                                     onClick = onInspectionClick,
                                     modifier = Modifier.weight(1f).fillMaxHeight(),
@@ -399,14 +408,10 @@ else {
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                     StatusBadge(
-                                        label = if (latestInspection == null) stringResource(R.string.common_not_applicable) else if (itpDays < 0) stringResource(R.string.status_expired) else if (itpDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        label = stringResource(inspectionLabelRes),
                                         color = inspectionColor
                                     )
                                 }
-
-                                val latestInsurance = s.insurances.maxByOrNull { it.date }
-                                val insuranceColor = getStatusColor(latestInsurance?.expiryDate)
-                                val rcaDays = latestInsurance?.let { (it.expiryDate.time - Date().time) / (1000 * 60 * 60 * 24) } ?: -1
 
                                 BentoCard(
                                     onClick = onInsuranceClick,
@@ -425,14 +430,10 @@ else {
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                     StatusBadge(
-                                        label = if (latestInsurance == null) stringResource(R.string.common_not_applicable) else if (rcaDays < 0) stringResource(R.string.status_expired) else if (rcaDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        label = stringResource(insuranceLabelRes),
                                         color = insuranceColor
                                     )
                                 }
-
-                                val latestVignette = s.vignettes.maxByOrNull { it.date }
-                                val vignetteColor = getStatusColor(latestVignette?.expiryDate)
-                                val vigDays = latestVignette?.let { (it.expiryDate.time - Date().time) / (1000 * 60 * 60 * 24) } ?: -1
 
                                 BentoCard(
                                     onClick = onVignetteClick,
@@ -451,7 +452,7 @@ else {
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                     StatusBadge(
-                                        label = if (latestVignette == null) stringResource(R.string.common_not_applicable) else if (vigDays < 0) stringResource(R.string.status_expired) else if (vigDays < 14) stringResource(R.string.status_soon) else stringResource(R.string.status_ok),
+                                        label = stringResource(vignetteLabelRes),
                                         color = vignetteColor
                                     )
                                 }
@@ -541,7 +542,7 @@ private fun CarHeaderPhoto(
     make: String,
     carAccentColor: Color
 ) {
-    val logoRes = CarFormatters.getBrandLogoResource(make)
+    val logoRes = remember(make) { CarFormatters.getBrandLogoResource(make) }
     
     Box(
         modifier = Modifier
@@ -576,6 +577,9 @@ private fun CarHeaderText(
     car: Car, 
     context: android.content.Context
 ) {
+    val summary = remember(car, context) { CarFormatters.getCarSummary(context, car) }
+    val relativeUpdate = remember(car.updatedAt, context) { car.updatedAt.toRelativeString(context) }
+
     Column {
         AutoSizeText(
             text = car.displayName,
@@ -590,7 +594,6 @@ private fun CarHeaderText(
             )
         }
         
-        val summary = CarFormatters.getCarSummary(context, car)
         if (summary.isNotEmpty()) {
             Text(
                 text = summary,
@@ -601,11 +604,9 @@ private fun CarHeaderText(
         }
 
         Text(
-            text = stringResource(R.string.car_last_update, car.updatedAt.toRelativeString(context)),
+            text = stringResource(R.string.car_last_update, relativeUpdate),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
-
-
