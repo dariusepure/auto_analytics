@@ -19,6 +19,8 @@ import com.google.firebase.auth.ActionCodeSettings
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import com.dariusepure.caractivitylog.R
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -43,6 +45,20 @@ class AuthRepository @Inject constructor(
         }
         firebaseAuth.addAuthStateListener(listener)
         awaitClose { firebaseAuth.removeAuthStateListener(listener) }
+    }.distinctUntilChanged()
+
+    val userId: Flow<String?> = signedIn.combine(preferenceRepository.isGuestMode) { signedIn, isGuest ->
+        if (isGuest) GUEST_UID
+        else if (signedIn) firebaseAuth.currentUser?.uid
+        else null
+    }.distinctUntilChanged()
+
+    val userEmailFlow: Flow<String?> = signedIn.map { 
+        if (it) firebaseAuth.currentUser?.email else null 
+    }.distinctUntilChanged()
+
+    val isAnonymousFlow: Flow<Boolean> = signedIn.combine(preferenceRepository.isGuestMode) { signedIn, isGuest ->
+        isGuest || (signedIn && firebaseAuth.currentUser?.isAnonymous == true)
     }.distinctUntilChanged()
 
     val isCurrentlySignedIn: Boolean

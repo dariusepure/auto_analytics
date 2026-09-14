@@ -61,6 +61,8 @@ data class Car(
     val activityCount: Int = 0,
     val hasAbs: Boolean = false,
     val hasEsp: Boolean = false,
+    val hasAsr: Boolean = false,
+    val hasIsofix: Boolean = false,
     val airbags: Int = 0,
     val generation: String = "",
     val hasAc: Boolean = false,
@@ -70,16 +72,14 @@ data class Car(
     val hasNavigation: Boolean = false,
     val hasParkingSensors: Boolean = false,
     val hasBackCamera: Boolean = false,
-    val hasSunroof: Boolean = false
+    val hasSunroof: Boolean = false,
+    val engineVariant: String = ""
 )
 
 val Car.displayName: String
     get() {
         val base = if (name.isNotBlank()) name else "$make $model".trim()
-        return if (generation.isNotBlank()) {
-            "$base ($generation)"
-        } else {
-            base.ifBlank { "Unnamed car" }
-        }
+        val withGen = if (generation.isNotBlank()) "$base ($generation)" else base
+        return if (engineVariant.isNotBlank()) "$withGen $engineVariant".trim() else withGen.ifBlank { "Unnamed car" }
     }
 

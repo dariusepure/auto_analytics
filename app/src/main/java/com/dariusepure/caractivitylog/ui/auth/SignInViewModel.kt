@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import android.util.Patterns
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 
 @HiltViewModel
 class SignInViewModel @Inject constructor(
@@ -24,17 +25,29 @@ class SignInViewModel @Inject constructor(
 
     val signedIn = authRepository.signedIn
 
+    private fun getLocalizedString(resId: Int): String {
+        val locales = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales()
+        val contextToUse = if (!locales.isEmpty) {
+            val config = android.content.res.Configuration(context.resources.configuration)
+            config.setLocale(locales.get(0))
+            context.createConfigurationContext(config)
+        } else {
+            context
+        }
+        return contextToUse.getString(resId)
+    }
+
     fun onSignIn(email: String, password: String) {
         if (email.isBlank()) {
-            _state.value = SignInState.Error(context.getString(R.string.validation_email_blank))
+            _state.value = SignInState.Error(getLocalizedString(R.string.validation_email_blank))
             return
         }
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            _state.value = SignInState.Error(context.getString(R.string.validation_email_invalid))
+            _state.value = SignInState.Error(getLocalizedString(R.string.validation_email_invalid))
             return
         }
         if (password.isBlank()) {
-            _state.value = SignInState.Error(context.getString(R.string.validation_password_blank))
+            _state.value = SignInState.Error(getLocalizedString(R.string.validation_password_blank))
             return
         }
 
@@ -44,9 +57,13 @@ class SignInViewModel @Inject constructor(
                 authRepository.signIn(email, password)
                 _state.value = SignInState.Idle
             } catch (exception: Exception) {
-                _state.value = SignInState.Error(
-                    exception.message ?: context.getString(R.string.error_signin_failed)
-                )
+                val errorMessage = when (exception) {
+                    is FirebaseAuthInvalidCredentialsException -> {
+                        getLocalizedString(R.string.error_invalid_credentials)
+                    }
+                    else -> exception.localizedMessage ?: getLocalizedString(R.string.error_signin_failed)
+                }
+                _state.value = SignInState.Error(errorMessage)
             }
         }
     }
@@ -59,7 +76,7 @@ class SignInViewModel @Inject constructor(
                 _state.value = SignInState.Idle
             } catch (exception: Exception) {
                 _state.value = SignInState.Error(
-                    exception.message ?: context.getString(R.string.error_google_signin_failed)
+                    exception.localizedMessage ?: getLocalizedString(R.string.error_google_signin_failed)
                 )
             }
         }
@@ -73,7 +90,7 @@ class SignInViewModel @Inject constructor(
                 _state.value = SignInState.Idle
             } catch (exception: Exception) {
                 _state.value = SignInState.Error(
-                    exception.message ?: context.getString(R.string.error_generic)
+                    exception.localizedMessage ?: getLocalizedString(R.string.error_generic)
                 )
             }
         }

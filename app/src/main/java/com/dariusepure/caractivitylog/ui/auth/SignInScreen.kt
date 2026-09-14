@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -55,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.ui.theme.CarActivityLogTheme
+import androidx.appcompat.app.AppCompatDelegate
 
 @Composable
 fun SignInScreen(
@@ -71,15 +73,20 @@ fun SignInScreen(
         if (signedIn == true) onSignedIn()
     }
 
-    SignInContent(
-        state = state,
-        onSignIn = viewModel::onSignIn,
-        onSignInWithGoogle = viewModel::onSignInWithGoogle,
-        onContinueAsGuest = viewModel::onContinueAsGuest,
-        onSignUpClick = onSignUpClick,
-        onForgotPasswordClick = onForgotPasswordClick,
-        modifier = modifier
-    )
+    val locales = AppCompatDelegate.getApplicationLocales()
+    val currentLocale = if (!locales.isEmpty) locales.get(0)?.language ?: "en" else "en"
+
+    key(currentLocale) {
+        SignInContent(
+            state = state,
+            onSignIn = viewModel::onSignIn,
+            onSignInWithGoogle = viewModel::onSignInWithGoogle,
+            onContinueAsGuest = viewModel::onContinueAsGuest,
+            onSignUpClick = onSignUpClick,
+            onForgotPasswordClick = onForgotPasswordClick,
+            modifier = modifier
+        )
+    }
 }
 
 @Composable
@@ -232,23 +239,15 @@ fun SignInContent(
                 )
             }
 
-            OutlinedButton(
+            TextButton(
                 onClick = onContinueAsGuest,
                 enabled = !submitting,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp),
-                border = androidx.compose.foundation.BorderStroke(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.primary
-                ),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.primary
-                )
+                modifier = Modifier.padding(top = 8.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.auth_continue_guest),
-                    fontWeight = FontWeight.Bold
+                    text = stringResource(R.string.auth_offline_mode),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
 

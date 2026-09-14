@@ -36,6 +36,8 @@ fun SettingsScreen(
 ) {
     val isDarkMode by viewModel.isDarkMode.collectAsStateWithLifecycle()
     val unitSystem by viewModel.unitSystem.collectAsStateWithLifecycle()
+    val userEmail by viewModel.userEmail.collectAsStateWithLifecycle()
+    val isAnonymous by viewModel.isAnonymous.collectAsStateWithLifecycle()
     val systemDark = androidx.compose.foundation.isSystemInDarkTheme()
     val currentDark = isDarkMode ?: systemDark
 
@@ -69,7 +71,7 @@ fun SettingsScreen(
             // Account Info Header
             val userData by viewModel.userData.collectAsStateWithLifecycle()
             
-            (userData ?: viewModel.userEmail?.let { email -> com.dariusepure.caractivitylog.domain.User("", email) })?.let { user ->
+            (userData ?: userEmail?.let { email -> com.dariusepure.caractivitylog.domain.User("", email) })?.let { user ->
                 Surface(
                     shape = MaterialTheme.shapes.large,
                     color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
@@ -96,11 +98,11 @@ fun SettingsScreen(
                         Spacer(Modifier.width(16.dp))
                         Column {
                             Text(
-                                text = if (viewModel.isAnonymous) stringResource(R.string.settings_guest_user) else stringResource(R.string.settings_account_signed_in_as),
+                                text = if (isAnonymous) stringResource(R.string.settings_guest_user) else stringResource(R.string.settings_account_signed_in_as),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            if (!viewModel.isAnonymous && user.name.isNotBlank()) {
+                            if (!isAnonymous && user.name.isNotBlank()) {
                                 Text(
                                     text = user.name,
                                     style = MaterialTheme.typography.titleMedium,
@@ -116,9 +118,9 @@ fun SettingsScreen(
                                 }
                             } else {
                                 Text(
-                                    text = if (viewModel.isAnonymous) stringResource(R.string.settings_guest_hint) else user.email,
-                                    style = if (viewModel.isAnonymous) MaterialTheme.typography.bodySmall else MaterialTheme.typography.titleMedium,
-                                    fontWeight = if (viewModel.isAnonymous) FontWeight.Normal else FontWeight.Bold,
+                                    text = if (isAnonymous) stringResource(R.string.settings_guest_hint) else user.email,
+                                    style = if (isAnonymous) MaterialTheme.typography.bodySmall else MaterialTheme.typography.titleMedium,
+                                    fontWeight = if (isAnonymous) FontWeight.Normal else FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                             }

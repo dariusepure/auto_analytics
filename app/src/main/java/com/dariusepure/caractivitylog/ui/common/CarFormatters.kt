@@ -87,6 +87,7 @@ object CarFormatters {
 
     fun getCarSummary(context: android.content.Context, car: Car): String {
         val details = mutableListOf<String>()
+        if (car.vehicleType.isNotBlank()) details.add(CarTranslations.getVehicleTypeLabel(context, car.vehicleType))
         if (car.year != 0) details.add(car.year.toString())
         if (car.fuelType.isNotBlank()) details.add(CarTranslations.getFuelTypeLabel(context, car.fuelType))
         if (car.power != 0) {

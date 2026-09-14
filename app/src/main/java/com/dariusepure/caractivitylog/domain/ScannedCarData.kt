@@ -15,6 +15,7 @@ data class ScannedCarData(
     val make: String? = null,
     val model: String? = null,
     val vin: String? = null,
+    val engineVariant: String? = null,
     @Serializable(with = FlexibleDoubleSerializer::class)
     val year: Double? = null,
     val fuelType: String? = null,

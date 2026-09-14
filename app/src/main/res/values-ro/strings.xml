@@ -206,6 +206,7 @@
     <string name="auth_back_to_signin">Înapoi la autentificare</string>
     <string name="auth_continue_google">Continuă cu Google</string>
     <string name="auth_continue_guest">Continuă ca Oaspete</string>
+    <string name="auth_offline_mode">Continuă fără cont</string>
 
     <string name="auth_no_account">Nu ai cont?</string>
     <string name="auth_have_account">Ai deja un cont?</string>
@@ -245,6 +246,8 @@
     <string name="car_make_label">Marcă</string>
     <string name="car_model_label">Model</string>
     <string name="car_generation_label">Generație</string>
+    <string name="car_engine_variant_label">Inscripție motor</string>
+    <string name="car_engine_variant_placeholder">ex: 320d, TDI, TFSI</string>
     <string name="car_year_label">An</string>
     <string name="car_vehicle_type_label">Tip vehicul</string>
     <string name="car_color_label">Culoare</string>
@@ -503,6 +506,8 @@
     <string name="car_dimensions_lxwxh">Dimensiuni</string>
     <string name="car_abs_label">ABS</string>
     <string name="car_esp_label">ESP</string>
+    <string name="car_asr_label">ASR</string>
+    <string name="car_isofix_label">ISOFIX</string>
     <string name="car_airbags_label">Airbag-uri</string>
     <string name="car_ac_label">Aer condiționat</string>
     <string name="car_climate_control_label">Climatizare automată</string>
@@ -584,6 +589,7 @@
     <string name="validation_numeric_format">Format numeric invalid pentru %s</string>
 
     <!-- Errors -->
+    <string name="error_invalid_credentials">Email sau parolă incorectă.</string>
     <string name="error_reset_email_failed">A apărut o eroare neașteptată la trimiterea email-ului de resetare</string>
     <string name="error_password_reset_failed">A apărut o eroare neașteptată la resetarea parolei</string>
     <string name="error_signin_failed">A apărut o eroare neașteptată la autentificare</string>

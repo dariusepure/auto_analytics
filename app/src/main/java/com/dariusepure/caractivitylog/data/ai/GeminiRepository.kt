@@ -96,6 +96,9 @@ class GeminiRepository @Inject constructor(
                 Analyze the document and look for these fields:
                 - make, model, vin (MUST be 17 chars), year (4 digits), fuelType, engineSize (cc), power (hp or kW), torque (Nm), color, gears, registrationPlate, hasAbs (boolean), hasEsp (boolean), airbags (number).
                 
+                ENGINE VARIANT / COMMERCIAL NAME:
+                - Deduce the commercial engine name/variant (e.g., 320d, 1.9 TDI, 118i, M Sport, BlueHDi, EcoBoost) based on make, model, year, engineSize, and fuelType. Return it in the 'engineVariant' field.
+                
                 COLOR MAPPING (Return one of these standard values for 'color'):
                 - White, Black, Silver, Gray, Blue, Red, Brown, Green, Yellow, Orange.
                 
@@ -117,7 +120,8 @@ class GeminiRepository @Inject constructor(
                 fuelTankCapacity, topSpeed, acceleration0to100, fuelConsumptionCombined, co2Emissions,
                 hasAbs, hasEsp, airbags,
                 mileage,
-                mileageHistory (a list of objects with 'km' and 'date' in YYYY-MM-DD format).
+                mileageHistory (a list of objects with 'km' and 'date' in YYYY-MM-DD format),
+                engineVariant.
                 
                 Standard fuelType: Petrol, Diesel, Electric, Hybrid, LPG.
                 Standard powerUnit: 'hp'. If kW is found, convert to hp (kW * 1.36).
@@ -167,6 +171,9 @@ class GeminiRepository @Inject constructor(
                 Analyze the document and look for these fields:
                 - make, model, vin (MUST be 17 chars), year (4 digits), fuelType, engineSize (cc), power (hp or kW), torque (Nm), color, gears, registrationPlate, hasAbs (boolean), hasEsp (boolean), airbags (number).
                 
+                ENGINE VARIANT / COMMERCIAL NAME:
+                - Deduce the commercial engine name/variant (e.g., 320d, 1.9 TDI, 118i, M Sport, BlueHDi, EcoBoost) based on make, model, year, engineSize, and fuelType. Return it in the 'engineVariant' field.
+                
                 COLOR MAPPING (Return one of these standard values for 'color'):
                 - White, Black, Silver, Gray, Blue, Red, Brown, Green, Yellow, Orange.
                 
@@ -188,7 +195,8 @@ class GeminiRepository @Inject constructor(
                 fuelTankCapacity, topSpeed, acceleration0to100, fuelConsumptionCombined, co2Emissions,
                 hasAbs, hasEsp, airbags,
                 mileage,
-                mileageHistory (a list of objects with 'km' and 'date' in YYYY-MM-DD format).
+                mileageHistory (a list of objects with 'km' and 'date' in YYYY-MM-DD format),
+                engineVariant.
                 
                 Standard fuelType: Petrol, Diesel, Electric, Hybrid, LPG.
                 Standard powerUnit: 'hp'. If kW is found, convert to hp (kW * 1.36).

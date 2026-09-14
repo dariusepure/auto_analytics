@@ -144,6 +144,7 @@ fun AddCarScreen(
     var make by remember { mutableStateOf("") }
     var model by remember { mutableStateOf("") }
     var generation by remember { mutableStateOf("") }
+    var engineVariant by remember { mutableStateOf("") }
     var modelExpanded by remember { mutableStateOf(false) }
     var vin by remember { mutableStateOf("") }
     var showVinError by remember { mutableStateOf(false) }
@@ -195,6 +196,8 @@ fun AddCarScreen(
 
     var hasAbs by remember { mutableStateOf(false) }
     var hasEsp by remember { mutableStateOf(false) }
+    var hasAsr by remember { mutableStateOf(false) }
+    var hasIsofix by remember { mutableStateOf(false) }
     var airbags by remember { mutableStateOf("") }
 
     var hasAc by remember { mutableStateOf(false) }
@@ -244,6 +247,8 @@ fun AddCarScreen(
             existingData = mapOf(
                 "make" to make,
                 "model" to model,
+                "generation" to generation,
+                "engineVariant" to engineVariant,
                 "vin" to vin,
                 "year" to year,
                 "fuelType" to fuelType,
@@ -275,6 +280,7 @@ fun AddCarScreen(
                     make = it.lowercase().replaceFirstChar { char -> char.uppercase() } 
                 }
                 if (model.isBlank()) selectedData.model?.let { model = it }
+                if (engineVariant.isBlank()) selectedData.engineVariant?.let { engineVariant = it }
                 if (vin.isBlank()) selectedData.vin?.let { vin = it.uppercase() }
                 if (year.isBlank()) selectedData.year?.let { year = it.roundToInt().toString() }
                 if (fuelType.isBlank()) selectedData.fuelType?.let { if (it in fuelTypes) fuelType = it }
@@ -392,6 +398,7 @@ fun AddCarScreen(
                 tireWidth = tireWidth,
                 tireAspectRatio = tireAspectRatio,
                 tireDiameter = tireDiameter,
+                engineVariant = engineVariant,
                 acceleration0to100 = acceleration0to100,
                 fuelConsumptionCombined = fuelConsumptionCombined,
                 fuelConsumptionUrban = fuelConsumptionUrban,
@@ -399,6 +406,8 @@ fun AddCarScreen(
                 co2Emissions = co2Emissions,
                 hasAbs = hasAbs,
                 hasEsp = hasEsp,
+                hasAsr = hasAsr,
+                hasIsofix = hasIsofix,
                 airbags = airbags,
                 hasAc = hasAc,
                 hasClimateControl = hasClimateControl,
@@ -427,6 +436,7 @@ fun AddCarScreen(
                 make = car.make
                 model = car.model
                 generation = car.generation
+                engineVariant = car.engineVariant
                 vin = car.vin
                 year = car.year.takeIf { it != 0 }?.toString() ?: ""
                 engineSize = car.engineSize
@@ -481,6 +491,8 @@ fun AddCarScreen(
 
                 hasAbs = car.hasAbs
                 hasEsp = car.hasEsp
+                hasAsr = car.hasAsr
+                hasIsofix = car.hasIsofix
                 airbags = car.airbags.takeIf { it != 0 }?.toString() ?: ""
 
                 hasAc = car.hasAc
@@ -567,6 +579,7 @@ fun AddCarScreen(
                                     tireWidth = tireWidth,
                                     tireAspectRatio = tireAspectRatio,
                                     tireDiameter = tireDiameter,
+                                    engineVariant = engineVariant,
                                     aspiration = aspiration,
                                     frontBrakes = frontBrakes,
                                     rearBrakes = rearBrakes,
@@ -577,6 +590,8 @@ fun AddCarScreen(
                                     co2Emissions = co2Emissions,
                                     hasAbs = hasAbs,
                                     hasEsp = hasEsp,
+                                    hasAsr = hasAsr,
+                                    hasIsofix = hasIsofix,
                                     airbags = airbags,
                                     hasAc = hasAc,
                                     hasClimateControl = hasClimateControl,
@@ -627,22 +642,31 @@ fun AddCarScreen(
                 }
             }
 
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
             ) {
-                ScanButton(
-                    onClick = { photoPicker.launch("image/*") },
-                    modifier = Modifier.weight(1f),
-                    state = state,
-                    label = stringResource(R.string.car_scan_photo)
-                )
-                ScanButton(
-                    onClick = { pdfPicker.launch("application/pdf") },
-                    modifier = Modifier.weight(1f),
-                    state = state,
-                    label = stringResource(R.string.car_scan_pdf)
-                )
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ScanButton(
+                        onClick = { photoPicker.launch("image/*") },
+                        modifier = Modifier.weight(1f),
+                        state = state,
+                        label = stringResource(R.string.car_scan_photo)
+                    )
+                    ScanButton(
+                        onClick = { pdfPicker.launch("application/pdf") },
+                        modifier = Modifier.weight(1f),
+                        state = state,
+                        label = stringResource(R.string.car_scan_pdf)
+                    )
+                }
             }
 
             // --- 1. IDENTITY ---
@@ -732,7 +756,6 @@ fun AddCarScreen(
                     }
                 }
 
-                Spacer(Modifier.height(8.dp))
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     val modelsForBrand = remember(make) { carModels[make.uppercase()] ?: emptyList() }
@@ -791,7 +814,6 @@ fun AddCarScreen(
                     }
                 }
 
-                Spacer(Modifier.height(8.dp))
 
                 OutlinedTextField(
                     value = generation,
@@ -809,7 +831,24 @@ fun AddCarScreen(
                     } else null
                 )
 
-                Spacer(Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = engineVariant,
+                    onValueChange = { engineVariant = it },
+                    label = { Text(stringResource(R.string.car_engine_variant_label)) },
+                    placeholder = { Text(stringResource(R.string.car_engine_variant_placeholder)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    enabled = state !is AddCarState.Pending,
+                    trailingIcon = if (engineVariant.isNotEmpty()) {
+                        {
+                            IconButton(onClick = { engineVariant = "" }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Clear")
+                            }
+                        }
+                    } else null
+                )
+
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
@@ -875,7 +914,6 @@ fun AddCarScreen(
                     }
                 }
 
-                Spacer(Modifier.height(8.dp))
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
@@ -920,8 +958,7 @@ fun AddCarScreen(
                 }
 
                 if (selectedCountry != null) {
-                    Spacer(Modifier.height(8.dp))
-
+    
                     OutlinedTextField(
                         value = licensePlate,
                         onValueChange = { licensePlate = it.uppercase() },
@@ -939,7 +976,6 @@ fun AddCarScreen(
                     )
                 }
 
-                Spacer(Modifier.height(8.dp))
 
                 OutlinedTextField(
                     value = vin,
@@ -1010,7 +1046,6 @@ fun AddCarScreen(
                     }
                 }
 
-                Spacer(Modifier.height(8.dp))
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
@@ -1055,7 +1090,6 @@ fun AddCarScreen(
                 }
             }
 
-            Spacer(Modifier.height(16.dp))
 
             // --- 2. ENGINE & TRANSMISSION ---
             CollapsibleSection(
@@ -1080,7 +1114,6 @@ fun AddCarScreen(
                     } else null
                 )
 
-                Spacer(Modifier.height(8.dp))
 
                 // Fuel & Injection System
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1159,7 +1192,6 @@ fun AddCarScreen(
                     }
                 }
 
-                Spacer(Modifier.height(8.dp))
 
                 // Aspiration
                 Box(modifier = Modifier.fillMaxWidth()) {
@@ -1198,7 +1230,6 @@ fun AddCarScreen(
                     }
                 }
 
-                Spacer(Modifier.height(8.dp))
 
                 // Power & Torque
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -1247,7 +1278,6 @@ fun AddCarScreen(
                     }
                 }
 
-                Spacer(Modifier.height(8.dp))
 
                 OutlinedTextField(
                     value = torque,
@@ -1266,7 +1296,6 @@ fun AddCarScreen(
                     } else null
                 )
 
-                Spacer(Modifier.height(8.dp))
 
                 // Engine Code
                 OutlinedTextField(
@@ -1284,7 +1313,6 @@ fun AddCarScreen(
                     } else null
                 )
 
-                Spacer(Modifier.height(8.dp))
 
                 // Engine Layout (Dispunere)
                 Box(modifier = Modifier.fillMaxWidth()) {
@@ -1322,7 +1350,6 @@ fun AddCarScreen(
                     }
                 }
 
-                Spacer(Modifier.height(8.dp))
 
                 // Cylinders & Valves per Cylinder
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1358,7 +1385,6 @@ fun AddCarScreen(
                     )
                 }
 
-                Spacer(Modifier.height(8.dp))
 
                 // Cylinder Configuration
                 Box(modifier = Modifier.fillMaxWidth()) {
@@ -1396,7 +1422,6 @@ fun AddCarScreen(
                     }
                 }
 
-                Spacer(Modifier.height(8.dp))
 
                 // Performance
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1434,7 +1459,6 @@ fun AddCarScreen(
                     )
                 }
 
-                Spacer(Modifier.height(8.dp))
 
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1491,7 +1515,6 @@ fun AddCarScreen(
                     )
                 }
 
-                Spacer(Modifier.height(8.dp))
 
                 // Consumption Section
                 Text(
@@ -1555,8 +1578,7 @@ fun AddCarScreen(
                     )
                 }
 
-                Spacer(Modifier.height(16.dp))
-
+    
                 // Gearbox & Gears
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Box(modifier = Modifier.weight(1.5f)) {
@@ -1611,7 +1633,6 @@ fun AddCarScreen(
                     )
                 }
 
-                Spacer(Modifier.height(8.dp))
 
                 // Drivetrain
                 Box(modifier = Modifier.fillMaxWidth()) {
@@ -1650,7 +1671,6 @@ fun AddCarScreen(
                     }
                 }
 
-                Spacer(Modifier.height(8.dp))
 
                 // Suspension
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1724,7 +1744,6 @@ fun AddCarScreen(
                     }
                 }
 
-                Spacer(Modifier.height(8.dp))
 
                 // Brakes
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1799,7 +1818,6 @@ fun AddCarScreen(
                 }
             }
 
-            Spacer(Modifier.height(16.dp))
 
             // --- 3. DIMENSIONS & CHASSIS ---
             CollapsibleSection(
@@ -1905,7 +1923,6 @@ fun AddCarScreen(
                     )
                 }
 
-                Spacer(Modifier.height(8.dp))
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
@@ -1942,7 +1959,6 @@ fun AddCarScreen(
                     )
                 }
 
-                Spacer(Modifier.height(8.dp))
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
@@ -1979,7 +1995,6 @@ fun AddCarScreen(
                     )
                 }
 
-                Spacer(Modifier.height(8.dp))
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
@@ -2014,7 +2029,6 @@ fun AddCarScreen(
                     )
                 }
 
-                Spacer(Modifier.height(8.dp))
 
                 // Capacities (Fuel Tank / Battery)
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -2058,7 +2072,6 @@ fun AddCarScreen(
                 }
             }
 
-            Spacer(Modifier.height(16.dp))
 
             // --- 4. SAFETY ---
             CollapsibleSection(
@@ -2089,7 +2102,29 @@ fun AddCarScreen(
                     )
                 }
 
-                Spacer(Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = hasAsr,
+                        onCheckedChange = { hasAsr = it }
+                    )
+                    Text(
+                        text = stringResource(R.string.car_asr_label),
+                        modifier = Modifier.clickable { hasAsr = !hasAsr }
+                    )
+                    Spacer(Modifier.width(24.dp))
+                    Checkbox(
+                        checked = hasIsofix,
+                        onCheckedChange = { hasIsofix = it }
+                    )
+                    Text(
+                        text = stringResource(R.string.car_isofix_label),
+                        modifier = Modifier.clickable { hasIsofix = !hasIsofix }
+                    )
+                }
+
 
                 OutlinedTextField(
                     value = airbags,
@@ -2108,7 +2143,6 @@ fun AddCarScreen(
                 )
             }
 
-            Spacer(Modifier.height(16.dp))
 
 
             // --- 5. EQUIPMENT ---
@@ -2216,6 +2250,7 @@ fun ScannedCarDataConfirmationDialog(
         if (shouldAdd("make")) data.make?.let { list.add(Triple(context.getString(R.string.car_make_label), it, "make")) }
         if (shouldAdd("model")) data.model?.let { list.add(Triple(context.getString(R.string.car_model_label), it, "model")) }
         if (shouldAdd("vin")) data.vin?.let { list.add(Triple(context.getString(R.string.car_vin_label), it, "vin")) }
+        if (shouldAdd("engineVariant")) data.engineVariant?.let { list.add(Triple(context.getString(R.string.car_engine_variant_label), it, "engineVariant")) }
         if (shouldAdd("year")) data.year?.let { list.add(Triple(context.getString(R.string.car_year_label), it.roundToInt().toString(), "year")) }
         if (shouldAdd("fuelType")) data.fuelType?.let { list.add(Triple(context.getString(R.string.car_fuel_type_label), getFuelTypeLabel(context, it), "fuelType")) }
         if (shouldAdd("engineSize")) data.engineSize?.let { list.add(Triple(context.getString(R.string.car_engine_size_label), "${it.roundToInt()} ${if (context.resources.configuration.locales[0].language == "ro") "cmc" else "cc"}", "engineSize")) }
@@ -2316,6 +2351,7 @@ fun ScannedCarDataConfirmationDialog(
                         make = if ("make" in selectedKeys) data.make else null,
                         model = if ("model" in selectedKeys) data.model else null,
                         vin = if ("vin" in selectedKeys) data.vin else null,
+                        engineVariant = if ("engineVariant" in selectedKeys) data.engineVariant else null,
                         year = if ("year" in selectedKeys) data.year else null,
                         fuelType = if ("fuelType" in selectedKeys) data.fuelType else null,
                         engineSize = if ("engineSize" in selectedKeys) data.engineSize else null,
@@ -2378,34 +2414,45 @@ private fun CollapsibleSection(
     onToggle: () -> Unit,
     content: @Composable () -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onToggle() }
-                .padding(vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-            Icon(
-                imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                contentDescription = if (isExpanded) stringResource(R.string.common_collapse) else stringResource(R.string.common_expand),
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-        if (isExpanded) {
-            Column {
-                content()
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp, 
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onToggle() },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = if (isExpanded) stringResource(R.string.common_collapse) else stringResource(R.string.common_expand),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            if (isExpanded) {
+                Spacer(Modifier.height(16.dp))
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    content()
+                }
             }
         }
-        HorizontalDivider(
-            thickness = 0.5.dp,
-            color = MaterialTheme.colorScheme.outlineVariant
-        )
     }
 }

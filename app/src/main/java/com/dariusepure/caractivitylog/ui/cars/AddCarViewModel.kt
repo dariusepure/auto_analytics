@@ -152,6 +152,7 @@ class AddCarViewModel @Inject constructor(
         tireWidth: String,
         tireAspectRatio: String,
         tireDiameter: String,
+        engineVariant: String = "",
         acceleration0to100: String = "",
         fuelConsumptionCombined: String = "",
         fuelConsumptionUrban: String = "",
@@ -159,6 +160,8 @@ class AddCarViewModel @Inject constructor(
         co2Emissions: String = "",
         hasAbs: Boolean = false,
         hasEsp: Boolean = false,
+        hasAsr: Boolean = false,
+        hasIsofix: Boolean = false,
         airbags: String = "",
         hasAc: Boolean = false,
         hasClimateControl: Boolean = false,
@@ -294,6 +297,8 @@ class AddCarViewModel @Inject constructor(
                     updatedAt = Date(),
                     hasAbs = hasAbs,
                     hasEsp = hasEsp,
+                    hasAsr = hasAsr,
+                    hasIsofix = hasIsofix,
                     airbags = airbags.toDoubleOrNull()?.roundToInt() ?: 0,
                     hasAc = hasAc,
                     hasClimateControl = hasClimateControl,
@@ -302,7 +307,8 @@ class AddCarViewModel @Inject constructor(
                     hasNavigation = hasNavigation,
                     hasParkingSensors = hasParkingSensors,
                     hasBackCamera = hasBackCamera,
-                    hasSunroof = hasSunroof
+                    hasSunroof = hasSunroof,
+                    engineVariant = engineVariant.trim()
                 )
 
                 carRepository.createCar(car)

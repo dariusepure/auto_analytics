@@ -7,10 +7,8 @@ import com.dariusepure.caractivitylog.data.prefs.PreferenceRepository
 import com.dariusepure.caractivitylog.domain.UnitSystem
 import com.dariusepure.caractivitylog.domain.User
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,10 +20,19 @@ class SettingsViewModel @Inject constructor(
     val isDarkMode = preferenceRepository.isDarkMode
     val unitSystem = preferenceRepository.unitSystem
     val isGuestMode = preferenceRepository.isGuestMode
-    val userEmail = authRepository.currentUserEmail
-    val isAnonymous = authRepository.isCurrentlyGuest || authRepository.isAnonymous
+    
+    val userEmail: StateFlow<String?> = authRepository.userEmailFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), authRepository.currentUserEmail)
+        
+    val isAnonymous: StateFlow<Boolean> = authRepository.isAnonymousFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), authRepository.isCurrentlyGuest || authRepository.isAnonymous)
 
-    val userData: StateFlow<User?> = (authRepository.getUserId()?.let { authRepository.getUserData(it) } ?: flowOf(null))
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val userData: StateFlow<User?> = authRepository.userId
+        .flatMapLatest { uid ->
+            if (uid != null) authRepository.getUserData(uid)
+            else flowOf(null)
+        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),

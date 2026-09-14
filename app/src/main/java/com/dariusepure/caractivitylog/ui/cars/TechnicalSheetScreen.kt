@@ -280,6 +280,8 @@ fun TechnicalSheetScreen(
                             specifications = listOf(
                                 stringResource(R.string.car_abs_label) to if (car.hasAbs) yes else no,
                                 stringResource(R.string.car_esp_label) to if (car.hasEsp) yes else no,
+                                stringResource(R.string.car_asr_label) to if (car.hasAsr) yes else no,
+                                stringResource(R.string.car_isofix_label) to if (car.hasIsofix) yes else no,
                                 stringResource(R.string.car_airbags_label) to if (car.airbags > 0) car.airbags.toString() else no
                             )
                         )
