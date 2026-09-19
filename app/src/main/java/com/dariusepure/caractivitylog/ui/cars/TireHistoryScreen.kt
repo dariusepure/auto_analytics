@@ -388,7 +388,7 @@ fun TireSetLogItem(
                 )
                 if (tireSet.dotWeek != null && tireSet.dotYear != null) {
                     Text(
-                        text = "DOT ${String.format("%02d%02d", tireSet.dotWeek, tireSet.dotYear % 100)}",
+                        text = "DOT ${String.format(java.util.Locale.getDefault(), "%02d%02d", tireSet.dotWeek, tireSet.dotYear % 100)}",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

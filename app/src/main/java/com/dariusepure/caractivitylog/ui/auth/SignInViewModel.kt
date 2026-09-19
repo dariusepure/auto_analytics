@@ -25,6 +25,7 @@ class SignInViewModel @Inject constructor(
 
     val signedIn = authRepository.signedIn
 
+    @Suppress("AppBundleLocaleChanges")
     private fun getLocalizedString(resId: Int): String {
         val locales = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales()
         val contextToUse = if (!locales.isEmpty) {

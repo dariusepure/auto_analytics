@@ -1,6 +1,7 @@
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.gradle.api.plugins.ExtensionAware
+import com.google.firebase.appdistribution.gradle.firebaseAppDistribution
 
 // Machine-local, uncommitted config (secrets, signing) is read from
 // local.properties. The Web client ID (Credential Manager sign-in) becomes a
@@ -30,9 +31,9 @@ android {
     defaultConfig {
         applicationId = "com.dariusepure.caractivitylog"
         minSdk = 26
-        targetSdk = 36
-        versionCode = 34
-        versionName = "1.0.6"
+        targetSdk = 37
+        versionCode = 35
+        versionName = "1.1.0"
 
         multiDexEnabled = true
 
@@ -137,7 +138,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.fonts)
     implementation(libs.androidx.compose.material3)
-    implementation("androidx.compose.material3:material3-window-size-class")
+    implementation(libs.androidx.compose.material3.windowsize)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.googleid)
 
@@ -146,7 +147,6 @@ dependencies {
 
     // Other
     implementation(libs.kotlinx.serialization)
-    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1") // sau versiunea pe care o ai deja
 
 
     // Hilt
@@ -166,17 +166,16 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.config)
 
-    // Ktor Dependencies (Forțează importul corect al modulelor)
-    val ktorVersion = "2.3.12"
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
-    implementation("io.ktor:ktor-client-android:$ktorVersion")
-    implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-client-logging:$ktorVersion")
-    implementation("io.ktor:ktor-client-auth:$ktorVersion")
-    implementation("io.ktor:ktor-client-encoding:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    // Ktor Dependencies
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.auth)
+    implementation(libs.ktor.client.encoding)
+    implementation(libs.ktor.serialization.kotlinx.json)
 
     // Image loading
     implementation(libs.coil.compose)

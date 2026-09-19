@@ -8,8 +8,8 @@ import java.util.Locale
 import kotlin.math.roundToInt
 
 object CarFormatters {
-    private val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-    private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    private fun getDateFormat() = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+    private fun getTimeFormat() = SimpleDateFormat("HH:mm", Locale.getDefault())
     private const val MILE_RATIO = 1.609344
     private const val GALLON_UK_TO_LITER = 4.54609
     private const val MPG_UK_CONSTANT = 282.481
@@ -99,9 +99,9 @@ object CarFormatters {
         return details.joinToString(" \u00B7 ")
     }
 
-    fun formatDate(date: Date): String = dateFormat.format(date)
+    fun formatDate(date: Date): String = getDateFormat().format(date)
 
-    fun formatTime(timestamp: Long): String = timeFormat.format(Date(timestamp))
+    fun formatTime(timestamp: Long): String = getTimeFormat().format(Date(timestamp))
 
     fun getInspectionExpiryText(context: android.content.Context, inspection: VehicleInspection?): String {
         if (inspection == null) return context.getString(com.dariusepure.caractivitylog.R.string.formatter_no_inspection)
