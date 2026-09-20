@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -273,35 +274,33 @@ fun TechnicalSheetScreen(
                         SpecificationCard(specifications = dimensionSpecs)
                     }
 
-                    TechnicalCategory(title = stringResource(R.string.car_safety_section)) {
-                        val yes = stringResource(R.string.status_ok)
-                        val no = stringResource(R.string.common_none)
-                        SpecificationCard(
-                            specifications = listOf(
-                                stringResource(R.string.car_abs_label) to if (car.hasAbs) yes else no,
-                                stringResource(R.string.car_esp_label) to if (car.hasEsp) yes else no,
-                                stringResource(R.string.car_asr_label) to if (car.hasAsr) yes else no,
-                                stringResource(R.string.car_isofix_label) to if (car.hasIsofix) yes else no,
-                                stringResource(R.string.car_airbags_label) to if (car.airbags > 0) car.airbags.toString() else no
-                            )
-                        )
-                    }
+                    TechnicalCategory(title = stringResource(R.string.car_equipments_label)) {
+                        val allSpecs = mutableListOf<Pair<String, String>>()
+                        if (car.airbags > 0) {
+                            allSpecs.add(stringResource(R.string.car_airbags_label) to car.airbags.toString())
+                        }
+                        
+                        car.equipments.forEach { id ->
+                            allSpecs.add(CarTranslations.getEquipmentLabel(context, id) to stringResource(R.string.status_ok))
+                        }
 
-                    TechnicalCategory(title = stringResource(R.string.car_equipment_section)) {
-                        val yes = stringResource(R.string.status_ok)
-                        val no = stringResource(R.string.common_none)
-                        SpecificationCard(
-                            specifications = listOf(
-                                stringResource(R.string.car_ac_label) to if (car.hasAc) yes else no,
-                                stringResource(R.string.car_climate_control_label) to if (car.hasClimateControl) yes else no,
-                                stringResource(R.string.car_heated_seats_label) to if (car.hasHeatedSeats) yes else no,
-                                stringResource(R.string.car_cruise_control_label) to if (car.hasCruiseControl) yes else no,
-                                stringResource(R.string.car_navigation_label) to if (car.hasNavigation) yes else no,
-                                stringResource(R.string.car_parking_sensors_label) to if (car.hasParkingSensors) yes else no,
-                                stringResource(R.string.car_back_camera_label) to if (car.hasBackCamera) yes else no,
-                                stringResource(R.string.car_sunroof_label) to if (car.hasSunroof) yes else no
-                            )
-                        )
+                        if (allSpecs.isEmpty()) {
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = MaterialTheme.shapes.medium,
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.common_none),
+                                    modifier = Modifier.padding(16.dp),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        } else {
+                            SpecificationCard(specifications = allSpecs)
+                        }
                     }
 
                 }

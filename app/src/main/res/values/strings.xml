@@ -312,7 +312,53 @@
     <string name="car_front_brakes_label">Front Brakes</string>
     <string name="car_rear_brakes_label">Rear Brakes</string>
     <string name="car_drivetrain_label">Drivetrain</string>
+    <string name="car_equipments_label">Equipment &amp; Features</string>
     <string name="car_confirm_scanned_data">Confirm Scanned Data</string>
+
+    <!-- Equipment Categories -->
+    <string name="equip_cat_safety">Safety &amp; Assistance</string>
+    <string name="equip_cat_comfort">Comfort &amp; Interior</string>
+    <string name="equip_cat_tech">Multimedia &amp; Technology</string>
+    <string name="equip_cat_exterior">Exterior &amp; Lights</string>
+    <string name="equip_cat_parking">Parking</string>
+
+    <!-- Equipment Items -->
+    <string name="equip_abs">ABS</string>
+    <string name="equip_esp">ESP</string>
+    <string name="equip_asr">ASR</string>
+    <string name="equip_isofix">ISOFIX</string>
+    <string name="equip_lane_assist">Lane Assist</string>
+    <string name="equip_blind_spot">Blind Spot Assist</string>
+    <string name="equip_adaptive_cruise">Adaptive Cruise Control (ACC)</string>
+    <string name="equip_emergency_brake">Emergency Braking</string>
+
+    <string name="equip_ac">Air Conditioning</string>
+    <string name="equip_climate_control">Automatic Climate Control</string>
+    <string name="equip_heated_seats">Heated Seats</string>
+    <string name="equip_ventilated_seats">Ventilated Seats</string>
+    <string name="equip_heated_steering">Heated Steering Wheel</string>
+    <string name="equip_leather_interior">Leather Interior</string>
+    <string name="equip_electric_windows">Electric Windows</string>
+    <string name="equip_power_steering">Power Steering</string>
+    <string name="equip_central_locking">Central Locking</string>
+
+    <string name="equip_navigation">Navigation System</string>
+    <string name="equip_bluetooth">Bluetooth / Handsfree</string>
+    <string name="equip_carplay_android_auto">Apple CarPlay / Android Auto</string>
+    <string name="equip_keyless">Keyless Go / Entry</string>
+    <string name="equip_start_stop">Start-Stop System</string>
+
+    <string name="equip_sunroof">Sunroof / Panoramic Roof</string>
+    <string name="equip_xenon_led">Xenon / LED Headlights</string>
+    <string name="equip_fog_lights">Fog Lights</string>
+    <string name="equip_alloy_wheels">Alloy Wheels</string>
+    <string name="equip_rain_sensors">Rain Sensors</string>
+    <string name="equip_light_sensors">Light Sensors</string>
+
+    <string name="equip_parking_sensors">Parking Sensors</string>
+    <string name="equip_rear_camera">Rear View Camera</string>
+    <string name="equip_360_camera">360° Camera</string>
+    <string name="equip_park_assist">Park Assist (Automatic Parking)</string>
     <string name="car_scanned_data_subtitle">We found the following information. Select what you want to apply to the form.</string>
 
     <!-- Car Details -->

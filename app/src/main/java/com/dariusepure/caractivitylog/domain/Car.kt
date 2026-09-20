@@ -55,24 +55,13 @@ data class Car(
     val tireWidth: Int = 0,
     val tireAspectRatio: Int = 0,
     val tireDiameter: Int = 0,
+    val equipments: List<String> = emptyList(),
     val accentColor: Long? = null,
     val createdAt: Date = Date(),
     val updatedAt: Date = Date(),
     val activityCount: Int = 0,
-    val hasAbs: Boolean = false,
-    val hasEsp: Boolean = false,
-    val hasAsr: Boolean = false,
-    val hasIsofix: Boolean = false,
     val airbags: Int = 0,
     val generation: String = "",
-    val hasAc: Boolean = false,
-    val hasClimateControl: Boolean = false,
-    val hasHeatedSeats: Boolean = false,
-    val hasCruiseControl: Boolean = false,
-    val hasNavigation: Boolean = false,
-    val hasParkingSensors: Boolean = false,
-    val hasBackCamera: Boolean = false,
-    val hasSunroof: Boolean = false,
     val engineVariant: String = "",
     val isPendingSync: Boolean = false
 )
@@ -83,4 +72,43 @@ val Car.displayName: String
         val withGen = if (generation.isNotBlank()) "$base ($generation)" else base
         return if (engineVariant.isNotBlank()) "$withGen $engineVariant".trim() else withGen.ifBlank { "Unnamed car" }
     }
+
+object CarEquipment {
+    const val ABS = "safety_abs"
+    const val ESP = "safety_esp"
+    const val ASR = "safety_asr"
+    const val ISOFIX = "safety_isofix"
+    const val LANE_ASSIST = "safety_lane_assist"
+    const val BLIND_SPOT = "safety_blind_spot"
+    const val ADAPTIVE_CRUISE = "safety_adaptive_cruise"
+    const val EMERGENCY_BRAKE = "safety_emergency_brake"
+
+    const val AC = "comfort_ac"
+    const val CLIMATE_CONTROL = "comfort_climate_control"
+    const val HEATED_SEATS = "comfort_heated_seats"
+    const val VENTILATED_SEATS = "comfort_ventilated_seats"
+    const val HEATED_STEERING = "comfort_heated_steering"
+    const val LEATHER_INTERIOR = "comfort_leather_interior"
+    const val ELECTRIC_WINDOWS = "comfort_electric_windows"
+    const val POWER_STEERING = "comfort_power_steering"
+    const val CENTRAL_LOCKING = "comfort_central_locking"
+
+    const val NAVIGATION = "tech_navigation"
+    const val BLUETOOTH = "tech_bluetooth"
+    const val CARPLAY_ANDROID_AUTO = "tech_carplay_android_auto"
+    const val KEYLESS = "tech_keyless"
+    const val START_STOP = "tech_start_stop"
+
+    const val SUNROOF = "ext_sunroof"
+    const val XENON_LED = "ext_xenon_led"
+    const val FOG_LIGHTS = "ext_fog_lights"
+    const val ALLOY_WHEELS = "ext_alloy_wheels"
+    const val RAIN_SENSORS = "ext_rain_sensors"
+    const val LIGHT_SENSORS = "ext_light_sensors"
+
+    const val PARKING_SENSORS = "park_sensors"
+    const val REAR_CAMERA = "park_rear_camera"
+    const val CAMERA_360 = "park_360_camera"
+    const val PARK_ASSIST = "park_assist"
+}
 

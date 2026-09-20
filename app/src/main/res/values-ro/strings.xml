@@ -312,7 +312,53 @@
     <string name="car_front_brakes_label">Frâne față</string>
     <string name="car_rear_brakes_label">Frâne spate</string>
     <string name="car_drivetrain_label">Tracțiune</string>
+    <string name="car_equipments_label">Echipamente și Dotări</string>
     <string name="car_confirm_scanned_data">Confirmă datele scanate</string>
+
+    <!-- Equipment Categories -->
+    <string name="equip_cat_safety">Siguranță și Asistență</string>
+    <string name="equip_cat_comfort">Confort și Interior</string>
+    <string name="equip_cat_tech">Multimedia și Tehnologie</string>
+    <string name="equip_cat_exterior">Exterior și Lumini</string>
+    <string name="equip_cat_parking">Parcare</string>
+
+    <!-- Equipment Items -->
+    <string name="equip_abs">ABS</string>
+    <string name="equip_esp">ESP</string>
+    <string name="equip_asr">ASR</string>
+    <string name="equip_isofix">ISOFIX</string>
+    <string name="equip_lane_assist">Asistență bandă (Lane Assist)</string>
+    <string name="equip_blind_spot">Asistență unghi mort</string>
+    <string name="equip_adaptive_cruise">Pilot automat adaptiv (ACC)</string>
+    <string name="equip_emergency_brake">Frânare de urgență</string>
+
+    <string name="equip_ac">Aer Condiționat</string>
+    <string name="equip_climate_control">Climatizare automată</string>
+    <string name="equip_heated_seats">Scaune încălzite</string>
+    <string name="equip_ventilated_seats">Scaune ventilate</string>
+    <string name="equip_heated_steering">Volan încălzit</string>
+    <string name="equip_leather_interior">Interior piele</string>
+    <string name="equip_electric_windows">Geamuri electrice</string>
+    <string name="equip_power_steering">Servodirecție</string>
+    <string name="equip_central_locking">Închidere centralizată</string>
+
+    <string name="equip_navigation">Sistem navigație</string>
+    <string name="equip_bluetooth">Bluetooth / Handsfree</string>
+    <string name="equip_carplay_android_auto">Apple CarPlay / Android Auto</string>
+    <string name="equip_keyless">Keyless Go / Entry</string>
+    <string name="equip_start_stop">Sistem Start-Stop</string>
+
+    <string name="equip_sunroof">Trapă / Plafon panoramic</string>
+    <string name="equip_xenon_led">Faruri Xenon / LED</string>
+    <string name="equip_fog_lights">Proiectoare ceață</string>
+    <string name="equip_alloy_wheels">Jante aliaj</string>
+    <string name="equip_rain_sensors">Senzori ploaie</string>
+    <string name="equip_light_sensors">Senzori lumini</string>
+
+    <string name="equip_parking_sensors">Senzori parcare</string>
+    <string name="equip_rear_camera">Cameră marșarier</string>
+    <string name="equip_360_camera">Cameră 360°</string>
+    <string name="equip_park_assist">Parcare automată (Park Assist)</string>
     <string name="car_scanned_data_subtitle">Am găsit următoarele informații. Selectează ce dorești să aplici în formular.</string>
 
     <!-- Car Details -->

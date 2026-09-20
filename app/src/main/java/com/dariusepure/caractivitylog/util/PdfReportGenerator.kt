@@ -243,32 +243,21 @@ object PdfReportGenerator {
             )
             drawThreeColumns(dimensionSpecs.filter { it.second.isNotBlank() })
 
-            // 4. Safety
-            drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.car_safety_section))
-            val yes = context.getString(com.dariusepure.caractivitylog.R.string.status_ok)
-            val no = context.getString(com.dariusepure.caractivitylog.R.string.common_none)
-            val safetySpecs = listOf(
-                context.getString(com.dariusepure.caractivitylog.R.string.car_abs_label) to if (car.hasAbs) yes else no,
-                context.getString(com.dariusepure.caractivitylog.R.string.car_esp_label) to if (car.hasEsp) yes else no,
-                context.getString(com.dariusepure.caractivitylog.R.string.car_asr_label) to if (car.hasAsr) yes else no,
-                context.getString(com.dariusepure.caractivitylog.R.string.car_isofix_label) to if (car.hasIsofix) yes else no,
-                context.getString(com.dariusepure.caractivitylog.R.string.car_airbags_label) to if (car.airbags > 0) car.airbags.toString() else no
-            )
-            drawThreeColumns(safetySpecs)
+            // 4. Equipments
+            drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.car_equipments_label))
+            val equipmentList = mutableListOf<Pair<String, String>>()
+            if (car.airbags > 0) {
+                equipmentList.add(context.getString(com.dariusepure.caractivitylog.R.string.car_airbags_label) to car.airbags.toString())
+            }
+            car.equipments.forEach { id ->
+                equipmentList.add(CarTranslations.getEquipmentLabel(context, id) to context.getString(com.dariusepure.caractivitylog.R.string.status_ok))
+            }
 
-            // 5. Equipment
-            drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.car_equipment_section))
-            val equipmentSpecs = listOf(
-                context.getString(com.dariusepure.caractivitylog.R.string.car_ac_label) to if (car.hasAc) yes else no,
-                context.getString(com.dariusepure.caractivitylog.R.string.car_climate_control_label) to if (car.hasClimateControl) yes else no,
-                context.getString(com.dariusepure.caractivitylog.R.string.car_heated_seats_label) to if (car.hasHeatedSeats) yes else no,
-                context.getString(com.dariusepure.caractivitylog.R.string.car_cruise_control_label) to if (car.hasCruiseControl) yes else no,
-                context.getString(com.dariusepure.caractivitylog.R.string.car_navigation_label) to if (car.hasNavigation) yes else no,
-                context.getString(com.dariusepure.caractivitylog.R.string.car_parking_sensors_label) to if (car.hasParkingSensors) yes else no,
-                context.getString(com.dariusepure.caractivitylog.R.string.car_back_camera_label) to if (car.hasBackCamera) yes else no,
-                context.getString(com.dariusepure.caractivitylog.R.string.car_sunroof_label) to if (car.hasSunroof) yes else no
-            )
-            drawThreeColumns(equipmentSpecs)
+            if (equipmentList.isEmpty()) {
+                drawTableRow(listOf("-" to 1f))
+            } else {
+                drawThreeColumns(equipmentList)
+            }
         }
 
         // --- LISTS SECTION ---

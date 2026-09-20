@@ -172,5 +172,44 @@ object CarTranslations {
         "Other (Manual Entry)" -> context.getString(R.string.service_op_other)
         else -> operation
     }
+
+    fun getEquipmentLabel(context: Context, id: String): String {
+        val resId = when (id) {
+            com.dariusepure.caractivitylog.domain.CarEquipment.ABS -> R.string.equip_abs
+            com.dariusepure.caractivitylog.domain.CarEquipment.ESP -> R.string.equip_esp
+            com.dariusepure.caractivitylog.domain.CarEquipment.ASR -> R.string.equip_asr
+            com.dariusepure.caractivitylog.domain.CarEquipment.ISOFIX -> R.string.equip_isofix
+            com.dariusepure.caractivitylog.domain.CarEquipment.LANE_ASSIST -> R.string.equip_lane_assist
+            com.dariusepure.caractivitylog.domain.CarEquipment.BLIND_SPOT -> R.string.equip_blind_spot
+            com.dariusepure.caractivitylog.domain.CarEquipment.ADAPTIVE_CRUISE -> R.string.equip_adaptive_cruise
+            com.dariusepure.caractivitylog.domain.CarEquipment.EMERGENCY_BRAKE -> R.string.equip_emergency_brake
+            com.dariusepure.caractivitylog.domain.CarEquipment.AC -> R.string.equip_ac
+            com.dariusepure.caractivitylog.domain.CarEquipment.CLIMATE_CONTROL -> R.string.equip_climate_control
+            com.dariusepure.caractivitylog.domain.CarEquipment.HEATED_SEATS -> R.string.equip_heated_seats
+            com.dariusepure.caractivitylog.domain.CarEquipment.VENTILATED_SEATS -> R.string.equip_ventilated_seats
+            com.dariusepure.caractivitylog.domain.CarEquipment.HEATED_STEERING -> R.string.equip_heated_steering
+            com.dariusepure.caractivitylog.domain.CarEquipment.LEATHER_INTERIOR -> R.string.equip_leather_interior
+            com.dariusepure.caractivitylog.domain.CarEquipment.ELECTRIC_WINDOWS -> R.string.equip_electric_windows
+            com.dariusepure.caractivitylog.domain.CarEquipment.POWER_STEERING -> R.string.equip_power_steering
+            com.dariusepure.caractivitylog.domain.CarEquipment.CENTRAL_LOCKING -> R.string.equip_central_locking
+            com.dariusepure.caractivitylog.domain.CarEquipment.NAVIGATION -> R.string.equip_navigation
+            com.dariusepure.caractivitylog.domain.CarEquipment.BLUETOOTH -> R.string.equip_bluetooth
+            com.dariusepure.caractivitylog.domain.CarEquipment.CARPLAY_ANDROID_AUTO -> R.string.equip_carplay_android_auto
+            com.dariusepure.caractivitylog.domain.CarEquipment.KEYLESS -> R.string.equip_keyless
+            com.dariusepure.caractivitylog.domain.CarEquipment.START_STOP -> R.string.equip_start_stop
+            com.dariusepure.caractivitylog.domain.CarEquipment.SUNROOF -> R.string.equip_sunroof
+            com.dariusepure.caractivitylog.domain.CarEquipment.XENON_LED -> R.string.equip_xenon_led
+            com.dariusepure.caractivitylog.domain.CarEquipment.FOG_LIGHTS -> R.string.equip_fog_lights
+            com.dariusepure.caractivitylog.domain.CarEquipment.ALLOY_WHEELS -> R.string.equip_alloy_wheels
+            com.dariusepure.caractivitylog.domain.CarEquipment.RAIN_SENSORS -> R.string.equip_rain_sensors
+            com.dariusepure.caractivitylog.domain.CarEquipment.LIGHT_SENSORS -> R.string.equip_light_sensors
+            com.dariusepure.caractivitylog.domain.CarEquipment.PARKING_SENSORS -> R.string.equip_parking_sensors
+            com.dariusepure.caractivitylog.domain.CarEquipment.REAR_CAMERA -> R.string.equip_rear_camera
+            com.dariusepure.caractivitylog.domain.CarEquipment.CAMERA_360 -> R.string.equip_360_camera
+            com.dariusepure.caractivitylog.domain.CarEquipment.PARK_ASSIST -> R.string.equip_park_assist
+            else -> null
+        }
+        return resId?.let { context.getString(it) } ?: id
+    }
 }
 

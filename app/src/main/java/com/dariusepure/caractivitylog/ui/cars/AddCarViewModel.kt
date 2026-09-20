@@ -158,19 +158,8 @@ class AddCarViewModel @Inject constructor(
         fuelConsumptionUrban: String = "",
         fuelConsumptionExtraUrban: String = "",
         co2Emissions: String = "",
-        hasAbs: Boolean = false,
-        hasEsp: Boolean = false,
-        hasAsr: Boolean = false,
-        hasIsofix: Boolean = false,
         airbags: String = "",
-        hasAc: Boolean = false,
-        hasClimateControl: Boolean = false,
-        hasHeatedSeats: Boolean = false,
-        hasCruiseControl: Boolean = false,
-        hasNavigation: Boolean = false,
-        hasParkingSensors: Boolean = false,
-        hasBackCamera: Boolean = false,
-        hasSunroof: Boolean = false
+        equipments: List<String> = emptyList()
     ) {
         if (make.isBlank() || model.isBlank()) {
             _state.value = AddCarState.Error(context.getString(R.string.validation_brand_model_required))
@@ -295,19 +284,8 @@ class AddCarViewModel @Inject constructor(
                     fuelConsumptionExtraUrban = CarFormatters.toCanonicalConsumption(fuelConsumptionExtraUrban.toDoubleOrNull() ?: 0.0, usesMiles),
                     co2Emissions = co2Emissions.toDoubleOrNull()?.roundToInt() ?: 0,
                     updatedAt = Date(),
-                    hasAbs = hasAbs,
-                    hasEsp = hasEsp,
-                    hasAsr = hasAsr,
-                    hasIsofix = hasIsofix,
                     airbags = airbags.toDoubleOrNull()?.roundToInt() ?: 0,
-                    hasAc = hasAc,
-                    hasClimateControl = hasClimateControl,
-                    hasHeatedSeats = hasHeatedSeats,
-                    hasCruiseControl = hasCruiseControl,
-                    hasNavigation = hasNavigation,
-                    hasParkingSensors = hasParkingSensors,
-                    hasBackCamera = hasBackCamera,
-                    hasSunroof = hasSunroof,
+                    equipments = equipments,
                     engineVariant = engineVariant.trim()
                 )
 

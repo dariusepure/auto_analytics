@@ -94,8 +94,15 @@ class GeminiRepository @Inject constructor(
             val prompt = """
                 Extract technical details from this vehicle document (registration certificate, invoice, insurance, or technical sheet).
                 Analyze the document and look for these fields:
-                - make, model, vin (MUST be 17 chars), year (4 digits), fuelType, engineSize (cc), power (hp or kW), torque (Nm), color, gears, registrationPlate, hasAbs (boolean), hasEsp (boolean), airbags (number).
+                - make, model, vin (MUST be 17 chars), year (4 digits), fuelType, engineSize (cc), power (hp or kW), torque (Nm), color, gears, registrationPlate, airbags (number), equipments (list of strings).
                 
+                EQUIPMENT MAPPING (Use these exact keys in the 'equipments' list if found):
+                - safety_abs, safety_esp, safety_asr, safety_isofix, safety_lane_assist, safety_blind_spot, safety_adaptive_cruise, safety_emergency_brake
+                - comfort_ac, comfort_climate_control, comfort_heated_seats, comfort_ventilated_seats, comfort_heated_steering, comfort_leather_interior, comfort_electric_windows, comfort_power_steering, comfort_central_locking
+                - tech_navigation, tech_bluetooth, tech_carplay_android_auto, tech_keyless, tech_start_stop
+                - ext_sunroof, ext_xenon_led, ext_fog_lights, ext_alloy_wheels, ext_rain_sensors, ext_light_sensors
+                - park_sensors, park_rear_camera, park_360_camera, park_assist
+
                 ENGINE VARIANT / COMMERCIAL NAME:
                 - Deduce the commercial engine name/variant (e.g., 320d, 1.9 TDI, 118i, M Sport, BlueHDi, EcoBoost) based on make, model, year, engineSize, and fuelType. Return it in the 'engineVariant' field.
                 
@@ -169,8 +176,15 @@ class GeminiRepository @Inject constructor(
                 Extract technical details from this vehicle document (registration certificate, invoice, insurance, or technical sheet).
                 The document might have multiple pages or be a complex PDF. Scan all visible text carefully.
                 Analyze the document and look for these fields:
-                - make, model, vin (MUST be 17 chars), year (4 digits), fuelType, engineSize (cc), power (hp or kW), torque (Nm), color, gears, registrationPlate, hasAbs (boolean), hasEsp (boolean), airbags (number).
+                - make, model, vin (MUST be 17 chars), year (4 digits), fuelType, engineSize (cc), power (hp or kW), torque (Nm), color, gears, registrationPlate, airbags (number), equipments (list of strings).
                 
+                EQUIPMENT MAPPING (Use these exact keys in the 'equipments' list if found):
+                - safety_abs, safety_esp, safety_asr, safety_isofix, safety_lane_assist, safety_blind_spot, safety_adaptive_cruise, safety_emergency_brake
+                - comfort_ac, comfort_climate_control, comfort_heated_seats, comfort_ventilated_seats, comfort_heated_steering, comfort_leather_interior, comfort_electric_windows, comfort_power_steering, comfort_central_locking
+                - tech_navigation, tech_bluetooth, tech_carplay_android_auto, tech_keyless, tech_start_stop
+                - ext_sunroof, ext_xenon_led, ext_fog_lights, ext_alloy_wheels, ext_rain_sensors, ext_light_sensors
+                - park_sensors, park_rear_camera, park_360_camera, park_assist
+
                 ENGINE VARIANT / COMMERCIAL NAME:
                 - Deduce the commercial engine name/variant (e.g., 320d, 1.9 TDI, 118i, M Sport, BlueHDi, EcoBoost) based on make, model, year, engineSize, and fuelType. Return it in the 'engineVariant' field.
                 
