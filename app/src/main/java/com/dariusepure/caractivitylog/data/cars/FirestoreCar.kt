@@ -1,84 +1,90 @@
 package com.dariusepure.caractivitylog.data.cars
 
-import com.google.firebase.Timestamp
-import com.google.firebase.firestore.DocumentId
 import com.dariusepure.caractivitylog.domain.Car
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import java.util.Date
 
+@Serializable
 data class FirestoreCar(
-    @DocumentId val id: String = "",
-    val name: String = "",
-    val licensePlate: String = "",
-    val plateCountry: String = "RO",
-    val make: String = "",
-    val model: String = "",
-    val vin: String = "",
-    val year: Int = 0,
-    val engineSize: String = "",
-    val fuelType: String = "",
-    val fuelSystem: String = "",
-    val color: String = "",
-    val power: Int = 0,
-    val powerUnit: String = "hp",
-    val torque: Int = 0,
-    val engineCode: String = "",
-    val engineLayout: String = "",
-    val cylinderLayout: String = "",
-    val length: Int = 0,
-    val width: Int = 0,
-    val height: Int = 0,
-    val wheelbase: Int = 0,
-    val emissionStandard: String = "",
-    val aspiration: String = "",
-    val fuelTankCapacity: Double = 0.0,
-    val batteryCapacity: Double = 0.0,
-    val drivetrain: String = "",
-    val gearboxType: String = "",
-    val gears: String = "",
-    val frontSuspension: String = "",
-    val rearSuspension: String = "",
-    val frontBrakes: String = "",
-    val rearBrakes: String = "",
-    val vehicleType: String = "",
-    val manufacturingCountry: String = "",
-    val topSpeed: Double = 0.0,
-    val acceleration0to100: Double = 0.0,
-    val fuelConsumptionCombined: Double = 0.0,
-    val fuelConsumptionUrban: Double = 0.0,
-    val fuelConsumptionExtraUrban: Double = 0.0,
-    val co2Emissions: Int = 0,
-    val weight: Int = 0,
-    val numberOfSeats: Int = 0,
-    val numberOfCylinders: Int = 0,
-    val valvesPerCylinder: Int = 0,
-    val numberOfDoors: Int = 0,
-    val bootSpace: Int = 0,
-    val tireWidth: Int = 0,
-    val tireAspectRatio: Int = 0,
-    val tireDiameter: Int = 0,
-    val equipments: List<String> = emptyList(),
-    val accentColor: Long? = null,
-    val createdAt: Timestamp = Timestamp.now(),
-    val updatedAt: Timestamp = Timestamp.now(),
-    val activityCount: Int = 0,
-    val hasAbs: Boolean = false,
-    val hasEsp: Boolean = false,
-    val hasAsr: Boolean = false,
-    val hasIsofix: Boolean = false,
-    val airbags: Int = 0,
-    val generation: String = "",
-    val hasAc: Boolean = false,
-    val hasClimateControl: Boolean = false,
-    val hasHeatedSeats: Boolean = false,
-    val hasCruiseControl: Boolean = false,
-    val hasNavigation: Boolean = false,
-    val hasParkingSensors: Boolean = false,
-    val hasBackCamera: Boolean = false,
-    val hasSunroof: Boolean = false,
-    val engineVariant: String = ""
+    @SerialName("id") val id: String = "",           // 'id' din DB este ID-ul mașinii
+    @SerialName("user_id") val userId: String = "",  // 'user_id' din DB este legătura cu tine
+    @SerialName("name") val name: String = "",
+    @SerialName("license_plate") val licensePlate: String = "",
+    @SerialName("plate_country") val plateCountry: String = "RO",
+    @SerialName("make") val make: String = "",
+    @SerialName("model") val model: String = "",
+    @SerialName("vin") val vin: String = "",
+    @SerialName("year") val year: Int = 0,
+    @SerialName("engine_size") val engineSize: String = "",
+    @SerialName("fuel_type") val fuelType: String = "",
+    @SerialName("fuel_system") val fuelSystem: String = "",
+    @SerialName("color") val color: String = "",
+    @SerialName("power") val power: Int = 0,
+    @SerialName("power_unit") val powerUnit: String = "hp",
+    @SerialName("torque") val torque: Int = 0,
+    @SerialName("engine_code") val engineCode: String = "",
+    @SerialName("engine_layout") val engineLayout: String = "",
+    @SerialName("cylinder_layout") val cylinderLayout: String = "",
+    @SerialName("length") val length: Int = 0,
+    @SerialName("width") val width: Int = 0,
+    @SerialName("height") val height: Int = 0,
+    @SerialName("wheelbase") val wheelbase: Int = 0,
+    @SerialName("emission_standard") val emissionStandard: String = "",
+    @SerialName("aspiration") val aspiration: String = "",
+    @SerialName("fuel_tank_capacity") val fuelTankCapacity: Double = 0.0,
+    @SerialName("battery_capacity") val batteryCapacity: Double = 0.0,
+    @SerialName("drivetrain") val drivetrain: String = "",
+    @SerialName("gearbox_type") val gearboxType: String = "",
+    @SerialName("gears") val gears: String = "",
+    @SerialName("front_suspension") val frontSuspension: String = "",
+    @SerialName("rear_suspension") val rearSuspension: String = "",
+    @SerialName("front_brakes") val frontBrakes: String = "",
+    @SerialName("rear_brakes") val rearBrakes: String = "",
+    @SerialName("vehicle_type") val vehicleType: String = "",
+    @SerialName("manufacturing_country") val manufacturingCountry: String = "",
+    @SerialName("top_speed") val topSpeed: Double = 0.0,
+    @SerialName("acceleration_0_to_100") val acceleration0to100: Double = 0.0,
+    @SerialName("fuel_consumption_combined") val fuelConsumptionCombined: Double = 0.0,
+    @SerialName("fuel_consumption_urban") val fuelConsumptionUrban: Double = 0.0,
+    @SerialName("fuel_consumption_extra_urban") val fuelConsumptionExtraUrban: Double = 0.0,
+    @SerialName("co2_emissions") val co2Emissions: Int = 0,
+    @SerialName("weight") val weight: Int = 0,
+    @SerialName("number_of_seats") val numberOfSeats: Int = 0,
+    @SerialName("number_of_cylinders") val numberOfCylinders: Int = 0,
+    @SerialName("valves_per_cylinder") val valvesPerCylinder: Int = 0,
+    @SerialName("number_of_doors") val numberOfDoors: Int = 0,
+    @SerialName("boot_space") val bootSpace: Int = 0,
+    @SerialName("tire_width") val tireWidth: Int = 0,
+    @SerialName("tire_aspect_ratio") val tireAspectRatio: Int = 0,
+    @SerialName("tire_diameter") val tireDiameter: Int = 0,
+    @SerialName("equipments") val equipments: List<String> = emptyList(),
+    @SerialName("accent_color") val accentColor: Long? = null,
+    @SerialName("created_at") val createdAt: String? = null,
+    @SerialName("updated_at") val updatedAt: String? = null,
+    @SerialName("activity_count") val activityCount: Int = 0,
+    @SerialName("has_abs") val hasAbs: Boolean = false,
+    @SerialName("has_esp") val hasEsp: Boolean = false,
+    @SerialName("has_asr") val hasAsr: Boolean = false,
+    @SerialName("has_isofix") val hasIsofix: Boolean = false,
+    @SerialName("airbags") val airbags: Int = 0,
+    @SerialName("generation") val generation: String = "",
+    @SerialName("has_ac") val hasAc: Boolean = false,
+    @SerialName("has_climate_control") val hasClimateControl: Boolean = false,
+    @SerialName("has_heated_seats") val hasHeatedSeats: Boolean = false,
+    @SerialName("has_cruise_control") val hasCruiseControl: Boolean = false,
+    @SerialName("has_navigation") val hasNavigation: Boolean = false,
+    @SerialName("has_parking_sensors") val hasParkingSensors: Boolean = false,
+    @SerialName("has_back_camera") val hasBackCamera: Boolean = false,
+    @SerialName("has_sunroof") val hasSunroof: Boolean = false,
+    @SerialName("engine_variant") val engineVariant: String = ""
 )
+
+private val isoFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.ROOT)
 
 fun Car.toFirebase() = FirestoreCar(
     id = this.id,
+    userId = "", // Will be set in repository
     name = this.name,
     licensePlate = this.licensePlate,
     plateCountry = this.plateCountry,
@@ -130,8 +136,8 @@ fun Car.toFirebase() = FirestoreCar(
     tireDiameter = this.tireDiameter,
     equipments = this.equipments,
     accentColor = this.accentColor,
-    createdAt = Timestamp(this.createdAt),
-    updatedAt = Timestamp(this.updatedAt),
+    createdAt = null, // Handled by Supabase
+    updatedAt = null,
     activityCount = this.activityCount,
     hasAbs = this.equipments.contains(com.dariusepure.caractivitylog.domain.CarEquipment.ABS),
     hasEsp = this.equipments.contains(com.dariusepure.caractivitylog.domain.CarEquipment.ESP),
@@ -160,12 +166,15 @@ fun FirestoreCar.fromFirebase(isPendingSync: Boolean = false): Car {
         if (this.hasAc) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.AC)
         if (this.hasClimateControl) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.CLIMATE_CONTROL)
         if (this.hasHeatedSeats) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.HEATED_SEATS)
-        if (this.hasCruiseControl) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.ADAPTIVE_CRUISE) // Best effort
+        if (this.hasCruiseControl) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.ADAPTIVE_CRUISE)
         if (this.hasNavigation) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.NAVIGATION)
         if (this.hasParkingSensors) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.PARKING_SENSORS)
         if (this.hasBackCamera) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.REAR_CAMERA)
         if (this.hasSunroof) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.SUNROOF)
     }
+
+    val createdDate = try { this.createdAt?.let { isoFormat.parse(it) } } catch (e: Exception) { null } ?: Date()
+    val updatedDate = try { this.updatedAt?.let { isoFormat.parse(it) } } catch (e: Exception) { null } ?: Date()
 
     return Car(
         id = this.id,
@@ -220,8 +229,8 @@ fun FirestoreCar.fromFirebase(isPendingSync: Boolean = false): Car {
         tireDiameter = this.tireDiameter,
         equipments = migratedEquipments,
         accentColor = this.accentColor,
-        createdAt = this.createdAt.toDate(),
-        updatedAt = this.updatedAt.toDate(),
+        createdAt = createdDate,
+        updatedAt = updatedDate,
         activityCount = this.activityCount,
         airbags = this.airbags,
         generation = this.generation,
@@ -229,4 +238,3 @@ fun FirestoreCar.fromFirebase(isPendingSync: Boolean = false): Car {
         isPendingSync = isPendingSync
     )
 }
-

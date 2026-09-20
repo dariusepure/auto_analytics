@@ -177,6 +177,10 @@ dependencies {
     implementation(libs.ktor.client.encoding)
     implementation(libs.ktor.serialization.kotlinx.json)
 
+    // Supabase
+    implementation(libs.supabase.postgrest)
+    implementation(libs.supabase.auth)
+
     // Image loading
     implementation(libs.coil.compose)
 

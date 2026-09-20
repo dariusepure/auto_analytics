@@ -2,20 +2,21 @@ package com.dariusepure.caractivitylog.data.cars
 
 import com.dariusepure.caractivitylog.domain.TireSeason
 import com.dariusepure.caractivitylog.domain.TireSet
-import com.google.firebase.firestore.DocumentId
-import com.google.firebase.firestore.IgnoreExtraProperties
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-@IgnoreExtraProperties
+@Serializable
 data class FirestoreTireSet(
-    @DocumentId val id: String = "",
-    val season: String = "SUMMER",
-    val brand: String = "",
-    val width: Int = 0,
-    val ratio: Int = 0,
-    val diameter: Int = 0,
-    val dotWeek: Int? = null,
-    val dotYear: Int? = null,
-    val isActive: Boolean = false
+    @SerialName("id") val id: String = "",
+    @SerialName("car_id") val carId: String = "",
+    @SerialName("season") val season: String = "SUMMER",
+    @SerialName("brand") val brand: String = "",
+    @SerialName("width") val width: Int = 0,
+    @SerialName("ratio") val ratio: Int = 0,
+    @SerialName("diameter") val diameter: Int = 0,
+    @SerialName("dot_week") val dotWeek: Int? = null,
+    @SerialName("dot_year") val dotYear: Int? = null,
+    @SerialName("is_active") val isActive: Boolean = false
 )
 
 fun TireSet.toFirebase() = FirestoreTireSet(
@@ -41,4 +42,3 @@ fun FirestoreTireSet.fromFirebase() = TireSet(
     dotYear = this.dotYear,
     isActive = this.isActive
 )
-

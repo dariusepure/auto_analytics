@@ -1,21 +1,24 @@
 package com.dariusepure.caractivitylog.data.cars
 
 import com.dariusepure.caractivitylog.domain.Maintenance
-import com.google.firebase.firestore.DocumentId
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import java.util.Date
 
+@Serializable
 data class FirestoreMaintenance(
-    @DocumentId val id: String = "",
-    val date: Date = Date(),
-    val km: Double = 0.0,
-    val description: String = "",
-    val mileageLogId: String = "",
-    val category: String = "General"
+    @SerialName("id") val id: String = "",
+    @SerialName("car_id") val carId: String = "",
+    @SerialName("date") val date: Long = System.currentTimeMillis(),
+    @SerialName("km") val km: Double = 0.0,
+    @SerialName("description") val description: String = "",
+    @SerialName("mileage_log_id") val mileageLogId: String = "",
+    @SerialName("category") val category: String = "General"
 )
 
 fun Maintenance.toFirebase() = FirestoreMaintenance(
     id = this.id,
-    date = this.date,
+    date = this.date.time,
     km = this.km,
     description = this.description,
     mileageLogId = this.mileageLogId,
@@ -24,10 +27,9 @@ fun Maintenance.toFirebase() = FirestoreMaintenance(
 
 fun FirestoreMaintenance.fromFirebase() = Maintenance(
     id = this.id,
-    date = this.date,
+    date = Date(this.date),
     km = this.km,
     description = this.description,
     mileageLogId = this.mileageLogId,
     category = this.category
 )
-

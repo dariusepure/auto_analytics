@@ -1,650 +1,607 @@
 package com.dariusepure.caractivitylog.data.cars
 
 import com.dariusepure.caractivitylog.domain.VehicleInspection
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.tasks.await
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.ui.cars.ChatMessage
 import com.dariusepure.caractivitylog.domain.CarReport
 import com.dariusepure.caractivitylog.data.auth.AuthRepository
+import com.dariusepure.caractivitylog.data.auth.AuthEvent
+import android.util.Log
+import com.dariusepure.caractivitylog.data.auth.FirestoreUser
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.postgrest.postgrest
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class CarRepository @Inject constructor(
-    private val firestore: FirebaseFirestore,
+    private val supabaseClient: SupabaseClient,
     private val authRepository: AuthRepository
 ) {
+    private val refreshTrigger = MutableSharedFlow<Unit>(
+        replay = 1,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    ).apply { tryEmit(Unit) }
+
+    private fun refresh() {
+        refreshTrigger.tryEmit(Unit)
+    }
+
     private fun getUid(): String {
         return authRepository.getUserId() ?: throw Exception("Utilizatorul nu este logat!")
     }
 
-    val cars: Flow<List<Car>> = callbackFlow {
-        val uid = authRepository.getUserId() ?: run {
-            trySend(emptyList())
-            close()
-            return@callbackFlow
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val cars: Flow<List<Car>> = kotlinx.coroutines.flow.combine(
+        refreshTrigger, 
+        authRepository.userId,
+        authRepository.authEvents.onStart { emit(AuthEvent.SyncCompleted) }
+    ) { _, uid, _ -> uid }
+        .flatMapLatest { uid ->
+            flow {
+                if (uid == null) {
+                    emit(emptyList())
+                    return@flow
+                }
+                
+                try {
+                    val email = authRepository.currentUserEmail
+                    Log.d("CarRepository", "Fetching cars for UID: $uid and Email: $email")
+                    
+                    // 1. Găsim toate ID-urile posibile pentru acest email în profiles
+                    val userIds = if (email != null) {
+                        try {
+                            supabaseClient.postgrest["profiles"]
+                                .select { filter { eq("email", email) } }
+                                .decodeList<FirestoreUser>()
+                                .map { it.id }
+                                .toSet() + uid
+                        } catch (e: Exception) {
+                            Log.w("CarRepository", "Failed to fetch associated UIDs: ${e.message}")
+                            setOf(uid)
+                        }
+                    } else setOf(uid)
+
+                    Log.d("CarRepository", "Searching cars for all associated UIDs: $userIds")
+
+                    // 2. Căutăm mașinile care aparțin oricăruia dintre aceste ID-uri
+                    val response = supabaseClient.postgrest["cars"]
+                        .select {
+                            filter {
+                                or {
+                                    userIds.forEach { id ->
+                                        eq("user_id", id)
+                                        eq("id", id) 
+                                    }
+                                }
+                            }
+                        }
+                    
+                    Log.d("CarRepository", "Supabase raw response: ${response.data}")
+                    
+                    val results = response.decodeList<FirestoreCar>()
+                        .map { it.fromFirebase() }
+                    
+                    Log.d("CarRepository", "Found ${results.size} cars total.")
+                    emit(results)
+                } catch (e: Exception) {
+                    Log.e("CarRepository", "Error fetching cars: ${e.message}", e)
+                    emit(emptyList())
+                }
+            }
         }
 
-        val listener = firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .orderBy("updatedAt", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshots, exception ->
-                if (exception != null) {
-                    close(exception)
-                    return@addSnapshotListener
-                }
-
-                val results = snapshots?.documents?.mapNotNull { doc ->
-                    doc.toObject(FirestoreCar::class.java)?.fromFirebase(doc.metadata.hasPendingWrites())
-                } ?: emptyList()
-
-                trySend(results)
-            }
-
-        awaitClose { listener.remove() }
-    }
-
-    fun createCar(car: Car) {
+    suspend fun createCar(car: Car) {
         val uid = getUid()
-        val firestoreCar = car.toFirebase()
-
-        val reference = if (car.id.isEmpty()) {
-            firestore.collection("users")
-                .document(uid)
-                .collection("cars")
-                .document()
-        } else {
-            firestore.collection("users")
-                .document(uid)
-                .collection("cars")
-                .document(car.id)
-        }
-
-        reference.set(firestoreCar)
+        val supabaseCar = car.toFirebase().copy(userId = uid) // Note: using userId from DTO
+        supabaseClient.postgrest["cars"].upsert(supabaseCar)
+        refresh()
     }
 
-    fun getCarFlow(carId: String): Flow<Car?> = callbackFlow {
-        val uid = authRepository.getUserId() ?: run {
-            trySend(null)
-            close()
-            return@callbackFlow
-        }
-
-        val listener = firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    close(error)
-                    return@addSnapshotListener
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getCarFlow(carId: String): Flow<Car?> = kotlinx.coroutines.flow.combine(refreshTrigger, authRepository.userId) { _, uid -> uid }
+        .flatMapLatest { uid ->
+            flow {
+                if (uid == null) {
+                    emit(null)
+                    return@flow
                 }
-
-                val car = snapshot?.toObject(FirestoreCar::class.java)?.fromFirebase(snapshot.metadata.hasPendingWrites())
-                trySend(car)
+                val car = getCar(carId)
+                emit(car)
             }
-
-        awaitClose { listener.remove() }
-    }
+        }
 
     suspend fun getCar(carId: String): Car? {
         val uid = authRepository.getUserId() ?: return null
-        return firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .get()
-            .await()
-            .toObject(FirestoreCar::class.java)
-            ?.fromFirebase()
+        return try {
+            supabaseClient.postgrest["cars"]
+                .select {
+                    filter {
+                        eq("id", carId)      // PK al mașinii
+                        eq("user_id", uid)   // FK al utilizatorului
+                    }
+                }
+                .decodeSingleOrNull<FirestoreCar>()
+                ?.fromFirebase()
+        } catch (e: Exception) {
+            Log.e("CarRepository", "Error getting car $carId: ${e.message}")
+            null
+        }
     }
 
     suspend fun isVinDuplicate(vin: String, excludeCarId: String?): Boolean {
         return try {
-            // We use our existing 'cars' flow which provides a locally-cached list of cars.
-            // This is much safer than a direct query.get() which can hang offline.
             val currentCars = cars.first()
             currentCars.any { it.vin.equals(vin.trim(), ignoreCase = true) && it.id != excludeCarId }
         } catch (e: Exception) {
-            false // If something goes wrong, we let the save attempt proceed
+            false
         }
     }
 
-    fun deleteCar(carId: String) {
+    suspend fun deleteCar(carId: String) {
         val uid = getUid()
-        
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .delete()
-    }
-
-    fun getMileageLogs(carId: String): Flow<List<MileageLog>> = callbackFlow {
-        val uid = authRepository.getUserId() ?: run {
-            trySend(emptyList())
-            close()
-            return@callbackFlow
-        }
-
-        val listener = firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("mileage")
-            .orderBy("date", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshots, exception ->
-                if (exception != null) {
-                    close(exception)
-                    return@addSnapshotListener
-                }
-
-                val results = snapshots
-                    ?.toObjects(FirestoreMileageLog::class.java)
-                    ?.map { it.fromFirebase() } ?: emptyList()
-
-                trySend(results)
+        supabaseClient.postgrest["cars"].delete {
+            filter {
+                eq("id", carId)
+                eq("user_id", uid)
             }
-
-        awaitClose { listener.remove() }
+        }
+        refresh()
     }
 
-    fun addMileageLog(carId: String, log: MileageLog) {
-        val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("mileage")
-            .add(log.toFirebase())
-    }
-
-    fun updateMileageLog(carId: String, log: MileageLog) {
-        val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("mileage")
-            .document(log.id)
-            .set(log.toFirebase())
-    }
-
-    fun deleteMileageLog(carId: String, logId: String) {
-        val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("mileage")
-            .document(logId)
-            .delete()
-    }
-
-
-    fun getInspections(carId: String): Flow<List<VehicleInspection>> = callbackFlow {
-        val uid = authRepository.getUserId() ?: run {
-            trySend(emptyList())
-            close()
-            return@callbackFlow
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getMileageLogs(carId: String): Flow<List<MileageLog>> = kotlinx.coroutines.flow.combine(
+        refreshTrigger, 
+        authRepository.userId,
+        authRepository.authEvents.onStart { emit(AuthEvent.SyncCompleted) }
+    ) { _, uid, _ -> uid }
+        .flatMapLatest { uid ->
+            flow {
+                if (uid == null) {
+                    emit(emptyList())
+                    return@flow
+                }
+                try {
+                    val results = supabaseClient.postgrest["mileage"]
+                        .select {
+                            filter {
+                                eq("car_id", carId)
+                            }
+                        }
+                        .decodeList<FirestoreMileageLog>()
+                        .map { it.fromFirebase() }
+                        .sortedByDescending { it.date }
+                    emit(results)
+                } catch (e: Exception) {
+                    emit(emptyList())
+                }
+            }
         }
 
-        val listener = firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("inspections")
-            .orderBy("date", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshots, exception ->
-                if (exception != null) {
-                    close(exception)
-                    return@addSnapshotListener
-                }
+    suspend fun addMileageLog(carId: String, log: MileageLog) {
+        val dto = log.toFirebase().copy(carId = carId)
+        supabaseClient.postgrest["mileage"].insert(dto)
+        refresh()
+    }
 
-                val results = snapshots
-                    ?.toObjects(FirestoreVehicleInspection::class.java)
-                    ?.map { it.fromFirebase() } ?: emptyList()
+    suspend fun updateMileageLog(carId: String, log: MileageLog) {
+        val dto = log.toFirebase().copy(carId = carId)
+        supabaseClient.postgrest["mileage"].upsert(dto)
+        refresh()
+    }
 
-                trySend(results)
+    suspend fun deleteMileageLog(carId: String, logId: String) {
+        supabaseClient.postgrest["mileage"].delete {
+            filter {
+                eq("id", logId)
+                eq("car_id", carId)
             }
-
-        awaitClose { listener.remove() }
+        }
+        refresh()
     }
 
-    fun addInspection(carId: String, inspection: VehicleInspection) {
-        val uid = getUid()
-        
-        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
-        val inspectionRef = carRef.collection("inspections").document()
-
-        val inspectionLog = inspection.copy(id = inspectionRef.id)
-
-        inspectionRef.set(inspectionLog.toFirebase())
-    }
-
-
-    fun updateInspection(carId: String, inspection: VehicleInspection) {
-        val uid = getUid()
-        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
-        
-        carRef.collection("inspections").document(inspection.id)
-            .set(inspection.toFirebase())
-    }
-
-    fun deleteInspection(carId: String, inspection: VehicleInspection) {
-        val uid = getUid()
-        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
-        
-        carRef.collection("inspections").document(inspection.id).delete()
-    }
-
-    fun getInsurances(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.Insurance>> = callbackFlow {
-        val uid = authRepository.getUserId() ?: run {
-            trySend(emptyList())
-            close()
-            return@callbackFlow
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getInspections(carId: String): Flow<List<VehicleInspection>> = kotlinx.coroutines.flow.combine(
+        refreshTrigger, 
+        authRepository.userId,
+        authRepository.authEvents.onStart { emit(AuthEvent.SyncCompleted) }
+    ) { _, uid, _ -> uid }
+        .flatMapLatest { uid ->
+            flow {
+                if (uid == null) {
+                    emit(emptyList())
+                    return@flow
+                }
+                try {
+                    val results = supabaseClient.postgrest["inspections"]
+                        .select {
+                            filter {
+                                eq("car_id", carId)
+                            }
+                        }
+                        .decodeList<FirestoreVehicleInspection>()
+                        .map { it.fromFirebase() }
+                        .sortedByDescending { it.date }
+                    emit(results)
+                } catch (e: Exception) {
+                    emit(emptyList())
+                }
+            }
         }
 
-        val listener = firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("insurances")
-            .orderBy("date", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshots, exception ->
-                if (exception != null) {
-                    close(exception)
-                    return@addSnapshotListener
-                }
+    suspend fun addInspection(carId: String, inspection: VehicleInspection) {
+        val dto = inspection.toFirebase().copy(carId = carId)
+        supabaseClient.postgrest["inspections"].insert(dto)
+        refresh()
+    }
 
-                val results = snapshots
-                    ?.toObjects(FirestoreInsurance::class.java)
-                    ?.map { it.fromFirebase() } ?: emptyList()
+    suspend fun updateInspection(carId: String, inspection: VehicleInspection) {
+        val dto = inspection.toFirebase().copy(carId = carId)
+        supabaseClient.postgrest["inspections"].upsert(dto)
+        refresh()
+    }
 
-                trySend(results)
+    suspend fun deleteInspection(carId: String, inspection: VehicleInspection) {
+        supabaseClient.postgrest["inspections"].delete {
+            filter {
+                eq("id", inspection.id)
+                eq("car_id", carId)
             }
-
-        awaitClose { listener.remove() }
+        }
+        refresh()
     }
 
-    fun addInsurance(carId: String, insurance: com.dariusepure.caractivitylog.domain.Insurance) {
-        val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("insurances")
-            .add(insurance.toFirebase())
-    }
-
-    fun updateInsurance(carId: String, insurance: com.dariusepure.caractivitylog.domain.Insurance) {
-        val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("insurances")
-            .document(insurance.id)
-            .set(insurance.toFirebase())
-    }
-
-    fun deleteInsurance(carId: String, insuranceId: String) {
-        val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("insurances")
-            .document(insuranceId)
-            .delete()
-    }
-
-    fun getVignettes(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.Vignette>> = callbackFlow {
-        val uid = authRepository.getUserId() ?: run {
-            trySend(emptyList())
-            close()
-            return@callbackFlow
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getInsurances(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.Insurance>> = kotlinx.coroutines.flow.combine(
+        refreshTrigger, 
+        authRepository.userId,
+        authRepository.authEvents.onStart { emit(AuthEvent.SyncCompleted) }
+    ) { _, uid, _ -> uid }
+        .flatMapLatest { uid ->
+            flow {
+                if (uid == null) {
+                    emit(emptyList())
+                    return@flow
+                }
+                try {
+                    val results = supabaseClient.postgrest["insurances"]
+                        .select {
+                            filter {
+                                eq("car_id", carId)
+                            }
+                        }
+                        .decodeList<FirestoreInsurance>()
+                        .map { it.fromFirebase() }
+                        .sortedByDescending { it.date }
+                    emit(results)
+                } catch (e: Exception) {
+                    emit(emptyList())
+                }
+            }
         }
 
-        val listener = firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("vignettes")
-            .orderBy("date", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshots, exception ->
-                if (exception != null) {
-                    close(exception)
-                    return@addSnapshotListener
-                }
+    suspend fun addInsurance(carId: String, insurance: com.dariusepure.caractivitylog.domain.Insurance) {
+        val dto = insurance.toFirebase().copy(carId = carId)
+        supabaseClient.postgrest["insurances"].insert(dto)
+        refresh()
+    }
 
-                val results = snapshots
-                    ?.toObjects(FirestoreVignette::class.java)
-                    ?.map { it.fromFirebase() } ?: emptyList()
+    suspend fun updateInsurance(carId: String, insurance: com.dariusepure.caractivitylog.domain.Insurance) {
+        val dto = insurance.toFirebase().copy(carId = carId)
+        supabaseClient.postgrest["insurances"].upsert(dto)
+        refresh()
+    }
 
-                trySend(results)
+    suspend fun deleteInsurance(carId: String, insuranceId: String) {
+        supabaseClient.postgrest["insurances"].delete {
+            filter {
+                eq("id", insuranceId)
+                eq("car_id", carId)
             }
-
-        awaitClose { listener.remove() }
+        }
+        refresh()
     }
 
-    fun addVignette(carId: String, vignette: com.dariusepure.caractivitylog.domain.Vignette) {
-        val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("vignettes")
-            .add(vignette.toFirebase())
-    }
-
-    fun updateVignette(carId: String, vignette: com.dariusepure.caractivitylog.domain.Vignette) {
-        val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("vignettes")
-            .document(vignette.id)
-            .set(vignette.toFirebase())
-    }
-
-    fun deleteVignette(carId: String, vignetteId: String) {
-        val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("vignettes")
-            .document(vignetteId)
-            .delete()
-    }
-
-    fun getTireSets(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.TireSet>> = callbackFlow {
-        val uid = authRepository.getUserId() ?: run {
-            trySend(emptyList())
-            close()
-            return@callbackFlow
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getVignettes(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.Vignette>> = kotlinx.coroutines.flow.combine(
+        refreshTrigger, 
+        authRepository.userId,
+        authRepository.authEvents.onStart { emit(AuthEvent.SyncCompleted) }
+    ) { _, uid, _ -> uid }
+        .flatMapLatest { uid ->
+            flow {
+                if (uid == null) {
+                    emit(emptyList())
+                    return@flow
+                }
+                try {
+                    val results = supabaseClient.postgrest["vignettes"]
+                        .select {
+                            filter {
+                                eq("car_id", carId)
+                            }
+                        }
+                        .decodeList<FirestoreVignette>()
+                        .map { it.fromFirebase() }
+                        .sortedByDescending { it.date }
+                    emit(results)
+                } catch (e: Exception) {
+                    emit(emptyList())
+                }
+            }
         }
 
-        val listener = firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("tire_sets")
-            .addSnapshotListener { snapshots, exception ->
-                if (exception != null) {
-                    close(exception)
-                    return@addSnapshotListener
-                }
-
-                val results = snapshots
-                    ?.toObjects(FirestoreTireSet::class.java)
-                    ?.map { it.fromFirebase() }
-                    ?.sortedByDescending { it.isActive } ?: emptyList()
-
-                trySend(results)
-            }
-
-        awaitClose { listener.remove() }
+    suspend fun addVignette(carId: String, vignette: com.dariusepure.caractivitylog.domain.Vignette) {
+        val dto = vignette.toFirebase().copy(carId = carId)
+        supabaseClient.postgrest["vignettes"].insert(dto)
+        refresh()
     }
+
+    suspend fun updateVignette(carId: String, vignette: com.dariusepure.caractivitylog.domain.Vignette) {
+        val dto = vignette.toFirebase().copy(carId = carId)
+        supabaseClient.postgrest["vignettes"].upsert(dto)
+        refresh()
+    }
+
+    suspend fun deleteVignette(carId: String, vignetteId: String) {
+        supabaseClient.postgrest["vignettes"].delete {
+            filter {
+                eq("id", vignetteId)
+                eq("car_id", carId)
+            }
+        }
+        refresh()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getTireSets(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.TireSet>> = kotlinx.coroutines.flow.combine(
+        refreshTrigger, 
+        authRepository.userId,
+        authRepository.authEvents.onStart { emit(AuthEvent.SyncCompleted) }
+    ) { _, uid, _ -> uid }
+        .flatMapLatest { uid ->
+            flow {
+                if (uid == null) {
+                    emit(emptyList())
+                    return@flow
+                }
+                try {
+                    val results = supabaseClient.postgrest["tire_sets"]
+                        .select {
+                            filter {
+                                eq("car_id", carId)
+                            }
+                        }
+                        .decodeList<FirestoreTireSet>()
+                        .map { it.fromFirebase() }
+                        .sortedByDescending { it.isActive }
+                    emit(results)
+                } catch (e: Exception) {
+                    emit(emptyList())
+                }
+            }
+        }
 
     suspend fun addTireSet(carId: String, tireSet: com.dariusepure.caractivitylog.domain.TireSet) {
-        val uid = getUid()
-        
-        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
-        val tireSetRef = carRef.collection("tire_sets").document()
-        
-        if (tireSet.isActive) {
-            val otherSets = carRef.collection("tire_sets").whereEqualTo("isActive", true).get().await()
-            firestore.runBatch { batch ->
-                otherSets.documents.forEach { batch.update(it.reference, "isActive", false) }
-                batch.set(tireSetRef, tireSet.copy(id = tireSetRef.id).toFirebase())
-            }
-        } else {
-            tireSetRef.set(tireSet.copy(id = tireSetRef.id).toFirebase())
-        }
+        val dto = tireSet.toFirebase().copy(carId = carId)
+        supabaseClient.postgrest["tire_sets"].insert(dto)
+        refresh()
     }
 
     suspend fun updateTireSet(carId: String, tireSet: com.dariusepure.caractivitylog.domain.TireSet) {
-        val uid = getUid()
-        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
-        val tireSetRef = carRef.collection("tire_sets").document(tireSet.id)
-        
-        if (tireSet.isActive) {
-            val otherSets = carRef.collection("tire_sets").whereEqualTo("isActive", true).get().await()
-            firestore.runBatch { batch ->
-                otherSets.documents.forEach { 
-                    if (it.id != tireSet.id) batch.update(it.reference, "isActive", false) 
+        val dto = tireSet.toFirebase().copy(carId = carId)
+        supabaseClient.postgrest["tire_sets"].upsert(dto)
+        refresh()
+    }
+
+    suspend fun deleteTireSet(carId: String, tireSetId: String) {
+        supabaseClient.postgrest["tire_sets"].delete {
+            filter {
+                eq("id", tireSetId)
+                eq("car_id", carId)
+            }
+        }
+        refresh()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getDiagnosisMessages(carId: String): Flow<List<ChatMessage>> = kotlinx.coroutines.flow.combine(
+        refreshTrigger, 
+        authRepository.userId,
+        authRepository.authEvents.onStart { emit(AuthEvent.SyncCompleted) }
+    ) { _, uid, _ -> uid }
+        .flatMapLatest { uid ->
+            flow {
+                if (uid == null) {
+                    emit(emptyList())
+                    return@flow
                 }
-                batch.set(tireSetRef, tireSet.toFirebase())
-            }
-        } else {
-            tireSetRef.set(tireSet.toFirebase())
-        }
-    }
-
-    fun deleteTireSet(carId: String, tireSetId: String) {
-        val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("tire_sets")
-            .document(tireSetId)
-            .delete()
-    }
-
-    fun getDiagnosisMessages(carId: String): Flow<List<ChatMessage>> = callbackFlow {
-        val uid = authRepository.getUserId() ?: run {
-            trySend(emptyList())
-            close()
-            return@callbackFlow
-        }
-
-        val listener = firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("diagnosis")
-            .orderBy("timestamp", Query.Direction.ASCENDING)
-            .addSnapshotListener { snapshots, exception ->
-                if (exception != null) {
-                    close(exception)
-                    return@addSnapshotListener
+                try {
+                    val results = supabaseClient.postgrest["diagnosis"]
+                        .select {
+                            filter {
+                                eq("car_id", carId)
+                            }
+                        }
+                        .decodeList<FirestoreChatMessage>()
+                        .map { it.toChatMessage() }
+                        .sortedBy { it.timestamp }
+                    emit(results)
+                } catch (e: Exception) {
+                    emit(emptyList())
                 }
-
-                val results = snapshots
-                    ?.toObjects(FirestoreChatMessage::class.java)
-                    ?.map { it.toChatMessage() } ?: emptyList()
-
-                trySend(results)
-            }
-
-        awaitClose { listener.remove() }
-    }
-
-    fun addDiagnosisMessage(carId: String, message: ChatMessage) {
-        val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("diagnosis")
-            .add(FirestoreChatMessage.fromChatMessage(message))
-    }
-
-    fun clearDiagnosisMessages(carId: String) {
-        val uid = getUid()
-        val collection = firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("diagnosis")
-        
-        collection.get().addOnSuccessListener { snapshots ->
-            firestore.runBatch { batch ->
-                snapshots.documents.forEach { batch.delete(it.reference) }
             }
         }
+
+    suspend fun addDiagnosisMessage(carId: String, message: ChatMessage) {
+        val dto = FirestoreChatMessage.fromChatMessage(message).copy(carId = carId)
+        supabaseClient.postgrest["diagnosis"].insert(dto)
+        refresh()
     }
 
-    fun getFuelLogs(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.FuelLog>> = callbackFlow {
-        val uid = authRepository.getUserId() ?: run {
-            trySend(emptyList())
-            close()
-            return@callbackFlow
+    suspend fun clearDiagnosisMessages(carId: String) {
+        supabaseClient.postgrest["diagnosis"].delete {
+            filter {
+                eq("car_id", carId)
+            }
         }
+        refresh()
+    }
 
-        val listener = firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("fuel_logs")
-            .orderBy("date", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshots, exception ->
-                if (exception != null) {
-                    close(exception)
-                    return@addSnapshotListener
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getFuelLogs(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.FuelLog>> = kotlinx.coroutines.flow.combine(
+        refreshTrigger, 
+        authRepository.userId,
+        authRepository.authEvents.onStart { emit(AuthEvent.SyncCompleted) }
+    ) { _, uid, _ -> uid }
+        .flatMapLatest { uid ->
+            flow {
+                if (uid == null) {
+                    emit(emptyList())
+                    return@flow
                 }
-
-                val results = snapshots
-                    ?.toObjects(FirestoreFuelLog::class.java)
-                    ?.map { it.fromFirebase() } ?: emptyList()
-
-                trySend(results)
+                try {
+                    val results = supabaseClient.postgrest["fuel_logs"]
+                        .select {
+                            filter {
+                                eq("car_id", carId)
+                            }
+                        }
+                        .decodeList<FirestoreFuelLog>()
+                        .map { it.fromFirebase() }
+                        .sortedByDescending { it.date }
+                    emit(results)
+                } catch (e: Exception) {
+                    emit(emptyList())
+                }
             }
-
-        awaitClose { listener.remove() }
-    }
-
-    fun addFuelLog(carId: String, log: com.dariusepure.caractivitylog.domain.FuelLog) {
-        val uid = getUid()
-        
-        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
-        val fuelLogRef = carRef.collection("fuel_logs").document()
-
-        val fuelLog = log.copy(id = fuelLogRef.id)
-        fuelLogRef.set(fuelLog.toFirebase())
-    }
-
-    fun updateFuelLog(carId: String, log: com.dariusepure.caractivitylog.domain.FuelLog) {
-        val uid = getUid()
-        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
-        carRef.collection("fuel_logs").document(log.id).set(log.toFirebase())
-    }
-
-    fun deleteFuelLog(carId: String, log: com.dariusepure.caractivitylog.domain.FuelLog) {
-        val uid = getUid()
-        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
-        carRef.collection("fuel_logs").document(log.id).delete()
-    }
-
-    fun getMaintenanceLogs(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.Maintenance>> = callbackFlow {
-        val uid = authRepository.getUserId() ?: run {
-            trySend(emptyList())
-            close()
-            return@callbackFlow
         }
 
-        val listener = firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("maintenance")
-            .orderBy("date", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshots, exception ->
-                if (exception != null) {
-                    close(exception)
-                    return@addSnapshotListener
-                }
+    suspend fun addFuelLog(carId: String, log: com.dariusepure.caractivitylog.domain.FuelLog) {
+        val dto = log.toFirebase().copy(carId = carId)
+        supabaseClient.postgrest["fuel_logs"].insert(dto)
+        refresh()
+    }
 
-                val results = snapshots
-                    ?.toObjects(FirestoreMaintenance::class.java)
-                    ?.map { it.fromFirebase() } ?: emptyList()
+    suspend fun updateFuelLog(carId: String, log: com.dariusepure.caractivitylog.domain.FuelLog) {
+        val dto = log.toFirebase().copy(carId = carId)
+        supabaseClient.postgrest["fuel_logs"].upsert(dto)
+        refresh()
+    }
 
-                trySend(results)
+    suspend fun deleteFuelLog(carId: String, log: com.dariusepure.caractivitylog.domain.FuelLog) {
+        supabaseClient.postgrest["fuel_logs"].delete {
+            filter {
+                eq("id", log.id)
+                eq("car_id", carId)
             }
-
-        awaitClose { listener.remove() }
+        }
+        refresh()
     }
 
-    fun addMaintenanceLog(carId: String, log: com.dariusepure.caractivitylog.domain.Maintenance) {
-        val uid = getUid()
-        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
-        val maintenanceRef = carRef.collection("maintenance").document()
-
-        val maintenanceLog = log.copy(id = maintenanceRef.id)
-        maintenanceRef.set(maintenanceLog.toFirebase())
-    }
-
-    fun updateMaintenanceLog(carId: String, log: com.dariusepure.caractivitylog.domain.Maintenance) {
-        val uid = getUid()
-        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
-        carRef.collection("maintenance").document(log.id).set(log.toFirebase())
-    }
-
-    fun deleteMaintenanceLog(carId: String, log: com.dariusepure.caractivitylog.domain.Maintenance) {
-        val uid = getUid()
-        val carRef = firestore.collection("users").document(uid).collection("cars").document(carId)
-        carRef.collection("maintenance").document(log.id).delete()
-    }
-
-    fun getCarReports(carId: String): Flow<List<CarReport>> = callbackFlow {
-        val uid = authRepository.getUserId() ?: run {
-            trySend(emptyList())
-            close()
-            return@callbackFlow
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getMaintenanceLogs(carId: String): Flow<List<com.dariusepure.caractivitylog.domain.Maintenance>> = kotlinx.coroutines.flow.combine(
+        refreshTrigger, 
+        authRepository.userId,
+        authRepository.authEvents.onStart { emit(AuthEvent.SyncCompleted) }
+    ) { _, uid, _ -> uid }
+        .flatMapLatest { uid ->
+            flow {
+                if (uid == null) {
+                    emit(emptyList())
+                    return@flow
+                }
+                try {
+                    val results = supabaseClient.postgrest["maintenance"]
+                        .select {
+                            filter {
+                                eq("car_id", carId)
+                            }
+                        }
+                        .decodeList<FirestoreMaintenance>()
+                        .map { it.fromFirebase() }
+                        .sortedByDescending { it.date }
+                    emit(results)
+                } catch (e: Exception) {
+                    emit(emptyList())
+                }
+            }
         }
 
-        val listener = firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("reports")
-            .orderBy("date", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshots, exception ->
-                if (exception != null) {
-                    close(exception)
-                    return@addSnapshotListener
-                }
+    suspend fun addMaintenanceLog(carId: String, log: com.dariusepure.caractivitylog.domain.Maintenance) {
+        val dto = log.toFirebase().copy(carId = carId)
+        supabaseClient.postgrest["maintenance"].insert(dto)
+        refresh()
+    }
 
-                val results = snapshots?.toObjects(FirestoreCarReport::class.java)
-                    ?.map { it.toDomain(carId) } ?: emptyList()
+    suspend fun updateMaintenanceLog(carId: String, log: com.dariusepure.caractivitylog.domain.Maintenance) {
+        val dto = log.toFirebase().copy(carId = carId)
+        supabaseClient.postgrest["maintenance"].upsert(dto)
+        refresh()
+    }
 
-                trySend(results)
+    suspend fun deleteMaintenanceLog(carId: String, log: com.dariusepure.caractivitylog.domain.Maintenance) {
+        supabaseClient.postgrest["maintenance"].delete {
+            filter {
+                eq("id", log.id)
+                eq("car_id", carId)
             }
-
-        awaitClose { listener.remove() }
+        }
+        refresh()
     }
 
-    fun addCarReport(carId: String, report: CarReport) {
-        val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("reports")
-            .add(report.toFirebase())
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getCarReports(carId: String): Flow<List<CarReport>> = kotlinx.coroutines.flow.combine(
+        refreshTrigger, 
+        authRepository.userId,
+        authRepository.authEvents.onStart { emit(AuthEvent.SyncCompleted) }
+    ) { _, uid, _ -> uid }
+        .flatMapLatest { uid ->
+            flow {
+                if (uid == null) {
+                    emit(emptyList())
+                    return@flow
+                }
+                try {
+                    val results = supabaseClient.postgrest["reports"]
+                        .select {
+                            filter {
+                                eq("car_id", carId)
+                            }
+                        }
+                        .decodeList<FirestoreCarReport>()
+                        .map { it.toDomain(carId) }
+                        .sortedByDescending { it.date }
+                    emit(results)
+                } catch (e: Exception) {
+                    emit(emptyList())
+                }
+            }
+        }
+
+    suspend fun addCarReport(carId: String, report: CarReport) {
+        val dto = report.toFirebase().copy(carId = carId)
+        supabaseClient.postgrest["reports"].insert(dto)
+        refresh()
     }
 
-    fun deleteCarReport(carId: String, reportId: String) {
-        val uid = getUid()
-        firestore.collection("users")
-            .document(uid)
-            .collection("cars")
-            .document(carId)
-            .collection("reports")
-            .document(reportId)
-            .delete()
+    suspend fun deleteCarReport(carId: String, reportId: String) {
+        supabaseClient.postgrest["reports"].delete {
+            filter {
+                eq("id", reportId)
+                eq("car_id", carId)
+            }
+        }
+        refresh()
     }
 }
-

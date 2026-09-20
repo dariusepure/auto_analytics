@@ -30,6 +30,7 @@ splashscreen = "1.0.1"
 room = "2.8.4"
 google-services = "4.4.2"
 ktor = "2.3.12"
+supabase = "2.6.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -91,6 +92,9 @@ ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version
 ktor-client-auth = { group = "io.ktor", name = "ktor-client-auth", version.ref = "ktor" }
 ktor-client-encoding = { group = "io.ktor", name = "ktor-client-encoding", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
+supabase-postgrest = { group = "io.github.jan-tennert.supabase", name = "postgrest-kt", version.ref = "supabase" }
+supabase-auth = { group = "io.github.jan-tennert.supabase", name = "gotrue-kt", version.ref = "supabase" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

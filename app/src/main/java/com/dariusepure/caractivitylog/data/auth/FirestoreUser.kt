@@ -1,7 +1,9 @@
 package com.dariusepure.caractivitylog.data.auth
 
 import com.dariusepure.caractivitylog.domain.User
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class FirestoreUser(
     val id: String = "",
     val email: String = "",

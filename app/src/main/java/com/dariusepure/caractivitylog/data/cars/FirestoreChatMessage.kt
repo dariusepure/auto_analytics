@@ -1,31 +1,28 @@
 package com.dariusepure.caractivitylog.data.cars
 
 import com.dariusepure.caractivitylog.ui.cars.ChatMessage
-import com.google.firebase.Timestamp
-import com.google.firebase.firestore.PropertyName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import java.util.Date
 
+@Serializable
 data class FirestoreChatMessage(
-    @get:PropertyName("isUser") @set:PropertyName("isUser")
-    var isUser: Boolean = false,
-    
-    @get:PropertyName("text") @set:PropertyName("text")
-    var text: String = "",
-    
-    @get:PropertyName("timestamp") @set:PropertyName("timestamp")
-    var timestamp: Timestamp = Timestamp.now()
+    @SerialName("car_id") val carId: String = "",
+    @SerialName("is_user") val isUser: Boolean = false,
+    @SerialName("text") val text: String = "",
+    @SerialName("timestamp") val timestamp: Long = System.currentTimeMillis()
 ) {
     fun toChatMessage() = ChatMessage(
         text = text,
         isUser = isUser,
-        timestamp = timestamp.toDate().time
+        timestamp = timestamp
     )
 
     companion object {
         fun fromChatMessage(message: ChatMessage) = FirestoreChatMessage(
             text = message.text,
             isUser = message.isUser,
-            timestamp = Timestamp(java.util.Date(message.timestamp))
+            timestamp = message.timestamp
         )
     }
 }
-

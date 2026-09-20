@@ -20,10 +20,24 @@ import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.serialization.kotlinx.json.json
 import javax.inject.Singleton
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.gotrue.Auth
+import io.github.jan.supabase.postgrest.Postgrest
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+    @Provides
+    @Singleton
+    fun provideSupabaseClient(): SupabaseClient = createSupabaseClient(
+        supabaseUrl = "https://shwejipcfuqgkpjyiewf.supabase.co",
+        supabaseKey = "sb_publishable_qGzXR1Pbl64ue_Z_QLVogw_-T_-wgfv"
+    ) {
+        install(Auth)
+        install(Postgrest)
+    }
+
     @Provides
     @Singleton
     fun provideHttpClient(): HttpClient = HttpClient(OkHttp) {

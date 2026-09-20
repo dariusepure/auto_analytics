@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import android.util.Patterns
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 
 @HiltViewModel
 class SignInViewModel @Inject constructor(
@@ -58,12 +57,7 @@ class SignInViewModel @Inject constructor(
                 authRepository.signIn(email, password)
                 _state.value = SignInState.Idle
             } catch (exception: Exception) {
-                val errorMessage = when (exception) {
-                    is FirebaseAuthInvalidCredentialsException -> {
-                        getLocalizedString(R.string.error_invalid_credentials)
-                    }
-                    else -> exception.localizedMessage ?: getLocalizedString(R.string.error_signin_failed)
-                }
+                val errorMessage = exception.localizedMessage ?: getLocalizedString(R.string.error_signin_failed)
                 _state.value = SignInState.Error(errorMessage)
             }
         }

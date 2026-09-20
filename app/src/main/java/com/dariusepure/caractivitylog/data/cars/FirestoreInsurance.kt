@@ -2,20 +2,23 @@ package com.dariusepure.caractivitylog.data.cars
 
 import com.dariusepure.caractivitylog.domain.InspectionDurationUnit
 import com.dariusepure.caractivitylog.domain.Insurance
-import com.google.firebase.Timestamp
-import com.google.firebase.firestore.DocumentId
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import java.util.Date
 
+@Serializable
 data class FirestoreInsurance(
-    @DocumentId val id: String = "",
-    val date: Timestamp = Timestamp.now(),
-    val durationValue: Int = 1,
-    val durationUnit: String = "MONTHS",
-    val provider: String = ""
+    @SerialName("id") val id: String = "",
+    @SerialName("car_id") val carId: String = "",
+    @SerialName("date") val date: Long = System.currentTimeMillis(),
+    @SerialName("duration_value") val durationValue: Int = 1,
+    @SerialName("duration_unit") val durationUnit: String = "MONTHS",
+    @SerialName("provider") val provider: String = ""
 )
 
 fun Insurance.toFirebase() = FirestoreInsurance(
     id = this.id,
-    date = Timestamp(this.date),
+    date = this.date.time,
     durationValue = this.durationValue,
     durationUnit = this.durationUnit.name,
     provider = this.provider
@@ -23,9 +26,8 @@ fun Insurance.toFirebase() = FirestoreInsurance(
 
 fun FirestoreInsurance.fromFirebase() = Insurance(
     id = this.id,
-    date = this.date.toDate(),
+    date = Date(this.date),
     durationValue = this.durationValue,
     durationUnit = try { InspectionDurationUnit.valueOf(this.durationUnit) } catch (e: Exception) { InspectionDurationUnit.MONTHS },
     provider = this.provider
 )
-

@@ -14,23 +14,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "1050502217992-25petclu4rbg8rsofkdova5ikkoh5e1c.apps.googleusercontent.com",
+          "client_id": "1050502217992-1ic4r6i8mj54op2elhj7rav2ianovikn.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.dariusepure.caractivitylog",
-            "certificate_hash": "c10c6df2fb85fc2373f01da647f4f40ccb3f685c"
+            "certificate_hash": "526a033a392afc3fcc831b3687fca0ff5654ae0a"
           }
         },
         {
-          "client_id": "1050502217992-5s8j54mnb0muuthl8au6t6o25sq3627d.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.dariusepure.caractivitylog",
-            "certificate_hash": "b80a041d2b9f0d06bb94d1981f4af8d2adde620c"
-          }
-        },
-        {
-          "client_id": "1050502217992-md5nur6k4tv7qkdaa3f8osvfjddgqsnv.apps.googleusercontent.com",
+          "client_id": "1050502217992-76fjbahov2cddl8oe9lm5k19ekn5p69d.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.dariusepure.caractivitylog",
@@ -38,7 +30,7 @@
           }
         },
         {
-          "client_id": "1050502217992-rt5mfdape2mtgkgna7pg9gajrik6sklt.apps.googleusercontent.com",
+          "client_id": "1050502217992-82supcjp688apdhkm18hatlk296toa5k.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.dariusepure.caractivitylog",
@@ -46,11 +38,19 @@
           }
         },
         {
-          "client_id": "1050502217992-s4jme50d3ptisjnaulk8o4om0mv6k4sn.apps.googleusercontent.com",
+          "client_id": "1050502217992-b70j3uvefeuqfcqoqv2pkq54rbv2ltnk.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.dariusepure.caractivitylog",
             "certificate_hash": "59c84b84a74d813f54307f6e78ca04ff4ae2cf4f"
+          }
+        },
+        {
+          "client_id": "1050502217992-lp2ostdcvdhavoebhhempcfuo6vs24gv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dariusepure.caractivitylog",
+            "certificate_hash": "b80a041d2b9f0d06bb94d1981f4af8d2adde620c"
           }
         },
         {
