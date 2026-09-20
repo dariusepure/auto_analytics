@@ -73,7 +73,8 @@ data class Car(
     val hasParkingSensors: Boolean = false,
     val hasBackCamera: Boolean = false,
     val hasSunroof: Boolean = false,
-    val engineVariant: String = ""
+    val engineVariant: String = "",
+    val isPendingSync: Boolean = false
 )
 
 val Car.displayName: String

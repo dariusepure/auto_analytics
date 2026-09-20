@@ -148,7 +148,7 @@ fun Car.toFirebase() = FirestoreCar(
     engineVariant = this.engineVariant
 )
 
-fun FirestoreCar.fromFirebase() = Car(
+fun FirestoreCar.fromFirebase(isPendingSync: Boolean = false) = Car(
     id = this.id,
     name = this.name,
     licensePlate = this.licensePlate,
@@ -217,6 +217,7 @@ fun FirestoreCar.fromFirebase() = Car(
     hasParkingSensors = this.hasParkingSensors,
     hasBackCamera = this.hasBackCamera,
     hasSunroof = this.hasSunroof,
-    engineVariant = this.engineVariant
+    engineVariant = this.engineVariant,
+    isPendingSync = isPendingSync
 )
 

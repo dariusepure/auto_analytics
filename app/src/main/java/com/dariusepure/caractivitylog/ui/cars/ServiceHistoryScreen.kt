@@ -1,6 +1,8 @@
 package com.dariusepure.caractivitylog.ui.cars
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,6 +14,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material3.*
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,8 +23,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dariusepure.caractivitylog.ui.common.DropdownPositionProvider
+import androidx.compose.foundation.shape.RoundedCornerShape
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.domain.Maintenance
 import com.dariusepure.caractivitylog.domain.displayName
@@ -203,6 +214,10 @@ fun AddServiceDialog(
     
     var expanded by remember { mutableStateOf(false) }
     val usesMiles = unit == "mi"
+    
+    var serviceMenuWidth by remember { mutableStateOf(0.dp) }
+    val density = LocalDensity.current
+
     var km by remember { 
         mutableStateOf(
             existingRecord?.let { 
@@ -250,24 +265,37 @@ fun AddServiceDialog(
                         label = { Text(stringResource(R.string.service_description_label)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                         colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                        modifier = Modifier.menuAnchor().fillMaxWidth()
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                            .onGloballyPositioned { serviceMenuWidth = with(density) { it.size.width.toDp() } }
                     )
                     
-                    ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        serviceOperations.forEach { operation ->
-                            DropdownMenuItem(
-                                text = { Text(CarTranslations.getServiceOperationLabel(context, operation)) },
-                                onClick = {
-                                    selectedOperation = operation
-                                    expanded = false
-                                    if (operation != "Other (Manual Entry)") {
-                                        customDescription = ""
+                    if (expanded) {
+                        Popup(
+                            onDismissRequest = { expanded = false },
+                            popupPositionProvider = DropdownPositionProvider(),
+                            properties = PopupProperties(focusable = false, clippingEnabled = false)
+                        ) {
+                            Surface(
+                                modifier = Modifier.width(serviceMenuWidth).heightIn(max = 300.dp),
+                                shape = RoundedCornerShape(4.dp),
+                                tonalElevation = 3.dp,
+                                shadowElevation = 3.dp
+                            ) {
+                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                    serviceOperations.forEach { operation ->
+                                        DropdownMenuItem(
+                                            text = { Text(CarTranslations.getServiceOperationLabel(context, operation)) },
+                                            onClick = {
+                                                selectedOperation = operation
+                                                expanded = false
+                                                if (operation != "Other (Manual Entry)") {
+                                                    customDescription = ""
+                                                }
+                                            }
+                                        )
                                     }
                                 }
-                            )
+                            }
                         }
                     }
                 }

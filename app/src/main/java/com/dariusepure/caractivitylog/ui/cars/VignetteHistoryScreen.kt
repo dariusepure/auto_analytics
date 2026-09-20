@@ -1,6 +1,8 @@
 package com.dariusepure.caractivitylog.ui.cars
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,6 +15,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.ConfirmationNumber
 import androidx.compose.material3.*
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,8 +23,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dariusepure.caractivitylog.ui.common.DropdownPositionProvider
+import androidx.compose.foundation.shape.RoundedCornerShape
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.domain.Vignette
 import com.dariusepure.caractivitylog.domain.InspectionDurationUnit
@@ -162,6 +173,7 @@ fun VignetteHistoryScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddVignetteDialog(
     existingVignette: Vignette? = null,
@@ -174,6 +186,10 @@ fun AddVignetteDialog(
     var country by remember { mutableStateOf(existingVignette?.country ?: "") }
     var unitExpanded by remember { mutableStateOf(false) }
     var countryExpanded by remember { mutableStateOf(false) }
+    
+    var countryMenuWidth by remember { mutableStateOf(0.dp) }
+    var unitMenuWidth by remember { mutableStateOf(0.dp) }
+    val density = LocalDensity.current
 
     val selectedCountry = remember(country) { europeanCountries.find { it.name == country } }
 
@@ -200,46 +216,56 @@ fun AddVignetteDialog(
         title = { Text(stringResource(R.string.vignette_add_title)) },
         text = {
             androidx.compose.foundation.layout.Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Box(modifier = Modifier.fillMaxWidth()) {
+                ExposedDropdownMenuBox(
+                    expanded = countryExpanded,
+                    onExpandedChange = { countryExpanded = it },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     OutlinedTextField(
                         value = country,
                         onValueChange = { country = it },
                         label = { Text(stringResource(R.string.vignette_country_label)) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                            .onGloballyPositioned { countryMenuWidth = with(density) { it.size.width.toDp() } },
+                        readOnly = true,
                         leadingIcon = selectedCountry?.let {
                             { Text(it.flag, modifier = Modifier.padding(start = 8.dp), style = MaterialTheme.typography.headlineSmall) }
                         },
                         trailingIcon = {
-                            Icon(
-                                Icons.Default.ArrowDropDown,
-                                "dropdown",
-                                Modifier.clickable { countryExpanded = true })
-                        }
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = countryExpanded)
+                        },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                     )
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .clickable { countryExpanded = true }
-                    )
-                    DropdownMenu(
-                        expanded = countryExpanded,
-                        onDismissRequest = { countryExpanded = false },
-                        modifier = Modifier.fillMaxWidth(0.9f).heightIn(max = 300.dp)
-                    ) {
-                        europeanCountries.forEach { c ->
-                            DropdownMenuItem(
-                                text = {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(c.flag)
-                                        Spacer(Modifier.width(8.dp))
-                                        Text(CarTranslations.getCountryName(context, c.code, c.name))
+                    if (countryExpanded) {
+                        Popup(
+                            onDismissRequest = { countryExpanded = false },
+                            popupPositionProvider = DropdownPositionProvider(),
+                            properties = PopupProperties(focusable = false, clippingEnabled = false)
+                        ) {
+                            Surface(
+                                modifier = Modifier.width(countryMenuWidth).heightIn(max = 300.dp),
+                                shape = RoundedCornerShape(4.dp),
+                                tonalElevation = 3.dp,
+                                shadowElevation = 3.dp
+                            ) {
+                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                    europeanCountries.forEach { c ->
+                                        DropdownMenuItem(
+                                            text = {
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    Text(c.flag)
+                                                    Spacer(Modifier.width(8.dp))
+                                                    Text(CarTranslations.getCountryName(context, c.code, c.name))
+                                                }
+                                            },
+                                            onClick = {
+                                                country = c.name
+                                                countryExpanded = false
+                                            }
+                                        )
                                     }
-                                },
-                                onClick = {
-                                    country = c.name
-                                    countryExpanded = false
                                 }
-                            )
+                            }
                         }
                     }
                 }
@@ -275,38 +301,47 @@ fun AddVignetteDialog(
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
                     )
                     Spacer(Modifier.width(8.dp))
-                    Box(modifier = Modifier.weight(1f)) {
+                    ExposedDropdownMenuBox(
+                        expanded = unitExpanded,
+                        onExpandedChange = { unitExpanded = it },
+                        modifier = Modifier.weight(1f)
+                    ) {
                         OutlinedTextField(
                             value = stringResource(durationUnit.labelRes),
                             onValueChange = { },
                             readOnly = true,
                             label = { Text(stringResource(R.string.common_unit)) },
                             trailingIcon = {
-                                IconButton(onClick = { unitExpanded = true }) {
-                                    Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = null)
-                                }
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitExpanded)
                             },
-                            modifier = Modifier.clickable { unitExpanded = true },
-                            enabled = false,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                                disabledBorderColor = MaterialTheme.colorScheme.outline,
-                                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                                .onGloballyPositioned { unitMenuWidth = with(density) { it.size.width.toDp() } },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                         )
-                        DropdownMenu(
-                            expanded = unitExpanded,
-                            onDismissRequest = { unitExpanded = false }
-                        ) {
-                            InspectionDurationUnit.entries.forEach { unit ->
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(unit.labelRes)) },
-                                    onClick = {
-                                        durationUnit = unit
-                                        unitExpanded = false
+                        if (unitExpanded) {
+                            Popup(
+                                onDismissRequest = { unitExpanded = false },
+                                popupPositionProvider = DropdownPositionProvider(),
+                                properties = PopupProperties(focusable = false, clippingEnabled = false)
+                            ) {
+                                Surface(
+                                    modifier = Modifier.width(unitMenuWidth),
+                                    shape = RoundedCornerShape(4.dp),
+                                    tonalElevation = 3.dp,
+                                    shadowElevation = 3.dp
+                                ) {
+                                    Column {
+                                        InspectionDurationUnit.entries.forEach { unit ->
+                                            DropdownMenuItem(
+                                                text = { Text(stringResource(unit.labelRes)) },
+                                                onClick = {
+                                                    durationUnit = unit
+                                                    unitExpanded = false
+                                                }
+                                            )
+                                        }
                                     }
-                                )
+                                }
                             }
                         }
                     }

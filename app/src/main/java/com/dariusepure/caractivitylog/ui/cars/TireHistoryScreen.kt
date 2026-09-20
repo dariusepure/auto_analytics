@@ -1,6 +1,8 @@
 package com.dariusepure.caractivitylog.ui.cars
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,15 +15,25 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.TireRepair
 import androidx.compose.material.icons.outlined.TireRepair
 import androidx.compose.material3.*
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
+import com.dariusepure.caractivitylog.ui.common.DropdownPositionProvider
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.platform.LocalDensity
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.domain.TireSet
 import com.dariusepure.caractivitylog.domain.TireSeason
@@ -142,6 +154,7 @@ fun TireHistoryScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTireSetDialog(
     existingTireSet: TireSet? = null,
@@ -158,73 +171,108 @@ fun AddTireSetDialog(
     var dotYear by remember { mutableStateOf(existingTireSet?.dotYear?.toString() ?: "") }
     var isActive by remember { mutableStateOf(existingTireSet?.isActive ?: false) }
     var seasonExpanded by remember { mutableStateOf(false) }
+    
+    var seasonMenuWidth by remember { mutableStateOf(0.dp) }
+    var brandMenuWidth by remember { mutableStateOf(0.dp) }
+    val density = LocalDensity.current
+    
+    val context = LocalContext.current
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (existingTireSet == null) stringResource(R.string.tire_add_title) else stringResource(R.string.tire_edit_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Box(modifier = Modifier.fillMaxWidth()) {
+                ExposedDropdownMenuBox(
+                    expanded = seasonExpanded,
+                    onExpandedChange = { seasonExpanded = it },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     OutlinedTextField(
                         value = stringResource(season.labelRes),
                         onValueChange = { },
                         readOnly = true,
                         label = { Text(stringResource(R.string.tire_season_label)) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                            .onGloballyPositioned { seasonMenuWidth = with(density) { it.size.width.toDp() } },
                         trailingIcon = {
-                            IconButton(onClick = { seasonExpanded = true }) {
-                                Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = null)
-                            }
-                        }
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = seasonExpanded)
+                        },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                     )
-                    Box(modifier = Modifier.matchParentSize().clickable { seasonExpanded = true })
-                    DropdownMenu(
-                        expanded = seasonExpanded,
-                        onDismissRequest = { seasonExpanded = false }
-                    ) {
-                        TireSeason.entries.forEach { s ->
-                            DropdownMenuItem(
-                                text = { Text(stringResource(s.labelRes)) },
-                                onClick = {
-                                    season = s
-                                    seasonExpanded = false
+                    if (seasonExpanded) {
+                        Popup(
+                            onDismissRequest = { seasonExpanded = false },
+                            popupPositionProvider = DropdownPositionProvider(),
+                            properties = PopupProperties(focusable = false, clippingEnabled = false)
+                        ) {
+                            Surface(
+                                modifier = Modifier.width(seasonMenuWidth),
+                                shape = RoundedCornerShape(4.dp),
+                                tonalElevation = 3.dp,
+                                shadowElevation = 3.dp
+                            ) {
+                                Column {
+                                    TireSeason.entries.forEach { s ->
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(s.labelRes)) },
+                                            onClick = {
+                                                season = s
+                                                seasonExpanded = false
+                                            }
+                                        )
+                                    }
                                 }
-                            )
+                            }
                         }
                     }
                 }
 
-                Box(modifier = Modifier.fillMaxWidth()) {
+                ExposedDropdownMenuBox(
+                    expanded = brandExpanded,
+                    onExpandedChange = { brandExpanded = it },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     OutlinedTextField(
                         value = brand,
                         onValueChange = { input ->
                             brand = input.lowercase().replaceFirstChar { it.uppercase() }
                         },
                         label = { Text(stringResource(R.string.tire_brand_label)) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable, true).fillMaxWidth()
+                            .onGloballyPositioned { brandMenuWidth = with(density) { it.size.width.toDp() } },
                         trailingIcon = {
-                            IconButton(onClick = { brandExpanded = true }) {
-                                Icon(Icons.Default.ArrowDropDown, "dropdown")
-                            }
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = brandExpanded)
                         },
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                             capitalization = KeyboardCapitalization.Characters
-                        )
+                        ),
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                     )
-                    Box(modifier = Modifier.matchParentSize().clickable { brandExpanded = true })
-                    DropdownMenu(
-                        expanded = brandExpanded,
-                        onDismissRequest = { brandExpanded = false },
-                        modifier = Modifier.fillMaxWidth(0.9f).sizeIn(maxHeight = 300.dp)
-                    ) {
-                        tireBrands.forEach { b ->
-                            DropdownMenuItem(
-                                text = { Text(b) },
-                                onClick = {
-                                    brand = if (b == "OTHER") "" else b
-                                    brandExpanded = false
+                    if (brandExpanded) {
+                        Popup(
+                            onDismissRequest = { brandExpanded = false },
+                            popupPositionProvider = DropdownPositionProvider(),
+                            properties = PopupProperties(focusable = false, clippingEnabled = false)
+                        ) {
+                            Surface(
+                                modifier = Modifier.width(brandMenuWidth).heightIn(max = 300.dp),
+                                shape = RoundedCornerShape(4.dp),
+                                tonalElevation = 3.dp,
+                                shadowElevation = 3.dp
+                            ) {
+                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                    tireBrands.forEach { b ->
+                                        DropdownMenuItem(
+                                            text = { Text(b) },
+                                            onClick = {
+                                                brand = if (b == "OTHER") "" else b
+                                                brandExpanded = false
+                                            }
+                                        )
+                                    }
                                 }
-                            )
+                            }
                         }
                     }
                 }

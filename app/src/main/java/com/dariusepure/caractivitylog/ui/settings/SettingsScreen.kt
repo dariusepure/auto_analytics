@@ -5,14 +5,23 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material3.*
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
+import com.dariusepure.caractivitylog.ui.common.DropdownPositionProvider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +49,9 @@ fun SettingsScreen(
 ) {
     val isDarkMode by viewModel.isDarkMode.collectAsStateWithLifecycle()
     val unitSystem by viewModel.unitSystem.collectAsStateWithLifecycle()
+    val notifyItp by viewModel.notifyItp.collectAsStateWithLifecycle()
+    val notifyInsurance by viewModel.notifyInsurance.collectAsStateWithLifecycle()
+    val notifyVignette by viewModel.notifyVignette.collectAsStateWithLifecycle()
     val userEmail by viewModel.userEmail.collectAsStateWithLifecycle()
     val isAnonymous by viewModel.isAnonymous.collectAsStateWithLifecycle()
     val systemDark = androidx.compose.foundation.isSystemInDarkTheme()
@@ -47,12 +59,17 @@ fun SettingsScreen(
 
     var languageMenuExpanded by remember { mutableStateOf(false) }
     var unitMenuExpanded by remember { mutableStateOf(false) }
+    
+    var languageMenuWidth by remember { mutableStateOf(0.dp) }
+    var unitMenuWidth by remember { mutableStateOf(0.dp) }
+    val density = LocalDensity.current
 
     // Dialog states
     var showChangePasswordDialog by remember { mutableStateOf(false) }
     var showDeleteAccountDialog by remember { mutableStateOf(false) }
     
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = androidx.compose.ui.platform.LocalContext.current
     
     LaunchedEffect(Unit) {
         viewModel.settingsEvent.collectLatest { event ->
@@ -64,6 +81,14 @@ fun SettingsScreen(
                 is SettingsEvent.AccountDeleted -> {
                     showDeleteAccountDialog = false
                     onLogout()
+                }
+                is SettingsEvent.DataExported -> {
+                    val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                        type = "text/csv"
+                        putExtra(android.content.Intent.EXTRA_SUBJECT, "Auto Analytics Export")
+                        putExtra(android.content.Intent.EXTRA_TEXT, event.csvContent)
+                    }
+                    context.startActivity(android.content.Intent.createChooser(intent, "Exportă datele"))
                 }
                 is SettingsEvent.Error -> {
                     snackbarHostState.showSnackbar(event.message)
@@ -173,14 +198,50 @@ fun SettingsScreen(
                 )
             }
 
+            // Notifications Section
+            SettingsSection(title = "Notificări") {
+                SettingsItem(
+                    label = "Alerte ITP",
+                    icon = Icons.Default.NotificationsActive,
+                    onClick = { viewModel.setNotifyItp(!notifyItp) },
+                    trailing = {
+                        Switch(checked = notifyItp, onCheckedChange = { viewModel.setNotifyItp(it) })
+                    }
+                )
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
+                SettingsItem(
+                    label = "Alerte Asigurare",
+                    icon = Icons.Default.Security,
+                    onClick = { viewModel.setNotifyInsurance(!notifyInsurance) },
+                    trailing = {
+                        Switch(checked = notifyInsurance, onCheckedChange = { viewModel.setNotifyInsurance(it) })
+                    }
+                )
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
+                SettingsItem(
+                    label = "Alerte Rovinietă",
+                    icon = Icons.Default.ConfirmationNumber,
+                    onClick = { viewModel.setNotifyVignette(!notifyVignette) },
+                    trailing = {
+                        Switch(checked = notifyVignette, onCheckedChange = { viewModel.setNotifyVignette(it) })
+                    }
+                )
+            }
+
             // Regional Section
             SettingsSection(title = stringResource(R.string.settings_section_regional)) {
                 // Language
-                Box {
+                ExposedDropdownMenuBox(
+                    expanded = languageMenuExpanded,
+                    onExpandedChange = { languageMenuExpanded = it },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     SettingsItem(
                         label = stringResource(R.string.common_language),
                         icon = Icons.Outlined.Language,
                         onClick = { languageMenuExpanded = true },
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
+                            .onGloballyPositioned { languageMenuWidth = with(density) { it.size.width.toDp() } },
                         trailing = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
@@ -188,28 +249,40 @@ fun SettingsScreen(
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.primary
                                 )
-                                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, modifier = Modifier.size(20.dp))
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = languageMenuExpanded)
                             }
                         }
                     )
-                    DropdownMenu(
-                        expanded = languageMenuExpanded,
-                        onDismissRequest = { languageMenuExpanded = false }
-                    ) {
-                        supportedLanguages.forEach { language ->
-                            DropdownMenuItem(
-                                text = { Text("${language.flag} ${language.name}") },
-                                onClick = {
-                                    val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(language.code)
-                                    AppCompatDelegate.setApplicationLocales(appLocale)
-                                    languageMenuExpanded = false
-                                },
-                                trailingIcon = {
-                                    if (language.code == currentLocale) {
-                                        Icon(Icons.Default.CheckCircle, null, Modifier.size(18.dp))
+                    if (languageMenuExpanded) {
+                        Popup(
+                            onDismissRequest = { languageMenuExpanded = false },
+                            popupPositionProvider = DropdownPositionProvider(),
+                            properties = PopupProperties(focusable = false, clippingEnabled = false)
+                        ) {
+                            Surface(
+                                modifier = Modifier.width(languageMenuWidth),
+                                shape = RoundedCornerShape(4.dp),
+                                tonalElevation = 3.dp,
+                                shadowElevation = 3.dp
+                            ) {
+                                Column {
+                                    supportedLanguages.forEach { language ->
+                                        DropdownMenuItem(
+                                            text = { Text("${language.flag} ${language.name}") },
+                                            onClick = {
+                                                val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(language.code)
+                                                AppCompatDelegate.setApplicationLocales(appLocale)
+                                                languageMenuExpanded = false
+                                            },
+                                            trailingIcon = {
+                                                if (language.code == currentLocale) {
+                                                    Icon(Icons.Default.CheckCircle, null, Modifier.size(18.dp))
+                                                }
+                                            }
+                                        )
                                     }
                                 }
-                            )
+                            }
                         }
                     }
                 }
@@ -221,11 +294,17 @@ fun SettingsScreen(
                 )
 
                 // Unit System
-                Box {
+                ExposedDropdownMenuBox(
+                    expanded = unitMenuExpanded,
+                    onExpandedChange = { unitMenuExpanded = it },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     SettingsItem(
                         label = stringResource(R.string.unit_system_label),
                         icon = Icons.Default.Speed,
                         onClick = { unitMenuExpanded = true },
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
+                            .onGloballyPositioned { unitMenuWidth = with(density) { it.size.width.toDp() } },
                         trailing = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
@@ -235,36 +314,57 @@ fun SettingsScreen(
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.primary
                                 )
-                                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, modifier = Modifier.size(20.dp))
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitMenuExpanded)
                             }
                         }
                     )
-                    DropdownMenu(
-                        expanded = unitMenuExpanded,
-                        onDismissRequest = { unitMenuExpanded = false }
-                    ) {
-                        com.dariusepure.caractivitylog.domain.UnitSystem.entries.forEach { system ->
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        if (system == com.dariusepure.caractivitylog.domain.UnitSystem.METRIC)
-                                            stringResource(R.string.unit_system_metric_label)
-                                        else stringResource(R.string.unit_system_imperial_label)
-                                    )
-                                },
-                                onClick = {
-                                    viewModel.setUnitSystem(system)
-                                    unitMenuExpanded = false
-                                },
-                                trailingIcon = {
-                                    if (system == unitSystem) {
-                                        Icon(Icons.Default.CheckCircle, null, Modifier.size(18.dp))
+                    if (unitMenuExpanded) {
+                        Popup(
+                            onDismissRequest = { unitMenuExpanded = false },
+                            popupPositionProvider = DropdownPositionProvider(),
+                            properties = PopupProperties(focusable = false, clippingEnabled = false)
+                        ) {
+                            Surface(
+                                modifier = Modifier.width(unitMenuWidth),
+                                shape = RoundedCornerShape(4.dp),
+                                tonalElevation = 3.dp,
+                                shadowElevation = 3.dp
+                            ) {
+                                Column {
+                                    com.dariusepure.caractivitylog.domain.UnitSystem.entries.forEach { system ->
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    if (system == com.dariusepure.caractivitylog.domain.UnitSystem.METRIC)
+                                                        stringResource(R.string.unit_system_metric_label)
+                                                    else stringResource(R.string.unit_system_imperial_label)
+                                                )
+                                            },
+                                            onClick = {
+                                                viewModel.setUnitSystem(system)
+                                                unitMenuExpanded = false
+                                            },
+                                            trailingIcon = {
+                                                if (system == unitSystem) {
+                                                    Icon(Icons.Default.CheckCircle, null, Modifier.size(18.dp))
+                                                }
+                                            }
+                                        )
                                     }
                                 }
-                            )
+                            }
                         }
                     }
                 }
+            }
+
+            // Data Section
+            SettingsSection(title = "Date și Backup") {
+                SettingsItem(
+                    label = "Exportă Istoric (CSV)",
+                    icon = Icons.Default.FileDownload,
+                    onClick = { viewModel.exportDataToCsv() }
+                )
             }
 
             // Account Section
@@ -472,12 +572,13 @@ fun SettingsItem(
     label: String,
     icon: ImageVector,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     labelColor: Color = MaterialTheme.colorScheme.onSurface,
     iconColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     trailing: @Composable (() -> Unit)? = null
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() }
             .padding(16.dp),

@@ -45,13 +45,19 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -64,7 +70,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.window.Popup
+import com.dariusepure.caractivitylog.ui.common.DropdownPositionProvider
 import androidx.compose.ui.window.PopupProperties
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.platform.LocalDensity
 import com.dariusepure.caractivitylog.R
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -145,7 +161,6 @@ fun AddCarScreen(
     var model by remember { mutableStateOf("") }
     var generation by remember { mutableStateOf("") }
     var engineVariant by remember { mutableStateOf("") }
-    var modelExpanded by remember { mutableStateOf(false) }
     var vin by remember { mutableStateOf("") }
     var showVinError by remember { mutableStateOf(false) }
     var year by remember { mutableStateOf("") }
@@ -331,6 +346,7 @@ fun AddCarScreen(
     var countryExpanded by remember { mutableStateOf(false) }
     var manufacturingCountryExpanded by remember { mutableStateOf(false) }
     var makeExpanded by remember { mutableStateOf(false) }
+    var showFullBrandList by remember { mutableStateOf(false) }
     var fuelTypeExpanded by remember { mutableStateOf(false) }
     var engineLayoutExpanded by remember { mutableStateOf(false) }
     var emissionStandardExpanded by remember { mutableStateOf(false) }
@@ -338,6 +354,8 @@ fun AddCarScreen(
     var cylinderLayoutExpanded by remember { mutableStateOf(false) }
     var drivetrainExpanded by remember { mutableStateOf(false) }
     var gearboxTypeExpanded by remember { mutableStateOf(false) }
+    var modelExpanded by remember { mutableStateOf(false) }
+    var showFullModelList by remember { mutableStateOf(false) }
     var frontBrakesExpanded by remember { mutableStateOf(false) }
     var rearBrakesExpanded by remember { mutableStateOf(false) }
     var frontSuspensionExpanded by remember { mutableStateOf(false) }
@@ -346,6 +364,29 @@ fun AddCarScreen(
 
     var powerUnitExpanded by remember { mutableStateOf(false) }
     val powerUnits = listOf("hp", "kW")
+
+    val density = LocalDensity.current
+
+    // Local states for each dropdown width to ensure isolation
+    var makeWidth by remember { mutableStateOf(0.dp) }
+    var modelWidth by remember { mutableStateOf(0.dp) }
+    var colorWidth by remember { mutableStateOf(0.dp) }
+    var countryWidth by remember { mutableStateOf(0.dp) }
+    var vehicleTypeWidth by remember { mutableStateOf(0.dp) }
+    var manufacturingCountryWidth by remember { mutableStateOf(0.dp) }
+    var fuelTypeWidth by remember { mutableStateOf(0.dp) }
+    var fuelSystemWidth by remember { mutableStateOf(0.dp) }
+    var aspirationWidth by remember { mutableStateOf(0.dp) }
+    var powerUnitWidth by remember { mutableStateOf(0.dp) }
+    var engineLayoutWidth by remember { mutableStateOf(0.dp) }
+    var cylinderLayoutWidth by remember { mutableStateOf(0.dp) }
+    var emissionStandardWidth by remember { mutableStateOf(0.dp) }
+    var gearboxTypeWidth by remember { mutableStateOf(0.dp) }
+    var drivetrainWidth by remember { mutableStateOf(0.dp) }
+    var frontSuspensionWidth by remember { mutableStateOf(0.dp) }
+    var rearSuspensionWidth by remember { mutableStateOf(0.dp) }
+    var frontBrakesWidth by remember { mutableStateOf(0.dp) }
+    var rearBrakesWidth by remember { mutableStateOf(0.dp) }
 
 
     val handleBack = {
@@ -675,20 +716,29 @@ fun AddCarScreen(
                 isExpanded = identityExpanded,
                 onToggle = { identityExpanded = !identityExpanded }
             ) {
-                val filteredBrands = remember(make) {
-                    if (make.isEmpty()) carBrands.filter { it != "Other" }
+                val filteredBrands = remember(make, showFullBrandList) {
+                    if (showFullBrandList || make.isEmpty()) carBrands.filter { it != "Other" }
                     else carBrands.filter { it.startsWith(make, ignoreCase = true) && it != "Other" }
                 }
 
-                Box(modifier = Modifier.fillMaxWidth()) {
+                ExposedDropdownMenuBox(
+                    expanded = makeExpanded,
+                    onExpandedChange = { 
+                        if (!it) showFullBrandList = false
+                        makeExpanded = it 
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     OutlinedTextField(
                         value = make,
                         onValueChange = { 
                             make = it.lowercase().replaceFirstChar { char -> char.uppercase() } 
+                            showFullBrandList = false
                             makeExpanded = make.isNotEmpty() && filteredBrands.isNotEmpty()
                         },
                         label = { Text(stringResource(R.string.car_make_label)) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable, true).fillMaxWidth()
+                            .onGloballyPositioned { makeWidth = with(density) { it.size.width.toDp() } },
                         singleLine = true,
                         leadingIcon = {
                             Icon(Icons.Outlined.DirectionsCar, null, modifier = Modifier.size(24.dp))
@@ -698,80 +748,102 @@ fun AddCarScreen(
                                 if (make.isNotEmpty()) {
                                     IconButton(onClick = { 
                                         make = "" 
-                                        makeExpanded = false
+                                        showFullBrandList = true
+                                        makeExpanded = true
                                     }) {
                                         Icon(Icons.Default.Clear, contentDescription = "Clear")
                                     }
                                 }
-                                Icon(
-                                    Icons.Default.ArrowDropDown,
-                                    "dropdown",
-                                    Modifier.clickable { makeExpanded = !makeExpanded })
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = makeExpanded)
                             }
                         },
                         keyboardOptions = KeyboardOptions(
                             capitalization = KeyboardCapitalization.Characters
-                        )
+                        ),
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                     )
-                    DropdownMenu(
-                        expanded = makeExpanded,
-                        onDismissRequest = { makeExpanded = false },
-                        modifier = Modifier.fillMaxWidth(0.9f).sizeIn(maxHeight = 300.dp),
-                        properties = PopupProperties(focusable = false)
-                    ) {
-                        filteredBrands.forEach { brand ->
-                            val logoRes = CarFormatters.getBrandLogoResource(brand)
-                            DropdownMenuItem(
-                                text = { 
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        if (logoRes != null) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(32.dp)
-                                                    .clip(CircleShape)
-                                                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                androidx.compose.foundation.Image(
-                                                    painter = androidx.compose.ui.res.painterResource(logoRes),
-                                                    contentDescription = null,
-                                                    modifier = Modifier
-                                                        .size(32.dp)
-                                                        .padding(4.dp)
-                                                        .clip(CircleShape),
-                                                    contentScale = androidx.compose.ui.layout.ContentScale.Fit
-                                                )
+                    
+                    if (filteredBrands.isNotEmpty() && makeExpanded) {
+                        Popup(
+                            onDismissRequest = { 
+                                makeExpanded = false
+                                showFullBrandList = false
+                            },
+                            popupPositionProvider = DropdownPositionProvider(),
+                            properties = PopupProperties(focusable = false, clippingEnabled = false)
+                        ) {
+                            Surface(
+                                modifier = Modifier.width(makeWidth).heightIn(max = 300.dp),
+                                shape = RoundedCornerShape(4.dp),
+                                tonalElevation = 3.dp,
+                                shadowElevation = 3.dp
+                            ) {
+                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                    filteredBrands.forEach { brand ->
+                                        val logoRes = CarFormatters.getBrandLogoResource(brand)
+                                        DropdownMenuItem(
+                                            text = { 
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    if (logoRes != null) {
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .size(32.dp)
+                                                                .clip(CircleShape)
+                                                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                                                            contentAlignment = Alignment.Center
+                                                        ) {
+                                                            androidx.compose.foundation.Image(
+                                                                painter = painterResource(logoRes),
+                                                                contentDescription = null,
+                                                                modifier = Modifier
+                                                                    .size(32.dp)
+                                                                    .padding(4.dp)
+                                                                    .clip(CircleShape),
+                                                                contentScale = ContentScale.Fit
+                                                            )
+                                                        }
+                                                        Spacer(Modifier.width(12.dp))
+                                                    }
+                                                    Text(brand)
+                                                }
+                                            },
+                                            onClick = {
+                                                make = brand
+                                                makeExpanded = false
+                                                showFullBrandList = false
                                             }
-                                            Spacer(Modifier.width(12.dp))
-                                        }
-                                        Text(brand)
+                                        )
                                     }
-                                },
-                                onClick = {
-                                    make = brand
-                                    makeExpanded = false
                                 }
-                            )
+                            }
                         }
                     }
                 }
 
+                val modelsForBrand = remember(make) { carModels[make.uppercase()] ?: emptyList() }
+                val filteredModels = remember(model, modelsForBrand, showFullModelList) {
+                    if (showFullModelList || model.isEmpty()) modelsForBrand
+                    else modelsForBrand.filter { it.startsWith(model, ignoreCase = true) }
+                }
 
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    val modelsForBrand = remember(make) { carModels[make.uppercase()] ?: emptyList() }
-                    val filteredModels = remember(model, modelsForBrand) {
-                        if (model.isEmpty()) modelsForBrand
-                        else modelsForBrand.filter { it.startsWith(model, ignoreCase = true) }
-                    }
-
+                ExposedDropdownMenuBox(
+                    expanded = modelExpanded,
+                    onExpandedChange = { 
+                        if (!it) showFullModelList = false
+                        modelExpanded = it 
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     OutlinedTextField(
                         value = model,
                         onValueChange = { 
                             model = it 
+                            showFullModelList = false
                             modelExpanded = model.isNotEmpty() && filteredModels.isNotEmpty()
                         },
                         label = { Text(stringResource(R.string.car_model_label)) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable, true).fillMaxWidth()
+                            .onGloballyPositioned { modelWidth = with(density) { it.size.width.toDp() } },
                         singleLine = true,
                         enabled = state !is AddCarState.Pending,
                         trailingIcon = {
@@ -779,36 +851,47 @@ fun AddCarScreen(
                                 if (model.isNotEmpty()) {
                                     IconButton(onClick = { 
                                         model = "" 
-                                        modelExpanded = false
+                                        showFullModelList = true
+                                        modelExpanded = true
                                     }) {
                                         Icon(Icons.Default.Clear, contentDescription = "Clear")
                                     }
                                 }
                                 if (modelsForBrand.isNotEmpty()) {
-                                    Icon(
-                                        Icons.Default.ArrowDropDown,
-                                        "dropdown",
-                                        Modifier.clickable { modelExpanded = !modelExpanded })
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = modelExpanded)
                                 }
                             }
-                        }
+                        },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                     )
                     
-                    if (filteredModels.isNotEmpty()) {
-                        DropdownMenu(
-                            expanded = modelExpanded,
-                            onDismissRequest = { modelExpanded = false },
-                            modifier = Modifier.fillMaxWidth(0.9f).sizeIn(maxHeight = 300.dp),
-                            properties = PopupProperties(focusable = false)
+                    if (filteredModels.isNotEmpty() && modelExpanded) {
+                        Popup(
+                            onDismissRequest = { 
+                                modelExpanded = false
+                                showFullModelList = false
+                            },
+                            popupPositionProvider = DropdownPositionProvider(),
+                            properties = PopupProperties(focusable = false, clippingEnabled = false)
                         ) {
-                            filteredModels.forEach { carModel ->
-                                DropdownMenuItem(
-                                    text = { Text(carModel) },
-                                    onClick = {
-                                        model = carModel
-                                        modelExpanded = false
+                            Surface(
+                                modifier = Modifier.width(modelWidth).heightIn(max = 300.dp),
+                                shape = RoundedCornerShape(4.dp),
+                                tonalElevation = 3.dp,
+                                shadowElevation = 3.dp
+                            ) {
+                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                    filteredModels.forEach { carModel ->
+                                        DropdownMenuItem(
+                                            text = { Text(carModel) },
+                                            onClick = {
+                                                model = carModel
+                                                modelExpanded = false
+                                                showFullModelList = false
+                                            }
+                                        )
                                     }
-                                )
+                                }
                             }
                         }
                     }
@@ -869,12 +952,17 @@ fun AddCarScreen(
                     )
                     
                     var colorExpanded by remember { mutableStateOf(false) }
-                    Box(modifier = Modifier.weight(1.3f)) {
+                    ExposedDropdownMenuBox(
+                        expanded = colorExpanded,
+                        onExpandedChange = { colorExpanded = it },
+                        modifier = Modifier.weight(1.3f)
+                    ) {
                         OutlinedTextField(
                             value = CarTranslations.getColorLabel(context, color),
                             onValueChange = { color = it },
                             label = { Text(stringResource(R.string.car_color_label)) },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable, true).fillMaxWidth()
+                                .onGloballyPositioned { colorWidth = with(density) { it.size.width.toDp() } },
                             singleLine = true,
                             enabled = state !is AddCarState.Pending,
                             trailingIcon = {
@@ -884,44 +972,53 @@ fun AddCarScreen(
                                             Icon(Icons.Default.Clear, contentDescription = "Clear")
                                         }
                                     }
-                                    Icon(
-                                        Icons.Default.ArrowDropDown,
-                                        "dropdown",
-                                        Modifier.clickable { colorExpanded = true } )
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = colorExpanded)
                                 }
-                            }
+                            },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                         )
-                        Box(
-                            modifier = Modifier
-                                .matchParentSize()
-                                .clickable { colorExpanded = true }
-                        )
-                        DropdownMenu(
-                            expanded = colorExpanded,
-                            onDismissRequest = { colorExpanded = false },
-                            modifier = Modifier.fillMaxWidth(0.9f).sizeIn(maxHeight = 300.dp)
-                        ) {
-                            sortedColors.forEach { c ->
-                                DropdownMenuItem(
-                                    text = { Text(CarTranslations.getColorLabel(context, c)) },
-                                    onClick = {
-                                        color = c
-                                        colorExpanded = false
+                        if (colorExpanded) {
+                            Popup(
+                                onDismissRequest = { colorExpanded = false },
+                                popupPositionProvider = DropdownPositionProvider(),
+                                properties = PopupProperties(focusable = false, clippingEnabled = false)
+                            ) {
+                                Surface(
+                                    modifier = Modifier.width(colorWidth).heightIn(max = 300.dp),
+                                    shape = RoundedCornerShape(4.dp),
+                                    tonalElevation = 3.dp,
+                                    shadowElevation = 3.dp
+                                ) {
+                                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                        sortedColors.forEach { c ->
+                                            DropdownMenuItem(
+                                                text = { Text(CarTranslations.getColorLabel(context, c)) },
+                                                onClick = {
+                                                    color = c
+                                                    colorExpanded = false
+                                                }
+                                            )
+                                        }
                                     }
-                                )
+                                }
                             }
                         }
                     }
                 }
 
 
-                Box(modifier = Modifier.fillMaxWidth()) {
+                ExposedDropdownMenuBox(
+                    expanded = countryExpanded,
+                    onExpandedChange = { countryExpanded = it },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     OutlinedTextField(
                         value = selectedCountry?.let { CarTranslations.getCountryName(context, it.code, it.name) } ?: "",
                         onValueChange = { },
                         readOnly = true,
                         label = { Text(stringResource(R.string.car_plate_country_label)) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                            .onGloballyPositioned { countryWidth = with(density) { it.size.width.toDp() } },
                         trailingIcon = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 if (selectedCountry != null) {
@@ -929,30 +1026,41 @@ fun AddCarScreen(
                                         Icon(Icons.Default.Clear, contentDescription = "Clear")
                                     }
                                 }
-                                Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { countryExpanded = true })
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = countryExpanded)
                             }
-                        }
+                        },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                     )
-                    Box(modifier = Modifier.matchParentSize().clickable { countryExpanded = true })
-                    DropdownMenu(
-                        expanded = countryExpanded,
-                        onDismissRequest = { countryExpanded = false },
-                        modifier = Modifier.fillMaxWidth(0.9f).sizeIn(maxHeight = 300.dp)
-                    ) {
-                        sortedCountries.forEach { country ->
-                            DropdownMenuItem(
-                                text = {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(country.flag)
-                                        Spacer(Modifier.width(8.dp))
-                                        Text(CarTranslations.getCountryName(context, country.code, country.name))
+                    if (countryExpanded) {
+                        Popup(
+                            onDismissRequest = { countryExpanded = false },
+                            popupPositionProvider = DropdownPositionProvider(),
+                            properties = PopupProperties(focusable = false, clippingEnabled = false)
+                        ) {
+                            Surface(
+                                modifier = Modifier.width(countryWidth).heightIn(max = 300.dp),
+                                shape = RoundedCornerShape(4.dp),
+                                tonalElevation = 3.dp,
+                                shadowElevation = 3.dp
+                            ) {
+                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                    sortedCountries.forEach { country ->
+                                        DropdownMenuItem(
+                                            text = {
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    Text(country.flag)
+                                                    Spacer(Modifier.width(8.dp))
+                                                    Text(CarTranslations.getCountryName(context, country.code, country.name))
+                                                }
+                                            },
+                                            onClick = {
+                                                selectedCountry = country
+                                                countryExpanded = false
+                                            }
+                                        )
                                     }
-                                },
-                                onClick = {
-                                    selectedCountry = country
-                                    countryExpanded = false
                                 }
-                            )
+                            }
                         }
                     }
                 }
@@ -1010,13 +1118,18 @@ fun AddCarScreen(
                     isError = (vin.isNotEmpty() && vin.length != 17) || showVinError
                 )
 
-                Box(modifier = Modifier.fillMaxWidth()) {
+                ExposedDropdownMenuBox(
+                    expanded = vehicleTypeExpanded,
+                    onExpandedChange = { vehicleTypeExpanded = it },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     OutlinedTextField(
                         value = getVehicleTypeLabel(context, vehicleType),
                         onValueChange = { },
                         readOnly = true,
                         label = { Text(stringResource(R.string.car_vehicle_type_label)) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                            .onGloballyPositioned { vehicleTypeWidth = with(density) { it.size.width.toDp() } },
                         trailingIcon = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 if (vehicleType.isNotEmpty()) {
@@ -1024,36 +1137,52 @@ fun AddCarScreen(
                                         Icon(Icons.Default.Clear, contentDescription = "Clear")
                                     }
                                 }
-                                Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { vehicleTypeExpanded = true })
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = vehicleTypeExpanded)
                             }
-                        }
+                        },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                     )
-                    Box(modifier = Modifier.matchParentSize().clickable { vehicleTypeExpanded = true })
-                    DropdownMenu(
-                        expanded = vehicleTypeExpanded,
-                        onDismissRequest = { vehicleTypeExpanded = false },
-                        modifier = Modifier.sizeIn(maxHeight = 300.dp)
-                    ) {
-                        vehicleTypes.forEach { type ->
-                            DropdownMenuItem(
-                                text = { Text(getVehicleTypeLabel(context, type)) },
-                                onClick = {
-                                    vehicleType = type
-                                    vehicleTypeExpanded = false
+                    if (vehicleTypeExpanded) {
+                        Popup(
+                            onDismissRequest = { vehicleTypeExpanded = false },
+                            popupPositionProvider = DropdownPositionProvider(),
+                            properties = PopupProperties(focusable = false, clippingEnabled = false)
+                        ) {
+                            Surface(
+                                modifier = Modifier.width(vehicleTypeWidth).heightIn(max = 300.dp),
+                                shape = RoundedCornerShape(4.dp),
+                                tonalElevation = 3.dp,
+                                shadowElevation = 3.dp
+                            ) {
+                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                    vehicleTypes.forEach { type ->
+                                        DropdownMenuItem(
+                                            text = { Text(getVehicleTypeLabel(context, type)) },
+                                            onClick = {
+                                                vehicleType = type
+                                                vehicleTypeExpanded = false
+                                            }
+                                        )
+                                    }
                                 }
-                            )
+                            }
                         }
                     }
                 }
 
 
-                Box(modifier = Modifier.fillMaxWidth()) {
+                ExposedDropdownMenuBox(
+                    expanded = manufacturingCountryExpanded,
+                    onExpandedChange = { manufacturingCountryExpanded = it },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     OutlinedTextField(
                         value = europeanCountries.find { it.name == manufacturingCountry }?.let { CarTranslations.getCountryName(context, it.code, it.name) } ?: manufacturingCountry,
                         onValueChange = { },
                         readOnly = true,
                         label = { Text(stringResource(R.string.car_manufacturing_country_label)) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                            .onGloballyPositioned { manufacturingCountryWidth = with(density) { it.size.width.toDp() } },
                         trailingIcon = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 if (manufacturingCountry.isNotEmpty()) {
@@ -1061,30 +1190,41 @@ fun AddCarScreen(
                                         Icon(Icons.Default.Clear, contentDescription = "Clear")
                                     }
                                 }
-                                Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { manufacturingCountryExpanded = true })
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = manufacturingCountryExpanded)
                             }
-                        }
+                        },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                     )
-                    Box(modifier = Modifier.matchParentSize().clickable { manufacturingCountryExpanded = true })
-                    DropdownMenu(
-                        expanded = manufacturingCountryExpanded,
-                        onDismissRequest = { manufacturingCountryExpanded = false },
-                        modifier = Modifier.sizeIn(maxHeight = 300.dp)
-                    ) {
-                        sortedCountries.forEach { country ->
-                            DropdownMenuItem(
-                                text = {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(country.flag)
-                                        Spacer(Modifier.width(8.dp))
-                                        Text(CarTranslations.getCountryName(context, country.code, country.name))
+                    if (manufacturingCountryExpanded) {
+                        Popup(
+                            onDismissRequest = { manufacturingCountryExpanded = false },
+                            popupPositionProvider = DropdownPositionProvider(),
+                            properties = PopupProperties(focusable = false, clippingEnabled = false)
+                        ) {
+                            Surface(
+                                modifier = Modifier.width(manufacturingCountryWidth).heightIn(max = 300.dp),
+                                shape = RoundedCornerShape(4.dp),
+                                tonalElevation = 3.dp,
+                                shadowElevation = 3.dp
+                            ) {
+                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                    sortedCountries.forEach { country ->
+                                        DropdownMenuItem(
+                                            text = {
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    Text(country.flag)
+                                                    Spacer(Modifier.width(8.dp))
+                                                    Text(CarTranslations.getCountryName(context, country.code, country.name))
+                                                }
+                                            },
+                                            onClick = {
+                                                manufacturingCountry = country.name
+                                                manufacturingCountryExpanded = false
+                                            }
+                                        )
                                     }
-                                },
-                                onClick = {
-                                    manufacturingCountry = country.name
-                                    manufacturingCountryExpanded = false
                                 }
-                            )
+                            }
                         }
                     }
                 }
@@ -1117,32 +1257,46 @@ fun AddCarScreen(
 
                 // Fuel & Injection System
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Box(modifier = Modifier.weight(1f)) {
+                    ExposedDropdownMenuBox(
+                        expanded = fuelTypeExpanded,
+                        onExpandedChange = { fuelTypeExpanded = it },
+                        modifier = Modifier.weight(1f)
+                    ) {
                         OutlinedTextField(
                             value = getFuelTypeLabel(context, fuelType),
                             onValueChange = { },
                             readOnly = true,
                             label = { Text(stringResource(R.string.car_fuel_type_label)) },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(28.dp),
-                            trailingIcon = {
-                                Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { fuelTypeExpanded = true })
-                            }
+                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                                .onGloballyPositioned { fuelTypeWidth = with(density) { it.size.width.toDp() } },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = fuelTypeExpanded) },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                         )
-                        Box(modifier = Modifier.matchParentSize().clickable { fuelTypeExpanded = true })
-                        DropdownMenu(
-                            expanded = fuelTypeExpanded,
-                            onDismissRequest = { fuelTypeExpanded = false }
-                        ) {
-                            fuelTypes.forEach { type ->
-                                DropdownMenuItem(
-                                    text = { Text(getFuelTypeLabel(context, type)) },
-                                    onClick = {
-                                        fuelType = type
-                                        fuelSystem = ""
-                                        fuelTypeExpanded = false
+                        if (fuelTypeExpanded) {
+                            Popup(
+                                onDismissRequest = { fuelTypeExpanded = false },
+                                popupPositionProvider = DropdownPositionProvider(),
+                                properties = PopupProperties(focusable = false, clippingEnabled = false)
+                            ) {
+                                Surface(
+                                    modifier = Modifier.width(fuelTypeWidth).heightIn(max = 300.dp),
+                                    shape = RoundedCornerShape(4.dp),
+                                    tonalElevation = 3.dp,
+                                    shadowElevation = 3.dp
+                                ) {
+                                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                        fuelTypes.forEach { type ->
+                                            DropdownMenuItem(
+                                                text = { Text(getFuelTypeLabel(context, type)) },
+                                                onClick = {
+                                                    fuelType = type
+                                                    fuelSystem = ""
+                                                    fuelTypeExpanded = false
+                                                }
+                                            )
+                                        }
                                     }
-                                )
+                                }
                             }
                         }
                     }
@@ -1155,13 +1309,18 @@ fun AddCarScreen(
                             else -> emptyList()
                         }
 
-                        Box(modifier = Modifier.weight(1f)) {
+                        ExposedDropdownMenuBox(
+                            expanded = fuelSystemExpanded,
+                            onExpandedChange = { fuelSystemExpanded = it },
+                            modifier = Modifier.weight(1f)
+                        ) {
                             OutlinedTextField(
                                 value = getFuelSystemLabel(context, fuelSystem),
                                 onValueChange = { },
                                 readOnly = true,
                                 label = { Text(if (fuelType == "Diesel") stringResource(R.string.car_fuel_system_label) else stringResource(R.string.car_injection_system_label)) },
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                                    .onGloballyPositioned { fuelSystemWidth = with(density) { it.size.width.toDp() } },
                                 trailingIcon = {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         if (fuelSystem.isNotEmpty()) {
@@ -1169,23 +1328,35 @@ fun AddCarScreen(
                                                 Icon(Icons.Default.Clear, contentDescription = "Clear")
                                             }
                                         }
-                                        Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { fuelSystemExpanded = true })
+                                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = fuelSystemExpanded)
                                     }
-                                }
+                                },
+                                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                             )
-                            Box(modifier = Modifier.matchParentSize().clickable { fuelSystemExpanded = true })
-                            DropdownMenu(
-                                expanded = fuelSystemExpanded,
-                                onDismissRequest = { fuelSystemExpanded = false }
-                            ) {
-                                fuelSystemOptions.forEach { option ->
-                                    DropdownMenuItem(
-                                        text = { Text(getFuelSystemLabel(context, option)) },
-                                        onClick = {
-                                            fuelSystem = option
-                                            fuelSystemExpanded = false
+                            if (fuelSystemExpanded) {
+                                Popup(
+                                    onDismissRequest = { fuelSystemExpanded = false },
+                                    popupPositionProvider = DropdownPositionProvider(),
+                                    properties = PopupProperties(focusable = false, clippingEnabled = false)
+                                ) {
+                                    Surface(
+                                        modifier = Modifier.width(fuelSystemWidth).heightIn(max = 300.dp),
+                                        shape = RoundedCornerShape(4.dp),
+                                        tonalElevation = 3.dp,
+                                        shadowElevation = 3.dp
+                                    ) {
+                                        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                            fuelSystemOptions.forEach { option ->
+                                                DropdownMenuItem(
+                                                    text = { Text(getFuelSystemLabel(context, option)) },
+                                                    onClick = {
+                                                        fuelSystem = option
+                                                        fuelSystemExpanded = false
+                                                    }
+                                                )
+                                            }
                                         }
-                                    )
+                                    }
                                 }
                             }
                         }
@@ -1194,13 +1365,18 @@ fun AddCarScreen(
 
 
                 // Aspiration
-                Box(modifier = Modifier.fillMaxWidth()) {
+                ExposedDropdownMenuBox(
+                    expanded = aspirationExpanded,
+                    onExpandedChange = { aspirationExpanded = it },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     OutlinedTextField(
                         value = getAspirationLabel(context, aspiration),
                         onValueChange = { },
                         readOnly = true,
                         label = { Text(stringResource(R.string.car_aspiration_label)) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                            .onGloballyPositioned { aspirationWidth = with(density) { it.size.width.toDp() } },
                         trailingIcon = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 if (aspiration.isNotEmpty()) {
@@ -1208,24 +1384,35 @@ fun AddCarScreen(
                                         Icon(Icons.Default.Clear, contentDescription = "Clear")
                                     }
                                 }
-                                Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { aspirationExpanded = true })
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = aspirationExpanded)
                             }
-                        }
+                        },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                     )
-                    Box(modifier = Modifier.matchParentSize().clickable { aspirationExpanded = true })
-                    DropdownMenu(
-                        expanded = aspirationExpanded,
-                        onDismissRequest = { aspirationExpanded = false },
-                        modifier = Modifier.fillMaxWidth(0.9f)
-                    ) {
-                        aspirationOptions.forEach { option ->
-                            DropdownMenuItem(
-                                text = { Text(getAspirationLabel(context, option)) },
-                                onClick = {
-                                    aspiration = option
-                                    aspirationExpanded = false
+                    if (aspirationExpanded) {
+                        Popup(
+                            onDismissRequest = { aspirationExpanded = false },
+                            popupPositionProvider = DropdownPositionProvider(),
+                            properties = PopupProperties(focusable = false, clippingEnabled = false)
+                        ) {
+                            Surface(
+                                modifier = Modifier.width(aspirationWidth).heightIn(max = 300.dp),
+                                shape = RoundedCornerShape(4.dp),
+                                tonalElevation = 3.dp,
+                                shadowElevation = 3.dp
+                            ) {
+                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                    aspirationOptions.forEach { option ->
+                                        DropdownMenuItem(
+                                            text = { Text(getAspirationLabel(context, option)) },
+                                            onClick = {
+                                                aspiration = option
+                                                aspirationExpanded = false
+                                            }
+                                        )
+                                    }
                                 }
-                            )
+                            }
                         }
                     }
                 }
@@ -1243,12 +1430,18 @@ fun AddCarScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                     Spacer(Modifier.width(8.dp))
-                    Box(modifier = Modifier.width(100.dp)) {
+                    ExposedDropdownMenuBox(
+                        expanded = powerUnitExpanded,
+                        onExpandedChange = { powerUnitExpanded = it },
+                        modifier = Modifier.width(100.dp)
+                    ) {
                         OutlinedTextField(
                             value = getPowerUnitLabel(context, powerUnit),
                             onValueChange = { },
                             readOnly = true,
                             label = { Text(stringResource(R.string.common_unit)) },
+                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                                .onGloballyPositioned { powerUnitWidth = with(density) { it.size.width.toDp() } },
                             trailingIcon = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     if (powerUnit.isNotEmpty()) {
@@ -1256,23 +1449,35 @@ fun AddCarScreen(
                                             Icon(Icons.Default.Clear, contentDescription = "Clear")
                                         }
                                     }
-                                    Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { powerUnitExpanded = true })
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = powerUnitExpanded)
                                 }
-                            }
+                            },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                         )
-                        Box(modifier = Modifier.matchParentSize().clickable { powerUnitExpanded = true })
-                        DropdownMenu(
-                            expanded = powerUnitExpanded,
-                            onDismissRequest = { powerUnitExpanded = false }
-                        ) {
-                            powerUnits.forEach { unit ->
-                                DropdownMenuItem(
-                                    text = { Text(getPowerUnitLabel(context, unit)) },
-                                    onClick = {
-                                        powerUnit = unit
-                                        powerUnitExpanded = false
+                        if (powerUnitExpanded) {
+                            Popup(
+                                onDismissRequest = { powerUnitExpanded = false },
+                                popupPositionProvider = DropdownPositionProvider(),
+                                properties = PopupProperties(focusable = false, clippingEnabled = false)
+                            ) {
+                                Surface(
+                                    modifier = Modifier.width(powerUnitWidth).heightIn(max = 300.dp),
+                                    shape = RoundedCornerShape(4.dp),
+                                    tonalElevation = 3.dp,
+                                    shadowElevation = 3.dp
+                                ) {
+                                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                        powerUnits.forEach { unit ->
+                                            DropdownMenuItem(
+                                                text = { Text(getPowerUnitLabel(context, unit)) },
+                                                onClick = {
+                                                    powerUnit = unit
+                                                    powerUnitExpanded = false
+                                                }
+                                            )
+                                        }
                                     }
-                                )
+                                }
                             }
                         }
                     }
@@ -1315,13 +1520,18 @@ fun AddCarScreen(
 
 
                 // Engine Layout (Dispunere)
-                Box(modifier = Modifier.fillMaxWidth()) {
+                ExposedDropdownMenuBox(
+                    expanded = engineLayoutExpanded,
+                    onExpandedChange = { engineLayoutExpanded = it },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     OutlinedTextField(
                         value = getEngineLayoutLabel(context, engineLayout),
                         onValueChange = { },
                         readOnly = true,
                         label = { Text(stringResource(R.string.car_engine_layout_label)) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                            .onGloballyPositioned { engineLayoutWidth = with(density) { it.size.width.toDp() } },
                         trailingIcon = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 if (engineLayout.isNotEmpty()) {
@@ -1329,26 +1539,38 @@ fun AddCarScreen(
                                         Icon(Icons.Default.Clear, contentDescription = "Clear")
                                     }
                                 }
-                                Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { engineLayoutExpanded = true })
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = engineLayoutExpanded)
+                            }
+                        },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+                    )
+                    if (engineLayoutExpanded) {
+                        Popup(
+                            onDismissRequest = { engineLayoutExpanded = false },
+                            popupPositionProvider = DropdownPositionProvider(),
+                            properties = PopupProperties(focusable = false, clippingEnabled = false)
+                        ) {
+                            Surface(
+                                modifier = Modifier.width(engineLayoutWidth).heightIn(max = 300.dp),
+                                shape = RoundedCornerShape(4.dp),
+                                tonalElevation = 3.dp,
+                                shadowElevation = 3.dp
+                            ) {
+                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                    engineLayouts.forEach { layout ->
+                                        DropdownMenuItem(
+                                            text = { Text(getEngineLayoutLabel(context, layout)) },
+                                            onClick = {
+                                                engineLayout = layout
+                                                engineLayoutExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
                             }
                         }
-                    )
-                    Box(modifier = Modifier.matchParentSize().clickable { engineLayoutExpanded = true })
-                    DropdownMenu(
-                        expanded = engineLayoutExpanded,
-                        onDismissRequest = { engineLayoutExpanded = false }
-                    ) {
-                        engineLayouts.forEach { layout ->
-                            DropdownMenuItem(
-                                text = { Text(getEngineLayoutLabel(context, layout)) },
-                                onClick = {
-                                    engineLayout = layout
-                                    engineLayoutExpanded = false
-                                }
-                            )
-                        }
                     }
-                }
+                    }
 
 
                 // Cylinders & Valves per Cylinder
@@ -1387,13 +1609,18 @@ fun AddCarScreen(
 
 
                 // Cylinder Configuration
-                Box(modifier = Modifier.fillMaxWidth()) {
+                ExposedDropdownMenuBox(
+                    expanded = cylinderLayoutExpanded,
+                    onExpandedChange = { cylinderLayoutExpanded = it },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     OutlinedTextField(
                         value = getCylinderLayoutLabel(context, cylinderLayout),
                         onValueChange = { },
                         readOnly = true,
                         label = { Text(stringResource(R.string.car_cylinder_layout_label)) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                            .onGloballyPositioned { cylinderLayoutWidth = with(density) { it.size.width.toDp() } },
                         trailingIcon = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 if (cylinderLayout.isNotEmpty()) {
@@ -1401,26 +1628,38 @@ fun AddCarScreen(
                                         Icon(Icons.Default.Clear, contentDescription = "Clear")
                                     }
                                 }
-                                Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { cylinderLayoutExpanded = true })
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = cylinderLayoutExpanded)
+                            }
+                        },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+                    )
+                    if (cylinderLayoutExpanded) {
+                        Popup(
+                            onDismissRequest = { cylinderLayoutExpanded = false },
+                            popupPositionProvider = DropdownPositionProvider(),
+                            properties = PopupProperties(focusable = false, clippingEnabled = false)
+                        ) {
+                            Surface(
+                                modifier = Modifier.width(cylinderLayoutWidth).heightIn(max = 300.dp),
+                                shape = RoundedCornerShape(4.dp),
+                                tonalElevation = 3.dp,
+                                shadowElevation = 3.dp
+                            ) {
+                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                    cylinderLayouts.forEach { layout ->
+                                        DropdownMenuItem(
+                                            text = { Text(getCylinderLayoutLabel(context, layout)) },
+                                            onClick = {
+                                                cylinderLayout = layout
+                                                cylinderLayoutExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
                             }
                         }
-                    )
-                    Box(modifier = Modifier.matchParentSize().clickable { cylinderLayoutExpanded = true })
-                    DropdownMenu(
-                        expanded = cylinderLayoutExpanded,
-                        onDismissRequest = { cylinderLayoutExpanded = false }
-                    ) {
-                        cylinderLayouts.forEach { layout ->
-                            DropdownMenuItem(
-                                text = { Text(getCylinderLayoutLabel(context, layout)) },
-                                onClick = {
-                                    cylinderLayout = layout
-                                    cylinderLayoutExpanded = false
-                                }
-                            )
-                        }
                     }
-                }
+                    }
 
 
                 // Performance
@@ -1462,13 +1701,18 @@ fun AddCarScreen(
 
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Box(modifier = Modifier.weight(1.3f)) {
+                    ExposedDropdownMenuBox(
+                        expanded = emissionStandardExpanded,
+                        onExpandedChange = { emissionStandardExpanded = it },
+                        modifier = Modifier.weight(1.3f)
+                    ) {
                         OutlinedTextField(
                             value = getEmissionStandardLabel(context, emissionStandard),
                             onValueChange = { },
                             readOnly = true,
                             label = { Text(stringResource(R.string.car_emission_standard_label)) },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                                .onGloballyPositioned { emissionStandardWidth = with(density) { it.size.width.toDp() } },
                             trailingIcon = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     if (emissionStandard.isNotEmpty()) {
@@ -1476,23 +1720,35 @@ fun AddCarScreen(
                                             Icon(Icons.Default.Clear, contentDescription = "Clear")
                                         }
                                     }
-                                    Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { emissionStandardExpanded = true })
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = emissionStandardExpanded)
                                 }
-                            }
+                            },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                         )
-                        Box(modifier = Modifier.matchParentSize().clickable { emissionStandardExpanded = true })
-                        DropdownMenu(
-                            expanded = emissionStandardExpanded,
-                            onDismissRequest = { emissionStandardExpanded = false }
-                        ) {
-                            emissionStandards.forEach { standard ->
-                                DropdownMenuItem(
-                                    text = { Text(getEmissionStandardLabel(context, standard)) },
-                                    onClick = {
-                                        emissionStandard = standard
-                                        emissionStandardExpanded = false
+                        if (emissionStandardExpanded) {
+                            Popup(
+                                onDismissRequest = { emissionStandardExpanded = false },
+                                popupPositionProvider = DropdownPositionProvider(),
+                                properties = PopupProperties(focusable = false, clippingEnabled = false)
+                            ) {
+                                Surface(
+                                    modifier = Modifier.width(emissionStandardWidth).heightIn(max = 300.dp),
+                                    shape = RoundedCornerShape(4.dp),
+                                    tonalElevation = 3.dp,
+                                    shadowElevation = 3.dp
+                                ) {
+                                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                        emissionStandards.forEach { standard ->
+                                            DropdownMenuItem(
+                                                text = { Text(getEmissionStandardLabel(context, standard)) },
+                                                onClick = {
+                                                    emissionStandard = standard
+                                                    emissionStandardExpanded = false
+                                                }
+                                            )
+                                        }
                                     }
-                                )
+                                }
                             }
                         }
                     }
@@ -1581,13 +1837,18 @@ fun AddCarScreen(
     
                 // Gearbox & Gears
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Box(modifier = Modifier.weight(1.5f)) {
+                    ExposedDropdownMenuBox(
+                        expanded = gearboxTypeExpanded,
+                        onExpandedChange = { gearboxTypeExpanded = it },
+                        modifier = Modifier.weight(1.5f)
+                    ) {
                         OutlinedTextField(
                             value = getGearboxTypeLabel(context, gearboxType),
                             onValueChange = { },
                             readOnly = true,
                             label = { Text(stringResource(R.string.car_gearbox_type_label)) },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                                .onGloballyPositioned { gearboxTypeWidth = with(density) { it.size.width.toDp() } },
                             trailingIcon = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     if (gearboxType.isNotEmpty()) {
@@ -1595,23 +1856,35 @@ fun AddCarScreen(
                                             Icon(Icons.Default.Clear, contentDescription = "Clear")
                                         }
                                     }
-                                    Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { gearboxTypeExpanded = true })
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = gearboxTypeExpanded)
                                 }
-                            }
+                            },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                         )
-                        Box(modifier = Modifier.matchParentSize().clickable { gearboxTypeExpanded = true })
-                        DropdownMenu(
-                            expanded = gearboxTypeExpanded,
-                            onDismissRequest = { gearboxTypeExpanded = false }
-                        ) {
-                            gearboxTypes.forEach { type ->
-                                DropdownMenuItem(
-                                    text = { Text(getGearboxTypeLabel(context, type)) },
-                                    onClick = {
-                                        gearboxType = type
-                                        gearboxTypeExpanded = false
+                        if (gearboxTypeExpanded) {
+                            Popup(
+                                onDismissRequest = { gearboxTypeExpanded = false },
+                                popupPositionProvider = DropdownPositionProvider(),
+                                properties = PopupProperties(focusable = false, clippingEnabled = false)
+                            ) {
+                                Surface(
+                                    modifier = Modifier.width(gearboxTypeWidth).heightIn(max = 300.dp),
+                                    shape = RoundedCornerShape(4.dp),
+                                    tonalElevation = 3.dp,
+                                    shadowElevation = 3.dp
+                                ) {
+                                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                        gearboxTypes.forEach { type ->
+                                            DropdownMenuItem(
+                                                text = { Text(getGearboxTypeLabel(context, type)) },
+                                                onClick = {
+                                                    gearboxType = type
+                                                    gearboxTypeExpanded = false
+                                                }
+                                            )
+                                        }
                                     }
-                                )
+                                }
                             }
                         }
                     }
@@ -1635,13 +1908,18 @@ fun AddCarScreen(
 
 
                 // Drivetrain
-                Box(modifier = Modifier.fillMaxWidth()) {
+                ExposedDropdownMenuBox(
+                    expanded = drivetrainExpanded,
+                    onExpandedChange = { drivetrainExpanded = it },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     OutlinedTextField(
                         value = getDrivetrainLabel(context, drivetrain),
                         onValueChange = { },
                         readOnly = true,
                         label = { Text(stringResource(R.string.car_drivetrain_label)) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                            .onGloballyPositioned { drivetrainWidth = with(density) { it.size.width.toDp() } },
                         trailingIcon = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 if (drivetrain.isNotEmpty()) {
@@ -1649,38 +1927,54 @@ fun AddCarScreen(
                                         Icon(Icons.Default.Clear, contentDescription = "Clear")
                                     }
                                 }
-                                Icon(Icons.Default.ArrowDropDown, "dropdown", Modifier.clickable { drivetrainExpanded = true })
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = drivetrainExpanded)
+                            }
+                        },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+                    )
+                    if (drivetrainExpanded) {
+                        Popup(
+                            onDismissRequest = { drivetrainExpanded = false },
+                            popupPositionProvider = DropdownPositionProvider(),
+                            properties = PopupProperties(focusable = false, clippingEnabled = false)
+                        ) {
+                            Surface(
+                                modifier = Modifier.width(drivetrainWidth).heightIn(max = 300.dp),
+                                shape = RoundedCornerShape(4.dp),
+                                tonalElevation = 3.dp,
+                                shadowElevation = 3.dp
+                            ) {
+                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                    drivetrainOptions.forEach { option ->
+                                        DropdownMenuItem(
+                                            text = { Text(getDrivetrainLabel(context, option)) },
+                                            onClick = {
+                                                drivetrain = option
+                                                drivetrainExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
                             }
                         }
-                    )
-                    Box(modifier = Modifier.matchParentSize().clickable { drivetrainExpanded = true })
-                    DropdownMenu(
-                        expanded = drivetrainExpanded,
-                        onDismissRequest = { drivetrainExpanded = false },
-                        modifier = Modifier.fillMaxWidth(0.9f)
-                    ) {
-                        drivetrainOptions.forEach { option ->
-                            DropdownMenuItem(
-                                text = { Text(getDrivetrainLabel(context, option)) },
-                                onClick = {
-                                    drivetrain = option
-                                    drivetrainExpanded = false
-                                }
-                            )
-                        }
                     }
-                }
+                    }
 
 
                 // Suspension
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Box(modifier = Modifier.weight(1f)) {
+                    ExposedDropdownMenuBox(
+                        expanded = frontSuspensionExpanded,
+                        onExpandedChange = { frontSuspensionExpanded = it },
+                        modifier = Modifier.weight(1f)
+                    ) {
                         OutlinedTextField(
                             value = getSuspensionLabel(context, frontSuspension),
                             onValueChange = { },
                             readOnly = true,
                             label = { Text(stringResource(R.string.car_front_suspension_label)) },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                                .onGloballyPositioned { frontSuspensionWidth = with(density) { it.size.width.toDp() } },
                             trailingIcon = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     if (frontSuspension.isNotEmpty()) {
@@ -1688,33 +1982,50 @@ fun AddCarScreen(
                                             Icon(Icons.Default.Clear, contentDescription = "Clear")
                                         }
                                     }
-                                    Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { frontSuspensionExpanded = true })
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = frontSuspensionExpanded)
                                 }
-                            }
+                            },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                         )
-                        Box(modifier = Modifier.matchParentSize().clickable { frontSuspensionExpanded = true })
-                        DropdownMenu(
-                            expanded = frontSuspensionExpanded,
-                            onDismissRequest = { frontSuspensionExpanded = false }
-                        ) {
-                            frontSuspensionOptions.forEach { option ->
-                                DropdownMenuItem(
-                                    text = { Text(getSuspensionLabel(context, option)) },
-                                    onClick = {
-                                        frontSuspension = option
-                                        frontSuspensionExpanded = false
+                        if (frontSuspensionExpanded) {
+                            Popup(
+                                onDismissRequest = { frontSuspensionExpanded = false },
+                                popupPositionProvider = DropdownPositionProvider(),
+                                properties = PopupProperties(focusable = false, clippingEnabled = false)
+                            ) {
+                                Surface(
+                                    modifier = Modifier.width(frontSuspensionWidth).heightIn(max = 300.dp),
+                                    shape = RoundedCornerShape(4.dp),
+                                    tonalElevation = 3.dp,
+                                    shadowElevation = 3.dp
+                                ) {
+                                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                        frontSuspensionOptions.forEach { option ->
+                                            DropdownMenuItem(
+                                                text = { Text(getSuspensionLabel(context, option)) },
+                                                onClick = {
+                                                    frontSuspension = option
+                                                    frontSuspensionExpanded = false
+                                                }
+                                            )
+                                        }
                                     }
-                                )
+                                }
                             }
                         }
                     }
-                    Box(modifier = Modifier.weight(1f)) {
+                    ExposedDropdownMenuBox(
+                        expanded = rearSuspensionExpanded,
+                        onExpandedChange = { rearSuspensionExpanded = it },
+                        modifier = Modifier.weight(1f)
+                    ) {
                         OutlinedTextField(
                             value = getSuspensionLabel(context, rearSuspension),
                             onValueChange = { },
                             readOnly = true,
-                            label = { Text(stringResource(R.string.car_rear_suspension_label)) },
-                            modifier = Modifier.fillMaxWidth(),
+                                label = { Text(stringResource(R.string.car_rear_suspension_label)) },
+                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                                .onGloballyPositioned { rearSuspensionWidth = with(density) { it.size.width.toDp() } },
                             trailingIcon = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     if (rearSuspension.isNotEmpty()) {
@@ -1722,23 +2033,35 @@ fun AddCarScreen(
                                             Icon(Icons.Default.Clear, contentDescription = "Clear")
                                         }
                                     }
-                                    Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { rearSuspensionExpanded = true })
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = rearSuspensionExpanded)
                                 }
-                            }
+                            },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                         )
-                        Box(modifier = Modifier.matchParentSize().clickable { rearSuspensionExpanded = true })
-                        DropdownMenu(
-                            expanded = rearSuspensionExpanded,
-                            onDismissRequest = { rearSuspensionExpanded = false }
-                        ) {
-                            rearSuspensionOptions.forEach { option ->
-                                DropdownMenuItem(
-                                    text = { Text(getSuspensionLabel(context, option)) },
-                                    onClick = {
-                                        rearSuspension = option
-                                        rearSuspensionExpanded = false
+                            if (rearSuspensionExpanded) {
+                            Popup(
+                                onDismissRequest = { rearSuspensionExpanded = false },
+                                popupPositionProvider = DropdownPositionProvider(),
+                                properties = PopupProperties(focusable = false, clippingEnabled = false)
+                            ) {
+                                Surface(
+                                    modifier = Modifier.width(rearSuspensionWidth).heightIn(max = 300.dp),
+                                    shape = RoundedCornerShape(4.dp),
+                                    tonalElevation = 3.dp,
+                                    shadowElevation = 3.dp
+                                ) {
+                                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                        rearSuspensionOptions.forEach { option ->
+                                            DropdownMenuItem(
+                                                text = { Text(getSuspensionLabel(context, option)) },
+                                                onClick = {
+                                                    rearSuspension = option
+                                                    rearSuspensionExpanded = false
+                                                }
+                                            )
+                                        }
                                     }
-                                )
+                                }
                             }
                         }
                     }
@@ -1747,13 +2070,18 @@ fun AddCarScreen(
 
                 // Brakes
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Box(modifier = Modifier.weight(1f)) {
+                    ExposedDropdownMenuBox(
+                        expanded = frontBrakesExpanded,
+                        onExpandedChange = { frontBrakesExpanded = it },
+                        modifier = Modifier.weight(1f)
+                    ) {
                         OutlinedTextField(
                             value = getBrakesLabel(context, frontBrakes),
                             onValueChange = { },
                             readOnly = true,
-                            label = { Text(stringResource(R.string.car_front_brakes_label)) },
-                            modifier = Modifier.fillMaxWidth(),
+                                label = { Text(stringResource(R.string.car_front_brakes_label)) },
+                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                                .onGloballyPositioned { frontBrakesWidth = with(density) { it.size.width.toDp() } },
                             trailingIcon = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     if (frontBrakes.isNotEmpty()) {
@@ -1761,33 +2089,50 @@ fun AddCarScreen(
                                             Icon(Icons.Default.Clear, contentDescription = "Clear")
                                         }
                                     }
-                                    Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { frontBrakesExpanded = true })
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = frontBrakesExpanded)
                                 }
-                            }
+                            },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                         )
-                        Box(modifier = Modifier.matchParentSize().clickable { frontBrakesExpanded = true })
-                        DropdownMenu(
-                            expanded = frontBrakesExpanded,
-                            onDismissRequest = { frontBrakesExpanded = false }
-                        ) {
-                            brakeOptions.forEach { option ->
-                                DropdownMenuItem(
-                                    text = { Text(getBrakesLabel(context, option)) },
-                                    onClick = {
-                                        frontBrakes = option
-                                        frontBrakesExpanded = false
+                            if (frontBrakesExpanded) {
+                            Popup(
+                                onDismissRequest = { frontBrakesExpanded = false },
+                                popupPositionProvider = DropdownPositionProvider(),
+                                properties = PopupProperties(focusable = false, clippingEnabled = false)
+                            ) {
+                                Surface(
+                                    modifier = Modifier.width(frontBrakesWidth).heightIn(max = 300.dp),
+                                    shape = RoundedCornerShape(4.dp),
+                                    tonalElevation = 3.dp,
+                                    shadowElevation = 3.dp
+                                ) {
+                                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                        brakeOptions.forEach { option ->
+                                            DropdownMenuItem(
+                                                text = { Text(getBrakesLabel(context, option)) },
+                                                onClick = {
+                                                    frontBrakes = option
+                                                    frontBrakesExpanded = false
+                                                }
+                                            )
+                                        }
                                     }
-                                )
+                                }
                             }
                         }
                     }
-                    Box(modifier = Modifier.weight(1f)) {
+                    ExposedDropdownMenuBox(
+                        expanded = rearBrakesExpanded,
+                        onExpandedChange = { rearBrakesExpanded = it },
+                        modifier = Modifier.weight(1f)
+                    ) {
                         OutlinedTextField(
                             value = getBrakesLabel(context, rearBrakes),
                             onValueChange = { },
                             readOnly = true,
-                            label = { Text(stringResource(R.string.car_rear_brakes_label)) },
-                            modifier = Modifier.fillMaxWidth(),
+                                label = { Text(stringResource(R.string.car_rear_brakes_label)) },
+                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                                .onGloballyPositioned { rearBrakesWidth = with(density) { it.size.width.toDp() } },
                             trailingIcon = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     if (rearBrakes.isNotEmpty()) {
@@ -1795,23 +2140,35 @@ fun AddCarScreen(
                                             Icon(Icons.Default.Clear, contentDescription = "Clear")
                                         }
                                     }
-                                    Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { rearBrakesExpanded = true })
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = rearBrakesExpanded)
                                 }
-                            }
+                            },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                         )
-                        Box(modifier = Modifier.matchParentSize().clickable { rearBrakesExpanded = true })
-                        DropdownMenu(
-                            expanded = rearBrakesExpanded,
-                            onDismissRequest = { rearBrakesExpanded = false }
-                        ) {
-                            brakeOptions.forEach { option ->
-                                DropdownMenuItem(
-                                    text = { Text(getBrakesLabel(context, option)) },
-                                    onClick = {
-                                        rearBrakes = option
-                                        rearBrakesExpanded = false
+                            if (rearBrakesExpanded) {
+                            Popup(
+                                onDismissRequest = { rearBrakesExpanded = false },
+                                popupPositionProvider = DropdownPositionProvider(),
+                                properties = PopupProperties(focusable = false, clippingEnabled = false)
+                            ) {
+                                Surface(
+                                    modifier = Modifier.width(rearBrakesWidth).heightIn(max = 300.dp),
+                                    shape = RoundedCornerShape(4.dp),
+                                    tonalElevation = 3.dp,
+                                    shadowElevation = 3.dp
+                                ) {
+                                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                        brakeOptions.forEach { option ->
+                                            DropdownMenuItem(
+                                                text = { Text(getBrakesLabel(context, option)) },
+                                                onClick = {
+                                                    rearBrakes = option
+                                                    rearBrakesExpanded = false
+                                                }
+                                            )
+                                        }
                                     }
-                                )
+                                }
                             }
                         }
                     }

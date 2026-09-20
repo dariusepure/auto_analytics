@@ -27,6 +27,15 @@ class PreferenceRepository @Inject constructor(
     private val _isGuestMode = MutableStateFlow(prefs.getBoolean("is_guest_mode", false))
     val isGuestMode = _isGuestMode.asStateFlow()
 
+    private val _notifyItp = MutableStateFlow(prefs.getBoolean("notify_itp", true))
+    val notifyItp = _notifyItp.asStateFlow()
+
+    private val _notifyInsurance = MutableStateFlow(prefs.getBoolean("notify_insurance", true))
+    val notifyInsurance = _notifyInsurance.asStateFlow()
+
+    private val _notifyVignette = MutableStateFlow(prefs.getBoolean("notify_vignette", true))
+    val notifyVignette = _notifyVignette.asStateFlow()
+
     fun setDarkMode(enabled: Boolean?) {
         _isDarkMode.value = enabled
         if (enabled == null) {
@@ -44,6 +53,21 @@ class PreferenceRepository @Inject constructor(
     fun setGuestMode(enabled: Boolean) {
         _isGuestMode.value = enabled
         prefs.edit().putBoolean("is_guest_mode", enabled).apply()
+    }
+
+    fun setNotifyItp(enabled: Boolean) {
+        _notifyItp.value = enabled
+        prefs.edit().putBoolean("notify_itp", enabled).apply()
+    }
+
+    fun setNotifyInsurance(enabled: Boolean) {
+        _notifyInsurance.value = enabled
+        prefs.edit().putBoolean("notify_insurance", enabled).apply()
+    }
+
+    fun setNotifyVignette(enabled: Boolean) {
+        _notifyVignette.value = enabled
+        prefs.edit().putBoolean("notify_vignette", enabled).apply()
     }
 }
 

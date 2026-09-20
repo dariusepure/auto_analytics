@@ -43,7 +43,7 @@ class CarRepository @Inject constructor(
                 }
 
                 val results = snapshots?.documents?.mapNotNull { doc ->
-                    doc.toObject(FirestoreCar::class.java)?.fromFirebase()
+                    doc.toObject(FirestoreCar::class.java)?.fromFirebase(doc.metadata.hasPendingWrites())
                 } ?: emptyList()
 
                 trySend(results)
@@ -88,7 +88,7 @@ class CarRepository @Inject constructor(
                     return@addSnapshotListener
                 }
 
-                val car = snapshot?.toObject(FirestoreCar::class.java)?.fromFirebase()
+                val car = snapshot?.toObject(FirestoreCar::class.java)?.fromFirebase(snapshot.metadata.hasPendingWrites())
                 trySend(car)
             }
 
