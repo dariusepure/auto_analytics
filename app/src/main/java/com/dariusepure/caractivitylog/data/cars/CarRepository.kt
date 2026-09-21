@@ -9,6 +9,7 @@ import com.dariusepure.caractivitylog.data.auth.AuthRepository
 import com.dariusepure.caractivitylog.data.auth.AuthEvent
 import android.util.Log
 import com.dariusepure.caractivitylog.data.auth.FirestoreUser
+import com.dariusepure.caractivitylog.domain.Maintenance
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.flow.Flow
@@ -172,7 +173,7 @@ class CarRepository @Inject constructor(
                     return@flow
                 }
                 try {
-                    val results = supabaseClient.postgrest["mileage"]
+                    val results = supabaseClient.postgrest["mileage_logs"]
                         .select {
                             filter {
                                 eq("car_id", carId)
@@ -190,18 +191,18 @@ class CarRepository @Inject constructor(
 
     suspend fun addMileageLog(carId: String, log: MileageLog) {
         val dto = log.toFirebase().copy(carId = carId)
-        supabaseClient.postgrest["mileage"].insert(dto)
+        supabaseClient.postgrest["mileage_logs"].insert(dto)
         refresh()
     }
 
     suspend fun updateMileageLog(carId: String, log: MileageLog) {
         val dto = log.toFirebase().copy(carId = carId)
-        supabaseClient.postgrest["mileage"].upsert(dto)
+        supabaseClient.postgrest["mileage_logs"].upsert(dto)
         refresh()
     }
 
     suspend fun deleteMileageLog(carId: String, logId: String) {
-        supabaseClient.postgrest["mileage"].delete {
+        supabaseClient.postgrest["mileage_logs"].delete {
             filter {
                 eq("id", logId)
                 eq("car_id", carId)
@@ -427,7 +428,7 @@ class CarRepository @Inject constructor(
                     return@flow
                 }
                 try {
-                    val results = supabaseClient.postgrest["diagnosis"]
+                    val results = supabaseClient.postgrest["diagnosis_logs"]
                         .select {
                             filter {
                                 eq("car_id", carId)
@@ -445,12 +446,12 @@ class CarRepository @Inject constructor(
 
     suspend fun addDiagnosisMessage(carId: String, message: ChatMessage) {
         val dto = FirestoreChatMessage.fromChatMessage(message).copy(carId = carId)
-        supabaseClient.postgrest["diagnosis"].insert(dto)
+        supabaseClient.postgrest["diagnosis_logs"].insert(dto)
         refresh()
     }
 
     suspend fun clearDiagnosisMessages(carId: String) {
-        supabaseClient.postgrest["diagnosis"].delete {
+        supabaseClient.postgrest["diagnosis_logs"].delete {
             filter {
                 eq("car_id", carId)
             }
@@ -522,7 +523,7 @@ class CarRepository @Inject constructor(
                     return@flow
                 }
                 try {
-                    val results = supabaseClient.postgrest["maintenance"]
+                    val results = supabaseClient.postgrest["maintenance_logs"]
                         .select {
                             filter {
                                 eq("car_id", carId)
@@ -540,18 +541,18 @@ class CarRepository @Inject constructor(
 
     suspend fun addMaintenanceLog(carId: String, log: com.dariusepure.caractivitylog.domain.Maintenance) {
         val dto = log.toFirebase().copy(carId = carId)
-        supabaseClient.postgrest["maintenance"].insert(dto)
+        supabaseClient.postgrest["maintenance_logs"].insert(dto)
         refresh()
     }
 
     suspend fun updateMaintenanceLog(carId: String, log: com.dariusepure.caractivitylog.domain.Maintenance) {
         val dto = log.toFirebase().copy(carId = carId)
-        supabaseClient.postgrest["maintenance"].upsert(dto)
+        supabaseClient.postgrest["maintenance_logs"].upsert(dto)
         refresh()
     }
 
-    suspend fun deleteMaintenanceLog(carId: String, log: com.dariusepure.caractivitylog.domain.Maintenance) {
-        supabaseClient.postgrest["maintenance"].delete {
+    suspend fun deleteMaintenanceLog(carId: String, log: Maintenance) {
+        supabaseClient.postgrest["maintenance_logs"].delete {
             filter {
                 eq("id", log.id)
                 eq("car_id", carId)

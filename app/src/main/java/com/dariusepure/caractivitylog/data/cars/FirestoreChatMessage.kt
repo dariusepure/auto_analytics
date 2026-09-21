@@ -7,10 +7,10 @@ import java.util.Date
 
 @Serializable
 data class FirestoreChatMessage(
-    @SerialName("car_id") val carId: String = "",
-    @SerialName("is_user") val isUser: Boolean = false,
-    @SerialName("text") val text: String = "",
-    @SerialName("timestamp") val timestamp: Long = System.currentTimeMillis()
+    @SerialName("car_id") val carId: String,
+    @SerialName("is_user") val isUser: Boolean,
+    @SerialName("text") val text: String,
+    @SerialName("timestamp") val timestamp: Long
 ) {
     fun toChatMessage() = ChatMessage(
         text = text,
@@ -20,8 +20,9 @@ data class FirestoreChatMessage(
 
     companion object {
         fun fromChatMessage(message: ChatMessage) = FirestoreChatMessage(
-            text = message.text,
+            carId = "", // Set separately
             isUser = message.isUser,
+            text = message.text,
             timestamp = message.timestamp
         )
     }

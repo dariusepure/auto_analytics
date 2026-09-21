@@ -12,6 +12,8 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.SmartToy
+import androidx.compose.material.icons.filled.LocalGasStation
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -137,6 +139,25 @@ fun DiagnosisScreen(
                         }
                     }
                 }
+            }
+
+            // Quick Actions
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                AssistChip(
+                    onClick = { viewModel.analyzeFuelConsumption(carId) },
+                    label = { Text(stringResource(R.string.diagnosis_action_fuel)) },
+                    leadingIcon = { Icon(Icons.Default.LocalGasStation, null, Modifier.size(18.dp)) }
+                )
+                AssistChip(
+                    onClick = { viewModel.suggestMaintenance(carId) },
+                    label = { Text(stringResource(R.string.diagnosis_action_maintenance)) },
+                    leadingIcon = { Icon(Icons.Default.Build, null, Modifier.size(18.dp)) }
+                )
             }
 
             ChatInputBar(

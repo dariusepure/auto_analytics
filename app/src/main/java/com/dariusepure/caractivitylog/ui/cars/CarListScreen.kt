@@ -36,6 +36,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.animation.core.*
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.R
@@ -107,11 +109,31 @@ fun CarCard(
                     )
                     if (car.isPendingSync) {
                         Spacer(Modifier.width(8.dp))
+                        val infiniteTransition = rememberInfiniteTransition(label = "sync_rotation")
+                        val rotation by infiniteTransition.animateFloat(
+                            initialValue = 0f,
+                            targetValue = 360f,
+                            animationSpec = infiniteRepeatable(
+                                animation = tween(1500, easing = LinearEasing),
+                                repeatMode = RepeatMode.Restart
+                            ),
+                            label = "rotation"
+                        )
                         Icon(
                             imageVector = Icons.Default.Sync,
                             contentDescription = "Sincronizare în curs",
+                            modifier = Modifier
+                                .size(16.dp)
+                                .graphicsLayer { rotationZ = rotation },
+                            tint = Color(0xFF2196F3) // Albastru pentru pending
+                        )
+                    } else {
+                        Spacer(Modifier.width(8.dp))
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = "Sincronizat",
                             modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.secondary
+                            tint = Color(0xFF4CAF50) // Verde pentru succes
                         )
                     }
                 }

@@ -24,6 +24,8 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.gotrue.Auth
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.serializer.KotlinXSerializer
+import kotlinx.serialization.json.Json
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -47,7 +49,7 @@ object AppModule {
             requestTimeoutMillis = 90000
         }
         install(io.ktor.client.plugins.contentnegotiation.ContentNegotiation) {
-            json(kotlinx.serialization.json.Json {
+            json(Json {
                 ignoreUnknownKeys = true
                 coerceInputValues = true
                 isLenient = true

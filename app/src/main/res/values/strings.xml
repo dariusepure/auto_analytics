@@ -466,6 +466,10 @@
     <string name="diagnosis_is_thinking">AI is thinking...</string>
     <string name="diagnosis_placeholder">Describe the problem...</string>
     <string name="diagnosis_send">Send</string>
+    <string name="diagnosis_action_fuel">Fuel Analysis</string>
+    <string name="diagnosis_action_maintenance">Maintenance Plan</string>
+    <string name="diagnosis_fuel_analysis_prompt">Analyze my fuel consumption based on recent logs and give me some advice.</string>
+    <string name="diagnosis_maintenance_prompt">Suggest a predictive maintenance plan based on my car history and mileage.</string>
 
     <!-- Recycle Bin -->
 

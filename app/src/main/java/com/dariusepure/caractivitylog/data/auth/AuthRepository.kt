@@ -345,15 +345,6 @@ class AuthRepository @Inject constructor(
                         }
                     }
                     Log.d(TAG, "Updated cars (user_id column) from $oldUid to $newUid")
-                    
-                    val updateResult2 = supabaseClient.postgrest["cars"].update(
-                        mapOf("id" to newUid)
-                    ) {
-                        filter {
-                            eq("id", oldUid)
-                        }
-                    }
-                    Log.d(TAG, "Updated cars (id column) from $oldUid to $newUid")
                 } catch (e: Exception) {
                     Log.e(TAG, "Error updating car ownership: ${e.message}")
                 }

@@ -466,6 +466,10 @@
     <string name="diagnosis_is_thinking">AI se gândește…</string>
     <string name="diagnosis_placeholder">Descrie problema…</string>
     <string name="diagnosis_send">Trimite</string>
+    <string name="diagnosis_action_fuel">Analiză Consum</string>
+    <string name="diagnosis_action_maintenance">Plan Mentenanță</string>
+    <string name="diagnosis_fuel_analysis_prompt">Analizează consumul meu de combustibil pe baza log-urilor recente și oferă-mi câteva sfaturi.</string>
+    <string name="diagnosis_maintenance_prompt">Sugerează un plan de mentenanță predictivă pe baza istoricului mașinii și a kilometrajului.</string>
 
     <!-- Recycle Bin -->
 
