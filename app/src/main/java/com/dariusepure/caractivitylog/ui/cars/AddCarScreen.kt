@@ -1,8 +1,6 @@
 package com.dariusepure.caractivitylog.ui.cars
 
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -123,7 +121,7 @@ fun AddCarScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: AddCarViewModel = hiltViewModel(),
-    windowSizeClass: WindowSizeClass? = null
+    @Suppress("UNUSED_PARAMETER") windowSizeClass: WindowSizeClass? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val unitSystem by viewModel.unitSystem.collectAsStateWithLifecycle()
@@ -141,7 +139,7 @@ fun AddCarScreen(
     val drivetrainOptions = listOf("FWD", "RWD", "AWD")
     val vehicleTypes = listOf(
         "Saloon", "Estate", "Hatchback", "Liftback", "MPV", "SUV", "Crossover", "Coupe", "Convertible", "Van", "Pickup",
-        "Fastback", "Targa", "Roadster", "Spider", "Coupe-Cabriolet", "Shooting Brake", "Minivan"
+        "Fastback", "Targa", "Roadster", "Spider", "Coupe-Cabriolet", "Shooting Brake", "Minivan",
     )
     val carColors = listOf("White", "Black", "Silver", "Gray", "Blue", "Red", "Brown", "Green", "Yellow", "Orange")
 
@@ -162,7 +160,7 @@ fun AddCarScreen(
     var generation by remember { mutableStateOf("") }
     var engineVariant by remember { mutableStateOf("") }
     var vin by remember { mutableStateOf("") }
-    var showVinError by remember { mutableStateOf(false) }
+    var showVinError by remember { mutableStateOf(value = false) }
     var year by remember { mutableStateOf("") }
     var engineSize by remember { mutableStateOf("") }
     var fuelType by remember { mutableStateOf("") }
@@ -276,11 +274,11 @@ fun AddCarScreen(
             ),
             usesMiles = usesMiles,
             consumptionUnit = consumptionUnit,
-            onDismiss = { dataToConfirm = null },
-            onConfirm = { selectedData ->
-                if (make.isBlank()) selectedData.make?.let { 
-                    make = it.lowercase().replaceFirstChar { char -> char.uppercase() } 
-                }
+            onDismiss = { dataToConfirm = null }
+        ) { selectedData ->
+            if (make.isBlank()) selectedData.make?.let { 
+                make = it.lowercase().replaceFirstChar { char -> char.uppercase() } 
+            }
                 if (model.isBlank()) selectedData.model?.let { model = it }
                 if (engineVariant.isBlank()) selectedData.engineVariant?.let { engineVariant = it }
                 if (vin.isBlank()) selectedData.vin?.let { vin = it.uppercase() }
@@ -288,7 +286,7 @@ fun AddCarScreen(
                 if (fuelType.isBlank()) selectedData.fuelType?.let { if (it in fuelTypes) fuelType = it }
                 if (engineSize.isBlank()) selectedData.engineSize?.let { engineSize = it.roundToInt().toString() }
                 if (power.isBlank()) selectedData.power?.let { power = it.roundToInt().toString() }
-                if (powerUnit.isBlank() || powerUnit.lowercase() == "hp") selectedData.powerUnit?.let { powerUnit = it }
+                if (powerUnit.isBlank() || (powerUnit.lowercase() == "hp")) selectedData.powerUnit?.let { powerUnit = it }
                 if (torque.isBlank()) selectedData.torque?.let { torque = it.roundToInt().toString() }
                 if (color.isBlank()) selectedData.color?.let { color = it }
                 if (licensePlate.isBlank()) selectedData.registrationPlate?.let { licensePlate = it.uppercase() }
@@ -300,8 +298,9 @@ fun AddCarScreen(
                     selectedData.emissionStandard?.let {
                         if (it in emissionStandards) emissionStandard = it
                         else if (it.contains("Euro", ignoreCase = true)) {
-                            val standard = emissionStandards.find { s -> it.contains(s.takeLast(1)) }
-                            if (standard != null) emissionStandard = standard
+                            emissionStandards.find { s -> it.contains(s.takeLast(1)) }?.let { standard ->
+                                emissionStandard = standard
+                            }
                         }
                     }
                 }
@@ -319,10 +318,9 @@ fun AddCarScreen(
 
                 dataToConfirm = null
             }
-        )
     }
 
-    var identityExpanded by remember { mutableStateOf(true) }
+    var identityExpanded by remember { mutableStateOf(value = true) }
     var engineExpanded by remember { mutableStateOf(false) }
     var dimensionsExpanded by remember { mutableStateOf(false) }
     var safetyExpanded by remember { mutableStateOf(false) }
@@ -439,7 +437,7 @@ fun AddCarScreen(
 
     val handleBack = {
         val hasRequiredData = make.isNotBlank() && model.isNotBlank()
-        val isVinValid = vin.isEmpty() || vin.length == 17
+        val isVinValid = vin.isEmpty() || (vin.length == 17)
         
         if (hasRequiredData && isVinValid) {
             viewModel.onAddOrUpdateCar(
@@ -760,11 +758,13 @@ fun AddCarScreen(
                         trailingIcon = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 if (make.isNotEmpty()) {
-                                    IconButton(onClick = { 
-                                        make = "" 
-                                        showFullBrandList = true
-                                        makeExpanded = true
-                                    }) {
+                                    IconButton(
+                                        onClick = { 
+                                            make = "" 
+                                            showFullBrandList = true
+                                            makeExpanded = true
+                                        }
+                                    ) {
                                         Icon(Icons.Default.Clear, contentDescription = "Clear")
                                     }
                                 }
@@ -806,7 +806,7 @@ fun AddCarScreen(
                                                                 .background(MaterialTheme.colorScheme.surfaceVariant),
                                                             contentAlignment = Alignment.Center
                                                         ) {
-                                                            androidx.compose.foundation.Image(
+                                                            Image(
                                                                 painter = painterResource(logoRes),
                                                                 contentDescription = null,
                                                                 modifier = Modifier
@@ -863,11 +863,13 @@ fun AddCarScreen(
                         trailingIcon = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 if (model.isNotEmpty()) {
-                                    IconButton(onClick = { 
-                                        model = "" 
-                                        showFullModelList = true
-                                        modelExpanded = true
-                                    }) {
+                                    IconButton(
+                                        onClick = { 
+                                            model = "" 
+                                            showFullModelList = true
+                                            modelExpanded = true
+                                        }
+                                    ) {
                                         Icon(Icons.Default.Clear, contentDescription = "Clear")
                                     }
                                 }
@@ -2444,14 +2446,11 @@ fun AddCarScreen(
             }
 
 
-            // --- 4. EQUIPMENTS & SAFETY ---
+            // --- 4. SAFETY ---
             CollapsibleSection(
-                title = stringResource(R.string.car_equipments_label),
-                isExpanded = safetyExpanded || equipmentExpanded,
-                onToggle = { 
-                    safetyExpanded = !safetyExpanded
-                    equipmentExpanded = !equipmentExpanded
-                }
+                title = stringResource(R.string.equip_cat_safety),
+                isExpanded = safetyExpanded,
+                onToggle = { safetyExpanded = !safetyExpanded }
             ) {
                 // Airbags stays at top of this section as numeric
                 OutlinedTextField(
@@ -2473,11 +2472,21 @@ fun AddCarScreen(
                 Spacer(Modifier.height(8.dp))
 
                 // Safety
-                EquipmentCategoryHeader(stringResource(R.string.equip_cat_safety))
                 EquipmentGrid(safetyEquipment, selectedEquipments, onToggleEquipment)
 
                 Spacer(Modifier.height(16.dp))
 
+                // Parking
+                EquipmentCategoryHeader(stringResource(R.string.equip_cat_parking))
+                EquipmentGrid(parkingEquipment, selectedEquipments, onToggleEquipment)
+            }
+
+            // --- 5. EQUIPMENTS ---
+            CollapsibleSection(
+                title = stringResource(R.string.car_equipments_label),
+                isExpanded = equipmentExpanded,
+                onToggle = { equipmentExpanded = !equipmentExpanded }
+            ) {
                 // Comfort
                 EquipmentCategoryHeader(stringResource(R.string.equip_cat_comfort))
                 EquipmentGrid(comfortEquipment, selectedEquipments, onToggleEquipment)
@@ -2493,12 +2502,6 @@ fun AddCarScreen(
                 // Exterior
                 EquipmentCategoryHeader(stringResource(R.string.equip_cat_exterior))
                 EquipmentGrid(exteriorEquipment, selectedEquipments, onToggleEquipment)
-
-                Spacer(Modifier.height(16.dp))
-
-                // Parking
-                EquipmentCategoryHeader(stringResource(R.string.equip_cat_parking))
-                EquipmentGrid(parkingEquipment, selectedEquipments, onToggleEquipment)
             }
 
             Spacer(Modifier.height(24.dp))
@@ -2600,7 +2603,7 @@ fun ScannedCarDataConfirmationDialog(
         return
     }
 
-    var selectedKeys by remember { mutableStateOf(fields.map { it.third }.toSet()) }
+    var selectedKeys by remember { mutableStateOf(fields.asSequence().map { it.third }.toSet()) }
 
     AlertDialog(
         onDismissRequest = onDismiss,

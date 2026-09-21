@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dariusepure.caractivitylog.domain.CarEquipment
 import com.dariusepure.caractivitylog.ui.common.CarFormatters
 import com.dariusepure.caractivitylog.ui.common.CarTranslations
 import com.dariusepure.caractivitylog.ui.common.ErrorState
@@ -274,17 +275,30 @@ fun TechnicalSheetScreen(
                         SpecificationCard(specifications = dimensionSpecs)
                     }
 
-                    TechnicalCategory(title = stringResource(R.string.car_equipments_label)) {
-                        val allSpecs = mutableListOf<Pair<String, String>>()
+                    TechnicalCategory(title = stringResource(R.string.car_safety_section)) {
+                        val safetyIds = listOf(
+                            CarEquipment.ABS,
+                            CarEquipment.ESP,
+                            CarEquipment.ASR,
+                            CarEquipment.ISOFIX,
+                            CarEquipment.LANE_ASSIST,
+                            CarEquipment.BLIND_SPOT,
+                            CarEquipment.ADAPTIVE_CRUISE,
+                            CarEquipment.EMERGENCY_BRAKE
+                        )
+                        
+                        val safetySpecs = mutableListOf<Pair<String, String>>()
                         if (car.airbags > 0) {
-                            allSpecs.add(stringResource(R.string.car_airbags_label) to car.airbags.toString())
+                            safetySpecs.add(stringResource(R.string.car_airbags_label) to car.airbags.toString())
                         }
                         
-                        car.equipments.forEach { id ->
-                            allSpecs.add(CarTranslations.getEquipmentLabel(context, id) to stringResource(R.string.status_ok))
+                        car.equipments.filter { it in safetyIds }.forEach { id ->
+                            safetySpecs.add(CarTranslations.getEquipmentLabel(context, id) to stringResource(R.string.status_ok))
                         }
 
-                        if (allSpecs.isEmpty()) {
+                        if (safetySpecs.isNotEmpty()) {
+                            SpecificationCard(specifications = safetySpecs)
+                        } else {
                             Surface(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = MaterialTheme.shapes.medium,
@@ -298,8 +312,42 @@ fun TechnicalSheetScreen(
                                     textAlign = TextAlign.Center
                                 )
                             }
+                        }
+                    }
+
+                    TechnicalCategory(title = stringResource(R.string.car_equipments_label)) {
+                        val safetyIds = listOf(
+                            CarEquipment.ABS,
+                            CarEquipment.ESP,
+                            CarEquipment.ASR,
+                            CarEquipment.ISOFIX,
+                            CarEquipment.LANE_ASSIST,
+                            CarEquipment.BLIND_SPOT,
+                            CarEquipment.ADAPTIVE_CRUISE,
+                            CarEquipment.EMERGENCY_BRAKE
+                        )
+
+                        val equipSpecs = mutableListOf<Pair<String, String>>()
+                        car.equipments.filter { it !in safetyIds }.forEach { id ->
+                            equipSpecs.add(CarTranslations.getEquipmentLabel(context, id) to stringResource(R.string.status_ok))
+                        }
+
+                        if (equipSpecs.isNotEmpty()) {
+                            SpecificationCard(specifications = equipSpecs)
                         } else {
-                            SpecificationCard(specifications = allSpecs)
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = MaterialTheme.shapes.medium,
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.common_none),
+                                    modifier = Modifier.padding(16.dp),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                         }
                     }
 

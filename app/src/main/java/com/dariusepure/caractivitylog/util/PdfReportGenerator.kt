@@ -6,8 +6,10 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.pdf.PdfDocument
+import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.ui.cars.europeanCountries
 import com.dariusepure.caractivitylog.domain.Car
+import com.dariusepure.caractivitylog.domain.CarEquipment
 import com.dariusepure.caractivitylog.domain.FuelLog
 import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.domain.VehicleInspection
@@ -243,19 +245,40 @@ object PdfReportGenerator {
             )
             drawThreeColumns(dimensionSpecs.filter { it.second.isNotBlank() })
 
-            // 4. Equipments
-            drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.car_equipments_label))
-            val equipmentList = mutableListOf<Pair<String, String>>()
+            // 4. Safety
+            val safetyIds = listOf(
+                CarEquipment.ABS,
+                CarEquipment.ESP,
+                CarEquipment.ASR,
+                CarEquipment.ISOFIX,
+                CarEquipment.LANE_ASSIST,
+                CarEquipment.BLIND_SPOT,
+                CarEquipment.ADAPTIVE_CRUISE,
+                CarEquipment.EMERGENCY_BRAKE
+            )
+            
+            val safetyList = mutableListOf<Pair<String, String>>()
             if (car.airbags > 0) {
-                equipmentList.add(context.getString(com.dariusepure.caractivitylog.R.string.car_airbags_label) to car.airbags.toString())
+                safetyList.add(context.getString(R.string.car_airbags_label) to car.airbags.toString())
             }
-            car.equipments.forEach { id ->
-                equipmentList.add(CarTranslations.getEquipmentLabel(context, id) to context.getString(com.dariusepure.caractivitylog.R.string.status_ok))
+            car.equipments.filter { it in safetyIds }.forEach { id ->
+                safetyList.add(CarTranslations.getEquipmentLabel(context, id) to context.getString(R.string.status_ok))
             }
 
-            if (equipmentList.isEmpty()) {
-                drawTableRow(listOf("-" to 1f))
-            } else {
+            if (safetyList.isNotEmpty()) {
+                drawSectionHeader(context.getString(R.string.car_safety_section))
+                drawThreeColumns(safetyList)
+            }
+
+            // 5. Equipments
+            val equipmentList = mutableListOf<Pair<String, String>>()
+            car.equipments.filter { it !in safetyIds }.forEach { id ->
+                equipmentList.add(CarTranslations.getEquipmentLabel(context, id) to context.getString(
+                    R.string.status_ok))
+            }
+
+            if (equipmentList.isNotEmpty()) {
+                drawSectionHeader(context.getString(R.string.car_equipments_label))
                 drawThreeColumns(equipmentList)
             }
         }
