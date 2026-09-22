@@ -312,14 +312,15 @@
     <string name="car_front_brakes_label">Frâne față</string>
     <string name="car_rear_brakes_label">Frâne spate</string>
     <string name="car_drivetrain_label">Tracțiune</string>
-    <string name="car_equipments_label">Echipamente și Dotări</string>
+    <string name="car_equipments_label">Echipamente</string>
     <string name="car_confirm_scanned_data">Confirmă datele scanate</string>
 
     <!-- Equipment Categories -->
-    <string name="equip_cat_safety">Siguranță și Asistență</string>
-    <string name="equip_cat_comfort">Confort și Interior</string>
-    <string name="equip_cat_tech">Multimedia și Tehnologie</string>
-    <string name="equip_cat_exterior">Exterior și Lumini</string>
+    <string name="equip_cat_safety">Siguranță</string>
+    <string name="equip_cat_assistance">Asistență</string>
+    <string name="equip_cat_comfort">Confort</string>
+    <string name="equip_cat_tech">Tehnologie</string>
+    <string name="equip_cat_exterior">Exterior</string>
     <string name="equip_cat_parking">Parcare</string>
 
     <!-- Equipment Items -->

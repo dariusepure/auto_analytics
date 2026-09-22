@@ -27,7 +27,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.domain.*
 import com.dariusepure.caractivitylog.ui.common.AutoSizeText
-import com.dariusepure.caractivitylog.ui.common.toRelativeString
 import com.dariusepure.caractivitylog.ui.common.*
 import com.dariusepure.caractivitylog.ui.theme.statusExpiredRed
 import java.util.*
@@ -578,7 +577,6 @@ private fun CarHeaderText(
     context: android.content.Context
 ) {
     val summary = remember(car, context) { CarFormatters.getCarSummary(context, car) }
-    val relativeUpdate = remember(car.updatedAt, context) { car.updatedAt.toRelativeString(context) }
 
     Column {
         AutoSizeText(
@@ -600,13 +598,6 @@ private fun CarHeaderText(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Spacer(Modifier.height(2.dp))
         }
-
-        Text(
-            text = stringResource(R.string.car_last_update, relativeUpdate),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
     }
 }

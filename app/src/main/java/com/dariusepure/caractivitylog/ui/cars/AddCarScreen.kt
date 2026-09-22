@@ -107,6 +107,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.AlertDialog
 import androidx.compose.ui.text.font.FontWeight
+import com.dariusepure.caractivitylog.domain.CarEquipment
 import com.dariusepure.caractivitylog.domain.ScannedCarData
 import com.dariusepure.caractivitylog.ui.common.AutoSizeText
 import com.dariusepure.caractivitylog.ui.common.CarFormatters
@@ -365,7 +366,11 @@ fun AddCarScreen(
             com.dariusepure.caractivitylog.domain.CarEquipment.ABS to R.string.equip_abs,
             com.dariusepure.caractivitylog.domain.CarEquipment.ESP to R.string.equip_esp,
             com.dariusepure.caractivitylog.domain.CarEquipment.ASR to R.string.equip_asr,
-            com.dariusepure.caractivitylog.domain.CarEquipment.ISOFIX to R.string.equip_isofix,
+            CarEquipment.ISOFIX to R.string.equip_isofix
+        )
+    }
+    val assistanceEquipment = remember {
+        listOf(
             com.dariusepure.caractivitylog.domain.CarEquipment.LANE_ASSIST to R.string.equip_lane_assist,
             com.dariusepure.caractivitylog.domain.CarEquipment.BLIND_SPOT to R.string.equip_blind_spot,
             com.dariusepure.caractivitylog.domain.CarEquipment.ADAPTIVE_CRUISE to R.string.equip_adaptive_cruise,
@@ -1126,11 +1131,9 @@ fun AddCarScreen(
                             }
                         }
                     } else null,
-                    supportingText = {
-                        if (vin.isNotEmpty()) {
-                            Text("${vin.length}/17")
-                        }
-                    },
+                    supportingText = if (vin.isNotEmpty()) {
+                        { Text("${vin.length}/17") }
+                    } else null,
                     isError = (vin.isNotEmpty() && vin.length != 17) || showVinError
                 )
 
@@ -1442,14 +1445,13 @@ fun AddCarScreen(
                         label = { Text(stringResource(R.string.car_power_label)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
-                        shape = RoundedCornerShape(28.dp),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                     Spacer(Modifier.width(8.dp))
                     ExposedDropdownMenuBox(
                         expanded = powerUnitExpanded,
                         onExpandedChange = { powerUnitExpanded = it },
-                        modifier = Modifier.width(100.dp)
+                        modifier = Modifier.width(115.dp)
                     ) {
                         OutlinedTextField(
                             value = getPowerUnitLabel(context, powerUnit),
@@ -1459,14 +1461,7 @@ fun AddCarScreen(
                             modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
                                 .onGloballyPositioned { powerUnitWidth = with(density) { it.size.width.toDp() } },
                             trailingIcon = {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    if (powerUnit.isNotEmpty()) {
-                                        IconButton(onClick = { powerUnit = "" }) {
-                                            Icon(Icons.Default.Clear, contentDescription = "Clear")
-                                        }
-                                    }
-                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = powerUnitExpanded)
-                                }
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = powerUnitExpanded)
                             },
                             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                         )
@@ -2473,12 +2468,6 @@ fun AddCarScreen(
 
                 // Safety
                 EquipmentGrid(safetyEquipment, selectedEquipments, onToggleEquipment)
-
-                Spacer(Modifier.height(16.dp))
-
-                // Parking
-                EquipmentCategoryHeader(stringResource(R.string.equip_cat_parking))
-                EquipmentGrid(parkingEquipment, selectedEquipments, onToggleEquipment)
             }
 
             // --- 5. EQUIPMENTS ---
@@ -2487,6 +2476,18 @@ fun AddCarScreen(
                 isExpanded = equipmentExpanded,
                 onToggle = { equipmentExpanded = !equipmentExpanded }
             ) {
+                // Assistance
+                EquipmentCategoryHeader(stringResource(R.string.equip_cat_assistance))
+                EquipmentGrid(assistanceEquipment, selectedEquipments, onToggleEquipment)
+
+                Spacer(Modifier.height(16.dp))
+
+                // Parking
+                EquipmentCategoryHeader(stringResource(R.string.equip_cat_parking))
+                EquipmentGrid(parkingEquipment, selectedEquipments, onToggleEquipment)
+
+                Spacer(Modifier.height(16.dp))
+
                 // Comfort
                 EquipmentCategoryHeader(stringResource(R.string.equip_cat_comfort))
                 EquipmentGrid(comfortEquipment, selectedEquipments, onToggleEquipment)

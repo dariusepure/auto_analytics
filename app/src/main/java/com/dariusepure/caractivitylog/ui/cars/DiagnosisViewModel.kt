@@ -159,12 +159,4 @@ class DiagnosisViewModel @Inject constructor(
             }
         }
     }
-
-    fun analyzeFuelConsumption(carId: String) {
-        onSendMessage(carId, context.getString(R.string.diagnosis_fuel_analysis_prompt))
-    }
-
-    fun suggestMaintenance(carId: String) {
-        onSendMessage(carId, context.getString(R.string.diagnosis_maintenance_prompt))
-    }
 }

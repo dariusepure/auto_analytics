@@ -312,14 +312,15 @@
     <string name="car_front_brakes_label">Front Brakes</string>
     <string name="car_rear_brakes_label">Rear Brakes</string>
     <string name="car_drivetrain_label">Drivetrain</string>
-    <string name="car_equipments_label">Equipment &amp; Features</string>
+    <string name="car_equipments_label">Equipments</string>
     <string name="car_confirm_scanned_data">Confirm Scanned Data</string>
 
     <!-- Equipment Categories -->
-    <string name="equip_cat_safety">Safety &amp; Assistance</string>
-    <string name="equip_cat_comfort">Comfort &amp; Interior</string>
-    <string name="equip_cat_tech">Multimedia &amp; Technology</string>
-    <string name="equip_cat_exterior">Exterior &amp; Lights</string>
+    <string name="equip_cat_safety">Safety</string>
+    <string name="equip_cat_assistance">Assistance</string>
+    <string name="equip_cat_comfort">Comfort</string>
+    <string name="equip_cat_tech">Technology</string>
+    <string name="equip_cat_exterior">Exterior</string>
     <string name="equip_cat_parking">Parking</string>
 
     <!-- Equipment Items -->

@@ -280,11 +280,7 @@ fun TechnicalSheetScreen(
                             CarEquipment.ABS,
                             CarEquipment.ESP,
                             CarEquipment.ASR,
-                            CarEquipment.ISOFIX,
-                            CarEquipment.LANE_ASSIST,
-                            CarEquipment.BLIND_SPOT,
-                            CarEquipment.ADAPTIVE_CRUISE,
-                            CarEquipment.EMERGENCY_BRAKE
+                            CarEquipment.ISOFIX
                         )
                         
                         val safetySpecs = mutableListOf<Pair<String, String>>()
@@ -320,11 +316,7 @@ fun TechnicalSheetScreen(
                             CarEquipment.ABS,
                             CarEquipment.ESP,
                             CarEquipment.ASR,
-                            CarEquipment.ISOFIX,
-                            CarEquipment.LANE_ASSIST,
-                            CarEquipment.BLIND_SPOT,
-                            CarEquipment.ADAPTIVE_CRUISE,
-                            CarEquipment.EMERGENCY_BRAKE
+                            CarEquipment.ISOFIX
                         )
 
                         val equipSpecs = mutableListOf<Pair<String, String>>()
