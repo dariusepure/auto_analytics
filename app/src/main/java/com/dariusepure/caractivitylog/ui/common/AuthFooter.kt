@@ -36,7 +36,7 @@ fun AuthFooter(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 24.dp),
+            .padding(vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text(

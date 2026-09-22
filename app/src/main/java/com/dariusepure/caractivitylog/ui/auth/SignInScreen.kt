@@ -14,7 +14,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.DirectionsCar
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Button
@@ -40,6 +39,7 @@ import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.ui.common.AuthFooter
 import com.dariusepure.caractivitylog.ui.common.LanguageSelector
+import com.dariusepure.caractivitylog.ui.common.ModernAppLogo
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -57,6 +57,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.ui.theme.CarActivityLogTheme
 import androidx.appcompat.app.AppCompatDelegate
+import com.dariusepure.caractivitylog.ui.common.ModernAppLogo
 
 @Composable
 fun SignInScreen(
@@ -108,7 +109,10 @@ fun SignInContent(
     val context = LocalContext.current
 
     Scaffold(
-        modifier = modifier
+        modifier = modifier,
+        bottomBar = {
+            AuthFooter()
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -119,6 +123,13 @@ fun SignInContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
+            Spacer(modifier = Modifier.height(32.dp))
+
+            ModernAppLogo(
+                size = 80.dp,
+                modifier = Modifier.padding(bottom = 24.dp)
+            )
+
             Text(
                 text = buildAnnotatedString {
                     withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onBackground)) {
@@ -130,7 +141,7 @@ fun SignInContent(
                 },
                 style = MaterialTheme.typography.displayMedium.copy(fontWeight = FontWeight.ExtraBold),
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
             )
             Text(
                 text = stringResource(R.string.auth_signin_subtitle),
@@ -268,8 +279,6 @@ fun SignInContent(
                 modifier = Modifier.padding(top = 8.dp)
             )
 
-            Spacer(Modifier.height(32.dp))
-            AuthFooter()
             Spacer(Modifier.height(16.dp))
         }
     }

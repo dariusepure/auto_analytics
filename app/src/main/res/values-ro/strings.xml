@@ -33,7 +33,7 @@
     <string name="common_none">Niciunul</string>
     <string name="common_inspection">Inspecție</string>
     <string name="common_expired">Expirat</string>
-    <string name="common_powered_by">Dezvoltat de Darius DevWorks</string>
+    <string name="common_powered_by">Developed by Darius DevWorks</string>
     <string name="status_ok">OK</string>
     <string name="status_soon">Curând</string>
     <string name="status_expired">Expirat</string>

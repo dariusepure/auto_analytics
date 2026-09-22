@@ -13,7 +13,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.DirectionsCar
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -36,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.ui.common.AuthFooter
 import com.dariusepure.caractivitylog.ui.common.LanguageSelector
+import com.dariusepure.caractivitylog.ui.common.ModernAppLogo
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.IconButton
@@ -87,7 +87,10 @@ fun SignUpContent(
     var confirmPasswordVisible by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
-        modifier = modifier
+        modifier = modifier,
+        bottomBar = {
+            AuthFooter()
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -98,11 +101,17 @@ fun SignUpContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
+            Spacer(modifier = Modifier.height(24.dp))
+
+            ModernAppLogo(
+                size = 70.dp,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
             Text(
                 text = stringResource(R.string.auth_signup_title),
                 style = MaterialTheme.typography.displaySmall,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 16.dp),
             )
             Text(
                 text = stringResource(R.string.auth_signup_subtitle),
@@ -220,8 +229,6 @@ fun SignUpContent(
                 modifier = Modifier.padding(top = 8.dp)
             )
 
-            Spacer(Modifier.height(32.dp))
-            AuthFooter()
             Spacer(Modifier.height(16.dp))
         }
     }

@@ -87,6 +87,9 @@ fun ForgotPasswordContent(
                     }
                 }
             )
+        },
+        bottomBar = {
+            AuthFooter()
         }
     ) { innerPadding ->
         Column(
@@ -186,8 +189,6 @@ fun ForgotPasswordContent(
                 }
             }
 
-            Spacer(Modifier.height(32.dp))
-            AuthFooter()
             Spacer(Modifier.height(16.dp))
         }
     }
