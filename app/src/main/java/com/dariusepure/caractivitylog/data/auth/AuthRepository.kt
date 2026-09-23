@@ -99,14 +99,14 @@ class AuthRepository @Inject constructor(
                         eq("id", uid)
                     }
                 }
-                .decodeSingleOrNull<FirestoreUser>()
+                .decodeSingleOrNull<RemoteUser>()
             
             if (userDto == null) {
                 val email = currentUserEmail ?: ""
                 Log.w(TAG, "getUserData: Profile NOT FOUND for $uid. Email: $email. Emitting default 'User' profile.")
                 emit(User(uid, email, "User"))
             } else {
-                val user = userDto.fromFirebase()
+                val user = userDto.fromRemote()
                 Log.d(TAG, "getUserData: Profile found: ${user.name} (${user.email})")
                 emit(user)
             }
@@ -131,7 +131,7 @@ class AuthRepository @Inject constructor(
         val uid = supabaseClient.auth.currentUserOrNull()?.id ?: "unknown_uid"
         
         withContext(NonCancellable) {
-            val user = FirestoreUser(
+            val user = RemoteUser(
                 id = uid,
                 email = email,
                 name = name
@@ -234,7 +234,7 @@ class AuthRepository @Inject constructor(
             if (user != null) {
                 Log.d(TAG, "Google Sign-In successful. Supabase User ID: ${user.id}, Email: ${user.email}")
                 withContext(NonCancellable) {
-                    val firestoreUser = FirestoreUser(
+                    val firestoreUser = RemoteUser(
                         id = user.id,
                         email = user.email ?: "",
                         name = if (displayName.isNotEmpty()) displayName else (user.userMetadata?.get("full_name")?.toString() ?: "")
@@ -324,7 +324,7 @@ class AuthRepository @Inject constructor(
                         eq("email", email)
                     }
                 }
-                .decodeList<FirestoreUser>()
+                .decodeList<RemoteUser>()
             
             Log.d(TAG, "Found ${allProfilesWithEmail.size} total profiles for $email")
 

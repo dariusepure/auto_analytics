@@ -70,8 +70,15 @@ class CarListViewModel @Inject constructor(
         }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = CarListUiState.Loading
+            started = SharingStarted.Eagerly,
+            initialValue = run {
+                val cached = carRepository.getCarsFromCache()
+                if (cached.isNotEmpty()) {
+                    CarListUiState.Success(cached)
+                } else {
+                    CarListUiState.Loading
+                }
+            }
         )
 
     fun onSortOrderChanged(order: CarSortOrder) {

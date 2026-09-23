@@ -4,9 +4,10 @@ import com.dariusepure.caractivitylog.domain.TireSeason
 import com.dariusepure.caractivitylog.domain.TireSet
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import java.util.UUID
 
 @Serializable
-data class FirestoreTireSet(
+data class RemoteTireSet(
     @SerialName("id") val id: String = "",
     @SerialName("car_id") val carId: String = "",
     @SerialName("season") val season: String = "SUMMER",
@@ -19,8 +20,8 @@ data class FirestoreTireSet(
     @SerialName("is_active") val isActive: Boolean = false
 )
 
-fun TireSet.toFirebase() = FirestoreTireSet(
-    id = this.id,
+fun TireSet.toRemote() = RemoteTireSet(
+    id = if (this.id.isBlank()) UUID.randomUUID().toString() else this.id,
     season = this.season.name,
     brand = this.brand,
     width = this.width,
@@ -31,7 +32,7 @@ fun TireSet.toFirebase() = FirestoreTireSet(
     isActive = this.isActive
 )
 
-fun FirestoreTireSet.fromFirebase() = TireSet(
+fun RemoteTireSet.fromRemote() = TireSet(
     id = this.id,
     season = try { TireSeason.valueOf(this.season) } catch (e: Exception) { TireSeason.SUMMER },
     brand = this.brand,

@@ -91,26 +91,42 @@ class MileageHistoryViewModel @Inject constructor(
 
     fun addMileage(carId: String, km: Double, date: Date) {
         viewModelScope.launch {
-            carRepository.addMileageLog(carId, MileageLog(km = km, date = date))
+            try {
+                carRepository.addMileageLog(carId, MileageLog(km = km, date = date))
+            } catch (e: Exception) {
+                _state.value = MileageHistoryUiState.Error(e.localizedMessage ?: context.getString(R.string.error_generic))
+            }
         }
     }
 
     fun updateMileage(carId: String, log: MileageLog) {
         viewModelScope.launch {
-            carRepository.updateMileageLog(carId, log)
+            try {
+                carRepository.updateMileageLog(carId, log)
+            } catch (e: Exception) {
+                _state.value = MileageHistoryUiState.Error(e.localizedMessage ?: context.getString(R.string.error_generic))
+            }
         }
     }
 
     fun deleteMileage(carId: String, logId: String) {
         viewModelScope.launch {
-            carRepository.deleteMileageLog(carId, logId)
+            try {
+                carRepository.deleteMileageLog(carId, logId)
+            } catch (e: Exception) {
+                _state.value = MileageHistoryUiState.Error(e.localizedMessage ?: context.getString(R.string.error_generic))
+            }
         }
     }
 
     fun addBatchMileageLogs(carId: String, logs: List<MileageLog>) {
         viewModelScope.launch {
-            logs.forEach { log ->
-                carRepository.addMileageLog(carId, log)
+            try {
+                logs.forEach { log ->
+                    carRepository.addMileageLog(carId, log)
+                }
+            } catch (e: Exception) {
+                _state.value = MileageHistoryUiState.Error(e.localizedMessage ?: context.getString(R.string.error_generic))
             }
         }
     }

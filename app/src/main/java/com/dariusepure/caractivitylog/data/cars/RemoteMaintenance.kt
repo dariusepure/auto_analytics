@@ -4,9 +4,10 @@ import com.dariusepure.caractivitylog.domain.Maintenance
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.util.Date
+import java.util.UUID
 
 @Serializable
-data class FirestoreMaintenance(
+data class RemoteMaintenance(
     @SerialName("id") val id: String = "",
     @SerialName("car_id") val carId: String = "",
     @SerialName("date") val date: Long = System.currentTimeMillis(),
@@ -16,8 +17,8 @@ data class FirestoreMaintenance(
     @SerialName("category") val category: String = "General"
 )
 
-fun Maintenance.toFirebase() = FirestoreMaintenance(
-    id = this.id,
+fun Maintenance.toRemote() = RemoteMaintenance(
+    id = if (this.id.isBlank()) UUID.randomUUID().toString() else this.id,
     date = this.date.time,
     km = this.km,
     description = this.description,
@@ -25,7 +26,7 @@ fun Maintenance.toFirebase() = FirestoreMaintenance(
     category = this.category
 )
 
-fun FirestoreMaintenance.fromFirebase() = Maintenance(
+fun RemoteMaintenance.fromRemote() = Maintenance(
     id = this.id,
     date = Date(this.date),
     km = this.km,

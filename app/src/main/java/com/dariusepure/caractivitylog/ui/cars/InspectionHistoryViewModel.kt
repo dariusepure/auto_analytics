@@ -95,26 +95,42 @@ class InspectionHistoryViewModel @Inject constructor(
 
     fun addInspection(carId: String, inspection: VehicleInspection) {
         viewModelScope.launch {
-            carRepository.addInspection(carId, inspection)
+            try {
+                carRepository.addInspection(carId, inspection)
+            } catch (e: Exception) {
+                _state.value = InspectionHistoryUiState.Error(e.localizedMessage ?: context.getString(R.string.error_generic))
+            }
         }
     }
 
     fun updateInspection(carId: String, inspection: VehicleInspection) {
         viewModelScope.launch {
-            carRepository.updateInspection(carId, inspection)
+            try {
+                carRepository.updateInspection(carId, inspection)
+            } catch (e: Exception) {
+                _state.value = InspectionHistoryUiState.Error(e.localizedMessage ?: context.getString(R.string.error_generic))
+            }
         }
     }
 
     fun deleteInspection(carId: String, inspection: VehicleInspection) {
         viewModelScope.launch {
-            carRepository.deleteInspection(carId, inspection)
+            try {
+                carRepository.deleteInspection(carId, inspection)
+            } catch (e: Exception) {
+                _state.value = InspectionHistoryUiState.Error(e.localizedMessage ?: context.getString(R.string.error_generic))
+            }
         }
     }
 
     fun addBatchMileageLogs(carId: String, logs: List<MileageLog>) {
         viewModelScope.launch {
-            logs.forEach { log ->
-                carRepository.addMileageLog(carId, log)
+            try {
+                logs.forEach { log ->
+                    carRepository.addMileageLog(carId, log)
+                }
+            } catch (e: Exception) {
+                // Log or report error
             }
         }
     }

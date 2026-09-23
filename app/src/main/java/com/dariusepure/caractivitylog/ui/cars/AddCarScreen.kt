@@ -328,7 +328,32 @@ fun AddCarScreen(
     var equipmentExpanded by remember { mutableStateOf(false) }
 
     var countryExpanded by remember { mutableStateOf(false) }
+    var plateCountryQuery by remember { mutableStateOf("") }
+    var showFullPlateCountryList by remember { mutableStateOf(false) }
+
     var manufacturingCountryExpanded by remember { mutableStateOf(false) }
+    var manufacturingCountryQuery by remember { mutableStateOf("") }
+    var showFullMfgCountryList by remember { mutableStateOf(false) }
+
+    val filteredPlateCountries = remember(plateCountryQuery, sortedCountries, showFullPlateCountryList) {
+        if (showFullPlateCountryList || plateCountryQuery.isBlank()) sortedCountries
+        else sortedCountries.filter { country ->
+            val localizedName = CarTranslations.getCountryName(context, country.code, country.name)
+            country.name.contains(plateCountryQuery, ignoreCase = true) ||
+            country.code.contains(plateCountryQuery, ignoreCase = true) ||
+            localizedName.contains(plateCountryQuery, ignoreCase = true)
+        }
+    }
+
+    val filteredManufacturingCountries = remember(manufacturingCountryQuery, sortedCountries, showFullMfgCountryList) {
+        if (showFullMfgCountryList || manufacturingCountryQuery.isBlank()) sortedCountries
+        else sortedCountries.filter { country ->
+            val localizedName = CarTranslations.getCountryName(context, country.code, country.name)
+            country.name.contains(manufacturingCountryQuery, ignoreCase = true) ||
+            country.code.contains(manufacturingCountryQuery, ignoreCase = true) ||
+            localizedName.contains(manufacturingCountryQuery, ignoreCase = true)
+        }
+    }
     var makeExpanded by remember { mutableStateOf(false) }
     var showFullBrandList by remember { mutableStateOf(false) }
     var fuelTypeExpanded by remember { mutableStateOf(false) }
@@ -1030,20 +1055,42 @@ fun AddCarScreen(
 
                 ExposedDropdownMenuBox(
                     expanded = countryExpanded,
-                    onExpandedChange = { countryExpanded = it },
+                    onExpandedChange = { 
+                        if (!it) showFullPlateCountryList = false
+                        countryExpanded = it 
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    val displayValue = if (countryExpanded) plateCountryQuery else selectedCountry?.let { CarTranslations.getCountryName(context, it.code, it.name) } ?: plateCountryQuery
+
                     OutlinedTextField(
-                        value = selectedCountry?.let { CarTranslations.getCountryName(context, it.code, it.name) } ?: "",
-                        onValueChange = { },
-                        readOnly = true,
+                        value = displayValue,
+                        onValueChange = { input ->
+                            plateCountryQuery = input
+                            showFullPlateCountryList = false
+                            countryExpanded = true
+                            val match = sortedCountries.find { 
+                                it.code.equals(input, ignoreCase = true) || 
+                                it.name.equals(input, ignoreCase = true) ||
+                                CarTranslations.getCountryName(context, it.code, it.name).equals(input, ignoreCase = true)
+                            }
+                            selectedCountry = match
+                        },
                         label = { Text(stringResource(R.string.car_plate_country_label)) },
-                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable, true).fillMaxWidth()
                             .onGloballyPositioned { countryWidth = with(density) { it.size.width.toDp() } },
+                        singleLine = true,
                         trailingIcon = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                if (selectedCountry != null) {
-                                    IconButton(onClick = { selectedCountry = null }) {
+                                if (displayValue.isNotEmpty()) {
+                                    IconButton(
+                                        onClick = { 
+                                            selectedCountry = null 
+                                            plateCountryQuery = ""
+                                            showFullPlateCountryList = true
+                                            countryExpanded = true
+                                        }
+                                    ) {
                                         Icon(Icons.Default.Clear, contentDescription = "Clear")
                                     }
                                 }
@@ -1052,9 +1099,12 @@ fun AddCarScreen(
                         },
                         colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                     )
-                    if (countryExpanded) {
+                    if (filteredPlateCountries.isNotEmpty() && countryExpanded) {
                         Popup(
-                            onDismissRequest = { countryExpanded = false },
+                            onDismissRequest = { 
+                                countryExpanded = false
+                                showFullPlateCountryList = false
+                            },
                             popupPositionProvider = DropdownPositionProvider(),
                             properties = PopupProperties(focusable = false, clippingEnabled = false)
                         ) {
@@ -1065,7 +1115,7 @@ fun AddCarScreen(
                                 shadowElevation = 3.dp
                             ) {
                                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                                    sortedCountries.forEach { country ->
+                                    filteredPlateCountries.forEach { country ->
                                         DropdownMenuItem(
                                             text = {
                                                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1076,7 +1126,9 @@ fun AddCarScreen(
                                             },
                                             onClick = {
                                                 selectedCountry = country
+                                                plateCountryQuery = CarTranslations.getCountryName(context, country.code, country.name)
                                                 countryExpanded = false
+                                                showFullPlateCountryList = false
                                             }
                                         )
                                     }
@@ -1192,20 +1244,42 @@ fun AddCarScreen(
 
                 ExposedDropdownMenuBox(
                     expanded = manufacturingCountryExpanded,
-                    onExpandedChange = { manufacturingCountryExpanded = it },
+                    onExpandedChange = { 
+                        if (!it) showFullMfgCountryList = false
+                        manufacturingCountryExpanded = it 
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    val displayValue = if (manufacturingCountryExpanded) manufacturingCountryQuery else europeanCountries.find { it.name == manufacturingCountry }?.let { CarTranslations.getCountryName(context, it.code, it.name) } ?: manufacturingCountry
+
                     OutlinedTextField(
-                        value = europeanCountries.find { it.name == manufacturingCountry }?.let { CarTranslations.getCountryName(context, it.code, it.name) } ?: manufacturingCountry,
-                        onValueChange = { },
-                        readOnly = true,
+                        value = displayValue,
+                        onValueChange = { input ->
+                            manufacturingCountryQuery = input
+                            showFullMfgCountryList = false
+                            manufacturingCountryExpanded = true
+                            val match = sortedCountries.find { 
+                                it.code.equals(input, ignoreCase = true) || 
+                                it.name.equals(input, ignoreCase = true) ||
+                                CarTranslations.getCountryName(context, it.code, it.name).equals(input, ignoreCase = true)
+                            }
+                            manufacturingCountry = match?.name ?: input
+                        },
                         label = { Text(stringResource(R.string.car_manufacturing_country_label)) },
-                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable, true).fillMaxWidth()
                             .onGloballyPositioned { manufacturingCountryWidth = with(density) { it.size.width.toDp() } },
+                        singleLine = true,
                         trailingIcon = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                if (manufacturingCountry.isNotEmpty()) {
-                                    IconButton(onClick = { manufacturingCountry = "" }) {
+                                if (displayValue.isNotEmpty()) {
+                                    IconButton(
+                                        onClick = { 
+                                            manufacturingCountry = ""
+                                            manufacturingCountryQuery = ""
+                                            showFullMfgCountryList = true
+                                            manufacturingCountryExpanded = true
+                                        }
+                                    ) {
                                         Icon(Icons.Default.Clear, contentDescription = "Clear")
                                     }
                                 }
@@ -1214,9 +1288,12 @@ fun AddCarScreen(
                         },
                         colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                     )
-                    if (manufacturingCountryExpanded) {
+                    if (filteredManufacturingCountries.isNotEmpty() && manufacturingCountryExpanded) {
                         Popup(
-                            onDismissRequest = { manufacturingCountryExpanded = false },
+                            onDismissRequest = { 
+                                manufacturingCountryExpanded = false
+                                showFullMfgCountryList = false
+                            },
                             popupPositionProvider = DropdownPositionProvider(),
                             properties = PopupProperties(focusable = false, clippingEnabled = false)
                         ) {
@@ -1227,7 +1304,7 @@ fun AddCarScreen(
                                 shadowElevation = 3.dp
                             ) {
                                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                                    sortedCountries.forEach { country ->
+                                    filteredManufacturingCountries.forEach { country ->
                                         DropdownMenuItem(
                                             text = {
                                                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1238,7 +1315,9 @@ fun AddCarScreen(
                                             },
                                             onClick = {
                                                 manufacturingCountry = country.name
+                                                manufacturingCountryQuery = CarTranslations.getCountryName(context, country.code, country.name)
                                                 manufacturingCountryExpanded = false
+                                                showFullMfgCountryList = false
                                             }
                                         )
                                     }

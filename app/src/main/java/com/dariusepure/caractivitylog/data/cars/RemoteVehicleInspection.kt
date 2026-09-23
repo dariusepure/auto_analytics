@@ -5,9 +5,10 @@ import com.dariusepure.caractivitylog.domain.VehicleInspection
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.util.Date
+import java.util.UUID
 
 @Serializable
-data class FirestoreVehicleInspection(
+data class RemoteVehicleInspection(
     @SerialName("id") val id: String = "",
     @SerialName("car_id") val carId: String = "",
     @SerialName("date") val date: Long = System.currentTimeMillis(),
@@ -17,8 +18,8 @@ data class FirestoreVehicleInspection(
     @SerialName("mileage_log_id") val mileageLogId: String = ""
 )
 
-fun VehicleInspection.toFirebase() = FirestoreVehicleInspection(
-    id = this.id,
+fun VehicleInspection.toRemote() = RemoteVehicleInspection(
+    id = if (this.id.isBlank()) UUID.randomUUID().toString() else this.id,
     date = this.date.time,
     mileage = this.mileage,
     durationValue = this.durationValue,
@@ -26,7 +27,7 @@ fun VehicleInspection.toFirebase() = FirestoreVehicleInspection(
     mileageLogId = this.mileageLogId
 )
 
-fun FirestoreVehicleInspection.fromFirebase() = VehicleInspection(
+fun RemoteVehicleInspection.fromRemote() = VehicleInspection(
     id = this.id,
     date = Date(this.date),
     mileage = this.mileage,

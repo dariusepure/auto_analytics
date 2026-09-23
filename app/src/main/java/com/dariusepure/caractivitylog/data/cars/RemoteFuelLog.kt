@@ -4,9 +4,10 @@ import com.dariusepure.caractivitylog.domain.FuelLog
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.util.Date
+import java.util.UUID
 
 @Serializable
-data class FirestoreFuelLog(
+data class RemoteFuelLog(
     @SerialName("id") val id: String = "",
     @SerialName("car_id") val carId: String = "",
     @SerialName("date") val date: Long = System.currentTimeMillis(),
@@ -16,8 +17,8 @@ data class FirestoreFuelLog(
     @SerialName("mileage_log_id") val mileageLogId: String = ""
 )
 
-fun FuelLog.toFirebase() = FirestoreFuelLog(
-    id = this.id,
+fun FuelLog.toRemote() = RemoteFuelLog(
+    id = if (this.id.isBlank()) UUID.randomUUID().toString() else this.id,
     date = this.date.time,
     km = this.km,
     liters = this.liters,
@@ -25,7 +26,7 @@ fun FuelLog.toFirebase() = FirestoreFuelLog(
     mileageLogId = this.mileageLogId
 )
 
-fun FirestoreFuelLog.fromFirebase() = FuelLog(
+fun RemoteFuelLog.fromRemote() = FuelLog(
     id = this.id,
     date = Date(this.date),
     km = this.km,

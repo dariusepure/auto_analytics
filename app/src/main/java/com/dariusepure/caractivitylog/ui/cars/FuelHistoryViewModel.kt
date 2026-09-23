@@ -8,6 +8,10 @@ import com.dariusepure.caractivitylog.data.cars.CarRepository
 import com.dariusepure.caractivitylog.data.prefs.PreferenceRepository
 import com.dariusepure.caractivitylog.domain.FuelLog
 import com.dariusepure.caractivitylog.domain.UnitSystem
+import com.dariusepure.caractivitylog.domain.Car
+import com.dariusepure.caractivitylog.domain.Maintenance
+import com.dariusepure.caractivitylog.domain.VehicleInspection
+import com.dariusepure.caractivitylog.domain.MileageLog
 import com.dariusepure.caractivitylog.ui.common.CarFormatters
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -17,17 +21,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
-
-sealed class FuelHistoryUiState {
-    object Loading : FuelHistoryUiState()
-    data class Success(
-        val logs: List<FuelLogWithConsumption>,
-        val stats: FuelStats,
-        val mileageLogs: List<com.dariusepure.caractivitylog.domain.MileageLog>,
-        val unitSystem: UnitSystem
-    ) : FuelHistoryUiState()
-    data class Error(val message: String) : FuelHistoryUiState()
-}
 
 data class FuelLogWithConsumption(
     val log: FuelLog,
@@ -39,6 +32,20 @@ data class FuelStats(
     val totalDistance: Double,
     val totalLiters: Double
 )
+
+sealed class FuelHistoryUiState {
+    object Loading : FuelHistoryUiState()
+    data class Success(
+        val logs: List<FuelLogWithConsumption>,
+        val rawFuelLogs: List<FuelLog>,
+        val maintenanceLogs: List<Maintenance>,
+        val inspections: List<VehicleInspection>,
+        val mileageLogs: List<MileageLog>,
+        val stats: FuelStats,
+        val unitSystem: UnitSystem
+    ) : FuelHistoryUiState()
+    data class Error(val message: String) : FuelHistoryUiState()
+}
 
 @HiltViewModel
 class FuelHistoryViewModel @Inject constructor(
@@ -56,15 +63,28 @@ class FuelHistoryViewModel @Inject constructor(
             try {
                 val carFlow = carRepository.getCarFlow(carId)
                 val fuelFlow = carRepository.getFuelLogs(carId)
+                val maintenanceFlow = carRepository.getMaintenanceLogs(carId)
+                val inspectionsFlow = carRepository.getInspections(carId)
                 val mileageFlow = carRepository.getMileageLogs(carId)
                 val unitSystemFlow = preferenceRepository.unitSystem
 
-                combine(carFlow, fuelFlow, mileageFlow, unitSystemFlow) { car, logs, mileageLogs, unitSystem ->
+                combine(
+                    carFlow, fuelFlow, maintenanceFlow, inspectionsFlow, mileageFlow, unitSystemFlow
+                ) { args: Array<Any?> ->
+                    val car = args[0] as? Car
+                    val fuel = args[1] as List<FuelLog>
+                    val maintenance = args[2] as List<Maintenance>
+                    val inspections = args[3] as List<VehicleInspection>
+                    val mileage = args[4] as List<MileageLog>
+                    val unitSystem = args[5] as UnitSystem
+
                     if (car != null) {
-                        val sortedLogs = logs.sortedByDescending { it.date }
-                        val logsWithCons = calculateConsumptions(sortedLogs, unitSystem)
+                        val sortedFuel = fuel.sortedByDescending { it.date }
+                        val logsWithCons = calculateConsumptions(sortedFuel, unitSystem)
                         val stats = calculateStats(logsWithCons, unitSystem)
-                        FuelHistoryUiState.Success(logsWithCons, stats, mileageLogs, unitSystem)
+                        FuelHistoryUiState.Success(
+                            logsWithCons, sortedFuel, maintenance, inspections, mileage, stats, unitSystem
+                        )
                     } else {
                         FuelHistoryUiState.Error(context.getString(R.string.error_car_not_found))
                     }
@@ -120,22 +140,34 @@ class FuelHistoryViewModel @Inject constructor(
 
     fun addFuelLog(carId: String, km: Double, liters: Double, isFullTank: Boolean, date: Date, usesMiles: Boolean) {
         viewModelScope.launch {
-            val canonicalLiters = CarFormatters.toCanonicalVolume(liters, usesMiles)
-            val log = FuelLog(km = km, liters = canonicalLiters, isFullTank = isFullTank, date = date)
-            carRepository.addFuelLog(carId, log)
+            try {
+                val canonicalLiters = CarFormatters.toCanonicalVolume(liters, usesMiles)
+                val log = FuelLog(km = km, liters = canonicalLiters, isFullTank = isFullTank, date = date)
+                carRepository.addFuelLog(carId, log)
+            } catch (e: Exception) {
+                _state.value = FuelHistoryUiState.Error(e.localizedMessage ?: context.getString(R.string.error_generic))
+            }
         }
     }
 
     fun updateFuelLog(carId: String, log: FuelLog, litersInput: Double, usesMiles: Boolean) {
         viewModelScope.launch {
-            val canonicalLiters = CarFormatters.toCanonicalVolume(litersInput, usesMiles)
-            carRepository.updateFuelLog(carId, log.copy(liters = canonicalLiters))
+            try {
+                val canonicalLiters = CarFormatters.toCanonicalVolume(litersInput, usesMiles)
+                carRepository.updateFuelLog(carId, log.copy(liters = canonicalLiters))
+            } catch (e: Exception) {
+                _state.value = FuelHistoryUiState.Error(e.localizedMessage ?: context.getString(R.string.error_generic))
+            }
         }
     }
 
     fun deleteFuelLog(carId: String, log: FuelLog) {
         viewModelScope.launch {
-            carRepository.deleteFuelLog(carId, log)
+            try {
+                carRepository.deleteFuelLog(carId, log)
+            } catch (e: Exception) {
+                _state.value = FuelHistoryUiState.Error(e.localizedMessage ?: context.getString(R.string.error_generic))
+            }
         }
     }
 }

@@ -1,6 +1,8 @@
 package com.dariusepure.caractivitylog.ui.cars
 
+import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,8 +19,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -67,7 +72,7 @@ fun CarDetailsScreen(
         viewModel.loadCarData(carId)
     }
 
-    val carAccentColor = Color(0xFF1A73E8) // Default light blue
+    val carAccentColor = Color(0xFF1A73E8)
 
     Scaffold(
         modifier = modifier,
@@ -107,7 +112,7 @@ fun CarDetailsScreen(
                     val now = Date()
                     val diff = expiryDate.time - now.time
                     val days = diff / (1000 * 60 * 60 * 24)
-                    
+
                     when {
                         expiryDate.before(now) -> statusExpiredRed to R.string.status_expired
                         days < 14 -> Color(0xFFFF9800) to R.string.status_soon
@@ -121,7 +126,7 @@ fun CarDetailsScreen(
                     val now = Date()
                     val diff = expiryDate.time - now.time
                     val days = diff / (1000 * 60 * 60 * 24)
-                    
+
                     when {
                         expiryDate.before(now) -> statusExpiredRed to R.string.status_expired
                         days < 14 -> Color(0xFFFF9800) to R.string.status_soon
@@ -135,7 +140,7 @@ fun CarDetailsScreen(
                     val now = Date()
                     val diff = expiryDate.time - now.time
                     val days = diff / (1000 * 60 * 60 * 24)
-                    
+
                     when {
                         expiryDate.before(now) -> statusExpiredRed to R.string.status_expired
                         days < 14 -> Color(0xFFFF9800) to R.string.status_soon
@@ -152,10 +157,12 @@ fun CarDetailsScreen(
                 ) {
                     item {
                         val isExpanded = windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Expanded
-                        
+
                         if (isExpanded) {
                             Row(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 CarHeaderPhoto(
@@ -164,7 +171,7 @@ fun CarDetailsScreen(
                                 )
                                 Spacer(Modifier.width(24.dp))
                                 CarHeaderText(
-                                    car = car, 
+                                    car = car,
                                     context = context
                                 )
                             }
@@ -178,7 +185,7 @@ fun CarDetailsScreen(
                                     )
                                     Spacer(Modifier.width(16.dp))
                                     CarHeaderText(
-                                        car = car, 
+                                        car = car,
                                         context = context
                                     )
                                 }
@@ -189,16 +196,28 @@ fun CarDetailsScreen(
 
                     // Bento Rows
                     val isExpanded = windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Expanded
-                    
+
                     if (isExpanded) {
                         item {
-                            Row(modifier = Modifier.fillMaxWidth().height(120.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(120.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
                                 BentoCard(
                                     onClick = onTechnicalSheetClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     containerColor = carAccentColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.Description, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
+                                    Icon(
+                                        Icons.Default.Description,
+                                        null,
+                                        modifier = Modifier.size(48.dp),
+                                        tint = carAccentColor
+                                    )
                                     Spacer(Modifier.height(8.dp))
                                     Text(
                                         text = stringResource(R.string.car_technical_sheet),
@@ -209,12 +228,24 @@ fun CarDetailsScreen(
                                 }
                                 BentoCard(
                                     onClick = onMileageClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     containerColor = carAccentColor.copy(alpha = 0.15f)
                                 ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Default.Speed, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
-                                        Icon(Icons.Default.Add, null, modifier = Modifier.size(20.dp), tint = carAccentColor)
+                                        Icon(
+                                            Icons.Default.Speed,
+                                            null,
+                                            modifier = Modifier.size(48.dp),
+                                            tint = carAccentColor
+                                        )
+                                        Icon(
+                                            Icons.Default.Add,
+                                            null,
+                                            modifier = Modifier.size(20.dp),
+                                            tint = carAccentColor
+                                        )
                                     }
                                     Spacer(Modifier.height(8.dp))
                                     Text(
@@ -226,11 +257,18 @@ fun CarDetailsScreen(
                                 }
                                 BentoCard(
                                     onClick = onInspectionClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     containerColor = inspectionColor.copy(alpha = 0.15f),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Icon(Icons.Default.AssignmentTurnedIn, null, modifier = Modifier.size(48.dp), tint = inspectionColor)
+                                    Icon(
+                                        Icons.Default.AssignmentTurnedIn,
+                                        null,
+                                        modifier = Modifier.size(48.dp),
+                                        tint = inspectionColor
+                                    )
                                     Spacer(Modifier.height(8.dp))
                                     Text(
                                         text = stringResource(R.string.car_inspection_title),
@@ -246,14 +284,26 @@ fun CarDetailsScreen(
                             }
                         }
                         item {
-                            Row(modifier = Modifier.fillMaxWidth().height(120.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(120.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
                                 BentoCard(
                                     onClick = onInsuranceClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     containerColor = insuranceColor.copy(alpha = 0.15f),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Icon(Icons.Default.Security, null, modifier = Modifier.size(48.dp), tint = insuranceColor)
+                                    Icon(
+                                        Icons.Default.Security,
+                                        null,
+                                        modifier = Modifier.size(48.dp),
+                                        tint = insuranceColor
+                                    )
                                     Spacer(Modifier.height(8.dp))
                                     Text(
                                         text = stringResource(R.string.car_insurance_title),
@@ -268,11 +318,18 @@ fun CarDetailsScreen(
                                 }
                                 BentoCard(
                                     onClick = onVignetteClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     containerColor = vignetteColor.copy(alpha = 0.15f),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Icon(Icons.Default.ConfirmationNumber, null, modifier = Modifier.size(48.dp), tint = vignetteColor)
+                                    Icon(
+                                        Icons.Default.ConfirmationNumber,
+                                        null,
+                                        modifier = Modifier.size(48.dp),
+                                        tint = vignetteColor
+                                    )
                                     Spacer(Modifier.height(8.dp))
                                     Text(
                                         text = stringResource(R.string.car_vignette_title),
@@ -287,10 +344,17 @@ fun CarDetailsScreen(
                                 }
                                 BentoCard(
                                     onClick = onFuelClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     containerColor = carAccentColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.LocalGasStation, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
+                                    Icon(
+                                        Icons.Default.LocalGasStation,
+                                        null,
+                                        modifier = Modifier.size(48.dp),
+                                        tint = carAccentColor
+                                    )
                                     Spacer(Modifier.height(8.dp))
                                     Text(
                                         text = stringResource(R.string.car_fuel_consumption),
@@ -302,13 +366,25 @@ fun CarDetailsScreen(
                             }
                         }
                         item {
-                            Row(modifier = Modifier.fillMaxWidth().height(120.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(120.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
                                 BentoCard(
                                     onClick = onServiceClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     containerColor = carAccentColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.Build, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
+                                    Icon(
+                                        Icons.Default.Build,
+                                        null,
+                                        modifier = Modifier.size(48.dp),
+                                        tint = carAccentColor
+                                    )
                                     Spacer(Modifier.height(8.dp))
                                     AutoSizeText(
                                         text = stringResource(R.string.service_history_title),
@@ -319,10 +395,17 @@ fun CarDetailsScreen(
                                 }
                                 BentoCard(
                                     onClick = onTireClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     containerColor = carAccentColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.TireRepair, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
+                                    Icon(
+                                        Icons.Default.TireRepair,
+                                        null,
+                                        modifier = Modifier.size(48.dp),
+                                        tint = carAccentColor
+                                    )
                                     Spacer(Modifier.height(8.dp))
                                     AutoSizeText(
                                         text = stringResource(R.string.tire_management_title),
@@ -333,10 +416,17 @@ fun CarDetailsScreen(
                                 }
                                 BentoCard(
                                     onClick = onDiagnosisClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     containerColor = carAccentColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.Engineering, null, modifier = Modifier.size(48.dp), tint = carAccentColor)
+                                    Icon(
+                                        Icons.Default.Engineering,
+                                        null,
+                                        modifier = Modifier.size(48.dp),
+                                        tint = carAccentColor
+                                    )
                                     Spacer(Modifier.height(8.dp))
                                     AutoSizeText(
                                         text = stringResource(R.string.car_diagnosis_title),
@@ -347,17 +437,28 @@ fun CarDetailsScreen(
                                 }
                             }
                         }
-                    }
-                    else {
+                    } else {
                         // Bento Row 1: Technical & Mileage
                         item {
-                            Row(modifier = Modifier.fillMaxWidth().height(110.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(110.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
                                 BentoCard(
                                     onClick = onTechnicalSheetClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     containerColor = carAccentColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.Description, null, modifier = Modifier.size(52.dp), tint = carAccentColor)
+                                    Icon(
+                                        Icons.Default.Description,
+                                        null,
+                                        modifier = Modifier.size(52.dp),
+                                        tint = carAccentColor
+                                    )
                                     Spacer(Modifier.weight(1f))
                                     AutoSizeText(
                                         text = stringResource(R.string.car_technical_sheet),
@@ -366,15 +467,27 @@ fun CarDetailsScreen(
                                         minFontSize = 10.sp
                                     )
                                 }
-                                
+
                                 BentoCard(
                                     onClick = onMileageClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     containerColor = carAccentColor.copy(alpha = 0.15f)
                                 ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Default.Speed, null, modifier = Modifier.size(52.dp), tint = carAccentColor)
-                                        Icon(Icons.Default.Add, null, modifier = Modifier.size(24.dp), tint = carAccentColor)
+                                        Icon(
+                                            Icons.Default.Speed,
+                                            null,
+                                            modifier = Modifier.size(52.dp),
+                                            tint = carAccentColor
+                                        )
+                                        Icon(
+                                            Icons.Default.Add,
+                                            null,
+                                            modifier = Modifier.size(24.dp),
+                                            tint = carAccentColor
+                                        )
                                     }
                                     Spacer(Modifier.weight(1f))
                                     AutoSizeText(
@@ -389,14 +502,26 @@ fun CarDetailsScreen(
 
                         // Bento Row 2: ITP, RCA, Vignette (Squares)
                         item {
-                            Row(modifier = Modifier.fillMaxWidth().height(160.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(160.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
                                 BentoCard(
                                     onClick = onInspectionClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     containerColor = inspectionColor.copy(alpha = 0.15f),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Icon(Icons.Default.AssignmentTurnedIn, null, modifier = Modifier.size(56.dp), tint = inspectionColor)
+                                    Icon(
+                                        Icons.Default.AssignmentTurnedIn,
+                                        null,
+                                        modifier = Modifier.size(56.dp),
+                                        tint = inspectionColor
+                                    )
                                     Spacer(Modifier.weight(1f))
                                     Text(
                                         text = stringResource(R.string.car_inspection_title),
@@ -414,11 +539,18 @@ fun CarDetailsScreen(
 
                                 BentoCard(
                                     onClick = onInsuranceClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     containerColor = insuranceColor.copy(alpha = 0.15f),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Icon(Icons.Default.Security, null, modifier = Modifier.size(56.dp), tint = insuranceColor)
+                                    Icon(
+                                        Icons.Default.Security,
+                                        null,
+                                        modifier = Modifier.size(56.dp),
+                                        tint = insuranceColor
+                                    )
                                     Spacer(Modifier.weight(1f))
                                     Text(
                                         text = stringResource(R.string.car_insurance_title),
@@ -436,11 +568,18 @@ fun CarDetailsScreen(
 
                                 BentoCard(
                                     onClick = onVignetteClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     containerColor = vignetteColor.copy(alpha = 0.15f),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Icon(Icons.Default.ConfirmationNumber, null, modifier = Modifier.size(56.dp), tint = vignetteColor)
+                                    Icon(
+                                        Icons.Default.ConfirmationNumber,
+                                        null,
+                                        modifier = Modifier.size(56.dp),
+                                        tint = vignetteColor
+                                    )
                                     Spacer(Modifier.weight(1f))
                                     Text(
                                         text = stringResource(R.string.car_vignette_title),
@@ -460,13 +599,25 @@ fun CarDetailsScreen(
 
                         // Bento Row 3: Fuel & Tires
                         item {
-                            Row(modifier = Modifier.fillMaxWidth().height(110.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(110.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
                                 BentoCard(
                                     onClick = onFuelClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     containerColor = carAccentColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.LocalGasStation, null, modifier = Modifier.size(52.dp), tint = carAccentColor)
+                                    Icon(
+                                        Icons.Default.LocalGasStation,
+                                        null,
+                                        modifier = Modifier.size(52.dp),
+                                        tint = carAccentColor
+                                    )
                                     Spacer(Modifier.weight(1f))
                                     AutoSizeText(
                                         text = stringResource(R.string.car_fuel_consumption),
@@ -475,13 +626,20 @@ fun CarDetailsScreen(
                                         minFontSize = 10.sp
                                     )
                                 }
-                                
+
                                 BentoCard(
                                     onClick = onTireClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     containerColor = carAccentColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.TireRepair, null, modifier = Modifier.size(52.dp), tint = carAccentColor)
+                                    Icon(
+                                        Icons.Default.TireRepair,
+                                        null,
+                                        modifier = Modifier.size(52.dp),
+                                        tint = carAccentColor
+                                    )
                                     Spacer(Modifier.weight(1f))
                                     AutoSizeText(
                                         text = stringResource(R.string.tire_management_title),
@@ -495,13 +653,25 @@ fun CarDetailsScreen(
 
                         // Bento Row 4: Service & Diagnosis
                         item {
-                            Row(modifier = Modifier.fillMaxWidth().height(110.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(110.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
                                 BentoCard(
                                     onClick = onServiceClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     containerColor = carAccentColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.Build, null, modifier = Modifier.size(52.dp), tint = carAccentColor)
+                                    Icon(
+                                        Icons.Default.Build,
+                                        null,
+                                        modifier = Modifier.size(52.dp),
+                                        tint = carAccentColor
+                                    )
                                     Spacer(Modifier.weight(1f))
                                     AutoSizeText(
                                         text = stringResource(R.string.service_history_title),
@@ -513,10 +683,17 @@ fun CarDetailsScreen(
 
                                 BentoCard(
                                     onClick = onDiagnosisClick,
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight(),
                                     containerColor = carAccentColor.copy(alpha = 0.15f)
                                 ) {
-                                    Icon(Icons.Default.Engineering, null, modifier = Modifier.size(52.dp), tint = carAccentColor)
+                                    Icon(
+                                        Icons.Default.Engineering,
+                                        null,
+                                        modifier = Modifier.size(52.dp),
+                                        tint = carAccentColor
+                                    )
                                     Spacer(Modifier.weight(1f))
                                     AutoSizeText(
                                         text = stringResource(R.string.car_diagnosis_title),
@@ -542,7 +719,7 @@ private fun CarHeaderPhoto(
     carAccentColor: Color
 ) {
     val logoRes = remember(make) { CarFormatters.getBrandLogoResource(make) }
-    
+
     Box(
         modifier = Modifier
             .size(64.dp)
@@ -551,14 +728,14 @@ private fun CarHeaderPhoto(
         contentAlignment = Alignment.Center
     ) {
         if (logoRes != null) {
-            androidx.compose.foundation.Image(
-                painter = androidx.compose.ui.res.painterResource(logoRes),
+            Image(
+                painter = painterResource(logoRes),
                 contentDescription = null,
                 modifier = Modifier
                     .size(64.dp)
                     .padding(8.dp)
                     .clip(CircleShape),
-                contentScale = androidx.compose.ui.layout.ContentScale.Fit
+                contentScale = ContentScale.Fit
             )
         } else {
             Icon(
@@ -573,8 +750,8 @@ private fun CarHeaderPhoto(
 
 @Composable
 private fun CarHeaderText(
-    car: Car, 
-    context: android.content.Context
+    car: Car,
+    context: Context
 ) {
     val summary = remember(car, context) { CarFormatters.getCarSummary(context, car) }
 
@@ -591,7 +768,7 @@ private fun CarHeaderText(
                 color = MaterialTheme.colorScheme.secondary
             )
         }
-        
+
         if (summary.isNotEmpty()) {
             Text(
                 text = summary,

@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 import java.util.Date
 
 @Serializable
-data class FirestoreCarReport(
+data class RemoteCarReport(
     @SerialName("id") val id: String = "",
     @SerialName("car_id") val carId: String = "",
     @SerialName("file_name") val fileName: String = "",
@@ -20,7 +20,7 @@ data class FirestoreCarReport(
     )
 }
 
-fun CarReport.toFirebase() = FirestoreCarReport(
+fun CarReport.toRemote() = RemoteCarReport(
     id = this.id,
     carId = this.carId,
     fileName = this.fileName,

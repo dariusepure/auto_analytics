@@ -5,9 +5,10 @@ import com.dariusepure.caractivitylog.domain.Vignette
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.util.Date
+import java.util.UUID
 
 @Serializable
-data class FirestoreVignette(
+data class RemoteVignette(
     @SerialName("id") val id: String = "",
     @SerialName("car_id") val carId: String = "",
     @SerialName("date") val date: Long = System.currentTimeMillis(),
@@ -16,15 +17,15 @@ data class FirestoreVignette(
     @SerialName("country") val country: String = ""
 )
 
-fun Vignette.toFirebase() = FirestoreVignette(
-    id = this.id,
+fun Vignette.toRemote() = RemoteVignette(
+    id = if (this.id.isBlank()) UUID.randomUUID().toString() else this.id,
     date = this.date.time,
     durationValue = this.durationValue,
     durationUnit = this.durationUnit.name,
     country = this.country
 )
 
-fun FirestoreVignette.fromFirebase() = Vignette(
+fun RemoteVignette.fromRemote() = Vignette(
     id = this.id,
     date = Date(this.date),
     durationValue = this.durationValue,

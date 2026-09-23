@@ -3,10 +3,9 @@ package com.dariusepure.caractivitylog.data.cars
 import com.dariusepure.caractivitylog.ui.cars.ChatMessage
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.util.Date
 
 @Serializable
-data class FirestoreChatMessage(
+data class RemoteChatMessage(
     @SerialName("car_id") val carId: String,
     @SerialName("is_user") val isUser: Boolean,
     @SerialName("text") val text: String,
@@ -19,8 +18,8 @@ data class FirestoreChatMessage(
     )
 
     companion object {
-        fun fromChatMessage(message: ChatMessage) = FirestoreChatMessage(
-            carId = "", // Set separately
+        fun fromChatMessage(message: ChatMessage) = RemoteChatMessage(
+            carId = "",
             isUser = message.isUser,
             text = message.text,
             timestamp = message.timestamp

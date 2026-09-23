@@ -1,14 +1,17 @@
 package com.dariusepure.caractivitylog.data.cars
 
 import com.dariusepure.caractivitylog.domain.Car
+import com.dariusepure.caractivitylog.domain.CarEquipment
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 @Serializable
-data class FirestoreCar(
-    @SerialName("id") val id: String = "",           // 'id' din DB este ID-ul mașinii
-    @SerialName("user_id") val userId: String = "",  // 'user_id' din DB este legătura cu tine
+data class RemoteCar(
+    @SerialName("id") val id: String = "",
+    @SerialName("user_id") val userId: String = "",
     @SerialName("name") val name: String = "",
     @SerialName("license_plate") val licensePlate: String = "",
     @SerialName("plate_country") val plateCountry: String = "RO",
@@ -80,11 +83,11 @@ data class FirestoreCar(
     @SerialName("engine_variant") val engineVariant: String = ""
 )
 
-private val isoFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.ROOT)
+private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ROOT)
 
-fun Car.toFirebase() = FirestoreCar(
+fun Car.toRemote() = RemoteCar(
     id = this.id,
-    userId = "", // Will be set in repository
+    userId = "",
     name = this.name,
     licensePlate = this.licensePlate,
     plateCountry = this.plateCountry,
@@ -136,41 +139,41 @@ fun Car.toFirebase() = FirestoreCar(
     tireDiameter = this.tireDiameter,
     equipments = this.equipments,
     accentColor = this.accentColor,
-    createdAt = null, // Handled by Supabase
+    createdAt = null,
     updatedAt = null,
     activityCount = this.activityCount,
-    hasAbs = this.equipments.contains(com.dariusepure.caractivitylog.domain.CarEquipment.ABS),
-    hasEsp = this.equipments.contains(com.dariusepure.caractivitylog.domain.CarEquipment.ESP),
-    hasAsr = this.equipments.contains(com.dariusepure.caractivitylog.domain.CarEquipment.ASR),
-    hasIsofix = this.equipments.contains(com.dariusepure.caractivitylog.domain.CarEquipment.ISOFIX),
-    hasAc = this.equipments.contains(com.dariusepure.caractivitylog.domain.CarEquipment.AC),
-    hasClimateControl = this.equipments.contains(com.dariusepure.caractivitylog.domain.CarEquipment.CLIMATE_CONTROL),
-    hasHeatedSeats = this.equipments.contains(com.dariusepure.caractivitylog.domain.CarEquipment.HEATED_SEATS),
-    hasCruiseControl = this.equipments.contains(com.dariusepure.caractivitylog.domain.CarEquipment.ADAPTIVE_CRUISE),
-    hasNavigation = this.equipments.contains(com.dariusepure.caractivitylog.domain.CarEquipment.NAVIGATION),
-    hasParkingSensors = this.equipments.contains(com.dariusepure.caractivitylog.domain.CarEquipment.PARKING_SENSORS),
-    hasBackCamera = this.equipments.contains(com.dariusepure.caractivitylog.domain.CarEquipment.REAR_CAMERA),
-    hasSunroof = this.equipments.contains(com.dariusepure.caractivitylog.domain.CarEquipment.SUNROOF),
+    hasAbs = this.equipments.contains(CarEquipment.ABS),
+    hasEsp = this.equipments.contains(CarEquipment.ESP),
+    hasAsr = this.equipments.contains(CarEquipment.ASR),
+    hasIsofix = this.equipments.contains(CarEquipment.ISOFIX),
+    hasAc = this.equipments.contains(CarEquipment.AC),
+    hasClimateControl = this.equipments.contains(CarEquipment.CLIMATE_CONTROL),
+    hasHeatedSeats = this.equipments.contains(CarEquipment.HEATED_SEATS),
+    hasCruiseControl = this.equipments.contains(CarEquipment.ADAPTIVE_CRUISE),
+    hasNavigation = this.equipments.contains(CarEquipment.NAVIGATION),
+    hasParkingSensors = this.equipments.contains(CarEquipment.PARKING_SENSORS),
+    hasBackCamera = this.equipments.contains(CarEquipment.REAR_CAMERA),
+    hasSunroof = this.equipments.contains(CarEquipment.SUNROOF),
     airbags = this.airbags,
     generation = this.generation,
     engineVariant = this.engineVariant
 )
 
-fun FirestoreCar.fromFirebase(isPendingSync: Boolean = false): Car {
+fun RemoteCar.fromRemote(isPendingSync: Boolean = false): Car {
     val migratedEquipments = this.equipments.toMutableList()
     if (migratedEquipments.isEmpty()) {
-        if (this.hasAbs) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.ABS)
-        if (this.hasEsp) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.ESP)
-        if (this.hasAsr) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.ASR)
-        if (this.hasIsofix) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.ISOFIX)
-        if (this.hasAc) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.AC)
-        if (this.hasClimateControl) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.CLIMATE_CONTROL)
-        if (this.hasHeatedSeats) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.HEATED_SEATS)
-        if (this.hasCruiseControl) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.ADAPTIVE_CRUISE)
-        if (this.hasNavigation) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.NAVIGATION)
-        if (this.hasParkingSensors) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.PARKING_SENSORS)
-        if (this.hasBackCamera) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.REAR_CAMERA)
-        if (this.hasSunroof) migratedEquipments.add(com.dariusepure.caractivitylog.domain.CarEquipment.SUNROOF)
+        if (this.hasAbs) migratedEquipments.add(CarEquipment.ABS)
+        if (this.hasEsp) migratedEquipments.add(CarEquipment.ESP)
+        if (this.hasAsr) migratedEquipments.add(CarEquipment.ASR)
+        if (this.hasIsofix) migratedEquipments.add(CarEquipment.ISOFIX)
+        if (this.hasAc) migratedEquipments.add(CarEquipment.AC)
+        if (this.hasClimateControl) migratedEquipments.add(CarEquipment.CLIMATE_CONTROL)
+        if (this.hasHeatedSeats) migratedEquipments.add(CarEquipment.HEATED_SEATS)
+        if (this.hasCruiseControl) migratedEquipments.add(CarEquipment.ADAPTIVE_CRUISE)
+        if (this.hasNavigation) migratedEquipments.add(CarEquipment.NAVIGATION)
+        if (this.hasParkingSensors) migratedEquipments.add(CarEquipment.PARKING_SENSORS)
+        if (this.hasBackCamera) migratedEquipments.add(CarEquipment.REAR_CAMERA)
+        if (this.hasSunroof) migratedEquipments.add(CarEquipment.SUNROOF)
     }
 
     val createdDate = try { this.createdAt?.let { isoFormat.parse(it) } } catch (e: Exception) { null } ?: Date()
