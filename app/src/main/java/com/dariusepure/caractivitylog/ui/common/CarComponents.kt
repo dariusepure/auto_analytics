@@ -1,7 +1,11 @@
 package com.dariusepure.caractivitylog.ui.common
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -11,8 +15,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -197,39 +203,73 @@ fun TireSetItem(
     }
 }
 
+data class SpecItem(
+    val label: String,
+    val value: String,
+    val icon: ImageVector? = null
+)
+
 @Composable
-fun SpecificationCard(specifications: List<Pair<String, String>>) {
+fun SpecificationCard(
+    specifications: List<Pair<String, String>> = emptyList(),
+    specItems: List<SpecItem>? = null
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f))
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            specifications.forEachIndexed { index, (label, value) ->
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
+            val items = specItems ?: specifications.map { SpecItem(it.first, it.second) }
+            val validItems = items.filter { it.value.isNotBlank() && it.value != "-" }
+
+            validItems.forEachIndexed { index, item ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 52.dp)
+                        .heightIn(min = 46.dp)
                         .padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    if (item.icon != null) {
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = item.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(17.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        Spacer(Modifier.width(12.dp))
+                    }
+
                     AutoSizeText(
-                        text = label,
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.weight(1f),
+                        text = item.label,
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
+                        modifier = Modifier.weight(1.1f),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         minFontSize = 9.sp,
                         maxLines = 2
                     )
+
                     Text(
-                        text = value.ifBlank { "-" },
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.weight(1.5f),
+                        text = item.value,
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                        modifier = Modifier.weight(1.4f),
                         color = MaterialTheme.colorScheme.onSurface,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.End
+                        textAlign = TextAlign.End
                     )
                 }
-                if (index < specifications.size - 1) {
-                    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                if (index < validItems.size - 1) {
+                    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
                 }
             }
         }

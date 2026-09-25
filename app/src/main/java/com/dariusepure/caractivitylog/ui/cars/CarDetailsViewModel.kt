@@ -75,8 +75,24 @@ class CarDetailsViewModel @Inject constructor(
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
 
     fun loadCarData(carId: String) {
-        viewModelScope.launch {
+        val cachedCar = carRepository.getCarsFromCache().find { it.id == carId }
+        if (cachedCar != null) {
+            _state.value = CarDetailsUiState.Success(
+                car = cachedCar,
+                mileageLogs = carRepository.getMileageLogsFromCache(carId),
+                inspections = carRepository.getInspectionsFromCache(carId),
+                insurances = carRepository.getInsurancesFromCache(carId),
+                vignettes = carRepository.getVignettesFromCache(carId),
+                tireSets = carRepository.getTireSetsFromCache(carId),
+                fuelLogs = carRepository.getFuelLogsFromCache(carId),
+                maintenanceLogs = carRepository.getMaintenanceLogsFromCache(carId),
+                unitSystem = preferenceRepository.unitSystem.value
+            )
+        } else {
             _state.value = CarDetailsUiState.Loading
+        }
+
+        viewModelScope.launch {
             try {
                 val carFlow = carRepository.getCarFlow(carId)
                 val mileageFlow = carRepository.getMileageLogs(carId)

@@ -112,6 +112,7 @@ import com.dariusepure.caractivitylog.domain.ScannedCarData
 import com.dariusepure.caractivitylog.ui.common.AutoSizeText
 import com.dariusepure.caractivitylog.ui.common.CarFormatters
 import com.dariusepure.caractivitylog.ui.common.CarTranslations
+import com.dariusepure.caractivitylog.ui.common.CheckEngineIcon
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1340,6 +1341,7 @@ fun AddCarScreen(
                     value = engineSize,
                     onValueChange = { engineSize = it },
                     label = { Text(stringResource(R.string.car_engine_size_label)) },
+                    leadingIcon = { Icon(CheckEngineIcon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     suffix = { Text(if (context.resources.configuration.locales[0].language == "ro") "cmc" else "cc") },

@@ -42,7 +42,6 @@ import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.LocalGasStation
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -50,6 +49,7 @@ import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.DirectionsCar
+import com.dariusepure.caractivitylog.ui.common.CheckEngineIcon
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -75,6 +75,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.displayName
+import com.dariusepure.caractivitylog.ui.common.ActionButtons
 import com.dariusepure.caractivitylog.ui.common.AutoSizeText
 import com.dariusepure.caractivitylog.ui.common.CarFormatters
 import com.dariusepure.caractivitylog.ui.common.CarTranslations
@@ -257,7 +258,6 @@ fun CarCard(
 ) {
     val context = LocalContext.current
     val logoRes = remember(car.make) { CarFormatters.getBrandLogoResource(car.make) }
-    var menuExpanded by remember { mutableStateOf(false) }
 
     Card(
         onClick = onClick,
@@ -339,7 +339,9 @@ fun CarCard(
                     val carSubtitle = remember(car) {
                         val items = mutableListOf<String>()
                         if (car.generation.isNotBlank()) items.add(car.generation)
-                        if (car.engineVariant.isNotBlank()) items.add(car.engineVariant)
+                        if (car.engineVariant.isNotBlank() && !car.displayName.contains(car.engineVariant, ignoreCase = true)) {
+                            items.add(car.engineVariant)
+                        }
                         if (car.vin.isNotBlank()) items.add("VIN: ${car.vin}")
                         items.joinToString(" • ")
                     }
@@ -389,61 +391,10 @@ fun CarCard(
 
                 Spacer(Modifier.width(4.dp))
 
-                // Action Menu Button
-                Box {
-                    IconButton(
-                        onClick = { menuExpanded = true },
-                        modifier = Modifier.size(36.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = "Opțiuni",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    DropdownMenu(
-                        expanded = menuExpanded,
-                        onDismissRequest = { menuExpanded = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.common_edit)) },
-                            onClick = {
-                                menuExpanded = false
-                                onEditClick()
-                            },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                        )
-                        HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = stringResource(R.string.common_delete),
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                            },
-                            onClick = {
-                                menuExpanded = false
-                                onDeleteClick()
-                            },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                        )
-                    }
-                }
+                ActionButtons(
+                    onEdit = onEditClick,
+                    onDelete = onDeleteClick
+                )
             }
 
             Spacer(Modifier.height(14.dp))
@@ -462,14 +413,12 @@ fun CarCard(
                 }
                 if (car.gearboxType.isNotBlank()) {
                     list.add(Pair(Icons.Default.Settings, CarTranslations.getGearboxTypeLabel(context, car.gearboxType)))
-                }
-                if (car.engineSize.isNotBlank()) {
-                    list.add(Pair(Icons.Default.Tune, car.engineSize))
-                }
-                if (car.vehicleType.isNotBlank()) {
+                } else if (car.engineSize.isNotBlank()) {
+                    list.add(Pair(CheckEngineIcon, car.engineSize))
+                } else if (car.vehicleType.isNotBlank()) {
                     list.add(Pair(Icons.Outlined.DirectionsCar, CarTranslations.getVehicleTypeLabel(context, car.vehicleType)))
                 }
-                list.take(6)
+                list.take(4)
             }
 
             if (specItems.isNotEmpty()) {
