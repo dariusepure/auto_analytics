@@ -161,6 +161,8 @@ class AddCarViewModel @Inject constructor(
         airbags: String = "",
         equipments: List<String> = emptyList()
     ) {
+        _state.value = AddCarState.Pending
+
         if (make.isBlank() || model.isBlank()) {
             _state.value = AddCarState.Error(context.getString(R.string.validation_brand_model_required))
             return
@@ -200,8 +202,9 @@ class AddCarViewModel @Inject constructor(
         )
 
         for ((label, value) in numericFields) {
-            if (value.isNotBlank()) {
-                val dValue = value.toDoubleOrNull()
+            val clean = value.trim().replace(",", ".")
+            if (clean.isNotBlank()) {
+                val dValue = clean.toDoubleOrNull()
                 if (dValue == null) {
                     _state.value = AddCarState.Error(context.getString(R.string.validation_numeric_format, label))
                     return
@@ -228,7 +231,10 @@ class AddCarViewModel @Inject constructor(
                 val unitSystemValue = preferenceRepository.unitSystem.first()
                 val usesMiles = unitSystemValue == com.dariusepure.caractivitylog.domain.UnitSystem.IMPERIAL
                 
-                val inputTopSpeed = topSpeed.toDoubleOrNull() ?: 0.0
+                fun parseDouble(s: String) = s.trim().replace(",", ".").toDoubleOrNull() ?: 0.0
+                fun parseInt(s: String) = s.trim().replace(",", ".").toDoubleOrNull()?.roundToInt() ?: 0
+
+                val inputTopSpeed = parseDouble(topSpeed)
                 val canonicalTopSpeed = CarFormatters.toCanonicalSpeed(inputTopSpeed, usesMiles)
 
                 val car = Car(
@@ -240,51 +246,51 @@ class AddCarViewModel @Inject constructor(
                     model = model.trim(),
                     generation = generation.trim(),
                     vin = vin.trim().uppercase(),
-                    year = year.toDoubleOrNull()?.roundToInt() ?: 0,
-                    engineSize = engineSize,
-                    fuelType = fuelType,
-                    fuelSystem = fuelSystem,
-                    color = color,
-                    power = power.toDoubleOrNull()?.roundToInt() ?: 0,
+                    year = parseInt(year),
+                    engineSize = engineSize.trim(),
+                    fuelType = fuelType.trim(),
+                    fuelSystem = fuelSystem.trim(),
+                    color = color.trim(),
+                    power = parseInt(power),
                     powerUnit = powerUnit,
-                    torque = torque.toDoubleOrNull()?.roundToInt() ?: 0,
-                    engineCode = engineCode,
-                    engineLayout = engineLayout,
-                    cylinderLayout = cylinderLayout,
-                    emissionStandard = emissionStandard,
-                    aspiration = aspiration,
-                    length = length.toDoubleOrNull()?.roundToInt() ?: 0,
-                    width = width.toDoubleOrNull()?.roundToInt() ?: 0,
-                    height = height.toDoubleOrNull()?.roundToInt() ?: 0,
-                    wheelbase = wheelbase.toDoubleOrNull()?.roundToInt() ?: 0,
-                    fuelTankCapacity = fuelTankCapacity.toDoubleOrNull() ?: 0.0,
-                    batteryCapacity = batteryCapacity.toDoubleOrNull() ?: 0.0,
-                    drivetrain = drivetrain,
-                    gearboxType = gearboxType,
-                    gears = gears,
-                    frontSuspension = frontSuspension,
-                    rearSuspension = rearSuspension,
-                    frontBrakes = frontBrakes,
-                    rearBrakes = rearBrakes,
-                    vehicleType = vehicleType,
-                    manufacturingCountry = manufacturingCountry,
+                    torque = parseInt(torque),
+                    engineCode = engineCode.trim(),
+                    engineLayout = engineLayout.trim(),
+                    cylinderLayout = cylinderLayout.trim(),
+                    emissionStandard = emissionStandard.trim(),
+                    aspiration = aspiration.trim(),
+                    length = parseInt(length),
+                    width = parseInt(width),
+                    height = parseInt(height),
+                    wheelbase = parseInt(wheelbase),
+                    fuelTankCapacity = parseDouble(fuelTankCapacity),
+                    batteryCapacity = parseDouble(batteryCapacity),
+                    drivetrain = drivetrain.trim(),
+                    gearboxType = gearboxType.trim(),
+                    gears = gears.trim(),
+                    frontSuspension = frontSuspension.trim(),
+                    rearSuspension = rearSuspension.trim(),
+                    frontBrakes = frontBrakes.trim(),
+                    rearBrakes = rearBrakes.trim(),
+                    vehicleType = vehicleType.trim(),
+                    manufacturingCountry = manufacturingCountry.trim(),
                     topSpeed = canonicalTopSpeed,
-                    weight = weight.toDoubleOrNull()?.roundToInt() ?: 0,
-                    numberOfSeats = numberOfSeats.toDoubleOrNull()?.roundToInt() ?: 0,
-                    numberOfCylinders = numberOfCylinders.toDoubleOrNull()?.roundToInt() ?: 0,
-                    valvesPerCylinder = valvesPerCylinder.toDoubleOrNull()?.roundToInt() ?: 0,
-                    numberOfDoors = numberOfDoors.toDoubleOrNull()?.roundToInt() ?: 0,
-                    bootSpace = bootSpace.toDoubleOrNull()?.roundToInt() ?: 0,
-                    tireWidth = tireWidth.toDoubleOrNull()?.roundToInt() ?: 0,
-                    tireAspectRatio = tireAspectRatio.toDoubleOrNull()?.roundToInt() ?: 0,
-                    tireDiameter = tireDiameter.toDoubleOrNull()?.roundToInt() ?: 0,
-                    acceleration0to100 = acceleration0to100.toDoubleOrNull() ?: 0.0,
-                    fuelConsumptionCombined = CarFormatters.toCanonicalConsumption(fuelConsumptionCombined.toDoubleOrNull() ?: 0.0, usesMiles),
-                    fuelConsumptionUrban = CarFormatters.toCanonicalConsumption(fuelConsumptionUrban.toDoubleOrNull() ?: 0.0, usesMiles),
-                    fuelConsumptionExtraUrban = CarFormatters.toCanonicalConsumption(fuelConsumptionExtraUrban.toDoubleOrNull() ?: 0.0, usesMiles),
-                    co2Emissions = co2Emissions.toDoubleOrNull()?.roundToInt() ?: 0,
+                    weight = parseInt(weight),
+                    numberOfSeats = parseInt(numberOfSeats),
+                    numberOfCylinders = parseInt(numberOfCylinders),
+                    valvesPerCylinder = parseInt(valvesPerCylinder),
+                    numberOfDoors = parseInt(numberOfDoors),
+                    bootSpace = parseInt(bootSpace),
+                    tireWidth = parseInt(tireWidth),
+                    tireAspectRatio = parseInt(tireAspectRatio),
+                    tireDiameter = parseInt(tireDiameter),
+                    acceleration0to100 = parseDouble(acceleration0to100),
+                    fuelConsumptionCombined = CarFormatters.toCanonicalConsumption(parseDouble(fuelConsumptionCombined), usesMiles),
+                    fuelConsumptionUrban = CarFormatters.toCanonicalConsumption(parseDouble(fuelConsumptionUrban), usesMiles),
+                    fuelConsumptionExtraUrban = CarFormatters.toCanonicalConsumption(parseDouble(fuelConsumptionExtraUrban), usesMiles),
+                    co2Emissions = parseInt(co2Emissions),
                     updatedAt = Date(),
-                    airbags = airbags.toDoubleOrNull()?.roundToInt() ?: 0,
+                    airbags = parseInt(airbags),
                     equipments = equipments,
                     engineVariant = engineVariant.trim()
                 )

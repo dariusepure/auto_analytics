@@ -490,3 +490,35 @@ fun ActionButtons(
     }
 }
 
+/**
+ * Adaptive unit suffix for input fields (e.g. hp, km/h, kg, mm, L/100km).
+ * When space is constrained (long number entered), scales down or hides the unit
+ * so the number remains 100% visible without being clipped or truncated.
+ */
+@Composable
+fun AdaptiveUnitSuffix(
+    unit: String,
+    textValue: String,
+    modifier: Modifier = Modifier
+) {
+    if (unit.isBlank()) return
+    val length = textValue.length
+    if (length >= 3 || (unit.length >= 4 && length >= 1)) return
+
+    val fontSize = when {
+        length >= 2 -> 10.sp
+        else -> 12.sp
+    }
+
+    Text(
+        text = unit,
+        style = MaterialTheme.typography.bodySmall.copy(
+            fontSize = fontSize,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
+        ),
+        maxLines = 1,
+        overflow = TextOverflow.Clip,
+        modifier = modifier
+    )
+}
+

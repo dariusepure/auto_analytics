@@ -281,9 +281,9 @@
     <string name="car_valves_per_cyl_label">Valves per Cylinder</string>
     <string name="car_top_speed_label">Top Speed</string>
     <string name="car_acceleration_label">0-100 km/h</string>
-    <string name="car_consumption_label">Mixed</string>
-    <string name="car_consumption_urban_label">Urban</string>
-    <string name="car_consumption_extra_urban_label">Extra-Urban</string>
+    <string name="car_consumption_label">Combined consumption</string>
+    <string name="car_consumption_urban_label">Urban consumption</string>
+    <string name="car_consumption_extra_urban_label">Extra-urban consumption</string>
     <string name="car_consumption_urban_full">Urban Consumption</string>
     <string name="car_consumption_extra_urban_full">Extra-Urban Consumption</string>
     <string name="car_consumption_mixed_full">Mixed Consumption</string>
@@ -306,9 +306,9 @@
     <string name="car_doors_label">Doors</string>
     <string name="car_boot_label">Boot Space</string>
     <string name="car_tire_size_label">Tires</string>
-    <string name="car_tire_width_label">Width</string>
-    <string name="car_tire_ratio_label">Ratio</string>
-    <string name="car_tire_diam_label">Diam.</string>
+    <string name="car_tire_width_label">Tire width</string>
+    <string name="car_tire_ratio_label">Tire aspect ratio</string>
+    <string name="car_tire_diam_label">Tire diameter</string>
     <string name="car_front_brakes_label">Front Brakes</string>
     <string name="car_rear_brakes_label">Rear Brakes</string>
     <string name="car_drivetrain_label">Drivetrain</string>

@@ -2,11 +2,15 @@ package com.dariusepure.caractivitylog.ui.cars
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -19,12 +23,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -156,42 +162,13 @@ fun CarDetailsScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     item {
-                        val isExpanded = windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Expanded
-
-                        if (isExpanded) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                CarHeaderPhoto(
-                                    make = car.make,
-                                    carAccentColor = carAccentColor
-                                )
-                                Spacer(Modifier.width(24.dp))
-                                CarHeaderText(
-                                    car = car,
-                                    context = context
-                                )
-                            }
-                        } else {
-                            Column {
-                                Spacer(Modifier.height(8.dp))
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    CarHeaderPhoto(
-                                        make = car.make,
-                                        carAccentColor = carAccentColor
-                                    )
-                                    Spacer(Modifier.width(16.dp))
-                                    CarHeaderText(
-                                        car = car,
-                                        context = context
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(12.dp))
-                            }
-                        }
+                        Spacer(Modifier.height(4.dp))
+                        CarHeaderHeroCard(
+                            car = car,
+                            carAccentColor = carAccentColor,
+                            context = context
+                        )
+                        Spacer(Modifier.height(4.dp))
                     }
 
                     // Bento Rows
@@ -714,67 +691,148 @@ fun CarDetailsScreen(
 }
 
 @Composable
-private fun CarHeaderPhoto(
-    make: String,
-    carAccentColor: Color
-) {
-    val logoRes = remember(make) { CarFormatters.getBrandLogoResource(make) }
-
-    Box(
-        modifier = Modifier
-            .size(64.dp)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant),
-        contentAlignment = Alignment.Center
-    ) {
-        if (logoRes != null) {
-            Image(
-                painter = painterResource(logoRes),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(64.dp)
-                    .padding(8.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Fit
-            )
-        } else {
-            Icon(
-                imageVector = Icons.Outlined.DirectionsCar,
-                contentDescription = null,
-                modifier = Modifier.size(36.dp),
-                tint = carAccentColor
-            )
-        }
-    }
-}
-
-@Composable
-private fun CarHeaderText(
+private fun CarHeaderHeroCard(
     car: Car,
-    context: Context
+    carAccentColor: Color,
+    context: Context,
+    modifier: Modifier = Modifier
 ) {
-    val summary = remember(car, context) { CarFormatters.getCarSummary(context, car) }
+    val logoRes = remember(car.make) { CarFormatters.getBrandLogoResource(car.make) }
 
-    Column {
-        AutoSizeText(
-            text = car.displayName,
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
-        if (car.licensePlate.isNotBlank()) {
-            Text(
-                text = car.licensePlate,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.secondary
-            )
+    val specPills = remember(car, context) {
+        val list = mutableListOf<Pair<ImageVector, String>>()
+        if (car.year > 0) {
+            list.add(Pair(Icons.Default.CalendarToday, car.year.toString()))
         }
+        if (car.fuelType.isNotBlank()) {
+            list.add(Pair(Icons.Default.LocalGasStation, CarTranslations.getFuelTypeLabel(context, car.fuelType)))
+        }
+        if (car.power > 0) {
+            list.add(Pair(Icons.Default.Speed, CarFormatters.formatPower(context, car)))
+        }
+        if (car.engineSize.isNotBlank()) {
+            list.add(Pair(CheckEngineIcon, context.getString(R.string.formatter_engine_size, car.engineSize)))
+        }
+        if (car.gearboxType.isNotBlank()) {
+            list.add(Pair(Icons.Default.Settings, CarTranslations.getGearboxTypeLabel(context, car.gearboxType)))
+        }
+        if (car.drivetrain.isNotBlank()) {
+            list.add(Pair(DrivetrainChassisIcon, CarTranslations.getDrivetrainLabel(context, car.drivetrain)))
+        }
+        if (car.vehicleType.isNotBlank()) {
+            list.add(Pair(Icons.Outlined.DirectionsCar, CarTranslations.getVehicleTypeLabel(context, car.vehicleType)))
+        }
+        list
+    }
 
-        if (summary.isNotEmpty()) {
-            Text(
-                text = summary,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                // Brand Logo Container
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = Color.White,
+                    shadowElevation = 2.dp,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                    modifier = Modifier.size(58.dp)
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp)
+                    ) {
+                        if (logoRes != null) {
+                            Image(
+                                painter = painterResource(logoRes),
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Fit
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Outlined.DirectionsCar,
+                                contentDescription = null,
+                                modifier = Modifier.size(32.dp),
+                                tint = carAccentColor
+                            )
+                        }
+                    }
+                }
+
+                // Title & License Plate Badge
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = car.displayName,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
+                        ),
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    if (car.licensePlate.isNotBlank()) {
+                        LicensePlateBadge(
+                            licensePlate = car.licensePlate,
+                            countryCode = car.plateCountry
+                        )
+                    }
+                }
+            }
+
+            // Spec Pill Badges Flow Row
+            if (specPills.isNotEmpty()) {
+                Spacer(Modifier.height(12.dp))
+                @OptIn(ExperimentalLayoutApi::class)
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    specPills.forEach { (icon, text) ->
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.surface,
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(5.dp)
+                            ) {
+                                Icon(
+                                    imageVector = icon,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(13.dp)
+                                )
+                                Text(
+                                    text = text,
+                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

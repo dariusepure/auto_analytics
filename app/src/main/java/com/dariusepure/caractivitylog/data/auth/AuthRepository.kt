@@ -52,8 +52,11 @@ class AuthRepository @Inject constructor(
     }.distinctUntilChanged()
 
     val userId: Flow<String?> = signedIn.combine(preferenceRepository.isGuestMode) { signedInUser, isGuest ->
-        if (isGuest) GUEST_UID
-        else if (signedInUser) supabaseClient.auth.currentUserOrNull()?.id
+        val currentUser = supabaseClient.auth.currentUserOrNull()
+        if (signedInUser && currentUser != null) {
+            if (isGuest) preferenceRepository.setGuestMode(false)
+            currentUser.id
+        } else if (isGuest) GUEST_UID
         else null
     }.distinctUntilChanged()
 
@@ -61,8 +64,8 @@ class AuthRepository @Inject constructor(
         if (it) supabaseClient.auth.currentUserOrNull()?.email else null 
     }.distinctUntilChanged()
 
-    val isAnonymousFlow: Flow<Boolean> = signedIn.combine(preferenceRepository.isGuestMode) { _, isGuest ->
-        isGuest
+    val isAnonymousFlow: Flow<Boolean> = signedIn.combine(preferenceRepository.isGuestMode) { signedInUser, isGuest ->
+        if (signedInUser) false else isGuest
     }.distinctUntilChanged()
 
     val isCurrentlySignedIn: Boolean
@@ -77,15 +80,36 @@ class AuthRepository @Inject constructor(
     val isGuestMode: Flow<Boolean> = preferenceRepository.isGuestMode
 
     val isCurrentlyGuest: Boolean
-        get() = preferenceRepository.isGuestMode.value
+        get() = !isCurrentlySignedIn && preferenceRepository.isGuestMode.value
 
     fun getUserId(): String? {
+        val currentUser = supabaseClient.auth.currentUserOrNull()
+        if (currentUser != null) return currentUser.id
         if (isCurrentlyGuest) return GUEST_UID
-        return supabaseClient.auth.currentUserOrNull()?.id
+        return null
+    }
+
+    suspend fun ensureProfileExists(uid: String, email: String, name: String = "") {
+        if (uid.isBlank() || uid == "unknown_uid" || uid == GUEST_UID || uid == "guest") return
+        try {
+            val displayName = name.ifBlank {
+                supabaseClient.auth.currentUserOrNull()?.userMetadata?.get("full_name")?.toString()
+                    ?: email.substringBefore("@")
+            }
+            val user = RemoteUser(
+                id = uid,
+                email = email.ifBlank { currentUserEmail ?: "" },
+                name = displayName.ifBlank { "User" }
+            )
+            supabaseClient.postgrest["profiles"].upsert(user)
+            Log.d(TAG, "ensureProfileExists: Upserted profile for $uid (${user.email})")
+        } catch (e: Exception) {
+            Log.e(TAG, "ensureProfileExists error for $uid: ${e.message}", e)
+        }
     }
 
     fun getUserData(uid: String): Flow<User?> = flow {
-        if (uid == GUEST_UID) {
+        if (uid == GUEST_UID || uid == "guest") {
             Log.d(TAG, "getUserData: Guest mode, emitting Guest user")
             emit(User(GUEST_UID, "", "Guest"))
             return@flow
@@ -103,8 +127,10 @@ class AuthRepository @Inject constructor(
             
             if (userDto == null) {
                 val email = currentUserEmail ?: ""
-                Log.w(TAG, "getUserData: Profile NOT FOUND for $uid. Email: $email. Emitting default 'User' profile.")
-                emit(User(uid, email, "User"))
+                val name = email.substringBefore("@").ifBlank { "User" }
+                Log.w(TAG, "getUserData: Profile NOT FOUND for $uid. Email: $email. Creating profile now.")
+                emit(User(uid, email, name))
+                ensureProfileExists(uid, email, name)
             } else {
                 val user = userDto.fromRemote()
                 Log.d(TAG, "getUserData: Profile found: ${user.name} (${user.email})")
@@ -124,29 +150,24 @@ class AuthRepository @Inject constructor(
     }
 
     suspend fun signUp(email: String, password: String, name: String) {
-        supabaseClient.auth.signUpWith(Email) {
+        preferenceRepository.setGuestMode(false)
+        val userInfo = supabaseClient.auth.signUpWith(Email) {
             this.email = email
             this.password = password
         }
-        val uid = supabaseClient.auth.currentUserOrNull()?.id ?: "unknown_uid"
+        val currentUser = supabaseClient.auth.currentUserOrNull()
+        val uid = currentUser?.id ?: userInfo?.id ?: "unknown_uid"
         
         withContext(NonCancellable) {
-            val user = RemoteUser(
-                id = uid,
-                email = email,
-                name = name
-            )
-
-            try {
-                supabaseClient.postgrest["profiles"].insert(user)
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to insert user to profiles: ${e.message}")
+            if (uid != "unknown_uid") {
+                ensureProfileExists(uid, email, name)
+                linkOldAccountIfNecessary(uid, email)
             }
-            linkOldAccountIfNecessary(uid, email)
         }
     }
 
     suspend fun signIn(email: String, password: String) {
+        preferenceRepository.setGuestMode(false)
         supabaseClient.auth.signInWith(Email) {
             this.email = email
             this.password = password
@@ -154,6 +175,7 @@ class AuthRepository @Inject constructor(
         val user = supabaseClient.auth.currentUserOrNull()
         if (user != null) {
             withContext(NonCancellable) {
+                ensureProfileExists(user.id, user.email ?: "")
                 linkOldAccountIfNecessary(user.id, user.email ?: "")
             }
         }
@@ -216,6 +238,7 @@ class AuthRepository @Inject constructor(
     }
 
     private suspend fun processCredentialResult(credential: androidx.credentials.Credential) {
+        preferenceRepository.setGuestMode(false)
         Log.d(TAG, "Received credential type: ${credential.type}")
 
         if (credential is CustomCredential &&
@@ -234,18 +257,8 @@ class AuthRepository @Inject constructor(
             if (user != null) {
                 Log.d(TAG, "Google Sign-In successful. Supabase User ID: ${user.id}, Email: ${user.email}")
                 withContext(NonCancellable) {
-                    val firestoreUser = RemoteUser(
-                        id = user.id,
-                        email = user.email ?: "",
-                        name = if (displayName.isNotEmpty()) displayName else (user.userMetadata?.get("full_name")?.toString() ?: "")
-                    )
-                    try {
-                        Log.d(TAG, "processCredentialResult: Inserting profile for ${user.id}...")
-                        supabaseClient.postgrest["profiles"].upsert(firestoreUser)
-                        Log.d(TAG, "processCredentialResult: Profile sync successful")
-                    } catch (e: Exception) {
-                        Log.w(TAG, "User profile sync error: ${e.message}")
-                    }
+                    val name = if (displayName.isNotEmpty()) displayName else (user.userMetadata?.get("full_name")?.toString() ?: "")
+                    ensureProfileExists(user.id, user.email ?: "", name)
                     linkOldAccountIfNecessary(user.id, user.email ?: "")
                 }
             }
@@ -314,9 +327,11 @@ class AuthRepository @Inject constructor(
     }
 
     private suspend fun linkOldAccountIfNecessary(newUid: String, email: String) {
-        if (email.isBlank()) return
+        if (email.isBlank() || newUid == "unknown_uid" || newUid == GUEST_UID || newUid == "guest") return
         Log.d(TAG, "Checking for old accounts to link for email: $email...")
         try {
+            ensureProfileExists(newUid, email)
+
             // Căutăm TOATE profilurile care au acest email (inclusiv cel curent)
             val allProfilesWithEmail = supabaseClient.postgrest["profiles"]
                 .select {

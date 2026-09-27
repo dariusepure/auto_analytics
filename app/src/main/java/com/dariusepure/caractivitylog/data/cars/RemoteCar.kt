@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 @Serializable
 data class RemoteCar(
@@ -83,81 +84,105 @@ data class RemoteCar(
     @SerialName("engine_variant") val engineVariant: String = ""
 )
 
-private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ROOT)
+private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ROOT).apply {
+    timeZone = TimeZone.getTimeZone("UTC")
+}
 
-fun Car.toRemote() = RemoteCar(
-    id = this.id,
-    userId = "",
-    name = this.name,
-    licensePlate = this.licensePlate,
-    plateCountry = this.plateCountry,
-    make = this.make,
-    model = this.model,
-    vin = this.vin,
-    year = this.year,
-    engineSize = this.engineSize,
-    fuelType = this.fuelType,
-    fuelSystem = this.fuelSystem,
-    color = this.color,
-    power = this.power,
-    powerUnit = this.powerUnit,
-    torque = this.torque,
-    engineCode = this.engineCode,
-    engineLayout = this.engineLayout,
-    cylinderLayout = this.cylinderLayout,
-    length = this.length,
-    width = this.width,
-    height = this.height,
-    wheelbase = this.wheelbase,
-    emissionStandard = this.emissionStandard,
-    aspiration = this.aspiration,
-    fuelTankCapacity = this.fuelTankCapacity,
-    batteryCapacity = this.batteryCapacity,
-    drivetrain = this.drivetrain,
-    gearboxType = this.gearboxType,
-    gears = this.gears,
-    frontSuspension = this.frontSuspension,
-    rearSuspension = this.rearSuspension,
-    frontBrakes = this.frontBrakes,
-    rearBrakes = this.rearBrakes,
-    vehicleType = this.vehicleType,
-    manufacturingCountry = this.manufacturingCountry,
-    topSpeed = this.topSpeed,
-    acceleration0to100 = this.acceleration0to100,
-    fuelConsumptionCombined = this.fuelConsumptionCombined,
-    fuelConsumptionUrban = this.fuelConsumptionUrban,
-    fuelConsumptionExtraUrban = this.fuelConsumptionExtraUrban,
-    co2Emissions = this.co2Emissions,
-    weight = this.weight,
-    numberOfSeats = this.numberOfSeats,
-    numberOfCylinders = this.numberOfCylinders,
-    valvesPerCylinder = this.valvesPerCylinder,
-    numberOfDoors = this.numberOfDoors,
-    bootSpace = this.bootSpace,
-    tireWidth = this.tireWidth,
-    tireAspectRatio = this.tireAspectRatio,
-    tireDiameter = this.tireDiameter,
-    equipments = this.equipments,
-    accentColor = this.accentColor,
-    createdAt = null,
-    updatedAt = null,
-    activityCount = this.activityCount,
-    hasAbs = this.equipments.contains(CarEquipment.ABS),
-    hasEsp = this.equipments.contains(CarEquipment.ESP),
-    hasAsr = this.equipments.contains(CarEquipment.ASR),
-    hasIsofix = this.equipments.contains(CarEquipment.ISOFIX),
-    hasAc = this.equipments.contains(CarEquipment.AC),
-    hasClimateControl = this.equipments.contains(CarEquipment.CLIMATE_CONTROL),
-    hasHeatedSeats = this.equipments.contains(CarEquipment.HEATED_SEATS),
-    hasCruiseControl = this.equipments.contains(CarEquipment.ADAPTIVE_CRUISE),
-    hasNavigation = this.equipments.contains(CarEquipment.NAVIGATION),
-    hasParkingSensors = this.equipments.contains(CarEquipment.PARKING_SENSORS),
-    hasBackCamera = this.equipments.contains(CarEquipment.REAR_CAMERA),
-    hasSunroof = this.equipments.contains(CarEquipment.SUNROOF),
-    airbags = this.airbags,
-    generation = this.generation,
-    engineVariant = this.engineVariant
-)
+fun Car.toRemote(): RemoteCar {
+    val computedName = if (this.name.isNotBlank()) {
+        this.name
+    } else {
+        buildString {
+            if (make.isNotBlank()) append(make)
+            if (model.isNotBlank()) {
+                if (isNotEmpty()) append(" ")
+                append(model)
+            }
+            if (generation.isNotBlank()) {
+                if (isNotEmpty()) append(" ")
+                append(generation)
+            }
+            if (engineVariant.isNotBlank()) {
+                if (isNotEmpty()) append(" ")
+                append(engineVariant)
+            }
+        }.ifBlank { "Car" }
+    }
+
+    return RemoteCar(
+        id = this.id,
+        userId = "",
+        name = computedName,
+        licensePlate = this.licensePlate,
+        plateCountry = this.plateCountry,
+        make = this.make,
+        model = this.model,
+        vin = this.vin,
+        year = this.year,
+        engineSize = this.engineSize,
+        fuelType = this.fuelType,
+        fuelSystem = this.fuelSystem,
+        color = this.color,
+        power = this.power,
+        powerUnit = this.powerUnit,
+        torque = this.torque,
+        engineCode = this.engineCode,
+        engineLayout = this.engineLayout,
+        cylinderLayout = this.cylinderLayout,
+        length = this.length,
+        width = this.width,
+        height = this.height,
+        wheelbase = this.wheelbase,
+        emissionStandard = this.emissionStandard,
+        aspiration = this.aspiration,
+        fuelTankCapacity = this.fuelTankCapacity,
+        batteryCapacity = this.batteryCapacity,
+        drivetrain = this.drivetrain,
+        gearboxType = this.gearboxType,
+        gears = this.gears,
+        frontSuspension = this.frontSuspension,
+        rearSuspension = this.rearSuspension,
+        frontBrakes = this.frontBrakes,
+        rearBrakes = this.rearBrakes,
+        vehicleType = this.vehicleType,
+        manufacturingCountry = this.manufacturingCountry,
+        topSpeed = this.topSpeed,
+        acceleration0to100 = this.acceleration0to100,
+        fuelConsumptionCombined = this.fuelConsumptionCombined,
+        fuelConsumptionUrban = this.fuelConsumptionUrban,
+        fuelConsumptionExtraUrban = this.fuelConsumptionExtraUrban,
+        co2Emissions = this.co2Emissions,
+        weight = this.weight,
+        numberOfSeats = this.numberOfSeats,
+        numberOfCylinders = this.numberOfCylinders,
+        valvesPerCylinder = this.valvesPerCylinder,
+        numberOfDoors = this.numberOfDoors,
+        bootSpace = this.bootSpace,
+        tireWidth = this.tireWidth,
+        tireAspectRatio = this.tireAspectRatio,
+        tireDiameter = this.tireDiameter,
+        equipments = this.equipments,
+        accentColor = this.accentColor,
+        createdAt = isoFormat.format(this.createdAt),
+        updatedAt = isoFormat.format(this.updatedAt),
+        activityCount = this.activityCount,
+        hasAbs = this.equipments.contains(CarEquipment.ABS),
+        hasEsp = this.equipments.contains(CarEquipment.ESP),
+        hasAsr = this.equipments.contains(CarEquipment.ASR),
+        hasIsofix = this.equipments.contains(CarEquipment.ISOFIX),
+        hasAc = this.equipments.contains(CarEquipment.AC),
+        hasClimateControl = this.equipments.contains(CarEquipment.CLIMATE_CONTROL),
+        hasHeatedSeats = this.equipments.contains(CarEquipment.HEATED_SEATS),
+        hasCruiseControl = this.equipments.contains(CarEquipment.ADAPTIVE_CRUISE),
+        hasNavigation = this.equipments.contains(CarEquipment.NAVIGATION),
+        hasParkingSensors = this.equipments.contains(CarEquipment.PARKING_SENSORS),
+        hasBackCamera = this.equipments.contains(CarEquipment.REAR_CAMERA),
+        hasSunroof = this.equipments.contains(CarEquipment.SUNROOF),
+        airbags = this.airbags,
+        generation = this.generation,
+        engineVariant = this.engineVariant
+    )
+}
 
 fun RemoteCar.fromRemote(isPendingSync: Boolean = false): Car {
     val migratedEquipments = this.equipments.toMutableList()

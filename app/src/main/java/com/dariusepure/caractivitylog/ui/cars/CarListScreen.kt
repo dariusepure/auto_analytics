@@ -221,24 +221,18 @@ fun SyncStatusBadge(isPendingSync: Boolean, modifier: Modifier = Modifier) {
     } else {
         Surface(
             color = Color(0xFF10B981).copy(alpha = 0.12f),
-            shape = RoundedCornerShape(12.dp),
+            shape = CircleShape,
             modifier = modifier
         ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            Box(
+                modifier = Modifier.padding(5.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
                     contentDescription = "Sincronizat",
-                    modifier = Modifier.size(13.dp),
+                    modifier = Modifier.size(15.dp),
                     tint = Color(0xFF10B981)
-                )
-                Text(
-                    text = "Sincronizat",
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, fontWeight = FontWeight.Bold),
-                    color = Color(0xFF10B981)
                 )
             }
         }

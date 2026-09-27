@@ -93,3 +93,127 @@ val CheckEngineIcon: ImageVector by lazy {
         }
     }.build()
 }
+
+/**
+ * Custom Drivetrain Chassis icon vector representing 4 wheels with axles and drive shaft.
+ */
+val DrivetrainChassisIcon: ImageVector by lazy {
+    ImageVector.Builder(
+        name = "DrivetrainChassisIcon",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f
+    ).apply {
+        // Four Wheels
+        path(fill = SolidColor(Color.Black)) {
+            // Top-Left Wheel
+            moveTo(4.0f, 2.5f)
+            horizontalLineTo(5.0f)
+            curveTo(5.55f, 2.5f, 6.0f, 2.95f, 6.0f, 3.5f)
+            verticalLineTo(7.5f)
+            curveTo(6.0f, 8.05f, 5.55f, 8.5f, 5.0f, 8.5f)
+            horizontalLineTo(4.0f)
+            curveTo(3.45f, 8.5f, 3.0f, 8.05f, 3.0f, 7.5f)
+            verticalLineTo(3.5f)
+            curveTo(3.0f, 2.95f, 3.45f, 2.5f, 4.0f, 2.5f)
+            close()
+
+            // Top-Right Wheel
+            moveTo(19.0f, 2.5f)
+            horizontalLineTo(20.0f)
+            curveTo(20.55f, 2.5f, 21.0f, 2.95f, 21.0f, 3.5f)
+            verticalLineTo(7.5f)
+            curveTo(21.0f, 8.05f, 20.55f, 8.5f, 20.0f, 8.5f)
+            horizontalLineTo(19.0f)
+            curveTo(18.45f, 8.5f, 18.0f, 8.05f, 18.0f, 7.5f)
+            verticalLineTo(3.5f)
+            curveTo(18.0f, 2.95f, 18.45f, 2.5f, 19.0f, 2.5f)
+            close()
+
+            // Bottom-Left Wheel
+            moveTo(4.0f, 15.5f)
+            horizontalLineTo(5.0f)
+            curveTo(5.55f, 15.5f, 6.0f, 15.95f, 6.0f, 16.5f)
+            verticalLineTo(20.5f)
+            curveTo(6.0f, 21.05f, 5.55f, 21.5f, 5.0f, 21.5f)
+            horizontalLineTo(4.0f)
+            curveTo(3.45f, 21.5f, 3.0f, 21.05f, 3.0f, 20.5f)
+            verticalLineTo(16.5f)
+            curveTo(3.0f, 15.95f, 3.45f, 15.5f, 4.0f, 15.5f)
+            close()
+
+            // Bottom-Right Wheel
+            moveTo(19.0f, 15.5f)
+            horizontalLineTo(20.0f)
+            curveTo(20.55f, 15.5f, 21.0f, 15.95f, 21.0f, 16.5f)
+            verticalLineTo(20.5f)
+            curveTo(21.0f, 21.05f, 20.55f, 21.5f, 20.0f, 21.5f)
+            horizontalLineTo(19.0f)
+            curveTo(18.45f, 21.5f, 18.0f, 21.05f, 18.0f, 20.5f)
+            verticalLineTo(16.5f)
+            curveTo(18.0f, 15.95f, 18.45f, 15.5f, 19.0f, 15.5f)
+            close()
+        }
+
+        // Chassis Frame, Axles, Drive Shaft & Differentials
+        path(fill = SolidColor(Color.Black)) {
+            // Front Axle
+            moveTo(6.0f, 4.8f)
+            horizontalLineTo(18.0f)
+            verticalLineTo(6.2f)
+            horizontalLineTo(6.0f)
+            close()
+
+            // Rear Axle
+            moveTo(6.0f, 17.8f)
+            horizontalLineTo(18.0f)
+            verticalLineTo(19.2f)
+            horizontalLineTo(6.0f)
+            close()
+
+            // Central Drive Shaft
+            moveTo(11.3f, 5.5f)
+            horizontalLineTo(12.7f)
+            verticalLineTo(18.5f)
+            horizontalLineTo(11.3f)
+            close()
+
+            // Transfer Case / Central Differential
+            moveTo(10.0f, 10.0f)
+            horizontalLineTo(14.0f)
+            curveTo(14.55f, 10.0f, 15.0f, 10.45f, 15.0f, 11.0f)
+            verticalLineTo(13.0f)
+            curveTo(15.0f, 13.55f, 14.55f, 14.0f, 14.0f, 14.0f)
+            horizontalLineTo(10.0f)
+            curveTo(9.45f, 14.0f, 9.0f, 13.55f, 9.0f, 13.0f)
+            verticalLineTo(11.0f)
+            curveTo(9.0f, 10.45f, 9.45f, 10.0f, 10.0f, 10.0f)
+            close()
+
+            // Front Differential Box
+            moveTo(10.5f, 4.3f)
+            horizontalLineTo(13.5f)
+            curveTo(13.8f, 4.3f, 14.0f, 4.5f, 14.0f, 4.8f)
+            verticalLineTo(6.2f)
+            curveTo(14.0f, 6.5f, 13.8f, 6.7f, 13.5f, 6.7f)
+            horizontalLineTo(10.5f)
+            curveTo(10.2f, 6.7f, 10.0f, 6.5f, 10.0f, 6.2f)
+            verticalLineTo(4.8f)
+            curveTo(10.0f, 4.5f, 10.2f, 4.3f, 10.5f, 4.3f)
+            close()
+
+            // Rear Differential Box
+            moveTo(10.5f, 17.3f)
+            horizontalLineTo(13.5f)
+            curveTo(13.8f, 17.3f, 14.0f, 17.5f, 14.0f, 17.8f)
+            verticalLineTo(19.2f)
+            curveTo(14.0f, 19.5f, 13.8f, 19.7f, 13.5f, 19.7f)
+            horizontalLineTo(10.5f)
+            curveTo(10.2f, 19.7f, 10.0f, 19.5f, 10.0f, 19.2f)
+            verticalLineTo(17.8f)
+            curveTo(10.0f, 17.5f, 10.2f, 17.3f, 10.5f, 17.3f)
+            close()
+        }
+    }.build()
+}

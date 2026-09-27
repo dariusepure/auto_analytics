@@ -1,8 +1,20 @@
 package com.dariusepure.caractivitylog.data.cars
 
 import android.util.Log
+import com.dariusepure.caractivitylog.data.auth.AuthEvent
 import com.dariusepure.caractivitylog.data.auth.AuthRepository
 import com.dariusepure.caractivitylog.data.auth.RemoteUser
+import com.dariusepure.caractivitylog.data.local.CsvToRoomMigrator
+import com.dariusepure.caractivitylog.data.local.dao.CarDao
+import com.dariusepure.caractivitylog.data.local.dao.FuelLogDao
+import com.dariusepure.caractivitylog.data.local.dao.InsuranceDao
+import com.dariusepure.caractivitylog.data.local.dao.MaintenanceDao
+import com.dariusepure.caractivitylog.data.local.dao.MileageLogDao
+import com.dariusepure.caractivitylog.data.local.dao.TireSetDao
+import com.dariusepure.caractivitylog.data.local.dao.VehicleInspectionDao
+import com.dariusepure.caractivitylog.data.local.dao.VignetteDao
+import com.dariusepure.caractivitylog.data.local.entities.toDomain
+import com.dariusepure.caractivitylog.data.local.entities.toEntity
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.CarReport
 import com.dariusepure.caractivitylog.domain.FuelLog
@@ -23,8 +35,7 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -38,11 +49,18 @@ import javax.inject.Singleton
 class CarRepository @Inject constructor(
     private val supabaseClient: SupabaseClient,
     private val authRepository: AuthRepository,
-    private val localStorageHelper: LocalStorageHelper
+    private val carDao: CarDao,
+    private val vehicleInspectionDao: VehicleInspectionDao,
+    private val fuelLogDao: FuelLogDao,
+    private val maintenanceDao: MaintenanceDao,
+    private val mileageLogDao: MileageLogDao,
+    private val insuranceDao: InsuranceDao,
+    private val vignetteDao: VignetteDao,
+    private val tireSetDao: TireSetDao,
+    private val csvToRoomMigrator: CsvToRoomMigrator
 ) {
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    // In-Memory & User-Scoped Local CSV Caches for Instant 0ms UI Updates & Account Isolation
     private val carsCache = MutableStateFlow<List<Car>>(emptyList())
     private val mileageLogsCache = MutableStateFlow<Map<String, List<MileageLog>>>(emptyMap())
     private val inspectionsCache = MutableStateFlow<Map<String, List<VehicleInspection>>>(emptyMap())
@@ -61,27 +79,125 @@ class CarRepository @Inject constructor(
     ).apply { tryEmit(Unit) }
 
     init {
-        val initialUid = getUidSafe()
-        switchUserCache(initialUid)
+        repositoryScope.launch {
+            csvToRoomMigrator.migrateIfNeeded()
+
+            val initialUid = getUidSafe()
+            switchUserCache(initialUid)
+
+            authRepository.userId.collect { uid ->
+                val activeUid = uid ?: "guest"
+                migrateGuestDataIfAny(activeUid)
+                switchUserCache(activeUid)
+                if (uid != null && uid != "guest" && uid != AuthRepository.GUEST_UID) {
+                    syncAllAccountDataToLocalRoom(uid)
+                }
+            }
+        }
+
+        repositoryScope.launch {
+            authRepository.authEvents.collect { event ->
+                if (event is AuthEvent.SyncCompleted) {
+                    val activeUid = getUidSafe()
+                    if (activeUid != "guest" && activeUid != AuthRepository.GUEST_UID) {
+                        syncAllAccountDataToLocalRoom(activeUid)
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun migrateGuestDataIfAny(targetUid: String) {
+        if (targetUid == "guest" || targetUid == AuthRepository.GUEST_UID || targetUid.isBlank()) return
+
+        val guestUids = listOf("guest", "local_guest_user", AuthRepository.GUEST_UID, "", "unknown_uid")
+        guestUids.forEach { guestUid ->
+            if (guestUid == targetUid) return@forEach
+            val guestCars = carDao.getCarsForUser(guestUid).map { it.toDomain() }
+            if (guestCars.isNotEmpty()) {
+                Log.d("CarRepository", "Migrating ${guestCars.size} guest cars from '$guestUid' to targetUid: $targetUid")
+                val currentCars = carDao.getCarsForUser(targetUid).map { it.toDomain() }.toMutableList()
+                val existingIds = currentCars.map { it.id }.toSet()
+
+                guestCars.forEach { gCar ->
+                    if (!existingIds.contains(gCar.id)) {
+                        currentCars.add(gCar)
+                        repositoryScope.launch {
+                            try {
+                                val email = authRepository.currentUserEmail ?: ""
+                                authRepository.ensureProfileExists(targetUid, email)
+                                val supabaseCar = gCar.toRemote().copy(userId = targetUid)
+                                supabaseClient.postgrest["cars"].upsert(supabaseCar)
+                            } catch (e: Exception) {
+                                Log.e("CarRepository", "Error migrating guest car ${gCar.id}: ${e.message}")
+                            }
+                        }
+                    }
+                }
+
+                carDao.updateUserId(guestUid, targetUid)
+                carsCache.value = currentCars
+            }
+        }
     }
 
     fun refresh() {
-        refreshTrigger.tryEmit(Unit)
+        val uid = getUidSafe()
+        if (uid != "guest" && uid != AuthRepository.GUEST_UID) {
+            syncAllAccountDataToLocalRoom(uid)
+        }
     }
 
     private fun getUidSafe(): String {
         return authRepository.getUserId() ?: "guest"
     }
 
-    private fun switchUserCache(uid: String) {
-        carsCache.value = localStorageHelper.loadCars(uid)
-        inspectionsCache.value = localStorageHelper.loadInspections(uid)
-        fuelLogsCache.value = localStorageHelper.loadFuelLogs(uid)
-        maintenanceLogsCache.value = localStorageHelper.loadMaintenanceLogs(uid)
-        mileageLogsCache.value = localStorageHelper.loadMileageLogs(uid)
-        insurancesCache.value = localStorageHelper.loadInsurances(uid)
-        vignettesCache.value = localStorageHelper.loadVignettes(uid)
-        tireSetsCache.value = localStorageHelper.loadTireSets(uid)
+    private suspend fun switchUserCache(uid: String) {
+        var cars = carDao.getCarsForUser(uid).map { it.toDomain() }
+        if (cars.isEmpty() && uid != "guest" && uid != AuthRepository.GUEST_UID && uid.isNotBlank()) {
+            migrateGuestDataIfAny(uid)
+            cars = carDao.getCarsForUser(uid).map { it.toDomain() }
+        }
+        carsCache.value = cars
+
+        val carIds = cars.map { it.id }
+        if (carIds.isNotEmpty()) {
+            inspectionsCache.value = vehicleInspectionDao.getInspectionsForCars(carIds)
+                .groupBy { it.carId }
+                .mapValues { entry -> entry.value.map { it.toDomain() } }
+
+            fuelLogsCache.value = fuelLogDao.getFuelLogsForCars(carIds)
+                .groupBy { it.carId }
+                .mapValues { entry -> entry.value.map { it.toDomain() } }
+
+            maintenanceLogsCache.value = maintenanceDao.getMaintenanceLogsForCars(carIds)
+                .groupBy { it.carId }
+                .mapValues { entry -> entry.value.map { it.toDomain() } }
+
+            mileageLogsCache.value = mileageLogDao.getMileageLogsForCars(carIds)
+                .groupBy { it.carId }
+                .mapValues { entry -> entry.value.map { it.toDomain() } }
+
+            insurancesCache.value = insuranceDao.getInsurancesForCars(carIds)
+                .groupBy { it.carId }
+                .mapValues { entry -> entry.value.map { it.toDomain() } }
+
+            vignettesCache.value = vignetteDao.getVignettesForCars(carIds)
+                .groupBy { it.carId }
+                .mapValues { entry -> entry.value.map { it.toDomain() } }
+
+            tireSetsCache.value = tireSetDao.getTireSetsForCars(carIds)
+                .groupBy { it.carId }
+                .mapValues { entry -> entry.value.map { it.toDomain() } }
+        } else {
+            inspectionsCache.value = emptyMap()
+            fuelLogsCache.value = emptyMap()
+            maintenanceLogsCache.value = emptyMap()
+            mileageLogsCache.value = emptyMap()
+            insurancesCache.value = emptyMap()
+            vignettesCache.value = emptyMap()
+            tireSetsCache.value = emptyMap()
+        }
     }
 
     // Cache Update Helpers
@@ -97,8 +213,12 @@ class CarRepository @Inject constructor(
     }
 
     private fun updateCarsCache(updateBlock: (List<Car>) -> List<Car>) {
-        carsCache.value = updateBlock(carsCache.value)
-        localStorageHelper.saveCars(getUidSafe(), carsCache.value)
+        val uid = getUidSafe()
+        val updated = updateBlock(carsCache.value)
+        carsCache.value = updated
+        repositoryScope.launch {
+            carDao.insertCars(updated.map { it.toEntity(uid) })
+        }
     }
 
     fun getCarsFromCache(): List<Car> = carsCache.value
@@ -111,30 +231,16 @@ class CarRepository @Inject constructor(
     fun getTireSetsFromCache(carId: String): List<TireSet> = tireSetsCache.value[carId] ?: emptyList()
 
     // CARS
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val cars: Flow<List<Car>> = flow {
-        emit(carsCache.value)
-        repositoryScope.launch {
-            try {
-                authRepository.userId.collect { uid ->
-                    val activeUid = uid ?: "guest"
-                    switchUserCache(activeUid)
-                    if (uid != null) {
-                        syncAllAccountDataToLocalCsv(uid)
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("CarRepository", "Error observing userId: ${e.message}")
-            }
-        }
-        carsCache.collect { emit(it) }
-    }
+    val cars: Flow<List<Car>> = carsCache.asStateFlow()
 
-    private fun syncAllAccountDataToLocalCsv(uid: String) {
+    private fun syncAllAccountDataToLocalRoom(uid: String) {
+        if (uid.isBlank() || uid == "guest" || uid == AuthRepository.GUEST_UID) return
         repositoryScope.launch {
             try {
                 val email = authRepository.currentUserEmail
-                val userIds = if (email != null) {
+                authRepository.ensureProfileExists(uid, email ?: "")
+
+                val userIds = if (!email.isNullOrBlank()) {
                     try {
                         supabaseClient.postgrest["profiles"]
                             .select { filter { eq("email", email) } }
@@ -150,22 +256,41 @@ class CarRepository @Inject constructor(
                 val response = supabaseClient.postgrest["cars"]
                     .select {
                         filter {
-                            or {
-                                userIds.forEach { id ->
-                                    eq("user_id", id)
-                                    eq("id", id)
-                                }
-                            }
+                            isIn("user_id", userIds.toList())
                         }
                     }
 
-                val remoteCars = response.decodeList<RemoteCar>().map { it.fromRemote() }
-                if (remoteCars.isNotEmpty()) {
-                    carsCache.value = remoteCars
-                    localStorageHelper.saveCars(uid, remoteCars)
+                val remoteCars = try {
+                    response.decodeList<RemoteCar>().map { it.fromRemote() }
+                } catch (e: Exception) {
+                    Log.e("CarRepository", "Error decoding remote cars: ${e.message}", e)
+                    emptyList()
                 }
 
-                // 2. Fetch history records for every car and populate local CSV files for this user
+                val localCars = carDao.getCarsForUser(uid).map { it.toDomain() }
+                val remoteMap = remoteCars.associateBy { it.id }
+                val mergedCars = remoteCars.toMutableList()
+
+                localCars.forEach { local ->
+                    if (!remoteMap.containsKey(local.id)) {
+                        mergedCars.add(local)
+                        repositoryScope.launch {
+                            try {
+                                authRepository.ensureProfileExists(uid, email ?: "")
+                                val supabaseCar = local.toRemote().copy(userId = uid)
+                                supabaseClient.postgrest["cars"].upsert(supabaseCar)
+                                Log.d("CarRepository", "Synced local unsynced car ${local.id} to remote")
+                            } catch (e: Exception) {
+                                Log.e("CarRepository", "Error pushing local car ${local.id} to remote: ${e.message}")
+                            }
+                        }
+                    }
+                }
+
+                carsCache.value = mergedCars
+                carDao.insertCars(mergedCars.map { it.toEntity(uid) })
+
+                // 2. Fetch history records for every car and populate Room for this user
                 remoteCars.forEach { car ->
                     val carId = car.id
 
@@ -178,6 +303,7 @@ class CarRepository @Inject constructor(
                             .sortedByDescending { it.date }
                         if (ins.isNotEmpty()) {
                             updateMapCache(inspectionsCache, carId) { ins }
+                            vehicleInspectionDao.insertInspections(ins.map { it.toEntity(carId) })
                         }
                     } catch (e: Exception) {
                         Log.w("CarRepository", "Sync inspections error for $carId: ${e.message}")
@@ -192,6 +318,7 @@ class CarRepository @Inject constructor(
                             .sortedByDescending { it.date }
                         if (fuels.isNotEmpty()) {
                             updateMapCache(fuelLogsCache, carId) { fuels }
+                            fuelLogDao.insertFuelLogs(fuels.map { it.toEntity(carId) })
                         }
                     } catch (e: Exception) {
                         Log.w("CarRepository", "Sync fuel_logs error for $carId: ${e.message}")
@@ -206,6 +333,7 @@ class CarRepository @Inject constructor(
                             .sortedByDescending { it.date }
                         if (maint.isNotEmpty()) {
                             updateMapCache(maintenanceLogsCache, carId) { maint }
+                            maintenanceDao.insertMaintenanceLogs(maint.map { it.toEntity(carId) })
                         }
                     } catch (e: Exception) {
                         Log.w("CarRepository", "Sync maintenance_logs error for $carId: ${e.message}")
@@ -220,6 +348,7 @@ class CarRepository @Inject constructor(
                             .sortedByDescending { it.date }
                         if (mileage.isNotEmpty()) {
                             updateMapCache(mileageLogsCache, carId) { mileage }
+                            mileageLogDao.insertMileageLogs(mileage.map { it.toEntity(carId) })
                         }
                     } catch (e: Exception) {
                         Log.w("CarRepository", "Sync mileage_logs error for $carId: ${e.message}")
@@ -234,6 +363,7 @@ class CarRepository @Inject constructor(
                             .sortedByDescending { it.date }
                         if (insu.isNotEmpty()) {
                             updateMapCache(insurancesCache, carId) { insu }
+                            insuranceDao.insertInsurances(insu.map { it.toEntity(carId) })
                         }
                     } catch (e: Exception) {
                         Log.w("CarRepository", "Sync insurances error for $carId: ${e.message}")
@@ -248,6 +378,7 @@ class CarRepository @Inject constructor(
                             .sortedByDescending { it.date }
                         if (vig.isNotEmpty()) {
                             updateMapCache(vignettesCache, carId) { vig }
+                            vignetteDao.insertVignettes(vig.map { it.toEntity(carId) })
                         }
                     } catch (e: Exception) {
                         Log.w("CarRepository", "Sync vignettes error for $carId: ${e.message}")
@@ -262,41 +393,40 @@ class CarRepository @Inject constructor(
                             .sortedByDescending { it.isActive }
                         if (tires.isNotEmpty()) {
                             updateMapCache(tireSetsCache, carId) { tires }
+                            tireSetDao.insertTireSets(tires.map { it.toEntity(carId) })
                         }
                     } catch (e: Exception) {
                         Log.w("CarRepository", "Sync tire_sets error for $carId: ${e.message}")
                     }
                 }
 
-                // Save all updated maps to user's private CSV files
-                localStorageHelper.saveInspections(uid, inspectionsCache.value)
-                localStorageHelper.saveFuelLogs(uid, fuelLogsCache.value)
-                localStorageHelper.saveMaintenanceLogs(uid, maintenanceLogsCache.value)
-                localStorageHelper.saveMileageLogs(uid, mileageLogsCache.value)
-                localStorageHelper.saveInsurances(uid, insurancesCache.value)
-                localStorageHelper.saveVignettes(uid, vignettesCache.value)
-                localStorageHelper.saveTireSets(uid, tireSetsCache.value)
-
-                Log.d("CarRepository", "Full user CSV sync completed for UID: $uid")
+                Log.d("CarRepository", "Full user Room sync completed for UID: $uid")
             } catch (e: Exception) {
-                Log.e("CarRepository", "Error in syncAllAccountDataToLocalCsv: ${e.message}")
+                Log.e("CarRepository", "Error in syncAllAccountDataToLocalRoom: ${e.message}")
             }
         }
     }
 
     suspend fun createCar(car: Car) {
         val item = if (car.id.isBlank()) car.copy(id = UUID.randomUUID().toString()) else car
-        // Optimistic Local Update
+        val uid = getUidSafe()
+
+        // Optimistic Local Update (Instant in-memory + async Room insert)
         updateCarsCache { list -> (list.filterNot { it.id == item.id } + item) }
 
-        // Background Sync
-        repositoryScope.launch {
-            try {
-                val uid = getUidSafe()
-                val supabaseCar = item.toRemote().copy(userId = uid)
-                supabaseClient.postgrest["cars"].upsert(supabaseCar)
-            } catch (e: Exception) {
-                Log.e("CarRepository", "Error syncing createCar: ${e.message}")
+        // Remote Sync (Asynchronous in background scope)
+        if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
+            repositoryScope.launch {
+                try {
+                    val email = authRepository.currentUserEmail ?: ""
+                    authRepository.ensureProfileExists(uid, email)
+
+                    val supabaseCar = item.toRemote().copy(userId = uid)
+                    supabaseClient.postgrest["cars"].upsert(supabaseCar)
+                    Log.d("CarRepository", "createCar synced successfully for $uid")
+                } catch (e: Exception) {
+                    Log.e("CarRepository", "Error syncing createCar: ${e.message}", e)
+                }
             }
         }
     }
@@ -316,6 +446,9 @@ class CarRepository @Inject constructor(
     suspend fun getCar(carId: String): Car? {
         val cached = try { carsCache.value.find { it.id == carId } } catch (e: Exception) { null }
         if (cached != null) return cached
+
+        val local = try { carDao.getCarById(carId)?.toDomain() } catch (e: Exception) { null }
+        if (local != null) return local
 
         return try {
             supabaseClient.postgrest["cars"]
@@ -342,6 +475,7 @@ class CarRepository @Inject constructor(
 
         repositoryScope.launch {
             try {
+                carDao.deleteCar(carId)
                 val uid = getUidSafe()
                 supabaseClient.postgrest["cars"].delete {
                     filter {
@@ -362,7 +496,7 @@ class CarRepository @Inject constructor(
     }
 
     private fun fetchMileageLogsFromRemote(carId: String) {
-        val uid = authRepository.getUserId() ?: return
+        if (authRepository.getUserId() == null) return
         repositoryScope.launch {
             try {
                 val results = supabaseClient.postgrest["mileage_logs"]
@@ -371,7 +505,7 @@ class CarRepository @Inject constructor(
                     .map { it.fromRemote() }
                     .sortedByDescending { it.date }
                 updateMapCache(mileageLogsCache, carId) { results }
-                localStorageHelper.saveMileageLogs(uid, mileageLogsCache.value)
+                mileageLogDao.insertMileageLogs(results.map { it.toEntity(carId) })
             } catch (e: Exception) {
                 Log.e("CarRepository", "Error fetching mileage_logs: ${e.message}")
             }
@@ -379,12 +513,11 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun addMileageLog(carId: String, log: MileageLog) {
-        val uid = getUidSafe()
         val item = if (log.id.isBlank()) log.copy(id = UUID.randomUUID().toString()) else log
         updateMapCache(mileageLogsCache, carId) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
         }
-        localStorageHelper.saveMileageLogs(uid, mileageLogsCache.value)
+        mileageLogDao.insertMileageLogs(listOf(item.toEntity(carId)))
 
         repositoryScope.launch {
             try {
@@ -397,11 +530,10 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun updateMileageLog(carId: String, log: MileageLog) {
-        val uid = getUidSafe()
         updateMapCache(mileageLogsCache, carId) { list ->
             (list.filterNot { it.id == log.id } + log).sortedByDescending { it.date }
         }
-        localStorageHelper.saveMileageLogs(uid, mileageLogsCache.value)
+        mileageLogDao.insertMileageLogs(listOf(log.toEntity(carId)))
 
         repositoryScope.launch {
             try {
@@ -414,9 +546,8 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteMileageLog(carId: String, logId: String) {
-        val uid = getUidSafe()
         updateMapCache(mileageLogsCache, carId) { list -> list.filterNot { it.id == logId } }
-        localStorageHelper.saveMileageLogs(uid, mileageLogsCache.value)
+        mileageLogDao.deleteMileageLog(logId)
 
         repositoryScope.launch {
             try {
@@ -439,7 +570,7 @@ class CarRepository @Inject constructor(
     }
 
     private fun fetchInspectionsFromRemote(carId: String) {
-        val uid = authRepository.getUserId() ?: return
+        if (authRepository.getUserId() == null) return
         repositoryScope.launch {
             try {
                 val results = supabaseClient.postgrest["inspections"]
@@ -448,7 +579,7 @@ class CarRepository @Inject constructor(
                     .map { it.fromRemote() }
                     .sortedByDescending { it.date }
                 updateMapCache(inspectionsCache, carId) { results }
-                localStorageHelper.saveInspections(uid, inspectionsCache.value)
+                vehicleInspectionDao.insertInspections(results.map { it.toEntity(carId) })
             } catch (e: Exception) {
                 Log.e("CarRepository", "Error fetching inspections: ${e.message}")
             }
@@ -456,12 +587,11 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun addInspection(carId: String, inspection: VehicleInspection) {
-        val uid = getUidSafe()
         val item = if (inspection.id.isBlank()) inspection.copy(id = UUID.randomUUID().toString()) else inspection
         updateMapCache(inspectionsCache, carId) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
         }
-        localStorageHelper.saveInspections(uid, inspectionsCache.value)
+        vehicleInspectionDao.insertInspections(listOf(item.toEntity(carId)))
 
         repositoryScope.launch {
             try {
@@ -474,11 +604,10 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun updateInspection(carId: String, inspection: VehicleInspection) {
-        val uid = getUidSafe()
         updateMapCache(inspectionsCache, carId) { list ->
             (list.filterNot { it.id == inspection.id } + inspection).sortedByDescending { it.date }
         }
-        localStorageHelper.saveInspections(uid, inspectionsCache.value)
+        vehicleInspectionDao.insertInspections(listOf(inspection.toEntity(carId)))
 
         repositoryScope.launch {
             try {
@@ -491,9 +620,8 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteInspection(carId: String, inspection: VehicleInspection) {
-        val uid = getUidSafe()
         updateMapCache(inspectionsCache, carId) { list -> list.filterNot { it.id == inspection.id } }
-        localStorageHelper.saveInspections(uid, inspectionsCache.value)
+        vehicleInspectionDao.deleteInspection(inspection.id)
 
         repositoryScope.launch {
             try {
@@ -516,7 +644,7 @@ class CarRepository @Inject constructor(
     }
 
     private fun fetchInsurancesFromRemote(carId: String) {
-        val uid = authRepository.getUserId() ?: return
+        if (authRepository.getUserId() == null) return
         repositoryScope.launch {
             try {
                 val results = supabaseClient.postgrest["insurances"]
@@ -525,7 +653,7 @@ class CarRepository @Inject constructor(
                     .map { it.fromRemote() }
                     .sortedByDescending { it.date }
                 updateMapCache(insurancesCache, carId) { results }
-                localStorageHelper.saveInsurances(uid, insurancesCache.value)
+                insuranceDao.insertInsurances(results.map { it.toEntity(carId) })
             } catch (e: Exception) {
                 Log.e("CarRepository", "Error fetching insurances: ${e.message}")
             }
@@ -533,12 +661,11 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun addInsurance(carId: String, insurance: Insurance) {
-        val uid = getUidSafe()
         val item = if (insurance.id.isBlank()) insurance.copy(id = UUID.randomUUID().toString()) else insurance
         updateMapCache(insurancesCache, carId) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
         }
-        localStorageHelper.saveInsurances(uid, insurancesCache.value)
+        insuranceDao.insertInsurances(listOf(item.toEntity(carId)))
 
         repositoryScope.launch {
             try {
@@ -551,11 +678,10 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun updateInsurance(carId: String, insurance: Insurance) {
-        val uid = getUidSafe()
         updateMapCache(insurancesCache, carId) { list ->
             (list.filterNot { it.id == insurance.id } + insurance).sortedByDescending { it.date }
         }
-        localStorageHelper.saveInsurances(uid, insurancesCache.value)
+        insuranceDao.insertInsurances(listOf(insurance.toEntity(carId)))
 
         repositoryScope.launch {
             try {
@@ -568,9 +694,8 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteInsurance(carId: String, insuranceId: String) {
-        val uid = getUidSafe()
         updateMapCache(insurancesCache, carId) { list -> list.filterNot { it.id == insuranceId } }
-        localStorageHelper.saveInsurances(uid, insurancesCache.value)
+        insuranceDao.deleteInsurance(insuranceId)
 
         repositoryScope.launch {
             try {
@@ -593,7 +718,7 @@ class CarRepository @Inject constructor(
     }
 
     private fun fetchVignettesFromRemote(carId: String) {
-        val uid = authRepository.getUserId() ?: return
+        if (authRepository.getUserId() == null) return
         repositoryScope.launch {
             try {
                 val results = supabaseClient.postgrest["vignettes"]
@@ -602,7 +727,7 @@ class CarRepository @Inject constructor(
                     .map { it.fromRemote() }
                     .sortedByDescending { it.date }
                 updateMapCache(vignettesCache, carId) { results }
-                localStorageHelper.saveVignettes(uid, vignettesCache.value)
+                vignetteDao.insertVignettes(results.map { it.toEntity(carId) })
             } catch (e: Exception) {
                 Log.e("CarRepository", "Error fetching vignettes: ${e.message}")
             }
@@ -610,12 +735,11 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun addVignette(carId: String, vignette: Vignette) {
-        val uid = getUidSafe()
         val item = if (vignette.id.isBlank()) vignette.copy(id = UUID.randomUUID().toString()) else vignette
         updateMapCache(vignettesCache, carId) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
         }
-        localStorageHelper.saveVignettes(uid, vignettesCache.value)
+        vignetteDao.insertVignettes(listOf(item.toEntity(carId)))
 
         repositoryScope.launch {
             try {
@@ -628,11 +752,10 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun updateVignette(carId: String, vignette: Vignette) {
-        val uid = getUidSafe()
         updateMapCache(vignettesCache, carId) { list ->
             (list.filterNot { it.id == vignette.id } + vignette).sortedByDescending { it.date }
         }
-        localStorageHelper.saveVignettes(uid, vignettesCache.value)
+        vignetteDao.insertVignettes(listOf(vignette.toEntity(carId)))
 
         repositoryScope.launch {
             try {
@@ -645,9 +768,8 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteVignette(carId: String, vignetteId: String) {
-        val uid = getUidSafe()
         updateMapCache(vignettesCache, carId) { list -> list.filterNot { it.id == vignetteId } }
-        localStorageHelper.saveVignettes(uid, vignettesCache.value)
+        vignetteDao.deleteVignette(vignetteId)
 
         repositoryScope.launch {
             try {
@@ -670,7 +792,7 @@ class CarRepository @Inject constructor(
     }
 
     private fun fetchTireSetsFromRemote(carId: String) {
-        val uid = authRepository.getUserId() ?: return
+        if (authRepository.getUserId() == null) return
         repositoryScope.launch {
             try {
                 val results = supabaseClient.postgrest["tire_sets"]
@@ -679,7 +801,7 @@ class CarRepository @Inject constructor(
                     .map { it.fromRemote() }
                     .sortedByDescending { it.isActive }
                 updateMapCache(tireSetsCache, carId) { results }
-                localStorageHelper.saveTireSets(uid, tireSetsCache.value)
+                tireSetDao.insertTireSets(results.map { it.toEntity(carId) })
             } catch (e: Exception) {
                 Log.e("CarRepository", "Error fetching tire_sets: ${e.message}")
             }
@@ -687,12 +809,11 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun addTireSet(carId: String, tireSet: TireSet) {
-        val uid = getUidSafe()
         val item = if (tireSet.id.isBlank()) tireSet.copy(id = UUID.randomUUID().toString()) else tireSet
         updateMapCache(tireSetsCache, carId) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.isActive }
         }
-        localStorageHelper.saveTireSets(uid, tireSetsCache.value)
+        tireSetDao.insertTireSets(listOf(item.toEntity(carId)))
 
         repositoryScope.launch {
             try {
@@ -705,11 +826,10 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun updateTireSet(carId: String, tireSet: TireSet) {
-        val uid = getUidSafe()
         updateMapCache(tireSetsCache, carId) { list ->
             (list.filterNot { it.id == tireSet.id } + tireSet).sortedByDescending { it.isActive }
         }
-        localStorageHelper.saveTireSets(uid, tireSetsCache.value)
+        tireSetDao.insertTireSets(listOf(tireSet.toEntity(carId)))
 
         repositoryScope.launch {
             try {
@@ -722,9 +842,8 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteTireSet(carId: String, tireSetId: String) {
-        val uid = getUidSafe()
         updateMapCache(tireSetsCache, carId) { list -> list.filterNot { it.id == tireSetId } }
-        localStorageHelper.saveTireSets(uid, tireSetsCache.value)
+        tireSetDao.deleteTireSet(tireSetId)
 
         repositoryScope.launch {
             try {
@@ -747,7 +866,7 @@ class CarRepository @Inject constructor(
     }
 
     private fun fetchDiagnosisMessagesFromRemote(carId: String) {
-        val uid = authRepository.getUserId() ?: return
+        if (authRepository.getUserId() == null) return
         repositoryScope.launch {
             try {
                 val results = supabaseClient.postgrest["diagnosis_logs"]
@@ -796,7 +915,7 @@ class CarRepository @Inject constructor(
     }
 
     private fun fetchFuelLogsFromRemote(carId: String) {
-        val uid = authRepository.getUserId() ?: return
+        if (authRepository.getUserId() == null) return
         repositoryScope.launch {
             try {
                 val results = supabaseClient.postgrest["fuel_logs"]
@@ -805,7 +924,7 @@ class CarRepository @Inject constructor(
                     .map { it.fromRemote() }
                     .sortedByDescending { it.date }
                 updateMapCache(fuelLogsCache, carId) { results }
-                localStorageHelper.saveFuelLogs(uid, fuelLogsCache.value)
+                fuelLogDao.insertFuelLogs(results.map { it.toEntity(carId) })
             } catch (e: Exception) {
                 Log.e("CarRepository", "Error fetching fuel_logs: ${e.message}")
             }
@@ -813,12 +932,11 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun addFuelLog(carId: String, log: FuelLog) {
-        val uid = getUidSafe()
         val item = if (log.id.isBlank()) log.copy(id = UUID.randomUUID().toString()) else log
         updateMapCache(fuelLogsCache, carId) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
         }
-        localStorageHelper.saveFuelLogs(uid, fuelLogsCache.value)
+        fuelLogDao.insertFuelLogs(listOf(item.toEntity(carId)))
 
         repositoryScope.launch {
             try {
@@ -831,11 +949,10 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun updateFuelLog(carId: String, log: FuelLog) {
-        val uid = getUidSafe()
         updateMapCache(fuelLogsCache, carId) { list ->
             (list.filterNot { it.id == log.id } + log).sortedByDescending { it.date }
         }
-        localStorageHelper.saveFuelLogs(uid, fuelLogsCache.value)
+        fuelLogDao.insertFuelLogs(listOf(log.toEntity(carId)))
 
         repositoryScope.launch {
             try {
@@ -848,9 +965,8 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteFuelLog(carId: String, log: FuelLog) {
-        val uid = getUidSafe()
         updateMapCache(fuelLogsCache, carId) { list -> list.filterNot { it.id == log.id } }
-        localStorageHelper.saveFuelLogs(uid, fuelLogsCache.value)
+        fuelLogDao.deleteFuelLog(log.id)
 
         repositoryScope.launch {
             try {
@@ -873,7 +989,7 @@ class CarRepository @Inject constructor(
     }
 
     private fun fetchMaintenanceLogsFromRemote(carId: String) {
-        val uid = authRepository.getUserId() ?: return
+        if (authRepository.getUserId() == null) return
         repositoryScope.launch {
             try {
                 val results = supabaseClient.postgrest["maintenance_logs"]
@@ -882,7 +998,7 @@ class CarRepository @Inject constructor(
                     .map { it.fromRemote() }
                     .sortedByDescending { it.date }
                 updateMapCache(maintenanceLogsCache, carId) { results }
-                localStorageHelper.saveMaintenanceLogs(uid, maintenanceLogsCache.value)
+                maintenanceDao.insertMaintenanceLogs(results.map { it.toEntity(carId) })
             } catch (e: Exception) {
                 Log.e("CarRepository", "Error fetching maintenance_logs: ${e.message}")
             }
@@ -890,12 +1006,11 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun addMaintenanceLog(carId: String, log: Maintenance) {
-        val uid = getUidSafe()
         val item = if (log.id.isBlank()) log.copy(id = UUID.randomUUID().toString()) else log
         updateMapCache(maintenanceLogsCache, carId) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
         }
-        localStorageHelper.saveMaintenanceLogs(uid, maintenanceLogsCache.value)
+        maintenanceDao.insertMaintenanceLogs(listOf(item.toEntity(carId)))
 
         repositoryScope.launch {
             try {
@@ -908,11 +1023,10 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun updateMaintenanceLog(carId: String, log: Maintenance) {
-        val uid = getUidSafe()
         updateMapCache(maintenanceLogsCache, carId) { list ->
             (list.filterNot { it.id == log.id } + log).sortedByDescending { it.date }
         }
-        localStorageHelper.saveMaintenanceLogs(uid, maintenanceLogsCache.value)
+        maintenanceDao.insertMaintenanceLogs(listOf(log.toEntity(carId)))
 
         repositoryScope.launch {
             try {
@@ -925,9 +1039,8 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteMaintenanceLog(carId: String, log: Maintenance) {
-        val uid = getUidSafe()
         updateMapCache(maintenanceLogsCache, carId) { list -> list.filterNot { it.id == log.id } }
-        localStorageHelper.saveMaintenanceLogs(uid, maintenanceLogsCache.value)
+        maintenanceDao.deleteMaintenanceLog(log.id)
 
         repositoryScope.launch {
             try {
@@ -950,7 +1063,7 @@ class CarRepository @Inject constructor(
     }
 
     private fun fetchReportsFromRemote(carId: String) {
-        val uid = authRepository.getUserId() ?: return
+        if (authRepository.getUserId() == null) return
         repositoryScope.launch {
             try {
                 val results = supabaseClient.postgrest["reports"]

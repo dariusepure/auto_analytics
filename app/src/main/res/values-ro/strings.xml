@@ -144,7 +144,7 @@
     <string name="fuel_system_direct_injection">Injecție Directă</string>
     <string name="fuel_system_injection_pump">Pompă de injecție</string>
     <string name="fuel_system_pumpe_duse">Pumpe Duse</string>
-    <string name="fuel_system_common_rail">Common Rail</string>
+    <string name="fuel_system_common_rail">Rampă comună</string>
 
     <!-- Drivetrain -->
     <string name="drivetrain_fwd">Față</string>
@@ -281,9 +281,9 @@
     <string name="car_valves_per_cyl_label">Valve pe cilindru</string>
     <string name="car_top_speed_label">Viteză maximă</string>
     <string name="car_acceleration_label">0-100 km/h</string>
-    <string name="car_consumption_label">Mixt</string>
-    <string name="car_consumption_urban_label">Urban</string>
-    <string name="car_consumption_extra_urban_label">Extraurban</string>
+    <string name="car_consumption_label">Consum mixt</string>
+    <string name="car_consumption_urban_label">Consum urban</string>
+    <string name="car_consumption_extra_urban_label">Consum extra-urban</string>
     <string name="car_consumption_urban_full">Consum Urban</string>
     <string name="car_consumption_extra_urban_full">Consum Extraurban</string>
     <string name="car_consumption_mixed_full">Consum Mixt</string>
@@ -306,9 +306,9 @@
     <string name="car_doors_label">Uși</string>
     <string name="car_boot_label">Portbagaj</string>
     <string name="car_tire_size_label">Anvelope</string>
-    <string name="car_tire_width_label">Lățime</string>
-    <string name="car_tire_ratio_label">Raport</string>
-    <string name="car_tire_diam_label">Diam.</string>
+    <string name="car_tire_width_label">Lățime anvelopă</string>
+    <string name="car_tire_ratio_label">Talon anvelopă / Profil</string>
+    <string name="car_tire_diam_label">Diametru jantă</string>
     <string name="car_front_brakes_label">Frâne față</string>
     <string name="car_rear_brakes_label">Frâne spate</string>
     <string name="car_drivetrain_label">Tracțiune</string>

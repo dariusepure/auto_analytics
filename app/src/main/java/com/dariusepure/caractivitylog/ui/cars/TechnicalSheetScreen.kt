@@ -36,6 +36,7 @@ import com.dariusepure.caractivitylog.domain.CarEquipment
 import com.dariusepure.caractivitylog.domain.UnitSystem
 import com.dariusepure.caractivitylog.domain.displayName
 import com.dariusepure.caractivitylog.ui.common.CheckEngineIcon
+import com.dariusepure.caractivitylog.ui.common.DrivetrainChassisIcon
 import com.dariusepure.caractivitylog.ui.common.CarFormatters
 import com.dariusepure.caractivitylog.ui.common.CarTranslations
 import com.dariusepure.caractivitylog.ui.common.ErrorState
@@ -297,7 +298,7 @@ fun TechnicalSheetScreen(
                                     Locale.US, "%.2f %s", CarFormatters.fromCanonicalConsumption(car.fuelConsumptionCombined, usesMiles), consumptionUnit) else "", Icons.Default.LocalGasStation),
                                 SpecItem(stringResource(R.string.car_gearbox_type_label), CarTranslations.getGearboxTypeLabel(context, car.gearboxType), Icons.Default.Settings),
                                 SpecItem(stringResource(R.string.car_gears_count_label), car.gears, Icons.Default.FormatListNumbered),
-                                SpecItem(stringResource(R.string.car_drivetrain_label), CarTranslations.getDrivetrainLabel(context, car.drivetrain), Icons.Default.Route),
+                                SpecItem(stringResource(R.string.car_drivetrain_label), CarTranslations.getDrivetrainLabel(context, car.drivetrain), DrivetrainChassisIcon),
                                 SpecItem(stringResource(R.string.car_front_suspension_label), CarTranslations.getSuspensionLabel(context, car.frontSuspension), Icons.Default.LinearScale),
                                 SpecItem(stringResource(R.string.car_rear_suspension_label), CarTranslations.getSuspensionLabel(context, car.rearSuspension), Icons.Default.LinearScale),
                                 SpecItem(stringResource(R.string.car_front_brakes_label), CarTranslations.getBrakesLabel(context, car.frontBrakes), Icons.Default.DiscFull),
@@ -339,7 +340,11 @@ fun TechnicalSheetScreen(
                         CarEquipment.ABS,
                         CarEquipment.ESP,
                         CarEquipment.ASR,
-                        CarEquipment.ISOFIX
+                        CarEquipment.ISOFIX,
+                        CarEquipment.LANE_ASSIST,
+                        CarEquipment.BLIND_SPOT,
+                        CarEquipment.ADAPTIVE_CRUISE,
+                        CarEquipment.EMERGENCY_BRAKE
                     )
 
                     TechnicalCategory(
@@ -347,7 +352,34 @@ fun TechnicalSheetScreen(
                         icon = Icons.Default.Security
                     ) {
                         val safetyEquipments = car.equipments.filter { it in safetyIds }
-                        EquipmentBadgesList(equipments = safetyEquipments, context = context)
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            if (car.airbags > 0) {
+                                Surface(
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Security,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                        Text(
+                                            text = "${stringResource(R.string.car_airbags_label)}: ${car.airbags}",
+                                            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    }
+                                }
+                            }
+                            EquipmentBadgesList(equipments = safetyEquipments, context = context)
+                        }
                     }
 
                     TechnicalCategory(
