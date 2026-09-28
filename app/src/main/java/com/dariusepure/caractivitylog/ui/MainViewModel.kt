@@ -7,6 +7,7 @@ import com.dariusepure.caractivitylog.util.NetworkMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -21,7 +22,7 @@ class MainViewModel @Inject constructor(
     val isOnline: StateFlow<Boolean> = networkMonitor.isOnline
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
-    val signedIn: StateFlow<Boolean?> = kotlinx.coroutines.flow.combine(
+    val signedIn: StateFlow<Boolean?> = combine(
         _signedIn,
         _isGuestMode
     ) { signedIn, isGuest ->

@@ -12,6 +12,9 @@ import com.dariusepure.caractivitylog.util.ExpiryWorker
 import com.dariusepure.caractivitylog.util.NotificationHelper
 import com.google.firebase.FirebaseApp
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -32,8 +35,10 @@ class AutoAnalyticsApp : Application(), Configuration.Provider {
         FirebaseApp.initializeApp(this)
         AppCheckHelper.init(this)
 
-        NotificationHelper.createNotificationChannel(this)
-        scheduleExpiryChecks()
+        CoroutineScope(Dispatchers.IO).launch {
+            NotificationHelper.createNotificationChannel(applicationContext)
+            scheduleExpiryChecks()
+        }
 
         // Set English as default if no language is selected (overrides system language on first run)
         if (AppCompatDelegate.getApplicationLocales().isEmpty) {

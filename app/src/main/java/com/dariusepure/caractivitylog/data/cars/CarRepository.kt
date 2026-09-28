@@ -517,10 +517,10 @@ class CarRepository @Inject constructor(
         updateMapCache(mileageLogsCache, carId) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
         }
-        mileageLogDao.insertMileageLogs(listOf(item.toEntity(carId)))
 
         repositoryScope.launch {
             try {
+                mileageLogDao.insertMileageLogs(listOf(item.toEntity(carId)))
                 val dto = item.toRemote().copy(carId = carId)
                 supabaseClient.postgrest["mileage_logs"].upsert(dto)
             } catch (e: Exception) {
@@ -533,10 +533,10 @@ class CarRepository @Inject constructor(
         updateMapCache(mileageLogsCache, carId) { list ->
             (list.filterNot { it.id == log.id } + log).sortedByDescending { it.date }
         }
-        mileageLogDao.insertMileageLogs(listOf(log.toEntity(carId)))
 
         repositoryScope.launch {
             try {
+                mileageLogDao.insertMileageLogs(listOf(log.toEntity(carId)))
                 val dto = log.toRemote().copy(carId = carId)
                 supabaseClient.postgrest["mileage_logs"].upsert(dto)
             } catch (e: Exception) {
@@ -547,10 +547,10 @@ class CarRepository @Inject constructor(
 
     suspend fun deleteMileageLog(carId: String, logId: String) {
         updateMapCache(mileageLogsCache, carId) { list -> list.filterNot { it.id == logId } }
-        mileageLogDao.deleteMileageLog(logId)
 
         repositoryScope.launch {
             try {
+                mileageLogDao.deleteMileageLog(logId)
                 supabaseClient.postgrest["mileage_logs"].delete {
                     filter {
                         eq("id", logId)
@@ -591,10 +591,10 @@ class CarRepository @Inject constructor(
         updateMapCache(inspectionsCache, carId) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
         }
-        vehicleInspectionDao.insertInspections(listOf(item.toEntity(carId)))
 
         repositoryScope.launch {
             try {
+                vehicleInspectionDao.insertInspections(listOf(item.toEntity(carId)))
                 val dto = item.toRemote().copy(carId = carId)
                 supabaseClient.postgrest["inspections"].upsert(dto)
             } catch (e: Exception) {
@@ -607,10 +607,10 @@ class CarRepository @Inject constructor(
         updateMapCache(inspectionsCache, carId) { list ->
             (list.filterNot { it.id == inspection.id } + inspection).sortedByDescending { it.date }
         }
-        vehicleInspectionDao.insertInspections(listOf(inspection.toEntity(carId)))
 
         repositoryScope.launch {
             try {
+                vehicleInspectionDao.insertInspections(listOf(inspection.toEntity(carId)))
                 val dto = inspection.toRemote().copy(carId = carId)
                 supabaseClient.postgrest["inspections"].upsert(dto)
             } catch (e: Exception) {
@@ -621,10 +621,10 @@ class CarRepository @Inject constructor(
 
     suspend fun deleteInspection(carId: String, inspection: VehicleInspection) {
         updateMapCache(inspectionsCache, carId) { list -> list.filterNot { it.id == inspection.id } }
-        vehicleInspectionDao.deleteInspection(inspection.id)
 
         repositoryScope.launch {
             try {
+                vehicleInspectionDao.deleteInspection(inspection.id)
                 supabaseClient.postgrest["inspections"].delete {
                     filter {
                         eq("id", inspection.id)
@@ -665,10 +665,10 @@ class CarRepository @Inject constructor(
         updateMapCache(insurancesCache, carId) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
         }
-        insuranceDao.insertInsurances(listOf(item.toEntity(carId)))
 
         repositoryScope.launch {
             try {
+                insuranceDao.insertInsurances(listOf(item.toEntity(carId)))
                 val dto = item.toRemote().copy(carId = carId)
                 supabaseClient.postgrest["insurances"].upsert(dto)
             } catch (e: Exception) {
@@ -681,10 +681,10 @@ class CarRepository @Inject constructor(
         updateMapCache(insurancesCache, carId) { list ->
             (list.filterNot { it.id == insurance.id } + insurance).sortedByDescending { it.date }
         }
-        insuranceDao.insertInsurances(listOf(insurance.toEntity(carId)))
 
         repositoryScope.launch {
             try {
+                insuranceDao.insertInsurances(listOf(insurance.toEntity(carId)))
                 val dto = insurance.toRemote().copy(carId = carId)
                 supabaseClient.postgrest["insurances"].upsert(dto)
             } catch (e: Exception) {
@@ -695,10 +695,10 @@ class CarRepository @Inject constructor(
 
     suspend fun deleteInsurance(carId: String, insuranceId: String) {
         updateMapCache(insurancesCache, carId) { list -> list.filterNot { it.id == insuranceId } }
-        insuranceDao.deleteInsurance(insuranceId)
 
         repositoryScope.launch {
             try {
+                insuranceDao.deleteInsurance(insuranceId)
                 supabaseClient.postgrest["insurances"].delete {
                     filter {
                         eq("id", insuranceId)
@@ -739,10 +739,10 @@ class CarRepository @Inject constructor(
         updateMapCache(vignettesCache, carId) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
         }
-        vignetteDao.insertVignettes(listOf(item.toEntity(carId)))
 
         repositoryScope.launch {
             try {
+                vignetteDao.insertVignettes(listOf(item.toEntity(carId)))
                 val dto = item.toRemote().copy(carId = carId)
                 supabaseClient.postgrest["vignettes"].upsert(dto)
             } catch (e: Exception) {
@@ -755,10 +755,10 @@ class CarRepository @Inject constructor(
         updateMapCache(vignettesCache, carId) { list ->
             (list.filterNot { it.id == vignette.id } + vignette).sortedByDescending { it.date }
         }
-        vignetteDao.insertVignettes(listOf(vignette.toEntity(carId)))
 
         repositoryScope.launch {
             try {
+                vignetteDao.insertVignettes(listOf(vignette.toEntity(carId)))
                 val dto = vignette.toRemote().copy(carId = carId)
                 supabaseClient.postgrest["vignettes"].upsert(dto)
             } catch (e: Exception) {
@@ -769,10 +769,10 @@ class CarRepository @Inject constructor(
 
     suspend fun deleteVignette(carId: String, vignetteId: String) {
         updateMapCache(vignettesCache, carId) { list -> list.filterNot { it.id == vignetteId } }
-        vignetteDao.deleteVignette(vignetteId)
 
         repositoryScope.launch {
             try {
+                vignetteDao.deleteVignette(vignetteId)
                 supabaseClient.postgrest["vignettes"].delete {
                     filter {
                         eq("id", vignetteId)
@@ -813,10 +813,10 @@ class CarRepository @Inject constructor(
         updateMapCache(tireSetsCache, carId) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.isActive }
         }
-        tireSetDao.insertTireSets(listOf(item.toEntity(carId)))
 
         repositoryScope.launch {
             try {
+                tireSetDao.insertTireSets(listOf(item.toEntity(carId)))
                 val dto = item.toRemote().copy(carId = carId)
                 supabaseClient.postgrest["tire_sets"].upsert(dto)
             } catch (e: Exception) {
@@ -829,10 +829,10 @@ class CarRepository @Inject constructor(
         updateMapCache(tireSetsCache, carId) { list ->
             (list.filterNot { it.id == tireSet.id } + tireSet).sortedByDescending { it.isActive }
         }
-        tireSetDao.insertTireSets(listOf(tireSet.toEntity(carId)))
 
         repositoryScope.launch {
             try {
+                tireSetDao.insertTireSets(listOf(tireSet.toEntity(carId)))
                 val dto = tireSet.toRemote().copy(carId = carId)
                 supabaseClient.postgrest["tire_sets"].upsert(dto)
             } catch (e: Exception) {
@@ -843,10 +843,10 @@ class CarRepository @Inject constructor(
 
     suspend fun deleteTireSet(carId: String, tireSetId: String) {
         updateMapCache(tireSetsCache, carId) { list -> list.filterNot { it.id == tireSetId } }
-        tireSetDao.deleteTireSet(tireSetId)
 
         repositoryScope.launch {
             try {
+                tireSetDao.deleteTireSet(tireSetId)
                 supabaseClient.postgrest["tire_sets"].delete {
                     filter {
                         eq("id", tireSetId)
@@ -936,10 +936,10 @@ class CarRepository @Inject constructor(
         updateMapCache(fuelLogsCache, carId) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
         }
-        fuelLogDao.insertFuelLogs(listOf(item.toEntity(carId)))
 
         repositoryScope.launch {
             try {
+                fuelLogDao.insertFuelLogs(listOf(item.toEntity(carId)))
                 val dto = item.toRemote().copy(carId = carId)
                 supabaseClient.postgrest["fuel_logs"].upsert(dto)
             } catch (e: Exception) {
@@ -952,10 +952,10 @@ class CarRepository @Inject constructor(
         updateMapCache(fuelLogsCache, carId) { list ->
             (list.filterNot { it.id == log.id } + log).sortedByDescending { it.date }
         }
-        fuelLogDao.insertFuelLogs(listOf(log.toEntity(carId)))
 
         repositoryScope.launch {
             try {
+                fuelLogDao.insertFuelLogs(listOf(log.toEntity(carId)))
                 val dto = log.toRemote().copy(carId = carId)
                 supabaseClient.postgrest["fuel_logs"].upsert(dto)
             } catch (e: Exception) {
@@ -966,10 +966,10 @@ class CarRepository @Inject constructor(
 
     suspend fun deleteFuelLog(carId: String, log: FuelLog) {
         updateMapCache(fuelLogsCache, carId) { list -> list.filterNot { it.id == log.id } }
-        fuelLogDao.deleteFuelLog(log.id)
 
         repositoryScope.launch {
             try {
+                fuelLogDao.deleteFuelLog(log.id)
                 supabaseClient.postgrest["fuel_logs"].delete {
                     filter {
                         eq("id", log.id)
@@ -1010,10 +1010,10 @@ class CarRepository @Inject constructor(
         updateMapCache(maintenanceLogsCache, carId) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
         }
-        maintenanceDao.insertMaintenanceLogs(listOf(item.toEntity(carId)))
 
         repositoryScope.launch {
             try {
+                maintenanceDao.insertMaintenanceLogs(listOf(item.toEntity(carId)))
                 val dto = item.toRemote().copy(carId = carId)
                 supabaseClient.postgrest["maintenance_logs"].upsert(dto)
             } catch (e: Exception) {
@@ -1026,10 +1026,10 @@ class CarRepository @Inject constructor(
         updateMapCache(maintenanceLogsCache, carId) { list ->
             (list.filterNot { it.id == log.id } + log).sortedByDescending { it.date }
         }
-        maintenanceDao.insertMaintenanceLogs(listOf(log.toEntity(carId)))
 
         repositoryScope.launch {
             try {
+                maintenanceDao.insertMaintenanceLogs(listOf(log.toEntity(carId)))
                 val dto = log.toRemote().copy(carId = carId)
                 supabaseClient.postgrest["maintenance_logs"].upsert(dto)
             } catch (e: Exception) {
@@ -1040,10 +1040,10 @@ class CarRepository @Inject constructor(
 
     suspend fun deleteMaintenanceLog(carId: String, log: Maintenance) {
         updateMapCache(maintenanceLogsCache, carId) { list -> list.filterNot { it.id == log.id } }
-        maintenanceDao.deleteMaintenanceLog(log.id)
 
         repositoryScope.launch {
             try {
+                maintenanceDao.deleteMaintenanceLog(log.id)
                 supabaseClient.postgrest["maintenance_logs"].delete {
                     filter {
                         eq("id", log.id)

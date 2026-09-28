@@ -27,6 +27,9 @@ class PreferenceRepository @Inject constructor(
     private val _isGuestMode = MutableStateFlow(prefs.getBoolean("is_guest_mode", false))
     val isGuestMode = _isGuestMode.asStateFlow()
 
+    private val _cachedSignedIn = MutableStateFlow(prefs.getBoolean("cached_signed_in", false))
+    val cachedSignedIn = _cachedSignedIn.asStateFlow()
+
     private val _notifyItp = MutableStateFlow(prefs.getBoolean("notify_itp", true))
     val notifyItp = _notifyItp.asStateFlow()
 
@@ -53,6 +56,11 @@ class PreferenceRepository @Inject constructor(
     fun setGuestMode(enabled: Boolean) {
         _isGuestMode.value = enabled
         prefs.edit().putBoolean("is_guest_mode", enabled).apply()
+    }
+
+    fun setCachedSignedIn(signedIn: Boolean) {
+        _cachedSignedIn.value = signedIn
+        prefs.edit().putBoolean("cached_signed_in", signedIn).apply()
     }
 
     fun setNotifyItp(enabled: Boolean) {

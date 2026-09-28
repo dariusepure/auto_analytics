@@ -48,8 +48,13 @@ class AuthRepository @Inject constructor(
     }
 
     val signedIn: Flow<Boolean> = supabaseClient.auth.sessionStatus.map {
-        it is SessionStatus.Authenticated
+        val isAuthenticated = it is SessionStatus.Authenticated
+        preferenceRepository.setCachedSignedIn(isAuthenticated)
+        isAuthenticated
     }.distinctUntilChanged()
+
+    val initialSignedIn: Boolean
+        get() = preferenceRepository.cachedSignedIn.value || preferenceRepository.isGuestMode.value
 
     val userId: Flow<String?> = signedIn.combine(preferenceRepository.isGuestMode) { signedInUser, isGuest ->
         val currentUser = supabaseClient.auth.currentUserOrNull()

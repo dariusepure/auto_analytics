@@ -382,18 +382,11 @@ fun CarCard(
                         SyncStatusBadge(isPendingSync = car.isPendingSync)
                     }
                 }
-
-                Spacer(Modifier.width(4.dp))
-
-                ActionButtons(
-                    onEdit = onEditClick,
-                    onDelete = onDeleteClick
-                )
             }
 
             Spacer(Modifier.height(14.dp))
 
-            // Spec Pills Row
+            // Spec Pills Row & Action Buttons at the bottom
             val specItems = remember(car, context) {
                 val list = mutableListOf<Pair<ImageVector, String>>()
                 if (car.year > 0) {
@@ -415,17 +408,32 @@ fun CarCard(
                 list.take(4)
             }
 
-            if (specItems.isNotEmpty()) {
-                @OptIn(ExperimentalLayoutApi::class)
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    specItems.forEach { (icon, text) ->
-                        SpecChip(icon = icon, text = text)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                if (specItems.isNotEmpty()) {
+                    @OptIn(ExperimentalLayoutApi::class)
+                    FlowRow(
+                        modifier = Modifier.weight(1f),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        specItems.forEach { (icon, text) ->
+                            SpecChip(icon = icon, text = text)
+                        }
                     }
+                } else {
+                    Spacer(modifier = Modifier.weight(1f))
                 }
+
+                Spacer(Modifier.width(8.dp))
+
+                ActionButtons(
+                    onEdit = onEditClick,
+                    onDelete = onDeleteClick
+                )
             }
         }
     }

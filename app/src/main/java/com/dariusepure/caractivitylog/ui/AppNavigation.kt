@@ -36,6 +36,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.ui.common.LoadingState
 import com.dariusepure.caractivitylog.ui.theme.SettingsViewModel
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.dariusepure.caractivitylog.ui.common.ModernAppLogo
 
 sealed class Screen(val route: String) {
     data object SignIn : Screen("signin")
@@ -107,7 +116,33 @@ fun AppNavigation(
     android.util.Log.d("AppNavigation", "signedIn state: $signedIn, startDestination: $startDestination")
 
     if (signedIn == null && startDestination == null) {
-        LoadingState()
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                ModernAppLogo(modifier = Modifier.size(96.dp))
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = "Auto Analytics",
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp
+                    ),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Spacer(Modifier.height(24.dp))
+                CircularProgressIndicator(
+                    modifier = Modifier.size(32.dp),
+                    strokeWidth = 3.dp
+                )
+            }
+        }
         return
     }
 
