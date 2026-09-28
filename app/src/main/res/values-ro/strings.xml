@@ -307,7 +307,7 @@
     <string name="car_boot_label">Portbagaj</string>
     <string name="car_tire_size_label">Anvelope</string>
     <string name="car_tire_width_label">Lățime anvelopă</string>
-    <string name="car_tire_ratio_label">Talon anvelopă / Profil</string>
+    <string name="car_tire_ratio_label">Talon anvelopă</string>
     <string name="car_tire_diam_label">Diametru jantă</string>
     <string name="car_front_brakes_label">Frâne față</string>
     <string name="car_rear_brakes_label">Frâne spate</string>

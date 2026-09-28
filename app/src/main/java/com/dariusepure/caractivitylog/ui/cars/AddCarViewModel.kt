@@ -168,11 +168,6 @@ class AddCarViewModel @Inject constructor(
             return
         }
 
-        if (vin.isNotBlank() && vin.length != 17) {
-            _state.value = AddCarState.Error(context.getString(R.string.validation_vin_length))
-            return
-        }
-
         val numericFields = mapOf(
             context.getString(R.string.car_year_label) to year,
             context.getString(R.string.car_power_label) to power,

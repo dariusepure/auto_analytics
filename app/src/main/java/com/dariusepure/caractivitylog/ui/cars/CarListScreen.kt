@@ -274,10 +274,10 @@ fun CarCard(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // Header: Logo + Title/License Plate + Action Overflow
+            // Header: Logo + Title/Subtitle/License Plate + Action Buttons at the TOP right
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
                 // Brand Logo Avatar
                 Box(
@@ -313,30 +313,21 @@ fun CarCard(
 
                 Spacer(Modifier.width(14.dp))
 
-                // Vehicle Name and License Plate
+                // Vehicle Name, Subtitle and License Plate
                 Column(modifier = Modifier.weight(1f)) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        AutoSizeText(
-                            text = car.displayName,
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 17.sp
-                            ),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.weight(1f, fill = false)
-                        )
-                    }
+                    AutoSizeText(
+                        text = car.displayName,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 17.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
                     val carSubtitle = remember(car) {
                         val items = mutableListOf<String>()
                         if (car.generation.isNotBlank()) items.add(car.generation)
-                        if (car.engineVariant.isNotBlank() && !car.displayName.contains(car.engineVariant, ignoreCase = true)) {
-                            items.add(car.engineVariant)
-                        }
-                        if (car.vin.isNotBlank()) items.add("VIN: ${car.vin}")
                         items.joinToString(" • ")
                     }
 
@@ -381,16 +372,45 @@ fun CarCard(
 
                         SyncStatusBadge(isPendingSync = car.isPendingSync)
                     }
+
+                    if (car.vin.isNotBlank()) {
+                        Spacer(Modifier.height(4.dp))
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.5f),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+                        ) {
+                            Text(
+                                text = "VIN: ${car.vin}",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    fontFamily = FontFamily.Monospace
+                                ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
                 }
+
+                Spacer(Modifier.width(8.dp))
+
+                ActionButtons(
+                    onEdit = onEditClick,
+                    onDelete = onDeleteClick,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
             }
 
-            Spacer(Modifier.height(14.dp))
-
-            // Spec Pills Row & Action Buttons at the bottom
+            // Spec Pills Row (if present)
             val specItems = remember(car, context) {
                 val list = mutableListOf<Pair<ImageVector, String>>()
                 if (car.year > 0) {
                     list.add(Pair(Icons.Default.CalendarToday, car.year.toString()))
+                }
+                if (car.vehicleType.isNotBlank()) {
+                    list.add(Pair(Icons.Outlined.DirectionsCar, CarTranslations.getVehicleTypeLabel(context, car.vehicleType)))
                 }
                 if (car.fuelType.isNotBlank()) {
                     list.add(Pair(Icons.Default.LocalGasStation, CarTranslations.getFuelTypeLabel(context, car.fuelType)))
@@ -398,42 +418,21 @@ fun CarCard(
                 if (car.power > 0) {
                     list.add(Pair(Icons.Default.Speed, CarFormatters.formatPower(context, car)))
                 }
-                if (car.gearboxType.isNotBlank()) {
-                    list.add(Pair(Icons.Default.Settings, CarTranslations.getGearboxTypeLabel(context, car.gearboxType)))
-                } else if (car.engineSize.isNotBlank()) {
-                    list.add(Pair(CheckEngineIcon, car.engineSize))
-                } else if (car.vehicleType.isNotBlank()) {
-                    list.add(Pair(Icons.Outlined.DirectionsCar, CarTranslations.getVehicleTypeLabel(context, car.vehicleType)))
-                }
                 list.take(4)
             }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                if (specItems.isNotEmpty()) {
-                    @OptIn(ExperimentalLayoutApi::class)
-                    FlowRow(
-                        modifier = Modifier.weight(1f),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        specItems.forEach { (icon, text) ->
-                            SpecChip(icon = icon, text = text)
-                        }
+            if (specItems.isNotEmpty()) {
+                Spacer(Modifier.height(14.dp))
+                @OptIn(ExperimentalLayoutApi::class)
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    specItems.forEach { (icon, text) ->
+                        SpecChip(icon = icon, text = text)
                     }
-                } else {
-                    Spacer(modifier = Modifier.weight(1f))
                 }
-
-                Spacer(Modifier.width(8.dp))
-
-                ActionButtons(
-                    onEdit = onEditClick,
-                    onDelete = onDeleteClick
-                )
             }
         }
     }

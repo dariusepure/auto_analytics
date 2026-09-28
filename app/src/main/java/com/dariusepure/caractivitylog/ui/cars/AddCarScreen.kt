@@ -481,9 +481,8 @@ fun AddCarScreen(
 
     val handleBack = {
         val hasRequiredData = make.isNotBlank() && model.isNotBlank()
-        val isVinValid = vin.isEmpty() || (vin.length == 17)
         
-        if (hasRequiredData && isVinValid) {
+        if (hasRequiredData) {
             viewModel.onAddOrUpdateCar(
                 licensePlate = licensePlate,
                 plateCountry = selectedCountry?.code ?: "",
@@ -979,7 +978,6 @@ fun AddCarScreen(
                     value = engineVariant,
                     onValueChange = { engineVariant = it },
                     label = { Text(stringResource(R.string.car_engine_variant_label)) },
-                    placeholder = { Text(stringResource(R.string.car_engine_variant_placeholder)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     enabled = state !is AddCarState.Pending,

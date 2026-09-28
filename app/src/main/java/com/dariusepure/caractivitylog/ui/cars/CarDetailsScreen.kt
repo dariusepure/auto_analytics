@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -704,23 +705,14 @@ private fun CarHeaderHeroCard(
         if (car.year > 0) {
             list.add(Pair(Icons.Default.CalendarToday, car.year.toString()))
         }
+        if (car.vehicleType.isNotBlank()) {
+            list.add(Pair(Icons.Outlined.DirectionsCar, CarTranslations.getVehicleTypeLabel(context, car.vehicleType)))
+        }
         if (car.fuelType.isNotBlank()) {
             list.add(Pair(Icons.Default.LocalGasStation, CarTranslations.getFuelTypeLabel(context, car.fuelType)))
         }
         if (car.power > 0) {
             list.add(Pair(Icons.Default.Speed, CarFormatters.formatPower(context, car)))
-        }
-        if (car.engineSize.isNotBlank()) {
-            list.add(Pair(CheckEngineIcon, context.getString(R.string.formatter_engine_size, car.engineSize)))
-        }
-        if (car.gearboxType.isNotBlank()) {
-            list.add(Pair(Icons.Default.Settings, CarTranslations.getGearboxTypeLabel(context, car.gearboxType)))
-        }
-        if (car.drivetrain.isNotBlank()) {
-            list.add(Pair(DrivetrainChassisIcon, CarTranslations.getDrivetrainLabel(context, car.drivetrain)))
-        }
-        if (car.vehicleType.isNotBlank()) {
-            list.add(Pair(Icons.Outlined.DirectionsCar, CarTranslations.getVehicleTypeLabel(context, car.vehicleType)))
         }
         list
     }
@@ -793,6 +785,26 @@ private fun CarHeaderHeroCard(
                             licensePlate = car.licensePlate,
                             countryCode = car.plateCountry
                         )
+                    }
+
+                    if (car.vin.isNotBlank()) {
+                        Spacer(Modifier.height(4.dp))
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.5f),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+                        ) {
+                            Text(
+                                text = "VIN: ${car.vin}",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    fontFamily = FontFamily.Monospace
+                                ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
                     }
                 }
             }

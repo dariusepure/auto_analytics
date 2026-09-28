@@ -1,7 +1,6 @@
 package com.dariusepure.caractivitylog.data.cars
 
 import com.dariusepure.caractivitylog.domain.Car
-import com.dariusepure.caractivitylog.domain.CarEquipment
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.text.SimpleDateFormat
@@ -67,20 +66,8 @@ data class RemoteCar(
     @SerialName("created_at") val createdAt: String? = null,
     @SerialName("updated_at") val updatedAt: String? = null,
     @SerialName("activity_count") val activityCount: Int = 0,
-    @SerialName("has_abs") val hasAbs: Boolean = false,
-    @SerialName("has_esp") val hasEsp: Boolean = false,
-    @SerialName("has_asr") val hasAsr: Boolean = false,
-    @SerialName("has_isofix") val hasIsofix: Boolean = false,
     @SerialName("airbags") val airbags: Int = 0,
     @SerialName("generation") val generation: String = "",
-    @SerialName("has_ac") val hasAc: Boolean = false,
-    @SerialName("has_climate_control") val hasClimateControl: Boolean = false,
-    @SerialName("has_heated_seats") val hasHeatedSeats: Boolean = false,
-    @SerialName("has_cruise_control") val hasCruiseControl: Boolean = false,
-    @SerialName("has_navigation") val hasNavigation: Boolean = false,
-    @SerialName("has_parking_sensors") val hasParkingSensors: Boolean = false,
-    @SerialName("has_back_camera") val hasBackCamera: Boolean = false,
-    @SerialName("has_sunroof") val hasSunroof: Boolean = false,
     @SerialName("engine_variant") val engineVariant: String = ""
 )
 
@@ -166,18 +153,6 @@ fun Car.toRemote(): RemoteCar {
         createdAt = isoFormat.format(this.createdAt),
         updatedAt = isoFormat.format(this.updatedAt),
         activityCount = this.activityCount,
-        hasAbs = this.equipments.contains(CarEquipment.ABS),
-        hasEsp = this.equipments.contains(CarEquipment.ESP),
-        hasAsr = this.equipments.contains(CarEquipment.ASR),
-        hasIsofix = this.equipments.contains(CarEquipment.ISOFIX),
-        hasAc = this.equipments.contains(CarEquipment.AC),
-        hasClimateControl = this.equipments.contains(CarEquipment.CLIMATE_CONTROL),
-        hasHeatedSeats = this.equipments.contains(CarEquipment.HEATED_SEATS),
-        hasCruiseControl = this.equipments.contains(CarEquipment.ADAPTIVE_CRUISE),
-        hasNavigation = this.equipments.contains(CarEquipment.NAVIGATION),
-        hasParkingSensors = this.equipments.contains(CarEquipment.PARKING_SENSORS),
-        hasBackCamera = this.equipments.contains(CarEquipment.REAR_CAMERA),
-        hasSunroof = this.equipments.contains(CarEquipment.SUNROOF),
         airbags = this.airbags,
         generation = this.generation,
         engineVariant = this.engineVariant
@@ -186,20 +161,6 @@ fun Car.toRemote(): RemoteCar {
 
 fun RemoteCar.fromRemote(isPendingSync: Boolean = false): Car {
     val migratedEquipments = this.equipments.toMutableList()
-    if (migratedEquipments.isEmpty()) {
-        if (this.hasAbs) migratedEquipments.add(CarEquipment.ABS)
-        if (this.hasEsp) migratedEquipments.add(CarEquipment.ESP)
-        if (this.hasAsr) migratedEquipments.add(CarEquipment.ASR)
-        if (this.hasIsofix) migratedEquipments.add(CarEquipment.ISOFIX)
-        if (this.hasAc) migratedEquipments.add(CarEquipment.AC)
-        if (this.hasClimateControl) migratedEquipments.add(CarEquipment.CLIMATE_CONTROL)
-        if (this.hasHeatedSeats) migratedEquipments.add(CarEquipment.HEATED_SEATS)
-        if (this.hasCruiseControl) migratedEquipments.add(CarEquipment.ADAPTIVE_CRUISE)
-        if (this.hasNavigation) migratedEquipments.add(CarEquipment.NAVIGATION)
-        if (this.hasParkingSensors) migratedEquipments.add(CarEquipment.PARKING_SENSORS)
-        if (this.hasBackCamera) migratedEquipments.add(CarEquipment.REAR_CAMERA)
-        if (this.hasSunroof) migratedEquipments.add(CarEquipment.SUNROOF)
-    }
 
     val createdDate = try { this.createdAt?.let { isoFormat.parse(it) } } catch (e: Exception) { null } ?: Date()
     val updatedDate = try { this.updatedAt?.let { isoFormat.parse(it) } } catch (e: Exception) { null } ?: Date()

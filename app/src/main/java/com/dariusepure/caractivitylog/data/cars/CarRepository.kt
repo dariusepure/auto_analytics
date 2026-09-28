@@ -268,8 +268,22 @@ class CarRepository @Inject constructor(
                 }
 
                 val localCars = carDao.getCarsForUser(uid).map { it.toDomain() }
+                val localMap = localCars.associateBy { it.id }
                 val remoteMap = remoteCars.associateBy { it.id }
-                val mergedCars = remoteCars.toMutableList()
+
+                val mergedCars = remoteCars.map { remote ->
+                    val local = localMap[remote.id]
+                    if (local != null) {
+                        remote.copy(
+                            vin = if (remote.vin.isBlank()) local.vin else remote.vin,
+                            licensePlate = if (remote.licensePlate.isBlank()) local.licensePlate else remote.licensePlate,
+                            engineVariant = if (remote.engineVariant.isBlank()) local.engineVariant else remote.engineVariant,
+                            generation = if (remote.generation.isBlank()) local.generation else remote.generation
+                        )
+                    } else {
+                        remote
+                    }
+                }.toMutableList()
 
                 localCars.forEach { local ->
                     if (!remoteMap.containsKey(local.id)) {
@@ -282,6 +296,19 @@ class CarRepository @Inject constructor(
                                 Log.d("CarRepository", "Synced local unsynced car ${local.id} to remote")
                             } catch (e: Exception) {
                                 Log.e("CarRepository", "Error pushing local car ${local.id} to remote: ${e.message}")
+                            }
+                        }
+                    } else {
+                        val remote = remoteMap[local.id]
+                        if (remote != null && remote.vin.isBlank() && local.vin.isNotBlank()) {
+                            repositoryScope.launch {
+                                try {
+                                    val supabaseCar = local.toRemote().copy(userId = uid)
+                                    supabaseClient.postgrest["cars"].upsert(supabaseCar)
+                                    Log.d("CarRepository", "Pushed updated VIN for car ${local.id} to remote")
+                                } catch (e: Exception) {
+                                    Log.e("CarRepository", "Error pushing VIN to remote: ${e.message}")
+                                }
                             }
                         }
                     }
@@ -422,6 +449,7 @@ class CarRepository @Inject constructor(
                     authRepository.ensureProfileExists(uid, email)
 
                     val supabaseCar = item.toRemote().copy(userId = uid)
+                    Log.d("CarRepository", "createCar: upserting car ${supabaseCar.id} with vin='${supabaseCar.vin}'")
                     supabaseClient.postgrest["cars"].upsert(supabaseCar)
                     Log.d("CarRepository", "createCar synced successfully for $uid")
                 } catch (e: Exception) {
