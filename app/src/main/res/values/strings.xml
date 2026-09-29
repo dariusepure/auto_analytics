@@ -213,7 +213,12 @@
     <!-- Sorting -->
     <string name="sort_default">Default</string>
     <string name="sort_brand">Brand (A-Z)</string>
+    <string name="sort_brand_desc">Brand (Z-A)</string>
     <string name="sort_year">Year (Newest)</string>
+    <string name="sort_year_oldest">Year (Oldest)</string>
+    <string name="sort_power">Power (Highest)</string>
+    <string name="sort_name">Name (A-Z)</string>
+    <string name="sort_fuel_type">Fuel Type</string>
     <string name="auth_send_reset_link">Send Reset Link</string>
     <string name="auth_save_new_password">Save New Password</string>
     <string name="auth_back_to_signin">Back to Sign In</string>

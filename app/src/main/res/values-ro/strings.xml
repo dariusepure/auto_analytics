@@ -213,7 +213,12 @@
     <!-- Sorting -->
     <string name="sort_default">Implicit</string>
     <string name="sort_brand">Marcă (A-Z)</string>
+    <string name="sort_brand_desc">Marcă (Z-A)</string>
     <string name="sort_year">An (Cele mai noi)</string>
+    <string name="sort_year_oldest">An (Cele mai vechi)</string>
+    <string name="sort_power">Putere (Cea mai mare)</string>
+    <string name="sort_name">Nume (A-Z)</string>
+    <string name="sort_fuel_type">Tip combustibil</string>
     <string name="auth_send_reset_link">Trimite link de resetare</string>
     <string name="auth_save_new_password">Salvează parola nouă</string>
     <string name="auth_back_to_signin">Înapoi la autentificare</string>

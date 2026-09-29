@@ -22,7 +22,12 @@ import javax.inject.Inject
 enum class CarSortOrder(@StringRes val labelRes: Int) {
     DATE_ADDED(R.string.sort_default),
     BRAND(R.string.sort_brand),
-    YEAR(R.string.sort_year)
+    BRAND_DESC(R.string.sort_brand_desc),
+    YEAR(R.string.sort_year),
+    YEAR_ASC(R.string.sort_year_oldest),
+    POWER_DESC(R.string.sort_power),
+    NAME(R.string.sort_name),
+    FUEL_TYPE(R.string.sort_fuel_type)
 }
 
 @HiltViewModel
@@ -60,7 +65,12 @@ class CarListViewModel @Inject constructor(
             val sortedCars = when (order) {
                 CarSortOrder.DATE_ADDED -> filteredCars
                 CarSortOrder.BRAND -> filteredCars.sortedBy { it.make }
+                CarSortOrder.BRAND_DESC -> filteredCars.sortedByDescending { it.make }
                 CarSortOrder.YEAR -> filteredCars.sortedByDescending { it.year }
+                CarSortOrder.YEAR_ASC -> filteredCars.sortedBy { it.year }
+                CarSortOrder.POWER_DESC -> filteredCars.sortedByDescending { it.power }
+                CarSortOrder.NAME -> filteredCars.sortedBy { it.displayName }
+                CarSortOrder.FUEL_TYPE -> filteredCars.sortedBy { it.fuelType }
             }
             CarListUiState.Success(sortedCars)
         }

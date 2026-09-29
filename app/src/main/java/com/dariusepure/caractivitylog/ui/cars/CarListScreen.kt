@@ -728,43 +728,6 @@ private fun InnerCarListScreen(
                         unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
                     )
                 )
-
-                // Quick Sort Filter Chips
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    items(CarSortOrder.entries.toTypedArray()) { order ->
-                        val isSelected = order == currentSortOrder
-                        FilterChip(
-                            selected = isSelected,
-                            onClick = { onSortOrderChange(order) },
-                            label = {
-                                Text(
-                                    text = stringResource(order.labelRes),
-                                    style = MaterialTheme.typography.labelMedium.copy(
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-                                    )
-                                )
-                            },
-                            leadingIcon = if (isSelected) {
-                                {
-                                    Icon(
-                                        imageVector = Icons.Default.CheckCircle,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                }
-                            } else null,
-                            shape = RoundedCornerShape(12.dp),
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        )
-                    }
-                }
             }
 
             Spacer(Modifier.height(4.dp))
