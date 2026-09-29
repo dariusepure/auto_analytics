@@ -212,13 +212,13 @@ fun TechnicalSheetScreen(
                     ) {
                         QuickSpecCard(
                             icon = Icons.Default.Speed,
-                            label = "Putere",
+                            label = stringResource(R.string.car_power_label),
                             value = powerText,
                             modifier = Modifier.weight(1f)
                         )
                         QuickSpecCard(
                             icon = Icons.Default.LocalGasStation,
-                            label = "Combustibil",
+                            label = stringResource(R.string.car_fuel_type_label),
                             value = CarTranslations.getFuelTypeLabel(context, car.fuelType),
                             modifier = Modifier.weight(1f)
                         )
@@ -232,13 +232,13 @@ fun TechnicalSheetScreen(
                     ) {
                         QuickSpecCard(
                             icon = Icons.Default.Settings,
-                            label = "Transmisie",
+                            label = stringResource(R.string.car_gearbox_type_label),
                             value = CarTranslations.getGearboxTypeLabel(context, car.gearboxType),
                             modifier = Modifier.weight(1f)
                         )
                         QuickSpecCard(
                             icon = CheckEngineIcon,
-                            label = "Cilindree",
+                            label = stringResource(R.string.car_engine_size_label),
                             value = car.engineSize.ifBlank { "-" },
                             modifier = Modifier.weight(1f)
                         )

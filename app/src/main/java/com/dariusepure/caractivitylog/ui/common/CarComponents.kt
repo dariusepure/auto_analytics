@@ -7,10 +7,21 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Badge
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ElectricBolt
+import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.LocalGasStation
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.outlined.DirectionsCar
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -203,6 +214,80 @@ fun TireSetItem(
     }
 }
 
+fun getSpecIconColor(icon: ImageVector?, text: String = ""): Color {
+    if (icon == null) return Color(0xFF2563EB)
+    val textLower = text.lowercase()
+    return when (icon) {
+        Icons.Default.CalendarToday -> Color(0xFF2563EB)
+        Icons.Outlined.DirectionsCar, Icons.Default.DirectionsCar -> Color(0xFF7C3AED)
+        Icons.Default.LocalGasStation, Icons.Default.Eco -> {
+            when {
+                textLower.contains("lpg") || textLower.contains("gpl") || textLower.contains("electric") || textLower.contains("ev") || textLower.contains("hybrid") || textLower.contains("cng") -> Color(0xFF059669)
+                textLower.contains("diesel") -> Color(0xFF0284C7)
+                textLower.contains("petrol") || textLower.contains("benzina") || textLower.contains("gasoline") -> Color(0xFFDC2626)
+                else -> Color(0xFF059669)
+            }
+        }
+        Icons.Default.Speed -> Color(0xFFEA580C)
+        Icons.Default.Palette -> Color(0xFFEC4899)
+        Icons.Default.Fingerprint, Icons.Default.Badge -> Color(0xFF0D9488)
+        Icons.Default.ElectricBolt -> Color(0xFFEAB308)
+        Icons.Default.Eco, Icons.Default.Cloud -> Color(0xFF16A34A)
+        else -> Color(0xFF2563EB)
+    }
+}
+
+/**
+ * Spec pill tag for displaying quick vehicle technical attributes with vibrant colors.
+ */
+@Composable
+fun SpecChip(
+    icon: ImageVector,
+    text: String,
+    modifier: Modifier = Modifier,
+    iconTint: Color? = null,
+    containerColor: Color? = null
+) {
+    val color = iconTint ?: getSpecIconColor(icon, text)
+    val bgColor = containerColor ?: color.copy(alpha = 0.12f)
+
+    Surface(
+        color = bgColor,
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, color.copy(alpha = 0.22f)),
+        modifier = modifier
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(18.dp)
+                    .clip(CircleShape)
+                    .background(color.copy(alpha = 0.18f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(12.dp),
+                    tint = color
+                )
+            }
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
 data class SpecItem(
     val label: String,
     val value: String,
@@ -234,18 +319,19 @@ fun SpecificationCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (item.icon != null) {
+                        val iconColor = getSpecIconColor(item.icon, item.value)
                         Box(
                             modifier = Modifier
                                 .size(32.dp)
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)),
+                                .background(iconColor.copy(alpha = 0.14f)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = item.icon,
                                 contentDescription = null,
                                 modifier = Modifier.size(17.dp),
-                                tint = MaterialTheme.colorScheme.primary
+                                tint = iconColor
                             )
                         }
                         Spacer(Modifier.width(12.dp))

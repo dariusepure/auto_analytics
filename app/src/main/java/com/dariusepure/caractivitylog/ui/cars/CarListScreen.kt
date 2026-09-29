@@ -82,6 +82,7 @@ import com.dariusepure.caractivitylog.ui.common.CarTranslations
 import com.dariusepure.caractivitylog.ui.common.DeleteConfirmationDialog
 import com.dariusepure.caractivitylog.ui.common.EmptyState
 import com.dariusepure.caractivitylog.ui.common.ErrorState
+import com.dariusepure.caractivitylog.ui.common.SpecChip
 import com.dariusepure.caractivitylog.ui.common.shimmer
 
 /**
@@ -141,43 +142,6 @@ fun LicensePlateBadge(
 }
 
 /**
- * Spec pill tag for displaying quick vehicle technical attributes.
- */
-@Composable
-fun SpecChip(
-    icon: ImageVector,
-    text: String,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.6f),
-        shape = RoundedCornerShape(8.dp),
-        modifier = modifier
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(13.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = text,
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Medium
-                ),
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-/**
  * Status indicator badge for cloud sync state.
  */
 @Composable
@@ -205,14 +169,14 @@ fun SyncStatusBadge(isPendingSync: Boolean, modifier: Modifier = Modifier) {
             ) {
                 Icon(
                     imageVector = Icons.Default.Sync,
-                    contentDescription = "Sincronizare în curs",
+                    contentDescription = stringResource(R.string.sync_in_progress),
                     modifier = Modifier
                         .size(13.dp)
                         .graphicsLayer { rotationZ = rotation },
                     tint = Color(0xFF2196F3)
                 )
                 Text(
-                    text = "Sincronizare",
+                    text = stringResource(R.string.sync_status_syncing),
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, fontWeight = FontWeight.Bold),
                     color = Color(0xFF2196F3)
                 )
@@ -230,7 +194,7 @@ fun SyncStatusBadge(isPendingSync: Boolean, modifier: Modifier = Modifier) {
             ) {
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
-                    contentDescription = "Sincronizat",
+                    contentDescription = stringResource(R.string.sync_status_synced),
                     modifier = Modifier.size(15.dp),
                     tint = Color(0xFF10B981)
                 )
@@ -359,7 +323,7 @@ fun CarCard(
                                 shape = RoundedCornerShape(6.dp)
                             ) {
                                 Text(
-                                    text = "FĂRĂ NR. ÎNM.",
+                                    text = stringResource(R.string.car_no_license_plate),
                                     style = MaterialTheme.typography.labelSmall.copy(
                                         fontSize = 9.sp,
                                         fontWeight = FontWeight.Bold,
@@ -735,7 +699,7 @@ private fun InnerCarListScreen(
                             IconButton(onClick = { onSearchQueryChange("") }) {
                                 Icon(
                                     imageVector = Icons.Default.Clear,
-                                    contentDescription = "Șterge căutarea",
+                                    contentDescription = stringResource(R.string.common_clear_search),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -840,7 +804,7 @@ private fun InnerCarListScreen(
                                         onClick = { onSearchQueryChange("") },
                                         shape = RoundedCornerShape(16.dp)
                                     ) {
-                                        Text("Șterge căutarea")
+                                        Text(stringResource(R.string.common_clear_search))
                                     }
                                 }
                             )

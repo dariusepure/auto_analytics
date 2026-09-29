@@ -1411,7 +1411,7 @@ fun AddCarScreen(
                 if (fuelType == "Petrol" || fuelType == "LPG" || fuelType == "Diesel") {
                     var fuelSystemExpanded by remember { mutableStateOf(false) }
                     val fuelSystemOptions = when (fuelType) {
-                        "Petrol", "LPG" -> listOf("Carburetor", "Multi Point Injection", "Direct Injection")
+                        "Petrol", "LPG" -> listOf("Carburetor", "Single Point Injection", "Multi Point Injection", "Direct Injection")
                         "Diesel" -> listOf("Injection Pump", "Pumpe Duse", "Common Rail")
                         else -> emptyList()
                     }

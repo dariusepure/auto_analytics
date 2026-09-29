@@ -1,5 +1,6 @@
 package com.dariusepure.caractivitylog.ui.settings
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -76,7 +77,7 @@ fun SettingsScreen(
             when (event) {
                 is SettingsEvent.PasswordChanged -> {
                     showChangePasswordDialog = false
-                    snackbarHostState.showSnackbar("Password updated!")
+                    snackbarHostState.showSnackbar(context.getString(R.string.settings_password_update_success))
                 }
                 is SettingsEvent.AccountDeleted -> {
                     showDeleteAccountDialog = false
@@ -88,7 +89,7 @@ fun SettingsScreen(
                         putExtra(android.content.Intent.EXTRA_SUBJECT, "Auto Analytics Export")
                         putExtra(android.content.Intent.EXTRA_TEXT, event.csvContent)
                     }
-                    context.startActivity(android.content.Intent.createChooser(intent, "Exportă datele"))
+                    context.startActivity(Intent.createChooser(intent, context.getString(R.string.settings_export_data)))
                 }
                 is SettingsEvent.Error -> {
                     snackbarHostState.showSnackbar(event.message)
@@ -199,9 +200,9 @@ fun SettingsScreen(
             }
 
             // Notifications Section
-            SettingsSection(title = "Notificări") {
+            SettingsSection(title = stringResource(R.string.settings_notifications_title)) {
                 SettingsItem(
-                    label = "Alerte ITP",
+                    label = stringResource(R.string.settings_inspection_alerts),
                     icon = Icons.Default.NotificationsActive,
                     onClick = { viewModel.setNotifyItp(!notifyItp) },
                     trailing = {
@@ -210,7 +211,7 @@ fun SettingsScreen(
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
                 SettingsItem(
-                    label = "Alerte Asigurare",
+                    label = stringResource(R.string.settings_insurance_alerts),
                     icon = Icons.Default.Security,
                     onClick = { viewModel.setNotifyInsurance(!notifyInsurance) },
                     trailing = {
@@ -219,7 +220,7 @@ fun SettingsScreen(
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
                 SettingsItem(
-                    label = "Alerte Rovinietă",
+                    label = stringResource(R.string.settings_vignette_alerts),
                     icon = Icons.Default.ConfirmationNumber,
                     onClick = { viewModel.setNotifyVignette(!notifyVignette) },
                     trailing = {
@@ -359,9 +360,9 @@ fun SettingsScreen(
             }
 
             // Data Section
-            SettingsSection(title = "Date și Backup") {
+            SettingsSection(title = stringResource(R.string.settings_data_backup_title)) {
                 SettingsItem(
-                    label = "Exportă Istoric (CSV)",
+                    label = stringResource(R.string.settings_export_csv),
                     icon = Icons.Default.FileDownload,
                     onClick = { viewModel.exportDataToCsv() }
                 )
@@ -408,7 +409,7 @@ fun SettingsScreen(
             }
 
             // About Section
-            SettingsSection(title = "Despre") {
+            SettingsSection(title = stringResource(R.string.settings_about_title)) {
                 SettingsItem(
                     label = stringResource(R.string.common_powered_by),
                     icon = Icons.Default.Info,

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.data.cars.CarRepository
 import com.dariusepure.caractivitylog.domain.displayName
 import dagger.assisted.Assisted
@@ -30,12 +31,16 @@ class ExpiryWorker @AssistedInject constructor(
             val notifyInsurance = preferenceRepository.notifyInsurance.first()
             val notifyVignette = preferenceRepository.notifyVignette.first()
 
+            val itpLabel = applicationContext.getString(R.string.common_inspection)
+            val insuranceLabel = applicationContext.getString(R.string.car_insurance_title)
+            val vignetteLabel = applicationContext.getString(R.string.car_vignette_title)
+
             cars.forEach { car ->
                 // Check Inspections
                 if (notifyItp) {
                     val inspections = carRepository.getInspections(car.id).first()
                     inspections.firstOrNull()?.let { inspection ->
-                        checkAndNotify(car.displayName, "ITP", inspection.expiryDate, now)
+                        checkAndNotify(car.displayName, itpLabel, inspection.expiryDate, now)
                     }
                 }
 
@@ -43,7 +48,7 @@ class ExpiryWorker @AssistedInject constructor(
                 if (notifyInsurance) {
                     val insurances = carRepository.getInsurances(car.id).first()
                     insurances.firstOrNull()?.let { insurance ->
-                        checkAndNotify(car.displayName, "Asigurare", insurance.expiryDate, now)
+                        checkAndNotify(car.displayName, insuranceLabel, insurance.expiryDate, now)
                     }
                 }
 
@@ -51,7 +56,7 @@ class ExpiryWorker @AssistedInject constructor(
                 if (notifyVignette) {
                     val vignettes = carRepository.getVignettes(car.id).first()
                     vignettes.firstOrNull()?.let { vignette ->
-                        checkAndNotify(car.displayName, "Rovinietă", vignette.expiryDate, now)
+                        checkAndNotify(car.displayName, vignetteLabel, vignette.expiryDate, now)
                     }
                 }
             }
@@ -67,11 +72,11 @@ class ExpiryWorker @AssistedInject constructor(
         val diffInDays = TimeUnit.MILLISECONDS.toDays(diffInMs)
 
         if (diffInDays in listOf(30L, 7L, 1L, 0L)) {
-            val title = "Atenție: $docType expiră!"
+            val title = applicationContext.getString(R.string.notification_warning_title, docType)
             val message = when (diffInDays) {
-                0L -> "$docType pentru $carName expiră astăzi!"
-                1L -> "$docType pentru $carName expiră mâine!"
-                else -> "$docType pentru $carName expiră în $diffInDays zile."
+                0L -> applicationContext.getString(R.string.notification_msg_today, docType, carName)
+                1L -> applicationContext.getString(R.string.notification_msg_tomorrow, docType, carName)
+                else -> applicationContext.getString(R.string.notification_msg_days, docType, carName, diffInDays)
             }
             
             val notificationId = (carName + docType + diffInDays).hashCode()

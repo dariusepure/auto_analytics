@@ -819,29 +819,7 @@ private fun CarHeaderHeroCard(
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     specPills.forEach { (icon, text) ->
-                        Surface(
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.surface,
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(5.dp)
-                            ) {
-                                Icon(
-                                    imageVector = icon,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(13.dp)
-                                )
-                                Text(
-                                    text = text,
-                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        }
+                        SpecChip(icon = icon, text = text)
                     }
                 }
             }

@@ -6,38 +6,34 @@
 ## 🌟 Key Features
 
 ### 🤖 AI-Powered Intelligence
-- **Smart Diagnosis (Virtual Mechanic)**: Persistent chat with an expert AI car mechanic.
+- **Smart Diagnosis (Virtual Mechanic)**: Persistent chat with an expert AI car mechanic powered by **Gemini AI**.
   - **History Persistence**: Conversations are saved per car and synced to the cloud.
   - **Context-Aware**: The AI knows your car's technical specs and history to provide precise advice.
-  - **Read-Only Context**: The AI can read all vehicle data to assist you, but technical modifications must be made manually by the user for maximum safety.
-- **AI Document Scanning**: Extract technical data from vehicle documents.
+- **AI Document Scanning**: Extract technical data from vehicle documents (registration certificates, etc.).
   - **Flexible Input**: Import documents via **Gallery** or **PDF** files.
   - **Manual Data Confirmation**: Review and select which scanned details (VIN, Make, Model, Year, etc.) to apply to your car profile.
 
 ### 🛠️ Comprehensive Vehicle Management
-- **Exhaustive Technical Profiles**: Track everything from **Vehicle Generation** and engine layout to tire dimensions and safety equipment (ABS, ESP, Airbags).
-- **Smart Vehicle Titles**: Vehicle generations are automatically integrated into display names (e.g., "Volkswagen Golf (Mk7)") for easier identification.
-- **Advanced Search**: Instantly find vehicles in your collection by **Make**, **Model**, **License Plate**, or **VIN**.
-- **Duplicate Prevention**: Built-in validation to prevent adding multiple vehicles with the same **VIN**.
+- **Exhaustive Technical Profiles**: Track everything from **Vehicle Generation**, engine layout, and power output to tire dimensions, safety equipment, and **VIN** (with a clean monospace surface container).
+- **Advanced Search & Management**: Instantly find vehicles by **Make**, **Model**, **License Plate**, or **VIN**.
 - **Bento-Style History Screens**: Redesigned history logs for **Service**, **Tires**, **Inspections**, **Insurance**, and **Vignettes** featuring real-time statistics cards and a modern list layout.
-- **Smart Mileage History**: 
-  - **Unified Log**: A central place to track your vehicle's odometer progress with interactive **Vico Charts**.
-  - **Intelligent Import**: One-tap import of mileage records from **Fuel**, **Service**, and **Inspection** logs.
-- **Maintenance & Service**: Keep a detailed technical log of every repair, oil change, or part replacement with average interval tracking.
-- **Tire Management**: Track active and stored tire sets with DOT, seasonal classification, and size specifications.
-- **Fuel Consumption**: Log fillings in **Liters** or **Gallons**, track efficiency (L/100km or MPG), and visualize trends.
-- **Legal Document Tracking**: Stay ahead of deadlines for **Technical Inspections**, **Insurance**, and **Vignettes** with color-coded status indicators and validity counters.
+- **Smart Mileage History**: Central place to track vehicle odometer progress with interactive **Vico Charts** and intelligent log imports.
+- **Maintenance, Fuel & Legal Tracking**: Keep detailed technical logs, track fuel efficiency (L/100km or MPG), and monitor deadlines for **Technical Inspections**, **Insurance**, and **Vignettes**.
 
-### 🔐 Secure Access & Sync
-- **Modern Authentication**: Sign in with Email/Password or **Google One Tap** for a secure, synced experience.
-- **Cloud Backup**: Securely store your vehicle data and history in the cloud for access across all your devices.
+### 🔐 Secure Access, Local DB & Cloud Sync
+- **Offline-First Room Database & Supabase**: Local SQLite persistence via Room with automated offline-first synchronization to Supabase and Firebase.
+- **Modern Authentication**: Sign in with Email/Password or **Google One Tap** (Credential Manager).
+- **Cloud Backup**: Securely store your vehicle data and history in the cloud.
+
+### ⚡ Performance & Automated Testing
+- **Optimized Build & Sync**: Configured with Gradle Build Cache, Configuration Cache (`org.gradle.configuration-cache=true`), parallel execution (`org.gradle.parallel=true`), and Kotlin Daemon tuning for lightning-fast syncs and builds.
+- **Branded Startup Experience**: Custom Jetpack SplashScreen API with a smooth branded loading state eliminating cold-start flickering.
+- **Automated Test Suite**: Comprehensive unit tests (`CarFormattersTest`) and instrumented Compose UI tests (`AppFlowTest`).
 
 ### 🌗 Premium UI/UX
-- **Material Design 3 (M3)**: A beautiful, modern interface using the latest adaptive components.
-- **Global Unit System**: Full support for both **Metric** (km, L) and **Imperial** (mi, gal) units, switchable instantly from settings.
-- **Modern Settings Interface**: A centralized **Modal Bottom Sheet** for managing theme, language, and measurement units.
+- **Material Design 3 (M3)**: Beautiful, adaptive interface with refined card layouts (top-right action buttons, sleek license plate badges, and styled VIN containers).
+- **Global Unit System**: Full support for **Metric** (km, L) and **Imperial** (mi, gal) units.
 - **Multi-Language Support**: Full localization for **English** and **Romanian**.
-- **Edge-to-Edge**: Immersive experience with content flowing elegantly behind system bars.
 
 ---
 
@@ -48,14 +44,14 @@
 | **Language** | **Kotlin 2.0+** |
 | **Compatibility** | **Android 8.0 (API 26) and up** |
 | **UI Framework** | **Jetpack Compose** with **Material 3** |
-| **AI SDK** | **Google Generative AI SDK** (Gemini 3.5 Flash-lite) |
-| **Networking** | **Ktor Client 3.0** |
-| **Backend** | **Firebase** (Firestore, Storage, Authentication) |
+| **AI SDK** | **Google Generative AI SDK** (Gemini) |
+| **Local Database** | **Room 2.8+** (Offline-first) |
+| **Cloud Backend** | **Supabase** (Postgrest & GoTrue Auth) & **Firebase** |
+| **Networking** | **Ktor Client** |
 | **Architecture** | **MVVM** + Clean Architecture + Hilt DI |
 | **Charts** | **Vico Charts** |
 | **Identity** | **Android Credential Manager** |
-| **Serialization** | **Kotlinx Serialization** |
-| **Image Loading** | **Coil** |
+| **Testing** | **JUnit** & **Jetpack Compose UI Tests** |
 
 ---
 

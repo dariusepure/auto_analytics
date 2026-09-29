@@ -61,6 +61,7 @@ object CarTranslations {
 
     fun getFuelSystemLabel(context: Context, option: String): String = when (option) {
         "Carburetor" -> context.getString(R.string.fuel_system_carburetor)
+        "Single Point Injection" -> context.getString(R.string.fuel_system_single_point_injection)
         "Multi Point Injection" -> context.getString(R.string.fuel_system_multi_point_injection)
         "Direct Injection" -> context.getString(R.string.fuel_system_direct_injection)
         "Injection Pump" -> context.getString(R.string.fuel_system_injection_pump)

@@ -124,7 +124,7 @@ object AppModule {
                 - rearSuspension: [Torsion Beam, Multi-link, Solid Axle]
                 - drivetrain: [FWD, RWD, AWD]
                 - vehicleType: [Saloon, Estate, Hatchback, MPV, SUV, Coupe, Convertible, Van, Pickup]
-                - fuelSystem (Petrol/LPG): [Carburetor, Multi Point Injection, Direct Injection]
+                - fuelSystem (Petrol/LPG): [Carburetor, Single Point Injection, Multi Point Injection, Direct Injection]
                 - fuelSystem (Diesel): [Injection Pump, Pumpe Duse, Common Rail]
                 - powerUnit: [hp, kW]
                 
@@ -135,7 +135,7 @@ object AppModule {
                 - engineLayout: Transversal -> Transverse, Longitudinal -> Longitudinal.
                 - cylinderLayout: În linie -> Inline.
                 - aspiration: Aspirat -> Naturally Aspirated, Turbo -> Turbocharged, Compresor -> Supercharged.
-                - fuelSystem: Injecție directă -> Direct Injection, Rampa comuna -> Common Rail.
+                - fuelSystem: Injecție directă -> Direct Injection, Injecție monopunct -> Single Point Injection, Rampa comuna -> Common Rail.
                 - brakes: Discuri ventilate -> Ventilated Discs, Tamburi -> Drums.
                 - suspension: Brațe duble -> Double Wishbone, Bară torsiune -> Torsion Beam, Punte rigidă -> Solid Axle, Independentă -> Multi-link.
                 - vehicleType: Sedan/Berlina -> Saloon, Break -> Estate, Decapotabilă -> Convertible, Dubă -> Van.

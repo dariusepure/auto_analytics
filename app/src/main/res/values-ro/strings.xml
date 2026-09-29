@@ -140,6 +140,7 @@
 
     <!-- Fuel Systems -->
     <string name="fuel_system_carburetor">Carburator</string>
+    <string name="fuel_system_single_point_injection">Injecție monopunct</string>
     <string name="fuel_system_multi_point_injection">Injecție Multi-punct</string>
     <string name="fuel_system_direct_injection">Injecție Directă</string>
     <string name="fuel_system_injection_pump">Pompă de injecție</string>
@@ -677,4 +678,27 @@
     <string name="toast_mileage_not_found_doc">Nu s-au găsit înregistrări de kilometraj în document</string>
     <string name="toast_scan_failed">Scanare eșuată: %s</string>
     <string name="toast_import_success">S-au importat cu succes %d înregistrări</string>
+
+    <!-- Sync & Status -->
+    <string name="sync_in_progress">Sincronizare în curs</string>
+    <string name="sync_status_syncing">Sincronizare</string>
+    <string name="sync_status_synced">Sincronizat</string>
+    <string name="car_no_license_plate">FĂRĂ NR. ÎNM.</string>
+    <string name="common_clear_search">Șterge căutarea</string>
+
+    <!-- Settings Sections & Alerts -->
+    <string name="settings_notifications_title">Notificări</string>
+    <string name="settings_inspection_alerts">Alerte ITP</string>
+    <string name="settings_insurance_alerts">Alerte Asigurare</string>
+    <string name="settings_vignette_alerts">Alerte Rovinietă</string>
+    <string name="settings_data_backup_title">Date și Backup</string>
+    <string name="settings_export_csv">Exportă Istoric (CSV)</string>
+    <string name="settings_export_data">Exportă datele</string>
+    <string name="settings_about_title">Despre</string>
+
+    <!-- Notifications -->
+    <string name="notification_warning_title">Atenție: %s expiră!</string>
+    <string name="notification_msg_today">%1$s pentru %2$s expiră astăzi!</string>
+    <string name="notification_msg_tomorrow">%1$s pentru %2$s expiră mâine!</string>
+    <string name="notification_msg_days">%1$s pentru %2$s expiră în %3$d zile.</string>
 </resources>

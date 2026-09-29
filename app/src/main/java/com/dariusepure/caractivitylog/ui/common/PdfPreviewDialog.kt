@@ -91,7 +91,7 @@ fun PdfPreviewDialog(
                         ) {
                             Icon(Icons.Default.FileDownload, null, modifier = Modifier.size(18.dp))
                             Spacer(Modifier.width(8.dp))
-                            Text("SAVE PDF", style = MaterialTheme.typography.labelLarge)
+                            Text(stringResource(R.string.common_save_pdf), style = MaterialTheme.typography.labelLarge)
                         }
                     }
                 )
