@@ -81,6 +81,22 @@ class CarListViewModel @Inject constructor(
             }
         )
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
+    fun refresh() {
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            try {
+                carRepository.refresh()
+            } catch (e: Exception) {
+                // Log error
+            } finally {
+                _isRefreshing.value = false
+            }
+        }
+    }
+
     fun onSortOrderChanged(order: CarSortOrder) {
         _sortOrder.value = order
     }

@@ -48,7 +48,7 @@ class AutoAnalyticsApp : Application(), Configuration.Provider {
 
     private fun scheduleExpiryChecks() {
         val expiryWorkRequest = PeriodicWorkRequestBuilder<ExpiryWorker>(1, TimeUnit.DAYS)
-            .setInitialDelay(1, TimeUnit.HOURS) // Start after 1 hour to not heavy load on first start
+            .setInitialDelay(0, TimeUnit.SECONDS) // Run immediately on startup for testing/verification
             .build()
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(

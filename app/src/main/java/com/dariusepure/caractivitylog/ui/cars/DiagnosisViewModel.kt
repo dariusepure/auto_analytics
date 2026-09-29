@@ -7,6 +7,7 @@ import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.data.ai.GeminiRepository
 import com.dariusepure.caractivitylog.data.cars.CarRepository
 import com.dariusepure.caractivitylog.domain.Car
+import com.dariusepure.caractivitylog.domain.displayName
 import com.dariusepure.caractivitylog.util.DiagnosticUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -37,7 +38,7 @@ class DiagnosisViewModel @Inject constructor(
                         _state.update { it.copy(
                             isLoading = false, 
                             messages = history, 
-                            carName = "${car.make} ${car.model}"
+                            carName = car.displayName
                         ) }
                     }
                 } else {

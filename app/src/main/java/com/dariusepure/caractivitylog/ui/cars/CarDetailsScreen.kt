@@ -721,9 +721,9 @@ private fun CarHeaderHeroCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)
+            containerColor = carAccentColor.copy(alpha = 0.15f)
         ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
+        border = BorderStroke(1.dp, carAccentColor.copy(alpha = 0.3f))
     ) {
         Column(
             modifier = Modifier.padding(16.dp)

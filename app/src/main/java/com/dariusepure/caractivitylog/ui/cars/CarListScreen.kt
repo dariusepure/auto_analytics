@@ -51,6 +51,7 @@ import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.DirectionsCar
 import com.dariusepure.caractivitylog.ui.common.CheckEngineIcon
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -216,6 +217,9 @@ fun CarCard(
 ) {
     val context = LocalContext.current
     val logoRes = remember(car.make) { CarFormatters.getBrandLogoResource(car.make) }
+    val carAccentColor = remember(car.accentColor) {
+        car.accentColor?.let { Color(it) } ?: Color(0xFF1A73E8)
+    }
 
     Card(
         onClick = onClick,
@@ -248,10 +252,10 @@ fun CarCard(
                     modifier = Modifier
                         .size(56.dp)
                         .clip(RoundedCornerShape(18.dp))
-                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f))
+                        .background(carAccentColor.copy(alpha = 0.15f))
                         .border(
                             width = 1.dp,
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                            color = carAccentColor.copy(alpha = 0.3f),
                             shape = RoundedCornerShape(18.dp)
                         ),
                     contentAlignment = Alignment.Center
@@ -270,7 +274,7 @@ fun CarCard(
                             imageVector = Icons.Outlined.DirectionsCar,
                             contentDescription = car.make,
                             modifier = Modifier.size(32.dp),
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = carAccentColor
                         )
                     }
                 }
@@ -481,6 +485,7 @@ fun CarListScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val sortOrder by viewModel.sortOrder.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     val haptic = LocalHapticFeedback.current
 
     val onDeleteCarLambda = remember(viewModel, haptic) {
@@ -509,6 +514,8 @@ fun CarListScreen(
         searchQuery = searchQuery,
         currentSortOrder = sortOrder,
         state = state,
+        isRefreshing = isRefreshing,
+        onRefresh = { viewModel.refresh() },
         modifier = modifier
     )
 }
@@ -526,6 +533,8 @@ private fun InnerCarListScreen(
     searchQuery: String,
     currentSortOrder: CarSortOrder,
     state: CarListUiState,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var sortMenuExpanded by remember { mutableStateOf(false) }
@@ -666,11 +675,16 @@ private fun InnerCarListScreen(
             }
         },
     ) { padding ->
-        Column(
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
         ) {
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
             // Search Bar & Sort Chips
             Column(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
@@ -842,6 +856,7 @@ private fun InnerCarListScreen(
                 }
             }
         }
+      }
     }
 }
 
