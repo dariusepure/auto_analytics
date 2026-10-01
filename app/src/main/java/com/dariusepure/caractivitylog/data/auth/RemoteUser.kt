@@ -7,17 +7,19 @@ import kotlinx.serialization.Serializable
 data class RemoteUser(
     val id: String = "",
     val email: String = "",
-    val name: String = ""
+    val fullName: String = "",
+    val username: String = ""
 )
 
 fun User.toRemote() = RemoteUser(
     id = this.id,
     email = this.email,
-    name = this.name
+    fullName = this.name,
+    username = this.email.substringBefore("@")
 )
 
 fun RemoteUser.fromRemote() = User(
     id = this.id,
     email = this.email,
-    name = this.name
+    name = fullName.ifBlank { username }
 )

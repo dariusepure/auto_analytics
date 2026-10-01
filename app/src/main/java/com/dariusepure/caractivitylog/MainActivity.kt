@@ -31,6 +31,7 @@ import com.dariusepure.caractivitylog.ui.MainViewModel
 import com.dariusepure.caractivitylog.ui.Screen
 import com.dariusepure.caractivitylog.ui.theme.CarActivityLogTheme
 import com.dariusepure.caractivitylog.ui.theme.SettingsViewModel
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -64,14 +65,14 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            // Handle Guest Mode Firestore Network
             val isGuestMode by settingsViewModel.isGuestMode.collectAsState()
-            LaunchedEffect(isGuestMode) {
-                val firestore = com.google.firebase.firestore.FirebaseFirestore.getInstance()
-                if (isGuestMode) {
-                    firestore.disableNetwork()
-                } else {
-                    firestore.enableNetwork()
+
+            // Ensure Firestore network is always enabled for signed-in users
+            LaunchedEffect(Unit) {
+                try {
+                    FirebaseFirestore.getInstance().enableNetwork()
+                } catch (_: Exception) {
+                    // Ignore if already enabled
                 }
             }
 

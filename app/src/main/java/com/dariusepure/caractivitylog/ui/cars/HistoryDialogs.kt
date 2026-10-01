@@ -168,6 +168,7 @@ fun AddMileageDialog(
 fun AddInspectionDialog(
     existingInspection: VehicleInspection? = null,
     existingLogs: List<MileageLog> = emptyList(),
+    existingInspections: List<VehicleInspection> = emptyList(),
     unit: String = "km",
     accentColor: Color = MaterialTheme.colorScheme.primary,
     onAccentColor: Color = MaterialTheme.colorScheme.onPrimary,
@@ -321,18 +322,32 @@ fun AddInspectionDialog(
                     val inputVal = km.toDoubleOrNull() ?: 0.0
                     val canonicalInput = CarFormatters.toCanonicalDistance(inputVal, unit == "mi")
                     
-                    val conflict = existingLogs.find { log ->
+                    val logConflict = existingLogs.find { log ->
                         val kmBackwards = selectedDate.after(log.date) && canonicalInput < log.km
                         val dateBackwards = selectedDate.before(log.date) && canonicalInput > log.km
                         kmBackwards || dateBackwards
                     }
 
-                    if (conflict != null) {
-                        val conflictDisplay = CarFormatters.fromCanonicalDistance(conflict.km, unit == "mi")
-                        errorMessage = if (selectedDate.after(conflict.date)) {
-                            context.getString(R.string.mileage_conflict_less, conflictDisplay.roundToInt(), unit, dateFormat.format(conflict.date))
+                    val inspConflict = existingInspections.find { insp ->
+                        if (insp.id == existingInspection?.id) return@find false
+                        val kmBackwards = selectedDate.after(insp.date) && canonicalInput < insp.mileage
+                        val dateBackwards = selectedDate.before(insp.date) && canonicalInput > insp.mileage
+                        kmBackwards || dateBackwards
+                    }
+
+                    if (logConflict != null) {
+                        val conflictDisplay = CarFormatters.fromCanonicalDistance(logConflict.km, unit == "mi")
+                        errorMessage = if (selectedDate.after(logConflict.date)) {
+                            context.getString(R.string.mileage_conflict_less, conflictDisplay.roundToInt(), unit, dateFormat.format(logConflict.date))
                         } else {
-                            context.getString(R.string.mileage_conflict_more, conflictDisplay.roundToInt(), unit, dateFormat.format(conflict.date))
+                            context.getString(R.string.mileage_conflict_more, conflictDisplay.roundToInt(), unit, dateFormat.format(logConflict.date))
+                        }
+                    } else if (inspConflict != null) {
+                        val conflictDisplay = CarFormatters.fromCanonicalDistance(inspConflict.mileage, unit == "mi")
+                        errorMessage = if (selectedDate.after(inspConflict.date)) {
+                            context.getString(R.string.mileage_conflict_less, conflictDisplay.roundToInt(), unit, dateFormat.format(inspConflict.date))
+                        } else {
+                            context.getString(R.string.mileage_conflict_more, conflictDisplay.roundToInt(), unit, dateFormat.format(inspConflict.date))
                         }
                     } else {
                         onConfirm(

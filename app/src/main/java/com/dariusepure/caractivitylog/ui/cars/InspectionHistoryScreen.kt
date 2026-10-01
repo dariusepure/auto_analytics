@@ -173,6 +173,7 @@ fun InspectionHistoryScreen(
                     AddInspectionDialog(
                         existingInspection = editingInspection,
                         existingLogs = s.mileageLogs,
+                        existingInspections = s.inspections,
                         unit = unit,
                         accentColor = carAccentColor,
                         onAccentColor = Color.White,

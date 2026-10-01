@@ -77,5 +77,20 @@ class PreferenceRepository @Inject constructor(
         _notifyVignette.value = enabled
         prefs.edit().putBoolean("notify_vignette", enabled).apply()
     }
+
+    fun getLastScreenType(): String? {
+        return prefs.getString("last_screen_type", null)
+    }
+
+    fun getLastCarId(): String? {
+        return prefs.getString("last_car_id", null)
+    }
+
+    fun setLastNavigation(screenType: String, carId: String) {
+        prefs.edit()
+            .putString("last_screen_type", screenType)
+            .putString("last_car_id", carId)
+            .apply()
+    }
 }
 

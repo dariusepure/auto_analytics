@@ -32,8 +32,8 @@ android {
         applicationId = "com.dariusepure.caractivitylog"
         minSdk = 26
         targetSdk = 37
-        versionCode = 41
-        versionName = "1.1.4"
+        versionCode = 42
+        versionName = "1.1.5"
 
         multiDexEnabled = true
 
@@ -177,10 +177,6 @@ dependencies {
     implementation(libs.ktor.client.auth)
     implementation(libs.ktor.client.encoding)
     implementation(libs.ktor.serialization.kotlinx.json)
-
-    // Supabase
-    implementation(libs.supabase.postgrest)
-    implementation(libs.supabase.auth)
 
     // Image loading
     implementation(libs.coil.compose)

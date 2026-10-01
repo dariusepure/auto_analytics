@@ -12,6 +12,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import com.dariusepure.caractivitylog.ui.auth.SignInScreen
@@ -40,6 +41,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.background
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -113,40 +115,32 @@ fun AppNavigation(
         }
     }
 
-    android.util.Log.d("AppNavigation", "signedIn state: $signedIn, startDestination: $startDestination")
-
-    if (signedIn == null && startDestination == null) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                ModernAppLogo(modifier = Modifier.size(96.dp))
-                Spacer(Modifier.height(16.dp))
-                Text(
-                    text = "Auto Analytics",
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Spacer(Modifier.height(24.dp))
-                CircularProgressIndicator(
-                    modifier = Modifier.size(32.dp),
-                    strokeWidth = 3.dp
-                )
+    LaunchedEffect(navController) {
+        navController.currentBackStackEntryFlow.collect { entry ->
+            val destination = entry.destination.route ?: return@collect
+            val carId = entry.arguments?.getString("carId") ?: ""
+            when {
+                destination.startsWith("cardetails") -> mainViewModel.setLastNavigation("car_details", carId)
+                destination.startsWith("mileagehistory") -> mainViewModel.setLastNavigation("mileage_history", carId)
+                destination.startsWith("inspectionhistory") -> mainViewModel.setLastNavigation("inspection_history", carId)
+                destination.startsWith("insurancehistory") -> mainViewModel.setLastNavigation("insurance_history", carId)
+                destination.startsWith("vignettehistory") -> mainViewModel.setLastNavigation("vignette_history", carId)
+                destination.startsWith("tirehistory") -> mainViewModel.setLastNavigation("tire_history", carId)
+                destination.startsWith("servicehistory") -> mainViewModel.setLastNavigation("service_history", carId)
+                destination.startsWith("fuelhistory") -> mainViewModel.setLastNavigation("fuel_history", carId)
+                destination.startsWith("technicalsheet") -> mainViewModel.setLastNavigation("technical_sheet", carId)
+                destination.startsWith("diagnosis") -> mainViewModel.setLastNavigation("diagnosis", carId)
+                destination.startsWith("carreports") -> mainViewModel.setLastNavigation("car_reports", carId)
+                destination.startsWith("carlist") -> mainViewModel.setLastNavigation("car_list", "")
+                destination.startsWith("settings") -> mainViewModel.setLastNavigation("settings", "")
             }
         }
-        return
     }
 
-    val finalStartDestination = startDestination ?: if (signedIn == true) Screen.CarList.route else Screen.SignIn.route
+    android.util.Log.d("AppNavigation", "signedIn state: $signedIn, startDestination: $startDestination")
+
+    val savedStartDestination = remember { mainViewModel.getSavedStartDestination() }
+    val finalStartDestination = startDestination ?: if (signedIn) savedStartDestination else Screen.SignIn.route
 
     NavHost(
         navController = navController,
@@ -206,7 +200,10 @@ fun AppNavigation(
             )
         }
         composable(Screen.CarList.route) {
-            CarListScreen(
+            LaunchedEffect(Unit) {
+        mainViewModel.setLastNavigation("car_list", "")
+    }
+    CarListScreen(
                 onCarClick = { carId ->
                     navController.navigate(Screen.CarDetails.createRoute(carId))
                 },
@@ -222,6 +219,7 @@ fun AppNavigation(
             )
         }
         composable(Screen.Settings.route) {
+            LaunchedEffect(Unit) { mainViewModel.setLastNavigation("settings", "") }
             SettingsScreen(
                 onBack = { navController.popBackStack() },
                 onLogout = {
@@ -234,6 +232,7 @@ fun AppNavigation(
         }
         composable(Screen.CarDetails.route) { backStackEntry ->
             val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
+            LaunchedEffect(carId) { mainViewModel.setLastNavigation("car_details", carId) }
             CarDetailsScreen(
                 carId = carId,
                 onBack = { navController.popBackStack() },
@@ -272,6 +271,7 @@ fun AppNavigation(
         }
         composable(Screen.MileageHistory.route) { backStackEntry ->
             val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
+            LaunchedEffect(carId) { mainViewModel.setLastNavigation("mileage_history", carId) }
             MileageHistoryScreen(
                 carId = carId,
                 onBack = { navController.popBackStack() }
@@ -279,6 +279,7 @@ fun AppNavigation(
         }
         composable(Screen.InspectionHistory.route) { backStackEntry ->
             val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
+            LaunchedEffect(carId) { mainViewModel.setLastNavigation("inspection_history", carId) }
             InspectionHistoryScreen(
                 carId = carId,
                 onBack = { navController.popBackStack() }
@@ -286,6 +287,7 @@ fun AppNavigation(
         }
         composable(Screen.InsuranceHistory.route) { backStackEntry ->
             val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
+            LaunchedEffect(carId) { mainViewModel.setLastNavigation("insurance_history", carId) }
             InsuranceHistoryScreen(
                 carId = carId,
                 onBack = { navController.popBackStack() }
@@ -293,6 +295,7 @@ fun AppNavigation(
         }
         composable(Screen.VignetteHistory.route) { backStackEntry ->
             val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
+            LaunchedEffect(carId) { mainViewModel.setLastNavigation("vignette_history", carId) }
             VignetteHistoryScreen(
                 carId = carId,
                 onBack = { navController.popBackStack() }
@@ -300,6 +303,7 @@ fun AppNavigation(
         }
         composable(Screen.TechnicalSheet.route) { backStackEntry ->
             val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
+            LaunchedEffect(carId) { mainViewModel.setLastNavigation("technical_sheet", carId) }
             TechnicalSheetScreen(
                 carId = carId,
                 onBack = { navController.popBackStack() },
@@ -334,6 +338,7 @@ fun AppNavigation(
         }
         composable(Screen.Diagnosis.route) { backStackEntry ->
             val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
+            LaunchedEffect(carId) { mainViewModel.setLastNavigation("diagnosis", carId) }
             DiagnosisScreen(
                 carId = carId,
                 onBack = { navController.popBackStack() }
@@ -341,6 +346,7 @@ fun AppNavigation(
         }
         composable(Screen.FuelHistory.route) { backStackEntry ->
             val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
+            LaunchedEffect(carId) { mainViewModel.setLastNavigation("fuel_history", carId) }
             FuelHistoryScreen(
                 carId = carId,
                 onBack = { navController.popBackStack() }
@@ -348,6 +354,7 @@ fun AppNavigation(
         }
         composable(Screen.TireHistory.route) { backStackEntry ->
             val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
+            LaunchedEffect(carId) { mainViewModel.setLastNavigation("tire_history", carId) }
             TireHistoryScreen(
                 carId = carId,
                 onBack = { navController.popBackStack() }
@@ -355,6 +362,7 @@ fun AppNavigation(
         }
         composable(Screen.ServiceHistory.route) { backStackEntry ->
             val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
+            LaunchedEffect(carId) { mainViewModel.setLastNavigation("service_history", carId) }
             ServiceHistoryScreen(
                 carId = carId,
                 onBack = { navController.popBackStack() }
@@ -362,6 +370,7 @@ fun AppNavigation(
         }
         composable(Screen.CarReports.route) { backStackEntry ->
             val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
+            LaunchedEffect(carId) { mainViewModel.setLastNavigation("car_reports", carId) }
             CarReportsScreen(
                 carId = carId,
                 onBack = { navController.popBackStack() }

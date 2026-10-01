@@ -33,6 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.ui.common.DropdownPositionProvider
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.platform.LocalContext
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.domain.Vignette
 import com.dariusepure.caractivitylog.domain.InspectionDurationUnit
@@ -183,7 +184,8 @@ fun AddVignetteDialog(
     var selectedDate by remember { mutableStateOf(existingVignette?.date ?: Date()) }
     var durationValue by remember { mutableStateOf(existingVignette?.durationValue?.toString() ?: "1") }
     var durationUnit by remember { mutableStateOf(existingVignette?.durationUnit ?: InspectionDurationUnit.MONTHS) }
-    var country by remember { mutableStateOf(existingVignette?.country ?: "") }
+    var countryQuery by remember { mutableStateOf(existingVignette?.country ?: "") }
+    var showFullCountryList by remember { mutableStateOf(false) }
     var unitExpanded by remember { mutableStateOf(false) }
     var countryExpanded by remember { mutableStateOf(false) }
     
@@ -191,9 +193,21 @@ fun AddVignetteDialog(
     var unitMenuWidth by remember { mutableStateOf(0.dp) }
     val density = LocalDensity.current
 
-    val selectedCountry = remember(country) { europeanCountries.find { it.name == country } }
+    val context = LocalContext.current
+    val sortedCountries = remember { europeanCountries.sortedBy { CarTranslations.getCountryName(context, it.code, it.name) } }
+    val filteredCountries = remember(countryQuery, sortedCountries, showFullCountryList) {
+        if (showFullCountryList || countryQuery.isBlank()) sortedCountries
+        else sortedCountries.filter { c ->
+            val localizedName = CarTranslations.getCountryName(context, c.code, c.name)
+            c.name.contains(countryQuery, ignoreCase = true) ||
+            c.code.contains(countryQuery, ignoreCase = true) ||
+            localizedName.contains(countryQuery, ignoreCase = true)
+        }
+    }
+    val selectedCountry = remember(countryQuery) {
+        europeanCountries.find { it.name.equals(countryQuery, ignoreCase = true) || it.code.equals(countryQuery, ignoreCase = true) || CarTranslations.getCountryName(context, it.code, it.name).equals(countryQuery, ignoreCase = true) }
+    }
 
-    val context = androidx.compose.ui.platform.LocalContext.current
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
 
     val calendar = Calendar.getInstance()
@@ -222,12 +236,24 @@ fun AddVignetteDialog(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     OutlinedTextField(
-                        value = country,
-                        onValueChange = { country = it },
+                        value = countryQuery,
+                        onValueChange = { input ->
+                            countryQuery = input
+                            showFullCountryList = false
+                            countryExpanded = true
+                            val match = sortedCountries.find {
+                                it.name.equals(input, ignoreCase = true) ||
+                                it.code.equals(input, ignoreCase = true) ||
+                                CarTranslations.getCountryName(context, it.code, it.name).equals(input, ignoreCase = true)
+                            }
+                            if (match != null) {
+                                countryQuery = match.name
+                            }
+                        },
                         label = { Text(stringResource(R.string.vignette_country_label)) },
-                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable, true).fillMaxWidth()
                             .onGloballyPositioned { countryMenuWidth = with(density) { it.size.width.toDp() } },
-                        readOnly = true,
+                        readOnly = false,
                         leadingIcon = selectedCountry?.let {
                             { Text(it.flag, modifier = Modifier.padding(start = 8.dp), style = MaterialTheme.typography.headlineSmall) }
                         },
@@ -249,7 +275,7 @@ fun AddVignetteDialog(
                                 shadowElevation = 3.dp
                             ) {
                                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                                    europeanCountries.forEach { c ->
+                                    filteredCountries.forEach { c ->
                                         DropdownMenuItem(
                                             text = {
                                                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -259,8 +285,9 @@ fun AddVignetteDialog(
                                                 }
                                             },
                                             onClick = {
-                                                country = c.name
+                                                countryQuery = c.name
                                                 countryExpanded = false
+                                                showFullCountryList = false
                                             }
                                         )
                                     }
@@ -353,14 +380,15 @@ fun AddVignetteDialog(
                 onClick = {
                     onConfirm(
                         Vignette(
+                            id = existingVignette?.id ?: "",
                             date = selectedDate,
                             durationValue = durationValue.toIntOrNull() ?: 1,
                             durationUnit = durationUnit,
-                            country = country
+                            country = selectedCountry?.name ?: countryQuery
                         )
                     )
                 },
-                enabled = durationValue.isNotBlank() && country.isNotBlank(),
+                enabled = durationValue.isNotBlank() && countryQuery.isNotBlank(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
