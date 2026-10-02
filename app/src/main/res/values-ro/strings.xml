@@ -688,7 +688,6 @@
     <string name="sync_in_progress">Sincronizare în curs</string>
     <string name="sync_status_syncing">Sincronizare</string>
     <string name="sync_status_synced">Sincronizat</string>
-    <string name="car_no_license_plate">FĂRĂ NR. ÎNM.</string>
     <string name="common_clear_search">Șterge căutarea</string>
 
     <!-- Settings Sections & Alerts -->

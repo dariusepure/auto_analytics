@@ -283,15 +283,21 @@ fun CarCard(
 
                 // Vehicle Name, Subtitle and License Plate
                 Column(modifier = Modifier.weight(1f)) {
-                    AutoSizeText(
-                        text = car.displayName,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 17.sp
-                        ),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        AutoSizeText(
+                            text = car.displayName,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 17.sp
+                            ),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f, fill = false)
+                        )
+                        SyncStatusBadge(isPendingSync = car.isPendingSync)
+                    }
 
                     val carSubtitle = remember(car) {
                         val items = mutableListOf<String>()
@@ -310,35 +316,12 @@ fun CarCard(
                         )
                     }
 
-                    Spacer(Modifier.height(6.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        if (car.licensePlate.isNotBlank()) {
-                            LicensePlateBadge(
-                                licensePlate = car.licensePlate,
-                                countryCode = car.plateCountry
-                            )
-                        } else {
-                            Surface(
-                                color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.5f),
-                                shape = RoundedCornerShape(6.dp)
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.car_no_license_plate),
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontSize = 9.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    ),
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                )
-                            }
-                        }
-
-                        SyncStatusBadge(isPendingSync = car.isPendingSync)
+                    if (car.licensePlate.isNotBlank()) {
+                        Spacer(Modifier.height(6.dp))
+                        LicensePlateBadge(
+                            licensePlate = car.licensePlate,
+                            countryCode = car.plateCountry
+                        )
                     }
 
                     if (car.vin.isNotBlank()) {

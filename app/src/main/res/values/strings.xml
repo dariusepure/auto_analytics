@@ -687,7 +687,6 @@
     <string name="sync_in_progress">Sync in progress</string>
     <string name="sync_status_syncing">Syncing</string>
     <string name="sync_status_synced">Synced</string>
-    <string name="car_no_license_plate">NO LIC. PLATE</string>
     <string name="common_clear_search">Clear search</string>
 
     <!-- Settings Sections & Alerts -->
