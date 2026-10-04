@@ -64,16 +64,6 @@ class CarRepository @Inject constructor(
     private var carsListenerRegistration: ListenerRegistration? = null
 
     init {
-        try {
-            val initialUid = authRepository.getUserId() ?: "guest"
-            val localCars = localStorageHelper.loadCars(initialUid)
-            if (localCars.isNotEmpty()) {
-                carsCache.value = localCars
-            }
-        } catch (e: Exception) {
-            Log.e("CarRepository", "Error loading initial local cache: ${e.message}")
-        }
-
         repositoryScope.launch {
             authRepository.userId.collect { uid ->
                 val activeUid = uid ?: "guest"

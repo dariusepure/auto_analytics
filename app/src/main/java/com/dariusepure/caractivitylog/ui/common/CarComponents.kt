@@ -248,13 +248,13 @@ fun SpecChip(
     iconTint: Color? = null,
     containerColor: Color? = null
 ) {
-    val color = iconTint ?: getSpecIconColor(icon, text)
-    val bgColor = containerColor ?: color.copy(alpha = 0.12f)
+    val color = iconTint ?: MaterialTheme.colorScheme.primary
+    val bgColor = containerColor ?: MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
 
     Surface(
         color = bgColor,
         shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, color.copy(alpha = 0.22f)),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
         modifier = modifier
     ) {
         Row(
@@ -266,7 +266,7 @@ fun SpecChip(
                 modifier = Modifier
                     .size(18.dp)
                     .clip(CircleShape)
-                    .background(color.copy(alpha = 0.18f)),
+                    .background(color.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(

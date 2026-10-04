@@ -112,10 +112,13 @@ class AuthRepository @Inject constructor(
         if (uid.isBlank() || uid == "unknown_uid" || uid == GUEST_UID || uid == "guest") return
         try {
             val userEmail = email.ifBlank { currentUserEmail ?: "" }
+            val googleDisplayName = firebaseAuth.currentUser?.displayName
+            
             val displayName = name.ifBlank {
-                firebaseAuth.currentUser?.displayName
+                googleDisplayName
                     ?: userEmail.substringBefore("@")
             }.ifBlank { "User" }
+            
             val username = userEmail.substringBefore("@").ifBlank { displayName }
             val user = RemoteUser(
                 id = uid,
@@ -124,7 +127,7 @@ class AuthRepository @Inject constructor(
                 username = username
             )
             firestore.collection("users").document(uid).set(user).await()
-            Log.d(TAG, "ensureProfileExists: Upserted profile for $uid ($userEmail)")
+            Log.d(TAG, "ensureProfileExists: Upserted profile for $uid ($userEmail) with name: $displayName")
         } catch (e: Exception) {
             Log.e(TAG, "ensureProfileExists error for $uid: ${e.message}", e)
         }
@@ -140,17 +143,26 @@ class AuthRepository @Inject constructor(
         try {
             Log.d(TAG, "getUserData: Fetching profile for UID: $uid")
             val snapshot = firestore.collection("users").document(uid).get().await()
+            val googleDisplayName = firebaseAuth.currentUser?.displayName
+            
             if (snapshot.exists()) {
                 val email = snapshot.getString("email") ?: currentUserEmail ?: ""
                 val fullName = snapshot.getString("fullName") ?: snapshot.getString("name") ?: snapshot.getString("display_name") ?: snapshot.getString("displayName") ?: ""
+                
+                val effectiveFullName = if (!googleDisplayName.isNullOrBlank() && (fullName.isBlank() || fullName == email || fullName == email.substringBefore("@"))) {
+                    googleDisplayName
+                } else {
+                    fullName
+                }
+                
                 val username = snapshot.getString("username") ?: ""
-                val name = fullName.ifBlank { username.ifBlank { email.substringBefore("@").ifBlank { "User" } } }
+                val name = effectiveFullName.ifBlank { username.ifBlank { googleDisplayName?.ifBlank { null } ?: email.substringBefore("@").ifBlank { "User" } } }
                 val user = User(uid, email, name)
                 Log.d(TAG, "getUserData: Profile found: ${user.name} (${user.email})")
                 emit(user)
             } else {
                 val email = currentUserEmail ?: ""
-                val name = email.substringBefore("@").ifBlank { "User" }
+                val name = googleDisplayName?.ifBlank { null } ?: email.substringBefore("@").ifBlank { "User" }
                 Log.w(TAG, "getUserData: Profile NOT FOUND for $uid. Email: $email. Creating profile now.")
                 emit(User(uid, email, name))
                 ensureProfileExists(uid, email, name)

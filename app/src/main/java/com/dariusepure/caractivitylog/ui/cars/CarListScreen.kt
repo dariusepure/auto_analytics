@@ -217,9 +217,6 @@ fun CarCard(
 ) {
     val context = LocalContext.current
     val logoRes = remember(car.make) { CarFormatters.getBrandLogoResource(car.make) }
-    val carAccentColor = remember(car.accentColor) {
-        car.accentColor?.let { Color(it) } ?: Color(0xFF1A73E8)
-    }
 
     Card(
         onClick = onClick,
@@ -252,10 +249,10 @@ fun CarCard(
                     modifier = Modifier
                         .size(56.dp)
                         .clip(RoundedCornerShape(18.dp))
-                        .background(carAccentColor.copy(alpha = 0.15f))
+                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f))
                         .border(
                             width = 1.dp,
-                            color = carAccentColor.copy(alpha = 0.3f),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
                             shape = RoundedCornerShape(18.dp)
                         ),
                     contentAlignment = Alignment.Center
@@ -274,7 +271,7 @@ fun CarCard(
                             imageVector = Icons.Outlined.DirectionsCar,
                             contentDescription = car.make,
                             modifier = Modifier.size(32.dp),
-                            tint = carAccentColor
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
