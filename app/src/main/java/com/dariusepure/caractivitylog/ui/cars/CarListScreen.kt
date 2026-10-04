@@ -299,22 +299,7 @@ fun CarCard(
                         SyncStatusBadge(isPendingSync = car.isPendingSync)
                     }
 
-                    val carSubtitle = remember(car) {
-                        val items = mutableListOf<String>()
-                        if (car.generation.isNotBlank()) items.add(car.generation)
-                        items.joinToString(" • ")
-                    }
 
-                    if (carSubtitle.isNotBlank()) {
-                        Spacer(Modifier.height(2.dp))
-                        Text(
-                            text = carSubtitle,
-                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
 
                     if (car.licensePlate.isNotBlank()) {
                         Spacer(Modifier.height(6.dp))
@@ -344,17 +329,9 @@ fun CarCard(
                         }
                     }
                 }
-
-                Spacer(Modifier.width(8.dp))
-
-                ActionButtons(
-                    onEdit = onEditClick,
-                    onDelete = onDeleteClick,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
             }
 
-            // Spec Pills Row (if present)
+            // Spec Pills Row & Action Buttons Footer Row
             val specItems = remember(car, context) {
                 val list = mutableListOf<Pair<ImageVector, String>>()
                 if (car.year > 0) {
@@ -372,18 +349,32 @@ fun CarCard(
                 list.take(4)
             }
 
-            if (specItems.isNotEmpty()) {
-                Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(14.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
+            Spacer(Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 @OptIn(ExperimentalLayoutApi::class)
                 FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     specItems.forEach { (icon, text) ->
                         SpecChip(icon = icon, text = text)
                     }
                 }
+
+                Spacer(Modifier.width(8.dp))
+
+                ActionButtons(
+                    onEdit = onEditClick,
+                    onDelete = onDeleteClick
+                )
             }
         }
     }

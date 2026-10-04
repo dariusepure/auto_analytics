@@ -1,5 +1,6 @@
 package com.dariusepure.caractivitylog.ui.common
 
+import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.VehicleInspection
 import java.text.SimpleDateFormat
@@ -71,18 +72,13 @@ object CarFormatters {
     }
 
     fun formatPower(context: android.content.Context, car: Car): String {
-        val hpValue: Int
-        val kwValue: Int
-        
-        if (car.powerUnit.lowercase() == "kw") {
-            kwValue = car.power
-            hpValue = (car.power * 1.35962).roundToInt()
+        val hpValue: Int = if (car.powerUnit.lowercase() == "kw") {
+            (car.power * 1.35962).roundToInt()
         } else {
-            hpValue = car.power
-            kwValue = (car.power / 1.35962).roundToInt()
+            car.power
         }
         
-        return context.getString(com.dariusepure.caractivitylog.R.string.formatter_power_dual, hpValue, kwValue)
+        return context.getString(R.string.formatter_power_hp, hpValue)
     }
 
     fun getCarSummary(context: android.content.Context, car: Car): String {
