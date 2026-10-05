@@ -250,7 +250,11 @@ object PdfReportGenerator {
                 CarEquipment.ABS,
                 CarEquipment.ESP,
                 CarEquipment.ASR,
-                CarEquipment.ISOFIX
+                CarEquipment.ISOFIX,
+                CarEquipment.LANE_ASSIST,
+                CarEquipment.BLIND_SPOT,
+                CarEquipment.ADAPTIVE_CRUISE,
+                CarEquipment.EMERGENCY_BRAKE
             )
             
             val safetyList = mutableListOf<Pair<String, String>>()

@@ -40,23 +40,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun getSavedStartDestination(): String {
-        val type = preferenceRepository.getLastScreenType()
-        val carId = preferenceRepository.getLastCarId() ?: ""
-        return when (type) {
-            "car_details" -> if (carId.isNotBlank()) Screen.CarDetails.createRoute(carId) else Screen.CarList.route
-            "mileage_history" -> if (carId.isNotBlank()) Screen.MileageHistory.createRoute(carId) else Screen.CarList.route
-            "inspection_history" -> if (carId.isNotBlank()) Screen.InspectionHistory.createRoute(carId) else Screen.CarList.route
-            "insurance_history" -> if (carId.isNotBlank()) Screen.InsuranceHistory.createRoute(carId) else Screen.CarList.route
-            "vignette_history" -> if (carId.isNotBlank()) Screen.VignetteHistory.createRoute(carId) else Screen.CarList.route
-            "tire_history" -> if (carId.isNotBlank()) Screen.TireHistory.createRoute(carId) else Screen.CarList.route
-            "service_history" -> if (carId.isNotBlank()) Screen.ServiceHistory.createRoute(carId) else Screen.CarList.route
-            "fuel_history" -> if (carId.isNotBlank()) Screen.FuelHistory.createRoute(carId) else Screen.CarList.route
-            "technical_sheet" -> if (carId.isNotBlank()) Screen.TechnicalSheet.createRoute(carId) else Screen.CarList.route
-            "diagnosis" -> if (carId.isNotBlank()) Screen.Diagnosis.createRoute(carId) else Screen.CarList.route
-            "car_reports" -> if (carId.isNotBlank()) Screen.CarReports.createRoute(carId) else Screen.CarList.route
-            "settings" -> Screen.Settings.route
-            else -> Screen.CarList.route
-        }
+        return Screen.CarList.route
     }
 }
 

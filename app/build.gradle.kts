@@ -181,10 +181,7 @@ dependencies {
     // Image loading
     implementation(libs.coil.compose)
 
-    // Room
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
+
 
     // Charts
     implementation(libs.vico.compose)

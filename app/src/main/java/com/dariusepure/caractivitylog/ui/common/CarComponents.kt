@@ -319,12 +319,13 @@ fun SpecificationCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (item.icon != null) {
-                        val iconColor = getSpecIconColor(item.icon, item.value)
+                        val iconColor = MaterialTheme.colorScheme.primary
+                        val iconBgColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
                         Box(
                             modifier = Modifier
                                 .size(32.dp)
                                 .clip(CircleShape)
-                                .background(iconColor.copy(alpha = 0.14f)),
+                                .background(iconBgColor),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(

@@ -285,7 +285,7 @@ fun CarCard(
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         AutoSizeText(
-                            text = car.displayName,
+                            text = if (car.year > 0) "${car.displayName} • ${car.year}" else car.displayName,
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 17.sp
@@ -331,9 +331,6 @@ fun CarCard(
             // Spec Pills Row & Action Buttons Footer Row
             val specItems = remember(car, context) {
                 val list = mutableListOf<Pair<ImageVector, String>>()
-                if (car.year > 0) {
-                    list.add(Pair(Icons.Default.CalendarToday, car.year.toString()))
-                }
                 if (car.vehicleType.isNotBlank()) {
                     list.add(Pair(Icons.Outlined.DirectionsCar, CarTranslations.getVehicleTypeLabel(context, car.vehicleType)))
                 }
@@ -346,7 +343,8 @@ fun CarCard(
                 list.take(4)
             }
 
-            Spacer(Modifier.height(14.dp))
+            val hasDetails = car.licensePlate.isNotBlank() || car.vin.isNotBlank()
+            Spacer(Modifier.height(if (hasDetails) 14.dp else 8.dp))
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
             Spacer(Modifier.height(12.dp))
 
@@ -355,13 +353,12 @@ fun CarCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                @OptIn(ExperimentalLayoutApi::class)
-                FlowRow(
+                LazyRow(
                     modifier = Modifier.weight(1f),
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    specItems.forEach { (icon, text) ->
+                    items(specItems) { (icon, text) ->
                         SpecChip(icon = icon, text = text)
                     }
                 }

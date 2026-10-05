@@ -11,17 +11,8 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import com.dariusepure.caractivitylog.BuildConfig
-import android.content.Context
-import androidx.room.Room
-import com.dariusepure.caractivitylog.data.local.AppDatabase
-import com.dariusepure.caractivitylog.data.local.dao.CarDao
-import com.dariusepure.caractivitylog.data.local.dao.FuelLogDao
-import com.dariusepure.caractivitylog.data.local.dao.InsuranceDao
-import com.dariusepure.caractivitylog.data.local.dao.MaintenanceDao
-import com.dariusepure.caractivitylog.data.local.dao.MileageLogDao
-import com.dariusepure.caractivitylog.data.local.dao.TireSetDao
-import com.dariusepure.caractivitylog.data.local.dao.VehicleInspectionDao
-import com.dariusepure.caractivitylog.data.local.dao.VignetteDao
+
+
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -136,38 +127,6 @@ object AppModule {
         return remoteConfig
     }
 
-    @Provides
-    @Singleton
-    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
-        return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            "auto_analytics_db"
-        ).fallbackToDestructiveMigration().build()
-    }
 
-    @Provides
-    fun provideCarDao(database: AppDatabase): CarDao = database.carDao()
-
-    @Provides
-    fun provideVehicleInspectionDao(database: AppDatabase): VehicleInspectionDao = database.vehicleInspectionDao()
-
-    @Provides
-    fun provideFuelLogDao(database: AppDatabase): FuelLogDao = database.fuelLogDao()
-
-    @Provides
-    fun provideMaintenanceDao(database: AppDatabase): MaintenanceDao = database.maintenanceDao()
-
-    @Provides
-    fun provideMileageLogDao(database: AppDatabase): MileageLogDao = database.mileageLogDao()
-
-    @Provides
-    fun provideInsuranceDao(database: AppDatabase): InsuranceDao = database.insuranceDao()
-
-    @Provides
-    fun provideVignetteDao(database: AppDatabase): VignetteDao = database.vignetteDao()
-
-    @Provides
-    fun provideTireSetDao(database: AppDatabase): TireSetDao = database.tireSetDao()
 }
 
