@@ -30,6 +30,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.dariusepure.caractivitylog.ui.common.DropdownPositionProvider
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.toSize
@@ -39,6 +40,7 @@ import com.dariusepure.caractivitylog.domain.TireSet
 import com.dariusepure.caractivitylog.domain.TireSeason
 import com.dariusepure.caractivitylog.domain.displayName
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
 import com.dariusepure.caractivitylog.ui.common.*
 
@@ -277,69 +279,57 @@ fun AddTireSetDialog(
                     }
                 }
 
-                Text(
-                    text = stringResource(R.string.car_tire_size_label),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
-                )
-                Row(
+                OutlinedTextField(
+                    value = width,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) width = it },
+                    label = { Text(stringResource(R.string.car_tire_width_label)) },
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = width,
-                        onValueChange = { if (it.all { char -> char.isDigit() }) width = it },
-                        label = { AutoSizeText(text = stringResource(R.string.car_tire_width_label), style = MaterialTheme.typography.bodyMedium, minFontSize = 10.sp) },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true,
-                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
-                        suffix = { Text("mm") }
-                    )
-                    OutlinedTextField(
-                        value = ratio,
-                        onValueChange = { if (it.all { char -> char.isDigit() }) ratio = it },
-                        label = { AutoSizeText(text = stringResource(R.string.car_tire_ratio_label), style = MaterialTheme.typography.bodyMedium, minFontSize = 10.sp) },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true,
-                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
-                        suffix = { Text("%") }
-                    )
-                    OutlinedTextField(
-                        value = diameter,
-                        onValueChange = { if (it.all { char -> char.isDigit() }) diameter = it },
-                        label = { AutoSizeText(text = stringResource(R.string.car_tire_diam_label), style = MaterialTheme.typography.bodyMedium, minFontSize = 10.sp) },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true,
-                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
-                        suffix = { Text("\"") }
-                    )
-                }
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    suffix = { Text("mm") }
+                )
+                OutlinedTextField(
+                    value = ratio,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) ratio = it },
+                    label = { Text(stringResource(R.string.car_tire_ratio_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    suffix = { Text("%") }
+                )
+                OutlinedTextField(
+                    value = diameter,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) diameter = it },
+                    label = { Text(stringResource(R.string.car_tire_diam_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    suffix = { Text("\"") }
+                )
 
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    val dotWeekInt = dotWeek.toIntOrNull()
-                    val isWeekInvalid = dotWeek.isNotBlank() && (dotWeekInt == null || dotWeekInt !in 1..53)
-                    
-                    OutlinedTextField(
-                        value = dotWeek,
-                        onValueChange = { if (it.length <= 2 && it.all { char -> char.isDigit() }) dotWeek = it },
-                        label = { AutoSizeText(text = stringResource(R.string.tire_dot_week_label), style = MaterialTheme.typography.bodySmall, minFontSize = 8.sp) },
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
-                        isError = isWeekInvalid,
-                        supportingText = if (isWeekInvalid) {
-                            { Text(stringResource(R.string.validation_dot_week_range)) }
-                        } else null
-                    )
-                    OutlinedTextField(
-                        value = dotYear,
-                        onValueChange = { if (it.length <= 4 && it.all { char -> char.isDigit() }) dotYear = it },
-                        label = { AutoSizeText(text = stringResource(R.string.tire_dot_year_label), style = MaterialTheme.typography.bodySmall, minFontSize = 8.sp) },
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
-                    )
-                }
+                val dotWeekInt = dotWeek.toIntOrNull()
+                val isWeekInvalid = dotWeek.isNotBlank() && (dotWeekInt == null || dotWeekInt !in 1..53)
+                
+                OutlinedTextField(
+                    value = dotWeek,
+                    onValueChange = { if (it.length <= 2 && it.all { char -> char.isDigit() }) dotWeek = it },
+                    label = { Text(stringResource(R.string.tire_dot_week_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    isError = isWeekInvalid,
+                    supportingText = if (isWeekInvalid) {
+                        { Text(stringResource(R.string.validation_dot_week_range)) }
+                    } else null
+                )
+                OutlinedTextField(
+                    value = dotYear,
+                    onValueChange = { if (it.length <= 4 && it.all { char -> char.isDigit() }) dotYear = it },
+                    label = { Text(stringResource(R.string.tire_dot_year_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = isActive, onCheckedChange = { isActive = it })

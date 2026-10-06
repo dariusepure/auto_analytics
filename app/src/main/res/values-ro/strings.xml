@@ -631,7 +631,7 @@
     <string name="service_op_other">Altele (Introducere manuală)</string>
 
     <string name="service_edit_title">Editează înregistrare service</string>
-    <string name="service_description_label">Descriere (Ce s-a reparat?)</string>
+    <string name="service_description_label">Ce s-a reparat?</string>
     <string name="service_description_placeholder">Schimb ulei și filtre</string>
     <string name="service_mileage_label">Kilometraj</string>
     <string name="service_empty">Nu s-au găsit înregistrări de service.</string>

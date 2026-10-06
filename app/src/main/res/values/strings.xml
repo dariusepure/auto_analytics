@@ -630,7 +630,7 @@
     <string name="service_op_other">Other (Manual Entry)</string>
 
     <string name="service_edit_title">Edit Service Record</string>
-    <string name="service_description_label">Description (What was fixed?)</string>
+    <string name="service_description_label">What was fixed?</string>
     <string name="service_description_placeholder">Oil change and filters</string>
     <string name="service_mileage_label">Mileage</string>
     <string name="service_empty">No service records found.</string>

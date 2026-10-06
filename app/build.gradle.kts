@@ -1,6 +1,5 @@
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.gradle.api.plugins.ExtensionAware
 import com.google.firebase.appdistribution.gradle.firebaseAppDistribution
 
 // Machine-local, uncommitted config (secrets, signing) is read from
@@ -26,14 +25,14 @@ plugins {
 
 android {
     namespace = "com.dariusepure.caractivitylog"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.dariusepure.caractivitylog"
         minSdk = 26
         targetSdk = 37
-        versionCode = 44
-        versionName = "1.1.7"
+        versionCode = 45
+        versionName = "1.1.8"
 
         multiDexEnabled = true
 
@@ -58,11 +57,11 @@ android {
         val keyAlias = localProperties.getProperty("RELEASE_KEYSTORE_ALIAS")
         val keyPassword = localProperties.getProperty("RELEASE_ALIAS_PASSWORD")
 
-        val isSigningConfigured = keystorePath != null &&
+        val isSigningConfigured = (keystorePath != null &&
                 keystorePassword != null &&
                 keyAlias != null &&
                 keyPassword != null &&
-                file(keystorePath).exists()
+                file(keystorePath).exists())
 
         if (isSigningConfigured) {
             create("release") {
@@ -80,7 +79,7 @@ android {
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
             signingConfig = if (signingConfigs.findByName("release") != null) {
                 signingConfigs.getByName("release")

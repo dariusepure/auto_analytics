@@ -621,25 +621,16 @@ private fun InnerCarListScreen(
         },
         floatingActionButton = {
             if (state is CarListUiState.Success) {
-                ExtendedFloatingActionButton(
+                FloatingActionButton(
                     onClick = onAddCarClick,
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = Color.White,
-                    shape = RoundedCornerShape(20.dp),
-                    elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 4.dp),
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Filled.Add,
-                            contentDescription = stringResource(R.string.car_add_button)
-                        )
-                    },
-                    text = {
-                        Text(
-                            text = stringResource(R.string.car_add_button),
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                )
+                    containerColor = Color(0xFF1A73E8),
+                    contentColor = Color.White
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = stringResource(R.string.car_add_button)
+                    )
+                }
             }
         },
     ) { padding ->
