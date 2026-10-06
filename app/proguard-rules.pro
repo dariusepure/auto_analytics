@@ -27,10 +27,15 @@
     @kotlinx.serialization.SerialName <fields>;
 }
 
-# Room
--keep class * extends androidx.room.RoomDatabase
+# Room & WorkManager
+-keep class * extends androidx.room.RoomDatabase {
+    *;
+}
 -keep class * extends androidx.room.Entity
 -keep interface * extends androidx.room.Dao
+-keep class androidx.work.impl.** {
+    *;
+}
 
 # SLF4J / Ktor
 -dontwarn org.slf4j.impl.StaticLoggerBinder
