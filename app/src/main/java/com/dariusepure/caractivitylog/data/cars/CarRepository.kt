@@ -64,10 +64,30 @@ class CarRepository @Inject constructor(
     private var carsListenerRegistration: ListenerRegistration? = null
 
     init {
+        val initialUid = authRepository.getUserId() ?: "guest"
+        try {
+            carsCache.value = localStorageHelper.loadCars(initialUid)
+            inspectionsCache.value = localStorageHelper.loadInspections(initialUid)
+            fuelLogsCache.value = localStorageHelper.loadFuelLogs(initialUid)
+            maintenanceLogsCache.value = localStorageHelper.loadMaintenanceLogs(initialUid)
+            mileageLogsCache.value = localStorageHelper.loadMileageLogs(initialUid)
+            insurancesCache.value = localStorageHelper.loadInsurances(initialUid)
+            vignettesCache.value = localStorageHelper.loadVignettes(initialUid)
+            tireSetsCache.value = localStorageHelper.loadTireSets(initialUid)
+        } catch (e: Exception) {
+            Log.e("CarRepository", "Error loading initial user cache: ${e.message}")
+        }
+
         repositoryScope.launch {
+            var firstEmission = true
             authRepository.userId.collect { uid ->
                 val activeUid = uid ?: "guest"
-                switchUserCache(activeUid)
+                if (firstEmission && activeUid == initialUid) {
+                    firstEmission = false
+                } else {
+                    firstEmission = false
+                    switchUserCache(activeUid)
+                }
                 if (uid != null && uid != "guest" && uid != AuthRepository.GUEST_UID) {
                     syncAllAccountData(uid)
                 }

@@ -20,10 +20,10 @@
 - **Smart Mileage History**: Central place to track vehicle odometer progress with interactive **Vico Charts** and intelligent log imports.
 - **Maintenance, Fuel & Legal Tracking**: Keep detailed technical logs, track fuel efficiency (L/100km or MPG), and monitor deadlines for **Technical Inspections**, **Insurance**, and **Vignettes**.
 
-### 🔐 Secure Access, Local DB & Cloud Sync
-- **Offline-First Room Database & Supabase**: Local SQLite persistence via Room with automated offline-first synchronization to Supabase and Firebase.
+### 🔐 Secure Access, Local Storage & Cloud Sync
+- **Offline-First Local Caching & Firebase Firestore**: High-performance local file persistence with automated offline-first synchronization to **Firebase Firestore**.
 - **Modern Authentication**: Sign in with Email/Password or **Google One Tap** (Credential Manager).
-- **Cloud Backup**: Securely store your vehicle data and history in the cloud.
+- **Cloud Backup**: Securely store your vehicle data, history, and AI logs in the cloud.
 
 ### ⚡ Performance & Automated Testing
 - **Optimized Build & Sync**: Configured with Gradle Build Cache, Configuration Cache (`org.gradle.configuration-cache=true`), parallel execution (`org.gradle.parallel=true`), and Kotlin Daemon tuning for lightning-fast syncs and builds.
@@ -45,8 +45,8 @@
 | **Compatibility** | **Android 8.0 (API 26) and up** |
 | **UI Framework** | **Jetpack Compose** with **Material 3** |
 | **AI SDK** | **Google Generative AI SDK** (Gemini) |
-| **Local Database** | **Room 2.8+** (Offline-first) |
-| **Cloud Backend** | **Supabase** (Postgrest & GoTrue Auth) & **Firebase** |
+| **Local Storage** | **Offline-First Local CSV Caching** (`LocalStorageHelper`) |
+| **Cloud Backend** | **Firebase** (Firestore, Auth, Storage, Cloud Messaging, Remote Config, Crashlytics) |
 | **Networking** | **Ktor Client** |
 | **Architecture** | **MVVM** + Clean Architecture + Hilt DI |
 | **Charts** | **Vico Charts** |
