@@ -11,6 +11,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.material3.MaterialTheme
@@ -84,34 +86,42 @@ class MainActivity : AppCompatActivity() {
             }
 
             CarActivityLogTheme(darkTheme = useDarkTheme) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                val currentDensity = LocalDensity.current
+                CompositionLocalProvider(
+                    LocalDensity provides Density(
+                        density = currentDensity.density * 0.88f,
+                        fontScale = currentDensity.fontScale * 0.88f
+                    )
                 ) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        AppNavigation(
-                            startDestination = deepLinkRoute,
-                            mainViewModel = mainViewModel,
-                            settingsViewModel = settingsViewModel,
-                            windowSizeClass = calculateWindowSizeClass(this@MainActivity)
-                        )
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            AppNavigation(
+                                startDestination = deepLinkRoute,
+                                mainViewModel = mainViewModel,
+                                settingsViewModel = settingsViewModel,
+                                windowSizeClass = calculateWindowSizeClass(this@MainActivity)
+                            )
 
-                        // Offline Banner
-                        if (!isOnline && !isGuestMode) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .statusBarsPadding()
-                                    .background(Color(0xFFFF9800).copy(alpha = 0.9f))
-                                    .padding(vertical = 4.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "Ești offline. Datele vor fi sincronizate când te reconectezi.",
-                                    color = Color.White,
-                                    fontSize = 12.sp,
-                                    textAlign = TextAlign.Center
-                                )
+                            // Offline Banner
+                            if (!isOnline && !isGuestMode) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .statusBarsPadding()
+                                        .background(Color(0xFFFF9800).copy(alpha = 0.9f))
+                                        .padding(vertical = 4.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "Ești offline. Datele vor fi sincronizate când te reconectezi.",
+                                        color = Color.White,
+                                        fontSize = 12.sp,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
                             }
                         }
                     }
