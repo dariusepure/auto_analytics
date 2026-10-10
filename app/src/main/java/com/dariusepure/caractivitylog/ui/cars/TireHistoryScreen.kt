@@ -284,67 +284,57 @@ fun AddTireSetDialog(
                     }
                 }
 
-                Row(
+                OutlinedTextField(
+                    value = width,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) width = it },
+                    label = { Text(stringResource(R.string.car_tire_width_label)) },
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = width,
-                        onValueChange = { if (it.all { char -> char.isDigit() }) width = it },
-                        label = { Text(stringResource(R.string.car_tire_width_label)) },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        suffix = { Text("mm") }
-                    )
-                    OutlinedTextField(
-                        value = ratio,
-                        onValueChange = { if (it.all { char -> char.isDigit() }) ratio = it },
-                        label = { Text(stringResource(R.string.car_tire_ratio_label)) },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        suffix = { Text("%") }
-                    )
-                    OutlinedTextField(
-                        value = diameter,
-                        onValueChange = { if (it.all { char -> char.isDigit() }) diameter = it },
-                        label = { Text(stringResource(R.string.car_tire_diam_label)) },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        suffix = { Text("\"") }
-                    )
-                }
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    suffix = { Text("mm") }
+                )
+                OutlinedTextField(
+                    value = ratio,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) ratio = it },
+                    label = { Text(stringResource(R.string.car_tire_ratio_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    suffix = { Text("%") }
+                )
+                OutlinedTextField(
+                    value = diameter,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) diameter = it },
+                    label = { Text(stringResource(R.string.car_tire_diam_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    suffix = { Text("\"") }
+                )
 
                 val dotWeekInt = dotWeek.toIntOrNull()
                 val isWeekInvalid = dotWeek.isNotBlank() && (dotWeekInt == null || dotWeekInt !in 1..53)
                 
-                Row(
+                OutlinedTextField(
+                    value = dotWeek,
+                    onValueChange = { if (it.length <= 2 && it.all { char -> char.isDigit() }) dotWeek = it },
+                    label = { Text(stringResource(R.string.tire_dot_week_label)) },
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = dotWeek,
-                        onValueChange = { if (it.length <= 2 && it.all { char -> char.isDigit() }) dotWeek = it },
-                        label = { Text(stringResource(R.string.tire_dot_week_label)) },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        isError = isWeekInvalid,
-                        supportingText = if (isWeekInvalid) {
-                            { Text(stringResource(R.string.validation_dot_week_range)) }
-                        } else null
-                    )
-                    OutlinedTextField(
-                        value = dotYear,
-                        onValueChange = { if (it.length <= 4 && it.all { char -> char.isDigit() }) dotYear = it },
-                        label = { Text(stringResource(R.string.tire_dot_year_label)) },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                    )
-                }
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    isError = isWeekInvalid,
+                    supportingText = if (isWeekInvalid) {
+                        { Text(stringResource(R.string.validation_dot_week_range)) }
+                    } else null
+                )
+                OutlinedTextField(
+                    value = dotYear,
+                    onValueChange = { if (it.length <= 4 && it.all { char -> char.isDigit() }) dotYear = it },
+                    label = { Text(stringResource(R.string.tire_dot_year_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

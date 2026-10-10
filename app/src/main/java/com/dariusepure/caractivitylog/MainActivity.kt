@@ -89,8 +89,8 @@ class MainActivity : AppCompatActivity() {
                 val currentDensity = LocalDensity.current
                 CompositionLocalProvider(
                     LocalDensity provides Density(
-                        density = currentDensity.density * 0.88f,
-                        fontScale = currentDensity.fontScale * 0.88f
+                        density = currentDensity.density,
+                        fontScale = currentDensity.fontScale
                     )
                 ) {
                     Surface(
