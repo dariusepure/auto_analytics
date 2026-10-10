@@ -402,58 +402,22 @@ fun AddCarScreen(
 
     val safetyEquipment = remember {
         listOf(
-            com.dariusepure.caractivitylog.domain.CarEquipment.ABS to R.string.equip_abs,
-            com.dariusepure.caractivitylog.domain.CarEquipment.ESP to R.string.equip_esp,
-            com.dariusepure.caractivitylog.domain.CarEquipment.ASR to R.string.equip_asr,
+            CarEquipment.ABS to R.string.equip_abs,
+            CarEquipment.ESP to R.string.equip_esp,
+            CarEquipment.ASR to R.string.equip_asr,
             CarEquipment.ISOFIX to R.string.equip_isofix
         )
     }
-    val assistanceEquipment = remember {
+    val allEquipments = remember {
         listOf(
-            com.dariusepure.caractivitylog.domain.CarEquipment.LANE_ASSIST to R.string.equip_lane_assist,
-            com.dariusepure.caractivitylog.domain.CarEquipment.BLIND_SPOT to R.string.equip_blind_spot,
-            com.dariusepure.caractivitylog.domain.CarEquipment.ADAPTIVE_CRUISE to R.string.equip_adaptive_cruise,
-            com.dariusepure.caractivitylog.domain.CarEquipment.EMERGENCY_BRAKE to R.string.equip_emergency_brake
-        )
-    }
-    val comfortEquipment = remember {
-        listOf(
-            com.dariusepure.caractivitylog.domain.CarEquipment.AC to R.string.equip_ac,
-            com.dariusepure.caractivitylog.domain.CarEquipment.CLIMATE_CONTROL to R.string.equip_climate_control,
-            com.dariusepure.caractivitylog.domain.CarEquipment.HEATED_SEATS to R.string.equip_heated_seats,
-            com.dariusepure.caractivitylog.domain.CarEquipment.VENTILATED_SEATS to R.string.equip_ventilated_seats,
-            com.dariusepure.caractivitylog.domain.CarEquipment.HEATED_STEERING to R.string.equip_heated_steering,
-            com.dariusepure.caractivitylog.domain.CarEquipment.LEATHER_INTERIOR to R.string.equip_leather_interior,
-            com.dariusepure.caractivitylog.domain.CarEquipment.ELECTRIC_WINDOWS to R.string.equip_electric_windows,
-            com.dariusepure.caractivitylog.domain.CarEquipment.POWER_STEERING to R.string.equip_power_steering,
-            com.dariusepure.caractivitylog.domain.CarEquipment.CENTRAL_LOCKING to R.string.equip_central_locking
-        )
-    }
-    val techEquipment = remember {
-        listOf(
-            com.dariusepure.caractivitylog.domain.CarEquipment.NAVIGATION to R.string.equip_navigation,
-            com.dariusepure.caractivitylog.domain.CarEquipment.BLUETOOTH to R.string.equip_bluetooth,
-            com.dariusepure.caractivitylog.domain.CarEquipment.CARPLAY_ANDROID_AUTO to R.string.equip_carplay_android_auto,
-            com.dariusepure.caractivitylog.domain.CarEquipment.KEYLESS to R.string.equip_keyless,
-            com.dariusepure.caractivitylog.domain.CarEquipment.START_STOP to R.string.equip_start_stop
-        )
-    }
-    val exteriorEquipment = remember {
-        listOf(
-            com.dariusepure.caractivitylog.domain.CarEquipment.SUNROOF to R.string.equip_sunroof,
-            com.dariusepure.caractivitylog.domain.CarEquipment.XENON_LED to R.string.equip_xenon_led,
-            com.dariusepure.caractivitylog.domain.CarEquipment.FOG_LIGHTS to R.string.equip_fog_lights,
-            com.dariusepure.caractivitylog.domain.CarEquipment.ALLOY_WHEELS to R.string.equip_alloy_wheels,
-            com.dariusepure.caractivitylog.domain.CarEquipment.RAIN_SENSORS to R.string.equip_rain_sensors,
-            com.dariusepure.caractivitylog.domain.CarEquipment.LIGHT_SENSORS to R.string.equip_light_sensors
-        )
-    }
-    val parkingEquipment = remember {
-        listOf(
-            com.dariusepure.caractivitylog.domain.CarEquipment.PARKING_SENSORS to R.string.equip_parking_sensors,
-            com.dariusepure.caractivitylog.domain.CarEquipment.REAR_CAMERA to R.string.equip_rear_camera,
-            com.dariusepure.caractivitylog.domain.CarEquipment.CAMERA_360 to R.string.equip_360_camera,
-            com.dariusepure.caractivitylog.domain.CarEquipment.PARK_ASSIST to R.string.equip_park_assist
+            CarEquipment.AC to R.string.equip_ac,
+            CarEquipment.PARKING_SENSORS to R.string.equip_parking_sensors,
+            CarEquipment.HEATED_SEATS to R.string.equip_heated_seats,
+            CarEquipment.XENON_LED to R.string.equip_xenon_led,
+            CarEquipment.ADAPTIVE_CRUISE to R.string.equip_adaptive_cruise,
+            CarEquipment.ALLOY_WHEELS to R.string.equip_alloy_wheels,
+            CarEquipment.CARPLAY_ANDROID_AUTO to R.string.equip_carplay_android_auto,
+            CarEquipment.REAR_CAMERA to R.string.equip_rear_camera
         )
     }
 
@@ -2304,7 +2268,7 @@ fun AddCarScreen(
                     } else null
                 )
 
-                Spacer(Modifier.height(12.dp))
+
 
                 OutlinedTextField(
                     value = length,
@@ -2505,7 +2469,6 @@ fun AddCarScreen(
 
                 Spacer(Modifier.height(8.dp))
 
-                // Safety
                 EquipmentGrid(safetyEquipment, selectedEquipments, onToggleEquipment)
             }
 
@@ -2515,33 +2478,7 @@ fun AddCarScreen(
                 isExpanded = equipmentExpanded,
                 onToggle = { equipmentExpanded = !equipmentExpanded }
             ) {
-                // Assistance
-                EquipmentCategoryHeader(stringResource(R.string.equip_cat_assistance))
-                EquipmentGrid(assistanceEquipment, selectedEquipments, onToggleEquipment)
-
-                Spacer(Modifier.height(16.dp))
-
-                // Parking
-                EquipmentCategoryHeader(stringResource(R.string.equip_cat_parking))
-                EquipmentGrid(parkingEquipment, selectedEquipments, onToggleEquipment)
-
-                Spacer(Modifier.height(16.dp))
-
-                // Comfort
-                EquipmentCategoryHeader(stringResource(R.string.equip_cat_comfort))
-                EquipmentGrid(comfortEquipment, selectedEquipments, onToggleEquipment)
-
-                Spacer(Modifier.height(16.dp))
-
-                // Tech
-                EquipmentCategoryHeader(stringResource(R.string.equip_cat_tech))
-                EquipmentGrid(techEquipment, selectedEquipments, onToggleEquipment)
-
-                Spacer(Modifier.height(16.dp))
-
-                // Exterior
-                EquipmentCategoryHeader(stringResource(R.string.equip_cat_exterior))
-                EquipmentGrid(exteriorEquipment, selectedEquipments, onToggleEquipment)
+                EquipmentGrid(allEquipments, selectedEquipments, onToggleEquipment)
             }
 
             Spacer(Modifier.height(24.dp))
@@ -2800,7 +2737,7 @@ private fun CollapsibleSection(
             if (isExpanded) {
                 Spacer(Modifier.height(16.dp))
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     content()
                 }
@@ -2809,15 +2746,7 @@ private fun CollapsibleSection(
     }
 }
 
-@Composable
-private fun EquipmentCategoryHeader(title: String) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.secondary,
-        modifier = Modifier.padding(vertical = 4.dp)
-    )
-}
+
 
 @Composable
 private fun EquipmentGrid(
