@@ -18,6 +18,7 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.dariusepure.caractivitylog.domain.User
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
@@ -318,13 +319,29 @@ class AuthRepository @Inject constructor(
             firebaseAuth.sendPasswordResetEmail(email).await()
         } catch (e: Exception) {
             Log.e(TAG, "Reset password error: ${e.message}")
+            throw e
         }
     }
 
     suspend fun confirmPasswordReset(oobCode: String, newPassword: String) {
+        try {
+            firebaseAuth.confirmPasswordReset(oobCode, newPassword).await()
+        } catch (e: Exception) {
+            Log.e(TAG, "Confirm password reset error: ${e.message}")
+            throw e
+        }
     }
 
     suspend fun reauthenticate(password: String) {
+        try {
+            val user = firebaseAuth.currentUser ?: throw Exception("No user signed in")
+            val email = user.email ?: throw Exception("No email associated with user")
+            val credential = EmailAuthProvider.getCredential(email, password)
+            user.reauthenticate(credential).await()
+        } catch (e: Exception) {
+            Log.e(TAG, "Reauthentication error: ${e.message}")
+            throw e
+        }
     }
 
     suspend fun updatePassword(newPassword: String) {
@@ -332,6 +349,7 @@ class AuthRepository @Inject constructor(
             firebaseAuth.currentUser?.updatePassword(newPassword)?.await()
         } catch (e: Exception) {
             Log.e(TAG, "Update password error: ${e.message}")
+            throw e
         }
     }
 
@@ -351,7 +369,8 @@ class AuthRepository @Inject constructor(
     }
 
     fun isPasswordUser(): Boolean {
-        return true
+        val user = firebaseAuth.currentUser ?: return false
+        return user.providerData.any { it.providerId == "password" }
     }
 }
 

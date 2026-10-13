@@ -237,100 +237,13 @@ fun CarCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(12.dp)
         ) {
-            // Header: Logo + Title/Subtitle/License Plate + Action Buttons at the TOP right
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Top
-            ) {
-                // Brand Logo Avatar
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(RoundedCornerShape(18.dp))
-                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f))
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                            shape = RoundedCornerShape(18.dp)
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (logoRes != null) {
-                        Image(
-                            painter = painterResource(logoRes),
-                            contentDescription = car.make,
-                            modifier = Modifier
-                                .size(42.dp)
-                                .padding(4.dp),
-                            contentScale = ContentScale.Fit
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Outlined.DirectionsCar,
-                            contentDescription = car.make,
-                            modifier = Modifier.size(32.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-
-                Spacer(Modifier.width(14.dp))
-
-                // Vehicle Name, Subtitle and License Plate
-                Column(modifier = Modifier.weight(1f)) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        AutoSizeText(
-                            text = if (car.year > 0) "${car.displayName} • ${car.year}" else car.displayName,
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 17.sp
-                            ),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.weight(1f, fill = false)
-                        )
-                        SyncStatusBadge(isPendingSync = car.isPendingSync)
-                    }
-
-
-
-                    if (car.licensePlate.isNotBlank()) {
-                        Spacer(Modifier.height(6.dp))
-                        LicensePlateBadge(
-                            licensePlate = car.licensePlate,
-                            countryCode = car.plateCountry
-                        )
-                    }
-
-                    if (car.vin.isNotBlank()) {
-                        Spacer(Modifier.height(4.dp))
-                        Surface(
-                            shape = RoundedCornerShape(6.dp),
-                            color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.5f),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
-                        ) {
-                            Text(
-                                text = "VIN: ${car.vin}",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    fontFamily = FontFamily.Monospace
-                                ),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                            )
-                        }
-                    }
-                }
-            }
-
-            // Spec Pills Row & Action Buttons Footer Row
             val specItems = remember(car, context) {
                 val list = mutableListOf<Pair<ImageVector, String>>()
+                if (car.year > 0) {
+                    list.add(Pair(Icons.Default.CalendarToday, car.year.toString()))
+                }
                 if (car.vehicleType.isNotBlank()) {
                     list.add(Pair(Icons.Outlined.DirectionsCar, CarTranslations.getVehicleTypeLabel(context, car.vehicleType)))
                 }
@@ -340,35 +253,91 @@ fun CarCard(
                 if (car.power > 0) {
                     list.add(Pair(Icons.Default.Speed, CarFormatters.formatPower(context, car)))
                 }
-                list.take(4)
+                list
             }
-
-            val hasDetails = car.licensePlate.isNotBlank() || car.vin.isNotBlank()
-            Spacer(Modifier.height(if (hasDetails) 14.dp else 8.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
-            Spacer(Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                LazyRow(
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                // Brand Logo Avatar
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f))
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(16.dp)
+                        ),
+                    contentAlignment = Alignment.Center
                 ) {
-                    items(specItems) { (icon, text) ->
-                        SpecChip(icon = icon, text = text)
+                    if (logoRes != null) {
+                        Image(
+                            painter = painterResource(logoRes),
+                            contentDescription = car.make,
+                            modifier = Modifier
+                                .size(36.dp)
+                                .padding(4.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Outlined.DirectionsCar,
+                            contentDescription = car.make,
+                            modifier = Modifier.size(28.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
 
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(12.dp))
 
-                ActionButtons(
-                    onEdit = onEditClick,
-                    onDelete = onDeleteClick
-                )
+                // Vehicle Name + Action Buttons on top row, Specs on bottom line
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.weight(1f, fill = false)
+                        ) {
+                            AutoSizeText(
+                                text = car.displayName,
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 17.sp
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.weight(1f, fill = false)
+                            )
+                            SyncStatusBadge(isPendingSync = car.isPendingSync)
+                        }
+
+                        Spacer(Modifier.width(8.dp))
+
+                        ActionButtons(
+                            onEdit = onEditClick,
+                            onDelete = onDeleteClick
+                        )
+                    }
+
+                    if (specItems.isNotEmpty()) {
+                        Spacer(Modifier.height(6.dp))
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            items(specItems) { (icon, text) ->
+                                SpecChip(icon = icon, text = text)
+                            }
+                        }
+                    }
+                }
             }
         }
     }

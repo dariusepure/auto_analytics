@@ -68,9 +68,8 @@ data class Car(
 
 val Car.displayName: String
     get() {
-        val base = if (name.isNotBlank()) name else "$make $model".trim()
-        val withGen = if (generation.isNotBlank() && !base.contains(generation, ignoreCase = true)) "$base ($generation)" else base
-        return withGen.ifBlank { "Unnamed car" }
+        val base = if (make.isNotBlank() && model.isNotBlank()) "$make $model".trim() else name.ifBlank { "$make $model".trim() }
+        return base.ifBlank { "Unnamed car" }
     }
 
 object CarEquipment {

@@ -253,16 +253,17 @@ fun TechnicalSheetScreen(
                     ) {
                         SpecificationCard(
                             specItems = listOf(
-                                SpecItem(stringResource(R.string.car_make_label), car.make, Icons.Default.DirectionsCar),
-                                SpecItem(stringResource(R.string.car_model_label), car.model, Icons.Outlined.DirectionsCar),
-                                SpecItem(stringResource(R.string.car_generation_label), car.generation, Icons.Default.AutoAwesome),
-                                SpecItem(stringResource(R.string.car_year_label), car.year.takeIf { it != 0 }?.toString().orEmpty(), Icons.Default.CalendarToday),
-                                SpecItem(stringResource(R.string.car_color_label), CarTranslations.getColorLabel(context, car.color), Icons.Default.Palette),
+                                SpecItem(stringResource(R.string.car_make_label), car.make, Icons.Default.Factory),
+                                SpecItem(stringResource(R.string.car_model_label), car.model, Icons.Default.Category),
+                                SpecItem(stringResource(R.string.car_engine_variant_label), car.engineVariant, Icons.Default.LocalOffer),
+                                SpecItem(stringResource(R.string.car_generation_label), car.generation, Icons.Default.Layers),
+                                SpecItem(stringResource(R.string.car_year_label), car.year.takeIf { it != 0 }?.toString().orEmpty(), Icons.Default.CalendarMonth),
+                                SpecItem(stringResource(R.string.car_color_label), CarTranslations.getColorLabel(context, car.color), Icons.Default.ColorLens),
                                 SpecItem(stringResource(R.string.car_license_plate_label), car.licensePlate, Icons.Default.Badge),
-                                SpecItem(stringResource(R.string.car_plate_country_label), (country?.let { "${it.flag} ${CarTranslations.getCountryName(context, it.code, it.name)}" } ?: car.plateCountry), Icons.Default.Flag),
-                                SpecItem(stringResource(R.string.car_vin_label), car.vin, Icons.Default.Fingerprint),
-                                SpecItem(stringResource(R.string.car_vehicle_type_label), CarTranslations.getVehicleTypeLabel(context, car.vehicleType), Icons.Outlined.DirectionsCar),
-                                SpecItem(stringResource(R.string.car_manufacturing_country_label), (europeanCountries.find { it.name == car.manufacturingCountry }?.let { "${it.flag} ${CarTranslations.getCountryName(context, it.code, it.name)}" } ?: car.manufacturingCountry), Icons.Default.Public)
+                                SpecItem(stringResource(R.string.car_plate_country_label), (country?.let { "${it.flag} ${CarTranslations.getCountryName(context, it.code, it.name)}" } ?: car.plateCountry), Icons.Default.Public),
+                                SpecItem(stringResource(R.string.car_vin_label), car.vin, Icons.Default.QrCode),
+                                SpecItem(stringResource(R.string.car_vehicle_type_label), CarTranslations.getVehicleTypeLabel(context, car.vehicleType), Icons.Default.DirectionsCar),
+                                SpecItem(stringResource(R.string.car_manufacturing_country_label), (europeanCountries.find { it.name == car.manufacturingCountry }?.let { "${it.flag} ${CarTranslations.getCountryName(context, it.code, it.name)}" } ?: car.manufacturingCountry), Icons.Default.Flag)
                             )
                         )
                     }
@@ -282,9 +283,9 @@ fun TechnicalSheetScreen(
                                 SpecItem(stringResource(R.string.car_torque_label), if (car.torque > 0) "${car.torque}\u00A0Nm" else "", Icons.Default.ElectricBolt),
                                 SpecItem(stringResource(R.string.car_engine_code_label), car.engineCode, Icons.Default.Code),
                                 SpecItem(stringResource(R.string.car_engine_layout_label), CarTranslations.getEngineLayoutLabel(context, car.engineLayout), Icons.Default.Route),
-                                SpecItem(stringResource(R.string.car_cylinders_label), car.numberOfCylinders.takeIf { it != 0 }?.toString().orEmpty(), Icons.Default.Compress),
-                                SpecItem(stringResource(R.string.car_valves_per_cyl_label), car.valvesPerCylinder.takeIf { it != 0 }?.toString().orEmpty(), Icons.Default.Compress),
-                                SpecItem(stringResource(R.string.car_valves_label), (car.numberOfCylinders * car.valvesPerCylinder).takeIf { it > 0 }?.toString().orEmpty(), Icons.Default.Compress),
+                                SpecItem(stringResource(R.string.car_cylinders_label), car.numberOfCylinders.takeIf { it != 0 }?.toString().orEmpty(), Icons.Default.ViewStream),
+                                SpecItem(stringResource(R.string.car_valves_per_cyl_label), car.valvesPerCylinder.takeIf { it != 0 }?.toString().orEmpty(), Icons.Default.FormatListNumbered),
+                                SpecItem(stringResource(R.string.car_valves_label), (car.numberOfCylinders * car.valvesPerCylinder).takeIf { it > 0 }?.toString().orEmpty(), Icons.Default.FormatListNumbered),
                                 SpecItem(stringResource(R.string.car_cylinder_layout_label), CarTranslations.getCylinderLayoutLabel(context, car.cylinderLayout), Icons.Default.Route),
                                 SpecItem(stringResource(R.string.car_acceleration_label), if (car.acceleration0to100 > 0) "${car.acceleration0to100}\u00A0sec" else "", Icons.Default.Timer),
                                 SpecItem(stringResource(R.string.car_top_speed_label), topSpeedText, Icons.Default.Speed),
@@ -299,10 +300,10 @@ fun TechnicalSheetScreen(
                                 SpecItem(stringResource(R.string.car_gearbox_type_label), CarTranslations.getGearboxTypeLabel(context, car.gearboxType), Icons.Default.Settings),
                                 SpecItem(stringResource(R.string.car_gears_count_label), car.gears, Icons.Default.FormatListNumbered),
                                 SpecItem(stringResource(R.string.car_drivetrain_label), CarTranslations.getDrivetrainLabel(context, car.drivetrain), DrivetrainChassisIcon),
-                                SpecItem(stringResource(R.string.car_front_suspension_label), CarTranslations.getSuspensionLabel(context, car.frontSuspension), Icons.Default.LinearScale),
-                                SpecItem(stringResource(R.string.car_rear_suspension_label), CarTranslations.getSuspensionLabel(context, car.rearSuspension), Icons.Default.LinearScale),
-                                SpecItem(stringResource(R.string.car_front_brakes_label), CarTranslations.getBrakesLabel(context, car.frontBrakes), Icons.Default.DiscFull),
-                                SpecItem(stringResource(R.string.car_rear_brakes_label), CarTranslations.getBrakesLabel(context, car.rearBrakes), Icons.Default.DiscFull)
+                                SpecItem(stringResource(R.string.car_front_suspension_label), CarTranslations.getSuspensionLabel(context, car.frontSuspension), Icons.Default.Tune),
+                                SpecItem(stringResource(R.string.car_rear_suspension_label), CarTranslations.getSuspensionLabel(context, car.rearSuspension), Icons.Default.Tune),
+                                SpecItem(stringResource(R.string.car_front_brakes_label), CarTranslations.getBrakesLabel(context, car.frontBrakes), Icons.Default.StopCircle),
+                                SpecItem(stringResource(R.string.car_rear_brakes_label), CarTranslations.getBrakesLabel(context, car.rearBrakes), Icons.Default.StopCircle)
                             )
                         )
                     }

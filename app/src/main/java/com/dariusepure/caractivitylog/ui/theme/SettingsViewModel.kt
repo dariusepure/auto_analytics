@@ -81,22 +81,60 @@ class SettingsViewModel @Inject constructor(
             try {
                 val carsList = carRepository.cars.first()
                 val sb = StringBuilder()
-                sb.append("Mașină,VIN,Dată,Tip,Detalii,KM\n")
+                sb.append("Mașină,VIN,Dată,Categorie,Detalii,Valoare / KM\n")
 
                 carsList.forEach { car ->
-                    val mileage = carRepository.getMileageLogs(car.id).first()
-                    mileage.forEach { log ->
-                        sb.append("${car.make} ${car.model},${car.vin},${log.date},Kilometraj,,${log.km}\n")
+                    val carName = "${car.make} ${car.model}".replace("\"", "\"\"")
+                    val vin = car.vin.replace("\"", "\"\"")
+
+                    // Mileage
+                    carRepository.getMileageLogs(car.id).first().forEach { log ->
+                        val date = log.date.toString()
+                        sb.append("\"$carName\",\"$vin\",\"$date\",\"Kilometraj\",\"-\",\"${log.km} km\"\n")
                     }
                     
-                    val fuel = carRepository.getFuelLogs(car.id).first()
-                    fuel.forEach { log ->
-                        sb.append("${car.make} ${car.model},${car.vin},${log.date},Combustibil,${log.liters}L,${log.km}\n")
+                    // Fuel
+                    carRepository.getFuelLogs(car.id).first().forEach { log ->
+                        val date = log.date.toString()
+                        val details = "Alimentare: ${log.liters}L${if (log.isFullTank) " (Plin)" else ""}".replace("\"", "\"\"")
+                        sb.append("\"$carName\",\"$vin\",\"$date\",\"Combustibil\",\"$details\",\"${log.km} km\"\n")
                     }
 
-                    val service = carRepository.getMaintenanceLogs(car.id).first()
-                    service.forEach { log ->
-                        sb.append("${car.make} ${car.model},${car.vin},${log.date},Service,${log.description},${log.km}\n")
+                    // Maintenance / Service
+                    carRepository.getMaintenanceLogs(car.id).first().forEach { log ->
+                        val date = log.date.toString()
+                        val desc = log.description.replace("\"", "\"\"")
+                        sb.append("\"$carName\",\"$vin\",\"$date\",\"Service\",\"$desc\",\"${log.km} km\"\n")
+                    }
+
+                    // Inspections (ITP)
+                    carRepository.getInspections(car.id).first().forEach { insp ->
+                        val date = insp.date.toString()
+                        val expiry = insp.expiryDate.toString()
+                        val details = "ITP efectuat (Expiră la: $expiry)".replace("\"", "\"\"")
+                        sb.append("\"$carName\",\"$vin\",\"$date\",\"Inspecție Tehnică\",\"$details\",\"${insp.mileage} km\"\n")
+                    }
+
+                    // Insurances
+                    carRepository.getInsurances(car.id).first().forEach { ins ->
+                        val date = ins.date.toString()
+                        val expiry = ins.expiryDate.toString()
+                        val details = "Asigurare ${ins.provider} (Expiră la: $expiry)".replace("\"", "\"\"")
+                        sb.append("\"$carName\",\"$vin\",\"$date\",\"Asigurare\",\"$details\",\"-\"\n")
+                    }
+
+                    // Vignettes
+                    carRepository.getVignettes(car.id).first().forEach { vig ->
+                        val date = vig.date.toString()
+                        val expiry = vig.expiryDate.toString()
+                        val details = "Rovinietă ${vig.country} (Expiră la: $expiry)".replace("\"", "\"\"")
+                        sb.append("\"$carName\",\"$vin\",\"$date\",\"Rovinietă\",\"$details\",\"-\"\n")
+                    }
+
+                    // Tire Sets
+                    carRepository.getTireSets(car.id).first().forEach { tire ->
+                        val details = "Set Anvelope ${tire.season.name}: ${tire.width}/${tire.ratio}R${tire.diameter} - ${tire.brand}".replace("\"", "\"\"")
+                        sb.append("\"$carName\",\"$vin\",\"-\",\"Anvelope\",\"$details\",\"-\"\n")
                     }
                 }
 

@@ -14,6 +14,7 @@ data class ScannedMileageEntry(
 data class ScannedCarData(
     val make: String? = null,
     val model: String? = null,
+    val generation: String? = null,
     val vin: String? = null,
     val engineVariant: String? = null,
     @Serializable(with = FlexibleDoubleSerializer::class)
@@ -28,6 +29,8 @@ data class ScannedCarData(
     val torque: Double? = null,
     val color: String? = null,
     val registrationPlate: String? = null,
+    val vehicleType: String? = null,
+    val manufacturingCountry: String? = null,
     @Serializable(with = FlexibleDoubleSerializer::class)
     val numberOfSeats: Double? = null,
     @Serializable(with = FlexibleDoubleSerializer::class)
@@ -51,7 +54,25 @@ data class ScannedCarData(
     @Serializable(with = FlexibleDoubleSerializer::class)
     val fuelConsumptionCombined: Double? = null,
     @Serializable(with = FlexibleDoubleSerializer::class)
+    val fuelConsumptionUrban: Double? = null,
+    @Serializable(with = FlexibleDoubleSerializer::class)
+    val fuelConsumptionExtraUrban: Double? = null,
+    @Serializable(with = FlexibleDoubleSerializer::class)
     val co2Emissions: Double? = null,
+    @Serializable(with = FlexibleDoubleSerializer::class)
+    val length: Double? = null,
+    @Serializable(with = FlexibleDoubleSerializer::class)
+    val width: Double? = null,
+    @Serializable(with = FlexibleDoubleSerializer::class)
+    val height: Double? = null,
+    @Serializable(with = FlexibleDoubleSerializer::class)
+    val wheelbase: Double? = null,
+    @Serializable(with = FlexibleDoubleSerializer::class)
+    val bootSpace: Double? = null,
+    val frontSuspension: String? = null,
+    val rearSuspension: String? = null,
+    val frontBrakes: String? = null,
+    val rearBrakes: String? = null,
     val hasAbs: Boolean? = null,
     val hasEsp: Boolean? = null,
     @Serializable(with = FlexibleDoubleSerializer::class)
@@ -61,4 +82,3 @@ data class ScannedCarData(
     val mileage: Double? = null,
     val mileageHistory: List<ScannedMileageEntry>? = null
 )
-

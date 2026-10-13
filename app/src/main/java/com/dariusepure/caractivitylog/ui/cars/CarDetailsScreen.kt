@@ -726,7 +726,7 @@ private fun CarHeaderHeroCard(
         border = BorderStroke(1.dp, carAccentColor.copy(alpha = 0.3f))
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(12.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -764,7 +764,7 @@ private fun CarHeaderHeroCard(
                     }
                 }
 
-                // Title & License Plate Badge
+                // Title & Specs directly under it
                 Column(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -780,46 +780,18 @@ private fun CarHeaderHeroCard(
                         overflow = TextOverflow.Ellipsis
                     )
 
-                    if (car.licensePlate.isNotBlank()) {
-                        LicensePlateBadge(
-                            licensePlate = car.licensePlate,
-                            countryCode = car.plateCountry
-                        )
-                    }
-
-                    if (car.vin.isNotBlank()) {
-                        Spacer(Modifier.height(4.dp))
-                        Surface(
-                            shape = RoundedCornerShape(6.dp),
-                            color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.5f),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+                    if (specPills.isNotEmpty()) {
+                        Spacer(Modifier.height(6.dp))
+                        @OptIn(ExperimentalLayoutApi::class)
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
-                            Text(
-                                text = "VIN: ${car.vin}",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    fontFamily = FontFamily.Monospace
-                                ),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                            )
+                            specPills.forEach { (icon, text) ->
+                                SpecChip(icon = icon, text = text)
+                            }
                         }
-                    }
-                }
-            }
-
-            // Spec Pill Badges Flow Row
-            if (specPills.isNotEmpty()) {
-                Spacer(Modifier.height(12.dp))
-                @OptIn(ExperimentalLayoutApi::class)
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    specPills.forEach { (icon, text) ->
-                        SpecChip(icon = icon, text = text)
                     }
                 }
             }

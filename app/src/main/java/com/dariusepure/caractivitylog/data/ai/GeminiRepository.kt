@@ -121,10 +121,11 @@ class GeminiRepository @Inject constructor(
                 6. If a value is unreadable, illogical, or not found, return null for that field.
                 
                 Return ONLY a JSON ARRAY containing one object with these keys: 
-                make, model, vin, year, fuelType, engineSize, power, powerUnit, torque, color, 
-                registrationPlate, numberOfSeats, numberOfDoors, weight, engineCode, 
-                emissionStandard, gearboxType, gears, drivetrain, engineLayout, cylinderLayout, 
-                fuelTankCapacity, topSpeed, acceleration0to100, fuelConsumptionCombined, co2Emissions,
+                make, model, generation, vin, year, fuelType, engineSize, power, powerUnit, torque, color, 
+                registrationPlate, vehicleType, manufacturingCountry, numberOfSeats, numberOfDoors, weight, engineCode, 
+                emissionStandard, gearboxType, gears, drivetrain, engineLayout, cylinderLayout, aspiration, 
+                fuelTankCapacity, topSpeed, acceleration0to100, fuelConsumptionCombined, fuelConsumptionUrban, fuelConsumptionExtraUrban, co2Emissions,
+                length, width, height, wheelbase, bootSpace, frontSuspension, rearSuspension, frontBrakes, rearBrakes,
                 hasAbs, hasEsp, airbags,
                 mileage,
                 mileageHistory (a list of objects with 'km' and 'date' in YYYY-MM-DD format),
@@ -203,10 +204,11 @@ class GeminiRepository @Inject constructor(
                 6. If a value is unreadable, illogical, or not found, return null for that field.
                 
                 Return ONLY a JSON ARRAY containing one object with these keys: 
-                make, model, vin, year, fuelType, engineSize, power, powerUnit, torque, color, 
-                registrationPlate, numberOfSeats, numberOfDoors, weight, engineCode, 
-                emissionStandard, gearboxType, gears, drivetrain, engineLayout, cylinderLayout, 
-                fuelTankCapacity, topSpeed, acceleration0to100, fuelConsumptionCombined, co2Emissions,
+                make, model, generation, vin, year, fuelType, engineSize, power, powerUnit, torque, color, 
+                registrationPlate, vehicleType, manufacturingCountry, numberOfSeats, numberOfDoors, weight, engineCode, 
+                emissionStandard, gearboxType, gears, drivetrain, engineLayout, cylinderLayout, aspiration, 
+                fuelTankCapacity, topSpeed, acceleration0to100, fuelConsumptionCombined, fuelConsumptionUrban, fuelConsumptionExtraUrban, co2Emissions,
+                length, width, height, wheelbase, bootSpace, frontSuspension, rearSuspension, frontBrakes, rearBrakes,
                 hasAbs, hasEsp, airbags,
                 mileage,
                 mileageHistory (a list of objects with 'km' and 'date' in YYYY-MM-DD format),

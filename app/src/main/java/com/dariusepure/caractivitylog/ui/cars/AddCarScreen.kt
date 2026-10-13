@@ -320,6 +320,21 @@ fun AddCarScreen(
                 if (co2Emissions.isBlank()) selectedData.co2Emissions?.let { co2Emissions = it.roundToInt().toString() }
                 
                 if (airbags.isBlank()) selectedData.airbags?.let { airbags = it.roundToInt().toString() }
+                if (generation.isBlank()) selectedData.generation?.let { generation = it }
+                if (vehicleType.isBlank()) selectedData.vehicleType?.let { if (it in vehicleTypes) vehicleType = it }
+                if (manufacturingCountry.isBlank()) selectedData.manufacturingCountry?.let { manufacturingCountry = it }
+                if (aspiration.isBlank()) selectedData.aspiration?.let { if (it in aspirationOptions) aspiration = it }
+                if (fuelConsumptionUrban.isBlank()) selectedData.fuelConsumptionUrban?.let { fuelConsumptionUrban = it.toString() }
+                if (fuelConsumptionExtraUrban.isBlank()) selectedData.fuelConsumptionExtraUrban?.let { fuelConsumptionExtraUrban = it.toString() }
+                if (length.isBlank()) selectedData.length?.let { length = it.roundToInt().toString() }
+                if (width.isBlank()) selectedData.width?.let { width = it.roundToInt().toString() }
+                if (height.isBlank()) selectedData.height?.let { height = it.roundToInt().toString() }
+                if (wheelbase.isBlank()) selectedData.wheelbase?.let { wheelbase = it.roundToInt().toString() }
+                if (bootSpace.isBlank()) selectedData.bootSpace?.let { bootSpace = it.roundToInt().toString() }
+                if (frontSuspension.isBlank()) selectedData.frontSuspension?.let { frontSuspension = it }
+                if (rearSuspension.isBlank()) selectedData.rearSuspension?.let { rearSuspension = it }
+                if (frontBrakes.isBlank()) selectedData.frontBrakes?.let { frontBrakes = it }
+                if (rearBrakes.isBlank()) selectedData.rearBrakes?.let { rearBrakes = it }
 
                 selectedData.equipments?.let { scannedEquips ->
                     if (scannedEquips.isNotEmpty()) {
