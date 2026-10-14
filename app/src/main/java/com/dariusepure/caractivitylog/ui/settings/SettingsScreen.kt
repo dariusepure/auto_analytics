@@ -1,5 +1,7 @@
 package com.dariusepure.caractivitylog.ui.settings
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import android.content.Intent
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
@@ -40,6 +42,12 @@ import com.dariusepure.caractivitylog.ui.common.supportedLanguages
 import com.dariusepure.caractivitylog.ui.theme.SettingsEvent
 import com.dariusepure.caractivitylog.ui.theme.SettingsViewModel
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,6 +79,55 @@ fun SettingsScreen(
     
     val snackbarHostState = remember { SnackbarHostState() }
     val context = androidx.compose.ui.platform.LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    var pendingCsvContent by remember { mutableStateOf<String?>(null) }
+
+    val csvLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/csv"),
+        onResult = { uri ->
+            uri?.let { destUri ->
+                pendingCsvContent?.let { content ->
+                    try {
+                        context.contentResolver.openOutputStream(destUri)?.use { output ->
+                            // Write UTF-8 BOM for Excel diacritics support
+                            output.write(byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte()))
+                            output.write(content.toByteArray(Charsets.UTF_8))
+                        }
+                        scope.launch {
+                            snackbarHostState.showSnackbar(context.getString(R.string.car_report_success))
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        scope.launch {
+                            snackbarHostState.showSnackbar(context.getString(R.string.car_report_failed))
+                        }
+                    }
+                }
+            }
+            pendingCsvContent = null
+        }
+    )
+
+    val importCsvLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri ->
+            uri?.let { sourceUri ->
+                try {
+                    context.contentResolver.openInputStream(sourceUri)?.use { input ->
+                        val reader = BufferedReader(InputStreamReader(input, Charsets.UTF_8))
+                        val content = reader.readText()
+                        viewModel.importDataFromCsv(content)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    scope.launch {
+                        snackbarHostState.showSnackbar(context.getString(R.string.settings_import_failed))
+                    }
+                }
+            }
+        }
+    )
     
     LaunchedEffect(Unit) {
         viewModel.settingsEvent.collectLatest { event ->
@@ -84,12 +141,12 @@ fun SettingsScreen(
                     onLogout()
                 }
                 is SettingsEvent.DataExported -> {
-                    val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
-                        type = "text/csv"
-                        putExtra(android.content.Intent.EXTRA_SUBJECT, "Auto Analytics Export")
-                        putExtra(android.content.Intent.EXTRA_TEXT, event.csvContent)
-                    }
-                    context.startActivity(Intent.createChooser(intent, context.getString(R.string.settings_export_data)))
+                    pendingCsvContent = event.csvContent
+                    val timestamp = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                    csvLauncher.launch("Auto_Analytics_Export_$timestamp.csv")
+                }
+                is SettingsEvent.DataImported -> {
+                    snackbarHostState.showSnackbar(context.getString(R.string.settings_import_success))
                 }
                 is SettingsEvent.Error -> {
                     snackbarHostState.showSnackbar(event.message)
@@ -366,6 +423,13 @@ fun SettingsScreen(
                     icon = Icons.Default.FileDownload,
                     onClick = { viewModel.exportDataToCsv() }
                 )
+                SettingsItem(
+                    label = stringResource(R.string.settings_import_csv),
+                    icon = Icons.Default.FileUpload,
+                    onClick = {
+                        importCsvLauncher.launch(arrayOf("text/comma-separated-values", "text/csv", "application/csv", "*/*"))
+                    }
+                )
             }
 
             // Account Section
@@ -429,7 +493,7 @@ fun SettingsScreen(
     if (showChangePasswordDialog) {
         ChangePasswordDialog(
             onDismiss = { showChangePasswordDialog = false },
-            onConfirm = { current, new -> viewModel.changePassword(current, new) }
+            onConfirm = { current, new, onError -> viewModel.changePassword(current, new, onError) }
         )
     }
 
@@ -437,7 +501,7 @@ fun SettingsScreen(
         DeleteAccountDialog(
             isPasswordUser = viewModel.isPasswordUser,
             onDismiss = { showDeleteAccountDialog = false },
-            onConfirm = { password -> viewModel.deleteAccount(password) }
+            onConfirm = { password, onError -> viewModel.deleteAccount(password, onError) }
         )
     }
 }
@@ -445,21 +509,30 @@ fun SettingsScreen(
 @Composable
 fun ChangePasswordDialog(
     onDismiss: () -> Unit,
-    onConfirm: (String, String) -> Unit
+    onConfirm: (String, String, (String) -> Unit) -> Unit
 ) {
     var currentPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.settings_change_password_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (errorMessage != null) {
+                    Text(
+                        text = errorMessage!!,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
                 OutlinedTextField(
                     value = currentPassword,
-                    onValueChange = { currentPassword = it },
+                    onValueChange = { currentPassword = it; errorMessage = null },
                     label = { Text(stringResource(R.string.settings_current_password_label)) },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
@@ -467,7 +540,7 @@ fun ChangePasswordDialog(
                 )
                 OutlinedTextField(
                     value = newPassword,
-                    onValueChange = { newPassword = it },
+                    onValueChange = { newPassword = it; errorMessage = null },
                     label = { Text(stringResource(R.string.settings_new_password_label)) },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
@@ -475,7 +548,7 @@ fun ChangePasswordDialog(
                 )
                 OutlinedTextField(
                     value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
+                    onValueChange = { confirmPassword = it; errorMessage = null },
                     label = { Text(stringResource(R.string.settings_confirm_new_password_label)) },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
@@ -493,14 +566,24 @@ fun ChangePasswordDialog(
         },
         confirmButton = {
             TextButton(
-                onClick = { onConfirm(currentPassword, newPassword) },
-                enabled = currentPassword.isNotBlank() && newPassword.isNotBlank() && newPassword == confirmPassword
+                onClick = {
+                    isLoading = true
+                    onConfirm(currentPassword, newPassword) { err ->
+                        isLoading = false
+                        errorMessage = err
+                    }
+                },
+                enabled = !isLoading && currentPassword.isNotBlank() && newPassword.isNotBlank() && newPassword == confirmPassword
             ) {
-                Text(stringResource(R.string.common_save))
+                if (isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                } else {
+                    Text(stringResource(R.string.common_save))
+                }
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(onClick = onDismiss, enabled = !isLoading) {
                 Text(stringResource(R.string.common_cancel))
             }
         }
@@ -511,10 +594,12 @@ fun ChangePasswordDialog(
 fun DeleteAccountDialog(
     isPasswordUser: Boolean,
     onDismiss: () -> Unit,
-    onConfirm: (String?) -> Unit
+    onConfirm: (String?, (String) -> Unit) -> Unit
 ) {
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -522,10 +607,17 @@ fun DeleteAccountDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text(stringResource(R.string.settings_delete_account_message))
+                if (errorMessage != null) {
+                    Text(
+                        text = errorMessage!!,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
                 if (isPasswordUser) {
                     OutlinedTextField(
                         value = password,
-                        onValueChange = { password = it },
+                        onValueChange = { password = it; errorMessage = null },
                         label = { Text(stringResource(R.string.auth_password_label)) },
                         placeholder = { Text(stringResource(R.string.settings_delete_account_reauth_hint)) },
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -545,15 +637,25 @@ fun DeleteAccountDialog(
         },
         confirmButton = {
             TextButton(
-                onClick = { onConfirm(if (isPasswordUser) password else null) },
+                onClick = {
+                    isLoading = true
+                    onConfirm(if (isPasswordUser) password else null) { err ->
+                        isLoading = false
+                        errorMessage = err
+                    }
+                },
                 colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                enabled = !isPasswordUser || password.isNotBlank()
+                enabled = !isLoading && (!isPasswordUser || password.isNotBlank())
             ) {
-                Text(stringResource(R.string.settings_delete_account_confirm))
+                if (isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                } else {
+                    Text(stringResource(R.string.settings_delete_account_confirm))
+                }
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(onClick = onDismiss, enabled = !isLoading) {
                 Text(stringResource(R.string.common_cancel))
             }
         }

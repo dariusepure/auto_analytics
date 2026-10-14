@@ -161,10 +161,29 @@ object PdfReportGenerator {
         // Header
         textPaint.textSize = 24f
         textPaint.isFakeBoldText = true
-        val title = if (car.name.isNotBlank()) "${car.name} (${car.make} ${car.model})" else "${car.make} ${car.model}"
-        val titleWidth = textPaint.measureText(title)
+        val titleParts = mutableListOf<String>()
+        if (car.make.isNotBlank()) titleParts.add(car.make)
+        if (car.model.isNotBlank()) titleParts.add(car.model)
+        if (car.generation.isNotBlank()) titleParts.add(car.generation)
+        val engineBadge = car.engineVariant.ifBlank { car.engineSize }
+        if (engineBadge.isNotBlank()) titleParts.add(engineBadge)
+
+        val title = if (titleParts.isNotEmpty()) {
+            titleParts.joinToString(" ")
+        } else {
+            car.name.ifBlank { "Unnamed Car" }
+        }
+
+        var titleWidth = textPaint.measureText(title)
+        val maxTitleWidth = PAGE_WIDTH - (2 * MARGIN)
+        if (titleWidth > maxTitleWidth) {
+            textPaint.textSize = 24f * (maxTitleWidth / titleWidth)
+            titleWidth = textPaint.measureText(title)
+        }
+
         canvas.drawText(title, (PAGE_WIDTH - titleWidth) / 2f, yPosition + 20f, textPaint)
         textPaint.isFakeBoldText = false
+        textPaint.textSize = 10f
         
         yPosition += 35f
         canvas.drawLine(MARGIN, yPosition, PAGE_WIDTH - MARGIN, yPosition, accentColorPaint.apply { strokeWidth = 2f })
@@ -176,7 +195,6 @@ object PdfReportGenerator {
             // 1. Identity
             drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.car_identity_section))
             drawThreeColumns(listOf(
-                context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_nickname) to car.name,
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_make) to car.make,
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_model) to car.model,
                 context.getString(R.string.car_engine_variant_label) to car.engineVariant,

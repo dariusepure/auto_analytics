@@ -4,14 +4,27 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dariusepure.caractivitylog.data.auth.AuthRepository
 import com.dariusepure.caractivitylog.data.prefs.PreferenceRepository
+import com.dariusepure.caractivitylog.domain.Car
+import com.dariusepure.caractivitylog.domain.FuelLog
+import com.dariusepure.caractivitylog.domain.Insurance
+import com.dariusepure.caractivitylog.domain.Maintenance
+import com.dariusepure.caractivitylog.domain.MileageLog
+import com.dariusepure.caractivitylog.domain.TireSeason
+import com.dariusepure.caractivitylog.domain.TireSet
 import com.dariusepure.caractivitylog.domain.UnitSystem
 import com.dariusepure.caractivitylog.domain.User
+import com.dariusepure.caractivitylog.domain.VehicleInspection
+import com.dariusepure.caractivitylog.domain.Vignette
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -145,24 +158,206 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun importDataFromCsv(csvContent: String) {
+        viewModelScope.launch {
+            try {
+                val lines = csvContent.lines().filter { it.isNotBlank() }
+                if (lines.isEmpty()) {
+                    _settingsEvent.send(SettingsEvent.Error("CSV file is empty"))
+                    return@launch
+                }
+
+                val startIndex = if (lines.first().contains("Mașină") || lines.first().startsWith("id")) 1 else 0
+
+                for (i in startIndex until lines.size) {
+                    val line = lines[i]
+                    val parts = parseCsvLine(line)
+                    if (parts.size >= 6) {
+                        val carName = parts[0].trim()
+                        val vin = parts[1].trim()
+                        val dateStr = parts[2].trim()
+                        val category = parts[3].trim()
+                        val details = parts[4].trim()
+                        val valueKm = parts[5].trim()
+
+                        if (carName.isBlank() || carName == "-") continue
+
+                        val carsList = carRepository.cars.first()
+                        var car = carsList.find {
+                            it.name.trim().equals(carName, ignoreCase = true) ||
+                            it.vin.trim().equals(vin, ignoreCase = true) ||
+                            "${it.make} ${it.model}".trim().equals(carName, ignoreCase = true)
+                        }
+
+                        if (car == null) {
+                            val newCarId = UUID.randomUUID().toString()
+                            val makeModel = carName.split(" ")
+                            val make = makeModel.firstOrNull() ?: carName
+                            val model = makeModel.drop(1).joinToString(" ").ifBlank { "Model" }
+                            val newCar = Car(
+                                id = newCarId,
+                                name = carName,
+                                make = make,
+                                model = model,
+                                vin = if (vin.isNotBlank() && vin != "-") vin else "VIN_${System.currentTimeMillis()}_$i"
+                            )
+                            carRepository.createCar(newCar)
+                            car = newCar
+                        }
+
+                        val date = parseDate(dateStr)
+
+                        when {
+                            category.contains("Kilometraj", ignoreCase = true) -> {
+                                val km = valueKm.replace(Regex("[^0-9.]"), "").toDoubleOrNull() ?: 0.0
+                                if (km > 0) {
+                                    val log = MileageLog(
+                                        id = UUID.randomUUID().toString(),
+                                        km = km,
+                                        date = date
+                                    )
+                                    carRepository.addMileageLog(car.id, log)
+                                }
+                            }
+                            category.contains("Combustibil", ignoreCase = true) -> {
+                                val km = valueKm.replace(Regex("[^0-9.]"), "").toDoubleOrNull() ?: 0.0
+                                val litersMatch = Regex("([0-9.]+)\\s*L").find(details)
+                                val liters = litersMatch?.groupValues?.get(1)?.toDoubleOrNull() ?: 0.0
+                                val isFull = details.contains("Plin", ignoreCase = true)
+                                val log = FuelLog(
+                                    id = UUID.randomUUID().toString(),
+                                    date = date,
+                                    km = km,
+                                    liters = liters,
+                                    isFullTank = isFull
+                                )
+                                carRepository.addFuelLog(car.id, log)
+                            }
+                            category.contains("Service", ignoreCase = true) -> {
+                                val km = valueKm.replace(Regex("[^0-9.]"), "").toDoubleOrNull() ?: 0.0
+                                val log = Maintenance(
+                                    id = UUID.randomUUID().toString(),
+                                    date = date,
+                                    km = km,
+                                    description = details
+                                )
+                                carRepository.addMaintenanceLog(car.id, log)
+                            }
+                            category.contains("Inspecție", ignoreCase = true) -> {
+                                val mileage = valueKm.replace(Regex("[^0-9.]"), "").toDoubleOrNull() ?: 0.0
+                                val insp = VehicleInspection(
+                                    id = UUID.randomUUID().toString(),
+                                    date = date,
+                                    mileage = mileage
+                                )
+                                carRepository.addInspection(car.id, insp)
+                            }
+                            category.contains("Asigurare", ignoreCase = true) -> {
+                                val provider = details.replace("Asigurare", "").trim()
+                                val ins = Insurance(
+                                    id = UUID.randomUUID().toString(),
+                                    date = date,
+                                    provider = provider.ifBlank { "General" }
+                                )
+                                carRepository.addInsurance(car.id, ins)
+                            }
+                            category.contains("Rovinietă", ignoreCase = true) -> {
+                                val countryMatch = Regex("Rovinietă\\s+([A-Za-z]+)").find(details)
+                                val country = countryMatch?.groupValues?.get(1) ?: "RO"
+                                val vig = Vignette(
+                                    id = UUID.randomUUID().toString(),
+                                    date = date,
+                                    country = country
+                                )
+                                carRepository.addVignette(car.id, vig)
+                            }
+                            category.contains("Anvelope", ignoreCase = true) -> {
+                                val season = if (details.contains("WINTER", ignoreCase = true) || details.contains("Iarnă", ignoreCase = true))
+                                    TireSeason.WINTER
+                                else
+                                    TireSeason.SUMMER
+                                val tire = TireSet(
+                                    id = UUID.randomUUID().toString(),
+                                    season = season,
+                                    brand = details
+                                )
+                                carRepository.addTireSet(car.id, tire)
+                            }
+                        }
+                    }
+                }
+
+                _settingsEvent.send(SettingsEvent.DataImported)
+            } catch (e: Exception) {
+                _settingsEvent.send(SettingsEvent.Error(e.message ?: "Import failed"))
+            }
+        }
+    }
+
+    private fun parseCsvLine(line: String): List<String> {
+        val result = mutableListOf<String>()
+        var inQuotes = false
+        val curVal = StringBuilder()
+        var i = 0
+        while (i < line.length) {
+            val c = line[i]
+            when {
+                c == '"' -> {
+                    if (inQuotes && i + 1 < line.length && line[i + 1] == '"') {
+                        curVal.append('"')
+                        i++
+                    } else {
+                        inQuotes = !inQuotes
+                    }
+                }
+                c == ',' && !inQuotes -> {
+                    result.add(curVal.toString())
+                    curVal.clear()
+                }
+                else -> {
+                    curVal.append(c)
+                }
+            }
+            i++
+        }
+        result.add(curVal.toString())
+        return result
+    }
+
+    private fun parseDate(dateStr: String): Date {
+        if (dateStr == "-") return Date()
+        dateStr.toLongOrNull()?.let { return Date(it) }
+        val formats = listOf(
+            SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH),
+            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()),
+            SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+        )
+        for (fmt in formats) {
+            try {
+                fmt.parse(dateStr)?.let { return it }
+            } catch (_: Exception) {}
+        }
+        return Date()
+    }
+
     fun signOut() {
         authRepository.signOut()
         preferenceRepository.setGuestMode(false)
     }
 
-    fun changePassword(currentPassword: String, newPassword: String) {
+    fun changePassword(currentPassword: String, newPassword: String, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
                 authRepository.reauthenticate(currentPassword)
                 authRepository.updatePassword(newPassword)
                 _settingsEvent.send(SettingsEvent.PasswordChanged)
             } catch (e: Exception) {
-                _settingsEvent.send(SettingsEvent.Error(e.message ?: "Unknown error"))
+                onError(e.message ?: "Unknown error")
             }
         }
     }
 
-    fun deleteAccount(password: String?) {
+    fun deleteAccount(password: String?, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
                 if (isPasswordUser && password != null) {
@@ -171,7 +366,7 @@ class SettingsViewModel @Inject constructor(
                 authRepository.deleteAccount()
                 _settingsEvent.send(SettingsEvent.AccountDeleted)
             } catch (e: Exception) {
-                _settingsEvent.send(SettingsEvent.Error(e.message ?: "Unknown error"))
+                onError(e.message ?: "Unknown error")
             }
         }
     }
@@ -181,5 +376,6 @@ sealed class SettingsEvent {
     data object PasswordChanged : SettingsEvent()
     data object AccountDeleted : SettingsEvent()
     data class DataExported(val csvContent: String) : SettingsEvent()
+    data object DataImported : SettingsEvent()
     data class Error(val message: String) : SettingsEvent()
 }

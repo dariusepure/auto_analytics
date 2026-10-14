@@ -87,62 +87,6 @@ import com.dariusepure.caractivitylog.ui.common.SpecChip
 import com.dariusepure.caractivitylog.ui.common.shimmer
 
 /**
- * Authentic European/Romanian style License Plate badge component.
- */
-@Composable
-fun LicensePlateBadge(
-    licensePlate: String,
-    modifier: Modifier = Modifier,
-    countryCode: String = "RO"
-) {
-    Surface(
-        modifier = modifier
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f),
-                shape = RoundedCornerShape(6.dp)
-            )
-            .clip(RoundedCornerShape(6.dp)),
-        color = Color.White
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.height(24.dp)
-        ) {
-            // Left EU Blue Stripe
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .background(Color(0xFF003399))
-                    .padding(horizontal = 4.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = countryCode.ifBlank { "RO" }.uppercase(),
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color.White
-                    )
-                )
-            }
-
-            // License Plate Number
-            Text(
-                text = licensePlate.uppercase(),
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = FontWeight.Black,
-                    fontFamily = FontFamily.Monospace,
-                    letterSpacing = 1.sp,
-                    color = Color.Black
-                ),
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-            )
-        }
-    }
-}
-
-/**
  * Status indicator badge for cloud sync state.
  */
 @Composable
@@ -218,6 +162,23 @@ fun CarCard(
     val context = LocalContext.current
     val logoRes = remember(car.make) { CarFormatters.getBrandLogoResource(car.make) }
 
+    val specPills = remember(car, context) {
+        val list = mutableListOf<Pair<ImageVector, String>>()
+        if (car.year > 0) {
+            list.add(Pair(Icons.Default.CalendarToday, car.year.toString()))
+        }
+        if (car.vehicleType.isNotBlank()) {
+            list.add(Pair(Icons.Outlined.DirectionsCar, CarTranslations.getVehicleTypeLabel(context, car.vehicleType)))
+        }
+        if (car.fuelType.isNotBlank()) {
+            list.add(Pair(Icons.Default.LocalGasStation, CarTranslations.getFuelTypeLabel(context, car.fuelType)))
+        }
+        if (car.power > 0) {
+            list.add(Pair(Icons.Default.Speed, CarFormatters.formatPower(context, car)))
+        }
+        list
+    }
+
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
@@ -239,23 +200,6 @@ fun CarCard(
                 .fillMaxWidth()
                 .padding(12.dp)
         ) {
-            val specItems = remember(car, context) {
-                val list = mutableListOf<Pair<ImageVector, String>>()
-                if (car.year > 0) {
-                    list.add(Pair(Icons.Default.CalendarToday, car.year.toString()))
-                }
-                if (car.vehicleType.isNotBlank()) {
-                    list.add(Pair(Icons.Outlined.DirectionsCar, CarTranslations.getVehicleTypeLabel(context, car.vehicleType)))
-                }
-                if (car.fuelType.isNotBlank()) {
-                    list.add(Pair(Icons.Default.LocalGasStation, CarTranslations.getFuelTypeLabel(context, car.fuelType)))
-                }
-                if (car.power > 0) {
-                    list.add(Pair(Icons.Default.Speed, CarFormatters.formatPower(context, car)))
-                }
-                list
-            }
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -294,7 +238,7 @@ fun CarCard(
 
                 Spacer(Modifier.width(12.dp))
 
-                // Vehicle Name + Action Buttons on top row, Specs on bottom line
+                // Vehicle Name + Action Buttons on top row, Specifications below
                 Column(modifier = Modifier.weight(1f)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -326,13 +270,15 @@ fun CarCard(
                         )
                     }
 
-                    if (specItems.isNotEmpty()) {
-                        Spacer(Modifier.height(6.dp))
-                        LazyRow(
+                    if (specPills.isNotEmpty()) {
+                        Spacer(Modifier.height(8.dp))
+                        @OptIn(ExperimentalLayoutApi::class)
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
-                            items(specItems) { (icon, text) ->
+                            specPills.forEach { (icon, text) ->
                                 SpecChip(icon = icon, text = text)
                             }
                         }

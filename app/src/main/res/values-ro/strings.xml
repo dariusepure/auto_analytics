@@ -697,6 +697,9 @@
     <string name="settings_vignette_alerts">Alerte Rovinietă</string>
     <string name="settings_data_backup_title">Date și Backup</string>
     <string name="settings_export_csv">Exportă Istoric (CSV)</string>
+    <string name="settings_import_csv">Importă Istoric (CSV)</string>
+    <string name="settings_import_success">Istoricul a fost importat cu succes!</string>
+    <string name="settings_import_failed">Eroare la importul istoricului.</string>
     <string name="settings_export_data">Exportă datele</string>
     <string name="settings_about_title">Despre</string>
 

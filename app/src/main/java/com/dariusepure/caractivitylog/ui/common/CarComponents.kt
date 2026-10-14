@@ -2,6 +2,7 @@ package com.dariusepure.caractivitylog.ui.common
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -32,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -238,6 +240,62 @@ fun getSpecIconColor(icon: ImageVector?, text: String = ""): Color {
 }
 
 /**
+ * Authentic European/Romanian style License Plate badge component.
+ */
+@Composable
+fun LicensePlateBadge(
+    licensePlate: String,
+    modifier: Modifier = Modifier,
+    countryCode: String = "RO"
+) {
+    Surface(
+        modifier = modifier
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f),
+                shape = RoundedCornerShape(6.dp)
+            )
+            .clip(RoundedCornerShape(6.dp)),
+        color = Color.White
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.height(24.dp)
+        ) {
+            // Left EU Blue Stripe
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .background(Color(0xFF003399))
+                    .padding(horizontal = 4.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = countryCode.ifBlank { "RO" }.uppercase(),
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.White
+                    )
+                )
+            }
+
+            // License Plate Number
+            Text(
+                text = licensePlate.uppercase(),
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Black,
+                    fontFamily = FontFamily.Monospace,
+                    letterSpacing = 1.sp,
+                    color = Color.Black
+                ),
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+            )
+        }
+    }
+}
+
+/**
  * Spec pill tag for displaying quick vehicle technical attributes with vibrant colors.
  */
 @Composable
@@ -341,18 +399,31 @@ fun SpecificationCard(
                     AutoSizeText(
                         text = item.label,
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
-                        modifier = Modifier.weight(1.1f),
+                        modifier = Modifier.weight(0.7f),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         minFontSize = 9.sp,
                         maxLines = 2
                     )
 
-                    Text(
+                    val isVin = item.label.contains("vin", ignoreCase = true) || item.label.contains("șasiu", ignoreCase = true)
+
+                    AutoSizeText(
                         text = item.value,
-                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
-                        modifier = Modifier.weight(1.4f),
+                        style = if (isVin) {
+                            MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace,
+                                fontSize = 13.5.sp,
+                                letterSpacing = 0.5.sp
+                            )
+                        } else {
+                            MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
+                        },
+                        modifier = Modifier.weight(1.8f),
                         color = MaterialTheme.colorScheme.onSurface,
-                        textAlign = TextAlign.End
+                        textAlign = TextAlign.End,
+                        minFontSize = 10.sp,
+                        maxLines = 1
                     )
                 }
                 if (index < validItems.size - 1) {

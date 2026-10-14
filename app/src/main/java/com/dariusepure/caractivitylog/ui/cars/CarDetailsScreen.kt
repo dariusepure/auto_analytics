@@ -166,8 +166,7 @@ fun CarDetailsScreen(
                         Spacer(Modifier.height(4.dp))
                         CarHeaderHeroCard(
                             car = car,
-                            carAccentColor = carAccentColor,
-                            context = context
+                            carAccentColor = carAccentColor
                         )
                         Spacer(Modifier.height(4.dp))
                     }
@@ -695,27 +694,9 @@ fun CarDetailsScreen(
 private fun CarHeaderHeroCard(
     car: Car,
     carAccentColor: Color,
-    context: Context,
     modifier: Modifier = Modifier
 ) {
     val logoRes = remember(car.make) { CarFormatters.getBrandLogoResource(car.make) }
-
-    val specPills = remember(car, context) {
-        val list = mutableListOf<Pair<ImageVector, String>>()
-        if (car.year > 0) {
-            list.add(Pair(Icons.Default.CalendarToday, car.year.toString()))
-        }
-        if (car.vehicleType.isNotBlank()) {
-            list.add(Pair(Icons.Outlined.DirectionsCar, CarTranslations.getVehicleTypeLabel(context, car.vehicleType)))
-        }
-        if (car.fuelType.isNotBlank()) {
-            list.add(Pair(Icons.Default.LocalGasStation, CarTranslations.getFuelTypeLabel(context, car.fuelType)))
-        }
-        if (car.power > 0) {
-            list.add(Pair(Icons.Default.Speed, CarFormatters.formatPower(context, car)))
-        }
-        list
-    }
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -764,7 +745,7 @@ private fun CarHeaderHeroCard(
                     }
                 }
 
-                // Title & Specs directly under it
+                // Title & Badges (License Plate & VIN)
                 Column(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -780,17 +761,34 @@ private fun CarHeaderHeroCard(
                         overflow = TextOverflow.Ellipsis
                     )
 
-                    if (specPills.isNotEmpty()) {
-                        Spacer(Modifier.height(6.dp))
-                        @OptIn(ExperimentalLayoutApi::class)
-                        FlowRow(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                    if (car.licensePlate.isNotBlank()) {
+                        Spacer(Modifier.height(4.dp))
+                        LicensePlateBadge(
+                            licensePlate = car.licensePlate,
+                            countryCode = car.plateCountry
+                        )
+                    }
+
+                    if (car.vin.isNotBlank()) {
+                        Spacer(Modifier.height(4.dp))
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.5f),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)),
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            specPills.forEach { (icon, text) ->
-                                SpecChip(icon = icon, text = text)
-                            }
+                            Text(
+                                text = "VIN: ${car.vin}",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    fontFamily = FontFamily.Monospace
+                                ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                                maxLines = 1,
+                                softWrap = false
+                            )
                         }
                     }
                 }

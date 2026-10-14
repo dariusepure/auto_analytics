@@ -197,8 +197,21 @@ fun TechnicalSheetScreen(
                         .verticalScroll(rememberScrollState())
                         .padding(16.dp)
                 ) {
+                    val titleParts = mutableListOf<String>()
+                    if (car.make.isNotBlank()) titleParts.add(car.make)
+                    if (car.model.isNotBlank()) titleParts.add(car.model)
+                    if (car.generation.isNotBlank()) titleParts.add(car.generation)
+                    val engineBadge = car.engineVariant.ifBlank { car.engineSize }
+                    if (engineBadge.isNotBlank()) titleParts.add(engineBadge)
+
+                    val displayTitle = if (titleParts.isNotEmpty()) {
+                        titleParts.joinToString(" ")
+                    } else {
+                        car.name.ifBlank { "Unnamed car" }
+                    }
+
                     Text(
-                        text = car.displayName,
+                        text = displayTitle,
                         style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -240,6 +253,26 @@ fun TechnicalSheetScreen(
                             icon = CheckEngineIcon,
                             label = stringResource(R.string.car_engine_size_label),
                             value = car.engineSize.ifBlank { "-" },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        QuickSpecCard(
+                            icon = Icons.Default.CalendarMonth,
+                            label = stringResource(R.string.car_year_label),
+                            value = if (car.year > 0) car.year.toString() else "-",
+                            modifier = Modifier.weight(1f)
+                        )
+                        QuickSpecCard(
+                            icon = Icons.Outlined.DirectionsCar,
+                            label = stringResource(R.string.car_vehicle_type_label),
+                            value = CarTranslations.getVehicleTypeLabel(context, car.vehicleType).ifBlank { "-" },
                             modifier = Modifier.weight(1f)
                         )
                     }
