@@ -212,7 +212,7 @@ fun AddCarScreen(
     var manufacturingCountry by remember { mutableStateOf("") }
 
     var airbags by remember { mutableStateOf("") }
-    var selectedEquipments by remember { mutableStateOf(setOf<String>()) }
+    var selectedSafetySystems by remember { mutableStateOf(setOf<String>()) }
 
     val photoPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -289,7 +289,10 @@ fun AddCarScreen(
                 if (vin.isBlank()) selectedData.vin?.let { vin = it.uppercase() }
                 if (year.isBlank()) selectedData.year?.let { year = it.roundToInt().toString() }
                 if (fuelType.isBlank()) selectedData.fuelType?.let { if (it in fuelTypes) fuelType = it }
-                if (engineSize.isBlank()) selectedData.engineSize?.let { engineSize = it.roundToInt().toString() }
+                val effectiveVariant = engineVariant.ifBlank { selectedData.engineVariant }
+                if (!effectiveVariant.isNullOrBlank()) {
+                    if (engineSize.isBlank()) selectedData.engineSize?.let { engineSize = it.roundToInt().toString() }
+                }
                 if (power.isBlank()) selectedData.power?.let { power = it.roundToInt().toString() }
                 if (powerUnit.isBlank() || (powerUnit.lowercase() == "hp")) selectedData.powerUnit?.let { powerUnit = it }
                 if (torque.isBlank()) selectedData.torque?.let { torque = it.roundToInt().toString() }
@@ -336,18 +339,6 @@ fun AddCarScreen(
                 if (frontBrakes.isBlank()) selectedData.frontBrakes?.let { frontBrakes = it }
                 if (rearBrakes.isBlank()) selectedData.rearBrakes?.let { rearBrakes = it }
 
-                selectedData.equipments?.let { scannedEquips ->
-                    if (scannedEquips.isNotEmpty()) {
-                        selectedEquipments = (selectedEquipments + scannedEquips).toSet()
-                    }
-                }
-                if (selectedData.hasAbs == true) {
-                    selectedEquipments = selectedEquipments + CarEquipment.ABS
-                }
-                if (selectedData.hasEsp == true) {
-                    selectedEquipments = selectedEquipments + CarEquipment.ESP
-                }
-
                 dataToConfirm = null
             }
     }
@@ -356,7 +347,6 @@ fun AddCarScreen(
     var engineExpanded by remember { mutableStateOf(false) }
     var dimensionsExpanded by remember { mutableStateOf(false) }
     var safetyExpanded by remember { mutableStateOf(false) }
-    var equipmentExpanded by remember { mutableStateOf(false) }
 
     var countryExpanded by remember { mutableStateOf(false) }
     var plateCountryQuery by remember { mutableStateOf("") }
@@ -407,11 +397,11 @@ fun AddCarScreen(
     
     val density = LocalDensity.current
 
-    val onToggleEquipment = { id: String ->
-        selectedEquipments = if (id in selectedEquipments) {
-            selectedEquipments - id
+    val onToggleSafety = { id: String ->
+        selectedSafetySystems = if (id in selectedSafetySystems) {
+            selectedSafetySystems - id
         } else {
-            selectedEquipments + id
+            selectedSafetySystems + id
         }
     }
 
@@ -421,18 +411,6 @@ fun AddCarScreen(
             CarEquipment.ESP to R.string.equip_esp,
             CarEquipment.ASR to R.string.equip_asr,
             CarEquipment.ISOFIX to R.string.equip_isofix
-        )
-    }
-    val allEquipments = remember {
-        listOf(
-            CarEquipment.AC to R.string.equip_ac,
-            CarEquipment.PARKING_SENSORS to R.string.equip_parking_sensors,
-            CarEquipment.HEATED_SEATS to R.string.equip_heated_seats,
-            CarEquipment.XENON_LED to R.string.equip_xenon_led,
-            CarEquipment.ADAPTIVE_CRUISE to R.string.equip_adaptive_cruise,
-            CarEquipment.ALLOY_WHEELS to R.string.equip_alloy_wheels,
-            CarEquipment.CARPLAY_ANDROID_AUTO to R.string.equip_carplay_android_auto,
-            CarEquipment.REAR_CAMERA to R.string.equip_rear_camera
         )
     }
 
@@ -514,7 +492,7 @@ fun AddCarScreen(
                 fuelConsumptionExtraUrban = fuelConsumptionExtraUrban,
                 co2Emissions = co2Emissions,
                 airbags = airbags,
-                equipments = selectedEquipments.toList()
+                equipments = selectedSafetySystems.toList()
             )
         } else {
             onBack()
@@ -588,7 +566,7 @@ fun AddCarScreen(
                 manufacturingCountry = car.manufacturingCountry
 
                 airbags = car.airbags.takeIf { it != 0 }?.toString() ?: ""
-                selectedEquipments = car.equipments.toSet()
+                selectedSafetySystems = car.equipments.toSet()
             }
         }
     }
@@ -675,7 +653,7 @@ fun AddCarScreen(
                                     fuelConsumptionExtraUrban = fuelConsumptionExtraUrban,
                                     co2Emissions = co2Emissions,
                                     airbags = airbags,
-                                    equipments = selectedEquipments.toList()
+                                    equipments = selectedSafetySystems.toList()
                                 )
                             },
                             enabled = canSave
@@ -2484,16 +2462,7 @@ fun AddCarScreen(
 
                 Spacer(Modifier.height(8.dp))
 
-                EquipmentGrid(safetyEquipment, selectedEquipments, onToggleEquipment)
-            }
-
-            // --- 5. EQUIPMENTS ---
-            CollapsibleSection(
-                title = stringResource(R.string.car_equipments_label),
-                isExpanded = equipmentExpanded,
-                onToggle = { equipmentExpanded = !equipmentExpanded }
-            ) {
-                EquipmentGrid(allEquipments, selectedEquipments, onToggleEquipment)
+                SafetyGrid(safetyEquipment, selectedSafetySystems, onToggleSafety)
             }
 
             Spacer(Modifier.height(24.dp))
@@ -2651,14 +2620,15 @@ fun ScannedCarDataConfirmationDialog(
             Button(
                 onClick = {
                     // Filter original data based on selected keys
+                    val resolvedEngineVariant = if ("engineVariant" in selectedKeys) data.engineVariant else null
                     val confirmedData = ScannedCarData(
                         make = if ("make" in selectedKeys) data.make else null,
                         model = if ("model" in selectedKeys) data.model else null,
                         vin = if ("vin" in selectedKeys) data.vin else null,
-                        engineVariant = if ("engineVariant" in selectedKeys) data.engineVariant else null,
+                        engineVariant = resolvedEngineVariant,
                         year = if ("year" in selectedKeys) data.year else null,
                         fuelType = if ("fuelType" in selectedKeys) data.fuelType else null,
-                        engineSize = if ("engineSize" in selectedKeys) data.engineSize else null,
+                        engineSize = if (!resolvedEngineVariant.isNullOrBlank() && "engineSize" in selectedKeys) data.engineSize else null,
                         power = if ("power" in selectedKeys) data.power else null,
                         powerUnit = data.powerUnit,
                         torque = if ("torque" in selectedKeys) data.torque else null,
@@ -2761,10 +2731,8 @@ private fun CollapsibleSection(
     }
 }
 
-
-
 @Composable
-private fun EquipmentGrid(
+private fun SafetyGrid(
     equipmentList: List<Pair<String, Int>>,
     selectedEquipments: Set<String>,
     onToggle: (String) -> Unit
@@ -2799,3 +2767,7 @@ private fun EquipmentGrid(
         }
     }
 }
+
+
+
+

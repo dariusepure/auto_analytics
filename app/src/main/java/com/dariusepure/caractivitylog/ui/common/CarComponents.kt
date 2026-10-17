@@ -296,6 +296,64 @@ fun LicensePlateBadge(
 }
 
 /**
+ * Stylized VIN (Chassis Number) badge component matching LicensePlateBadge height and style.
+ */
+@Composable
+fun VinBadge(
+    vin: String,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
+                shape = RoundedCornerShape(6.dp)
+            )
+            .clip(RoundedCornerShape(6.dp)),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 0.5.dp
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.height(24.dp)
+        ) {
+            // Left VIN Tag
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(horizontal = 5.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "VIN",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                )
+            }
+
+            // VIN Code
+            Text(
+                text = vin.uppercase(),
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.Monospace,
+                    letterSpacing = 0.5.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                modifier = Modifier.padding(horizontal = 6.dp),
+                maxLines = 1
+            )
+        }
+    }
+}
+
+/**
  * Spec pill tag for displaying quick vehicle technical attributes with vibrant colors.
  */
 @Composable

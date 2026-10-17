@@ -768,29 +768,6 @@ private fun CarHeaderHeroCard(
                             countryCode = car.plateCountry
                         )
                     }
-
-                    if (car.vin.isNotBlank()) {
-                        Spacer(Modifier.height(4.dp))
-                        Surface(
-                            shape = RoundedCornerShape(6.dp),
-                            color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.5f),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = "VIN: ${car.vin}",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    fontFamily = FontFamily.Monospace
-                                ),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
-                                maxLines = 1,
-                                softWrap = false
-                            )
-                        }
-                    }
                 }
             }
         }

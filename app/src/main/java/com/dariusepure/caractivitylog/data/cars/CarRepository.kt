@@ -122,6 +122,24 @@ class CarRepository @Inject constructor(
         val currentList = currentMap[carId] ?: emptyList()
         currentMap[carId] = updateBlock(currentList)
         cache.value = currentMap
+        saveSubCollectionsToLocalStorage()
+    }
+
+    private fun saveSubCollectionsToLocalStorage() {
+        val uid = getUidSafe()
+        repositoryScope.launch(Dispatchers.IO) {
+            try {
+                localStorageHelper.saveMileageLogs(uid, mileageLogsCache.value)
+                localStorageHelper.saveInspections(uid, inspectionsCache.value)
+                localStorageHelper.saveFuelLogs(uid, fuelLogsCache.value)
+                localStorageHelper.saveMaintenanceLogs(uid, maintenanceLogsCache.value)
+                localStorageHelper.saveInsurances(uid, insurancesCache.value)
+                localStorageHelper.saveVignettes(uid, vignettesCache.value)
+                localStorageHelper.saveTireSets(uid, tireSetsCache.value)
+            } catch (e: Exception) {
+                Log.e("CarRepository", "Error saving subcollections to local storage: ${e.message}")
+            }
+        }
     }
 
     private fun updateCarsCache(updateBlock: (List<Car>) -> List<Car>) {
@@ -671,7 +689,9 @@ class CarRepository @Inject constructor(
                 val results = snap.documents.mapNotNull { doc ->
                     try { mapper(doc) } catch (e: Exception) { null }
                 }
-                updateMapCache(cache, carId) { results }
+                if (results.isNotEmpty()) {
+                    updateMapCache(cache, carId) { results }
+                }
             } catch (e: Exception) {
                 Log.e("CarRepository", "Error fetching $collectionName for $carId: ${e.message}")
             }
@@ -748,9 +768,10 @@ fun DocumentSnapshot.toCar(): Car {
 }
 
 fun DocumentSnapshot.toMileageLog(): MileageLog {
+    val value = safeDouble("mileage", safeDouble("km", 0.0))
     return MileageLog(
         id = id,
-        km = safeDouble("km", safeDouble("mileage", 0.0)),
+        km = value,
         date = safeDate("date", Date())
     )
 }

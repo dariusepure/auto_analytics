@@ -165,8 +165,7 @@ object PdfReportGenerator {
         if (car.make.isNotBlank()) titleParts.add(car.make)
         if (car.model.isNotBlank()) titleParts.add(car.model)
         if (car.generation.isNotBlank()) titleParts.add(car.generation)
-        val engineBadge = car.engineVariant.ifBlank { car.engineSize }
-        if (engineBadge.isNotBlank()) titleParts.add(engineBadge)
+        if (car.engineVariant.isNotBlank()) titleParts.add(car.engineVariant)
 
         val title = if (titleParts.isNotEmpty()) {
             titleParts.joinToString(" ")
@@ -269,36 +268,20 @@ object PdfReportGenerator {
                 CarEquipment.ABS,
                 CarEquipment.ESP,
                 CarEquipment.ASR,
-                CarEquipment.ISOFIX,
-                CarEquipment.LANE_ASSIST,
-                CarEquipment.BLIND_SPOT,
-                CarEquipment.ADAPTIVE_CRUISE,
-                CarEquipment.EMERGENCY_BRAKE
+                CarEquipment.ISOFIX
             )
-            
+
             val safetyList = mutableListOf<Pair<String, String>>()
             if (car.airbags > 0) {
                 safetyList.add(context.getString(R.string.car_airbags_label) to car.airbags.toString())
             }
             car.equipments.filter { it in safetyIds }.forEach { id ->
-                safetyList.add(CarTranslations.getEquipmentLabel(context, id) to context.getString(R.string.status_ok))
+                safetyList.add("" to CarTranslations.getEquipmentLabel(context, id))
             }
 
             if (safetyList.isNotEmpty()) {
                 drawSectionHeader(context.getString(R.string.car_safety_section))
                 drawThreeColumns(safetyList)
-            }
-
-            // 5. Equipments
-            val equipmentList = mutableListOf<Pair<String, String>>()
-            car.equipments.filter { it !in safetyIds }.forEach { id ->
-                equipmentList.add(CarTranslations.getEquipmentLabel(context, id) to context.getString(
-                    R.string.status_ok))
-            }
-
-            if (equipmentList.isNotEmpty()) {
-                drawSectionHeader(context.getString(R.string.car_equipments_label))
-                drawThreeColumns(equipmentList)
             }
         }
 

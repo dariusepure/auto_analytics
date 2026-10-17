@@ -201,8 +201,7 @@ fun TechnicalSheetScreen(
                     if (car.make.isNotBlank()) titleParts.add(car.make)
                     if (car.model.isNotBlank()) titleParts.add(car.model)
                     if (car.generation.isNotBlank()) titleParts.add(car.generation)
-                    val engineBadge = car.engineVariant.ifBlank { car.engineSize }
-                    if (engineBadge.isNotBlank()) titleParts.add(engineBadge)
+                    if (car.engineVariant.isNotBlank()) titleParts.add(car.engineVariant)
 
                     val displayTitle = if (titleParts.isNotEmpty()) {
                         titleParts.joinToString(" ")
@@ -217,67 +216,6 @@ fun TechnicalSheetScreen(
                     )
                     
                     Spacer(modifier = Modifier.height(16.dp))
-
-                    // 1. TOP QUICK SYMBOLIC STATS GRID
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        QuickSpecCard(
-                            icon = Icons.Default.Speed,
-                            label = stringResource(R.string.car_power_label),
-                            value = powerText,
-                            modifier = Modifier.weight(1f)
-                        )
-                        QuickSpecCard(
-                            icon = Icons.Default.LocalGasStation,
-                            label = stringResource(R.string.car_fuel_type_label),
-                            value = CarTranslations.getFuelTypeLabel(context, car.fuelType),
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        QuickSpecCard(
-                            icon = Icons.Default.Settings,
-                            label = stringResource(R.string.car_gearbox_type_label),
-                            value = CarTranslations.getGearboxTypeLabel(context, car.gearboxType),
-                            modifier = Modifier.weight(1f)
-                        )
-                        QuickSpecCard(
-                            icon = CheckEngineIcon,
-                            label = stringResource(R.string.car_engine_size_label),
-                            value = car.engineSize.ifBlank { "-" },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        QuickSpecCard(
-                            icon = Icons.Default.CalendarMonth,
-                            label = stringResource(R.string.car_year_label),
-                            value = if (car.year > 0) car.year.toString() else "-",
-                            modifier = Modifier.weight(1f)
-                        )
-                        QuickSpecCard(
-                            icon = Icons.Outlined.DirectionsCar,
-                            label = stringResource(R.string.car_vehicle_type_label),
-                            value = CarTranslations.getVehicleTypeLabel(context, car.vehicleType).ifBlank { "-" },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
 
                     // 2. IDENTITY SECTION
                     TechnicalCategory(
@@ -369,59 +307,49 @@ fun TechnicalSheetScreen(
                         SpecificationCard(specItems = dimensionSpecs)
                     }
 
-                    // 5. SAFETY & EQUIPMENTS
                     val safetyIds = listOf(
                         CarEquipment.ABS,
                         CarEquipment.ESP,
                         CarEquipment.ASR,
-                        CarEquipment.ISOFIX,
-                        CarEquipment.LANE_ASSIST,
-                        CarEquipment.BLIND_SPOT,
-                        CarEquipment.ADAPTIVE_CRUISE,
-                        CarEquipment.EMERGENCY_BRAKE
+                        CarEquipment.ISOFIX
                     )
 
-                    TechnicalCategory(
-                        title = stringResource(R.string.car_safety_section),
-                        icon = Icons.Default.Security
-                    ) {
-                        val safetyEquipments = car.equipments.filter { it in safetyIds }
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            if (car.airbags > 0) {
-                                Surface(
-                                    shape = RoundedCornerShape(10.dp),
-                                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
-                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    val safetyEquipments = car.equipments.filter { it in safetyIds }
+
+                    if (car.airbags > 0 || safetyEquipments.isNotEmpty()) {
+                        TechnicalCategory(
+                            title = stringResource(R.string.car_safety_section),
+                            icon = Icons.Default.Security
+                        ) {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                if (car.airbags > 0) {
+                                    Surface(
+                                        shape = RoundedCornerShape(10.dp),
+                                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
                                     ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Security,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier.size(16.dp)
-                                        )
-                                        Text(
-                                            text = "${stringResource(R.string.car_airbags_label)}: ${car.airbags}",
-                                            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-                                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                                        )
+                                        Row(
+                                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Security,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                            Text(
+                                                text = "${stringResource(R.string.car_airbags_label)}: ${car.airbags}",
+                                                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                                            )
+                                        }
                                     }
                                 }
+                                SafetyBadgesList(equipments = safetyEquipments, context = context)
                             }
-                            EquipmentBadgesList(equipments = safetyEquipments, context = context)
                         }
-                    }
-
-                    TechnicalCategory(
-                        title = stringResource(R.string.car_equipments_label),
-                        icon = Icons.Default.CheckCircle
-                    ) {
-                        val otherEquipments = car.equipments.filter { it !in safetyIds }
-                        EquipmentBadgesList(equipments = otherEquipments, context = context)
                     }
                 }
             }
@@ -429,78 +357,13 @@ fun TechnicalSheetScreen(
     }
 }
 
-@Composable
-private fun QuickSpecCard(
-    icon: ImageVector,
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
-    ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(19.dp),
-                    tint = Color.White
-                )
-            }
-            Column {
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = value.ifBlank { "-" },
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1
-                )
-            }
-        }
-    }
-}
-
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun EquipmentBadgesList(
+private fun SafetyBadgesList(
     equipments: List<String>,
     context: Context
 ) {
-    if (equipments.isEmpty()) {
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-        ) {
-            Text(
-                text = stringResource(R.string.common_none),
-                modifier = Modifier.padding(14.dp),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
-        }
-    } else {
+    if (equipments.isNotEmpty()) {
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -534,6 +397,10 @@ private fun EquipmentBadgesList(
         }
     }
 }
+
+
+
+
 
 @Composable
 private fun TechnicalCategory(
