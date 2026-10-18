@@ -79,55 +79,6 @@ fun SettingsScreen(
     
     val snackbarHostState = remember { SnackbarHostState() }
     val context = androidx.compose.ui.platform.LocalContext.current
-    val scope = rememberCoroutineScope()
-
-    var pendingCsvContent by remember { mutableStateOf<String?>(null) }
-
-    val csvLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.CreateDocument("text/csv"),
-        onResult = { uri ->
-            uri?.let { destUri ->
-                pendingCsvContent?.let { content ->
-                    try {
-                        context.contentResolver.openOutputStream(destUri)?.use { output ->
-                            // Write UTF-8 BOM for Excel diacritics support
-                            output.write(byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte()))
-                            output.write(content.toByteArray(Charsets.UTF_8))
-                        }
-                        scope.launch {
-                            snackbarHostState.showSnackbar(context.getString(R.string.car_report_success))
-                        }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        scope.launch {
-                            snackbarHostState.showSnackbar(context.getString(R.string.car_report_failed))
-                        }
-                    }
-                }
-            }
-            pendingCsvContent = null
-        }
-    )
-
-    val importCsvLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument(),
-        onResult = { uri ->
-            uri?.let { sourceUri ->
-                try {
-                    context.contentResolver.openInputStream(sourceUri)?.use { input ->
-                        val reader = BufferedReader(InputStreamReader(input, Charsets.UTF_8))
-                        val content = reader.readText()
-                        viewModel.importDataFromCsv(content)
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    scope.launch {
-                        snackbarHostState.showSnackbar(context.getString(R.string.settings_import_failed))
-                    }
-                }
-            }
-        }
-    )
     
     LaunchedEffect(Unit) {
         viewModel.settingsEvent.collectLatest { event ->
@@ -139,14 +90,6 @@ fun SettingsScreen(
                 is SettingsEvent.AccountDeleted -> {
                     showDeleteAccountDialog = false
                     onLogout()
-                }
-                is SettingsEvent.DataExported -> {
-                    pendingCsvContent = event.csvContent
-                    val timestamp = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-                    csvLauncher.launch("Auto_Analytics_Export_$timestamp.csv")
-                }
-                is SettingsEvent.DataImported -> {
-                    snackbarHostState.showSnackbar(context.getString(R.string.settings_import_success))
                 }
                 is SettingsEvent.Error -> {
                     snackbarHostState.showSnackbar(event.message)
@@ -416,21 +359,7 @@ fun SettingsScreen(
                 }
             }
 
-            // Data Section
-            SettingsSection(title = stringResource(R.string.settings_data_backup_title)) {
-                SettingsItem(
-                    label = stringResource(R.string.settings_export_csv),
-                    icon = Icons.Default.FileDownload,
-                    onClick = { viewModel.exportDataToCsv() }
-                )
-                SettingsItem(
-                    label = stringResource(R.string.settings_import_csv),
-                    icon = Icons.Default.FileUpload,
-                    onClick = {
-                        importCsvLauncher.launch(arrayOf("text/comma-separated-values", "text/csv", "application/csv", "*/*"))
-                    }
-                )
-            }
+
 
             // Account Section
             SettingsSection(title = stringResource(R.string.settings_section_account)) {

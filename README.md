@@ -45,7 +45,7 @@
 | **Compatibility** | **Android 8.0 (API 26) and up** |
 | **UI Framework** | **Jetpack Compose** with **Material 3** |
 | **AI SDK** | **Google Generative AI SDK** (Gemini) |
-| **Local Storage** | **Offline-First Local CSV Caching** (`LocalStorageHelper`) |
+| **Local Storage** | **Offline-First Local File Persistence** (`LocalStorageHelper`) |
 | **Cloud Backend** | **Firebase** (Firestore, Auth, Storage, Cloud Messaging, Remote Config, Crashlytics) |
 | **Networking** | **Ktor Client** |
 | **Architecture** | **MVVM** + Clean Architecture + Hilt DI |

@@ -694,12 +694,6 @@
     <string name="settings_inspection_alerts">Inspection Alerts</string>
     <string name="settings_insurance_alerts">Insurance Alerts</string>
     <string name="settings_vignette_alerts">Vignette Alerts</string>
-    <string name="settings_data_backup_title">Data &amp; Backup</string>
-    <string name="settings_export_csv">Export History (CSV)</string>
-    <string name="settings_import_csv">Import History (CSV)</string>
-    <string name="settings_import_success">History imported successfully!</string>
-    <string name="settings_import_failed">Failed to import history.</string>
-    <string name="settings_export_data">Export Data</string>
     <string name="settings_about_title">About</string>
     <string name="offline_banner_message">You are offline. Data will be synchronized when you reconnect.</string>
 

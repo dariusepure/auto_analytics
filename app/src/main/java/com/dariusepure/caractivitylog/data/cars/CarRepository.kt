@@ -240,69 +240,77 @@ class CarRepository @Inject constructor(
             val localCars = carsCache.value
             for (car in localCars) {
                 if (car.id.isNotBlank()) {
-                    val remoteCar = car.toRemote().copy(userId = uid)
-                    firestore.collection("users").document(uid)
-                        .collection("cars").document(car.id)
-                        .set(remoteCar).await()
-
-                    updateCarsCache { list ->
-                        list.map { if (it.id == car.id) it.copy(isPendingSync = false) else it }
-                    }
-
-                    // Push Mileage Logs
-                    (mileageLogsCache.value[car.id] ?: emptyList()).forEach { item ->
-                        val dto = item.toRemote().copy(carId = car.id)
+                    try {
+                        val remoteCar = car.toRemote().copy(userId = uid)
                         firestore.collection("users").document(uid)
                             .collection("cars").document(car.id)
-                            .collection("mileage_logs").document(dto.id).set(dto).await()
+                            .set(remoteCar).await()
+
+                        updateCarsCache { list ->
+                            list.map { if (it.id == car.id) it.copy(isPendingSync = false) else it }
+                        }
+                    } catch (e: Exception) {
+                        Log.e("CarRepository", "Failed to push car ${car.id}: ${e.message}")
                     }
 
-                    // Push Fuel Logs
-                    (fuelLogsCache.value[car.id] ?: emptyList()).forEach { item ->
-                        val dto = item.toRemote().copy(carId = car.id)
-                        firestore.collection("users").document(uid)
-                            .collection("cars").document(car.id)
-                            .collection("fuel_logs").document(dto.id).set(dto).await()
-                    }
+                    try {
+                        // Push Mileage Logs
+                        (mileageLogsCache.value[car.id] ?: emptyList()).forEach { item ->
+                            val dto = item.toRemote().copy(carId = car.id)
+                            firestore.collection("users").document(uid)
+                                .collection("cars").document(car.id)
+                                .collection("mileage_logs").document(dto.id).set(dto).await()
+                        }
 
-                    // Push Maintenance Logs
-                    (maintenanceLogsCache.value[car.id] ?: emptyList()).forEach { item ->
-                        val dto = item.toRemote().copy(carId = car.id)
-                        firestore.collection("users").document(uid)
-                            .collection("cars").document(car.id)
-                            .collection("maintenance_logs").document(dto.id).set(dto).await()
-                    }
+                        // Push Fuel Logs
+                        (fuelLogsCache.value[car.id] ?: emptyList()).forEach { item ->
+                            val dto = item.toRemote().copy(carId = car.id)
+                            firestore.collection("users").document(uid)
+                                .collection("cars").document(car.id)
+                                .collection("fuel_logs").document(dto.id).set(dto).await()
+                        }
 
-                    // Push Inspections
-                    (inspectionsCache.value[car.id] ?: emptyList()).forEach { item ->
-                        val dto = item.toRemote().copy(carId = car.id)
-                        firestore.collection("users").document(uid)
-                            .collection("cars").document(car.id)
-                            .collection("inspections").document(dto.id).set(dto).await()
-                    }
+                        // Push Maintenance Logs
+                        (maintenanceLogsCache.value[car.id] ?: emptyList()).forEach { item ->
+                            val dto = item.toRemote().copy(carId = car.id)
+                            firestore.collection("users").document(uid)
+                                .collection("cars").document(car.id)
+                                .collection("maintenance_logs").document(dto.id).set(dto).await()
+                        }
 
-                    // Push Insurances
-                    (insurancesCache.value[car.id] ?: emptyList()).forEach { item ->
-                        val dto = item.toRemote().copy(carId = car.id)
-                        firestore.collection("users").document(uid)
-                            .collection("cars").document(car.id)
-                            .collection("insurances").document(dto.id).set(dto).await()
-                    }
+                        // Push Inspections
+                        (inspectionsCache.value[car.id] ?: emptyList()).forEach { item ->
+                            val dto = item.toRemote().copy(carId = car.id)
+                            firestore.collection("users").document(uid)
+                                .collection("cars").document(car.id)
+                                .collection("inspections").document(dto.id).set(dto).await()
+                        }
 
-                    // Push Vignettes
-                    (vignettesCache.value[car.id] ?: emptyList()).forEach { item ->
-                        val dto = item.toRemote().copy(carId = car.id)
-                        firestore.collection("users").document(uid)
-                            .collection("cars").document(car.id)
-                            .collection("vignettes").document(dto.id).set(dto).await()
-                    }
+                        // Push Insurances
+                        (insurancesCache.value[car.id] ?: emptyList()).forEach { item ->
+                            val dto = item.toRemote().copy(carId = car.id)
+                            firestore.collection("users").document(uid)
+                                .collection("cars").document(car.id)
+                                .collection("insurances").document(dto.id).set(dto).await()
+                        }
 
-                    // Push Tire Sets
-                    (tireSetsCache.value[car.id] ?: emptyList()).forEach { item ->
-                        val dto = item.toRemote().copy(carId = car.id)
-                        firestore.collection("users").document(uid)
-                            .collection("cars").document(car.id)
-                            .collection("tire_sets").document(dto.id).set(dto).await()
+                        // Push Vignettes
+                        (vignettesCache.value[car.id] ?: emptyList()).forEach { item ->
+                            val dto = item.toRemote().copy(carId = car.id)
+                            firestore.collection("users").document(uid)
+                                .collection("cars").document(car.id)
+                                .collection("vignettes").document(dto.id).set(dto).await()
+                        }
+
+                        // Push Tire Sets
+                        (tireSetsCache.value[car.id] ?: emptyList()).forEach { item ->
+                            val dto = item.toRemote().copy(carId = car.id)
+                            firestore.collection("users").document(uid)
+                                .collection("cars").document(car.id)
+                                .collection("tire_sets").document(dto.id).set(dto).await()
+                        }
+                    } catch (e: Exception) {
+                        Log.e("CarRepository", "Failed to push subcollections for ${car.id}: ${e.message}")
                     }
                 }
             }
