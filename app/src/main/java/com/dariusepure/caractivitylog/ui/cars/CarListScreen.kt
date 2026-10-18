@@ -37,6 +37,8 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.CloudDone
+import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Eco
@@ -90,40 +92,23 @@ import com.dariusepure.caractivitylog.ui.common.shimmer
  * Status indicator badge for cloud sync state.
  */
 @Composable
-fun SyncStatusBadge(isPendingSync: Boolean, modifier: Modifier = Modifier) {
+fun SyncStatusBadge(isPendingSync: Boolean, modifier: Modifier = Modifier, isGuestMode: Boolean = false) {
+    if (isGuestMode && !isPendingSync) return
     if (isPendingSync) {
-        val infiniteTransition = rememberInfiniteTransition(label = "sync_rotation")
-        val rotation by infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = 360f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(1500, easing = LinearEasing),
-                repeatMode = RepeatMode.Restart
-            ),
-            label = "rotation"
-        )
         Surface(
-            color = Color(0xFF2196F3).copy(alpha = 0.12f),
-            shape = RoundedCornerShape(12.dp),
+            color = Color(0xFFFF9800).copy(alpha = 0.15f),
+            shape = CircleShape,
             modifier = modifier
         ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            Box(
+                modifier = Modifier.padding(5.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Sync,
+                    imageVector = Icons.Default.CloudSync,
                     contentDescription = stringResource(R.string.sync_in_progress),
-                    modifier = Modifier
-                        .size(13.dp)
-                        .graphicsLayer { rotationZ = rotation },
-                    tint = Color(0xFF2196F3)
-                )
-                Text(
-                    text = stringResource(R.string.sync_status_syncing),
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, fontWeight = FontWeight.Bold),
-                    color = Color(0xFF2196F3)
+                    modifier = Modifier.size(15.dp),
+                    tint = Color(0xFFF57C00)
                 )
             }
         }
@@ -138,7 +123,7 @@ fun SyncStatusBadge(isPendingSync: Boolean, modifier: Modifier = Modifier) {
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.CheckCircle,
+                    imageVector = Icons.Default.CloudDone,
                     contentDescription = stringResource(R.string.sync_status_synced),
                     modifier = Modifier.size(15.dp),
                     tint = Color(0xFF10B981)
@@ -157,6 +142,7 @@ fun CarCard(
     onClick: () -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
+    isGuestMode: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -259,7 +245,7 @@ fun CarCard(
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.weight(1f, fill = false)
                             )
-                            SyncStatusBadge(isPendingSync = car.isPendingSync)
+                            SyncStatusBadge(isPendingSync = car.isPendingSync, isGuestMode = isGuestMode)
                         }
 
                         Spacer(Modifier.width(8.dp))
@@ -369,6 +355,7 @@ fun CarListScreen(
     val sortOrder by viewModel.sortOrder.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
+    val isGuestMode by viewModel.isGuestMode.collectAsStateWithLifecycle()
     val haptic = LocalHapticFeedback.current
 
     val onDeleteCarLambda = remember(viewModel, haptic) {
@@ -399,6 +386,7 @@ fun CarListScreen(
         state = state,
         isRefreshing = isRefreshing,
         onRefresh = { viewModel.refresh() },
+        isGuestMode = isGuestMode,
         modifier = modifier
     )
 }
@@ -418,6 +406,7 @@ private fun InnerCarListScreen(
     state: CarListUiState,
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
+    isGuestMode: Boolean,
     modifier: Modifier = Modifier,
 ) {
     var sortMenuExpanded by remember { mutableStateOf(false) }
@@ -677,7 +666,8 @@ private fun InnerCarListScreen(
                                     car = car,
                                     onClick = { onCarClick(car.id) },
                                     onEditClick = { onEditCarClick(car.id) },
-                                    onDeleteClick = { carToDelete = car.id }
+                                    onDeleteClick = { carToDelete = car.id },
+                                    isGuestMode = isGuestMode
                                 )
                             }
                             item(contentType = { "spacer" }) {

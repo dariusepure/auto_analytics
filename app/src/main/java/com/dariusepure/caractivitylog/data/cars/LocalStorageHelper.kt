@@ -57,7 +57,8 @@ class LocalStorageHelper @Inject constructor(
                         color = parts[15],
                         emissionStandard = parts[16],
                         generation = parts[17].replace(";", ","),
-                        engineVariant = parts[18].replace(";", ",")
+                        engineVariant = parts[18].replace(";", ","),
+                        isPendingSync = parts.getOrNull(19)?.toBooleanStrictOrNull() ?: false
                     )
                     list.add(car)
                 }
@@ -72,14 +73,14 @@ class LocalStorageHelper @Inject constructor(
         val file = getFile("cars", userId)
         try {
             val sb = StringBuilder()
-            sb.append("id,name,licensePlate,plateCountry,make,model,vin,year,engineSize,fuelType,power,powerUnit,vehicleType,gearboxType,drivetrain,color,emissionStandard,generation,engineVariant\n")
+            sb.append("id,name,licensePlate,plateCountry,make,model,vin,year,engineSize,fuelType,power,powerUnit,vehicleType,gearboxType,drivetrain,color,emissionStandard,generation,engineVariant,isPendingSync\n")
             cars.forEach { item ->
                 val cleanName = item.name.replace(",", ";")
                 val cleanMake = item.make.replace(",", ";")
                 val cleanModel = item.model.replace(",", ";")
                 val cleanGen = item.generation.replace(",", ";")
                 val cleanVar = item.engineVariant.replace(",", ";")
-                sb.append("${item.id},$cleanName,${item.licensePlate},${item.plateCountry},$cleanMake,$cleanModel,${item.vin},${item.year},${item.engineSize},${item.fuelType},${item.power},${item.powerUnit},${item.vehicleType},${item.gearboxType},${item.drivetrain},${item.color},${item.emissionStandard},$cleanGen,$cleanVar\n")
+                sb.append("${item.id},$cleanName,${item.licensePlate},${item.plateCountry},$cleanMake,$cleanModel,${item.vin},${item.year},${item.engineSize},${item.fuelType},${item.power},${item.powerUnit},${item.vehicleType},${item.gearboxType},${item.drivetrain},${item.color},${item.emissionStandard},$cleanGen,$cleanVar,${item.isPendingSync}\n")
             }
             file.writeText(sb.toString())
         } catch (e: Exception) {

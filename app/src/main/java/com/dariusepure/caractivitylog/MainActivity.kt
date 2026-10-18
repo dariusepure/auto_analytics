@@ -24,6 +24,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -116,7 +117,7 @@ class MainActivity : AppCompatActivity() {
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
-                                        text = "Ești offline. Datele vor fi sincronizate când te reconectezi.",
+                                        text = stringResource(R.string.offline_banner_message),
                                         color = Color.White,
                                         fontSize = 12.sp,
                                         textAlign = TextAlign.Center

@@ -702,6 +702,7 @@
     <string name="settings_import_failed">Eroare la importul istoricului.</string>
     <string name="settings_export_data">Exportă datele</string>
     <string name="settings_about_title">Despre</string>
+    <string name="offline_banner_message">Ești offline. Datele vor fi sincronizate când te reconectezi.</string>
 
     <!-- Notifications -->
     <string name="notification_warning_title">Atenție: %s expiră!</string>

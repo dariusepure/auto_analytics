@@ -27,6 +27,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import com.dariusepure.caractivitylog.util.NetworkMonitor
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -46,7 +47,8 @@ import javax.inject.Singleton
 class CarRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val authRepository: AuthRepository,
-    private val localStorageHelper: LocalStorageHelper
+    private val localStorageHelper: LocalStorageHelper,
+    private val networkMonitor: NetworkMonitor
 ) {
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -89,7 +91,20 @@ class CarRepository @Inject constructor(
                     switchUserCache(activeUid)
                 }
                 if (uid != null && uid != "guest" && uid != AuthRepository.GUEST_UID) {
+                    pushLocalDataToRemote(uid)
                     syncAllAccountData(uid)
+                }
+            }
+        }
+
+        repositoryScope.launch {
+            networkMonitor.isOnline.collect { online ->
+                if (online) {
+                    val uid = getUidSafe()
+                    if (uid != "guest" && uid != AuthRepository.GUEST_UID) {
+                        pushLocalDataToRemote(uid)
+                        syncAllAccountData(uid)
+                    }
                 }
             }
         }
@@ -173,6 +188,7 @@ class CarRepository @Inject constructor(
             try {
                 val email = authRepository.currentUserEmail
                 authRepository.ensureProfileExists(uid, email ?: "")
+                pushLocalDataToRemote(uid)
             } catch (e: Exception) {}
         }
 
@@ -199,18 +215,100 @@ class CarRepository @Inject constructor(
                         }
                     }
 
-                    carsCache.value = allRemoteCars
+                    val currentLocal = carsCache.value
+                    val remoteIds = allRemoteCars.map { it.id }.toSet()
+                    val localOnly = currentLocal.filterNot { it.id in remoteIds }
+                    val mergedCars = allRemoteCars + localOnly
+
+                    carsCache.value = mergedCars
                     repositoryScope.launch(Dispatchers.IO) {
                         try {
-                            localStorageHelper.saveCars(uid, allRemoteCars)
+                            localStorageHelper.saveCars(uid, mergedCars)
                         } catch (e: Exception) {}
                     }
 
-                    allRemoteCars.forEach { car ->
+                    mergedCars.forEach { car ->
                         fetchCarLogs(uid, car.id, carDocRefs[car.id] ?: firestore.collection("users").document(uid).collection("cars").document(car.id))
                     }
                 }
             }
+    }
+
+    private suspend fun pushLocalDataToRemote(uid: String) {
+        if (uid.isBlank() || uid == "guest" || uid == AuthRepository.GUEST_UID) return
+        try {
+            val localCars = carsCache.value
+            for (car in localCars) {
+                if (car.id.isNotBlank()) {
+                    val remoteCar = car.toRemote().copy(userId = uid)
+                    firestore.collection("users").document(uid)
+                        .collection("cars").document(car.id)
+                        .set(remoteCar).await()
+
+                    updateCarsCache { list ->
+                        list.map { if (it.id == car.id) it.copy(isPendingSync = false) else it }
+                    }
+
+                    // Push Mileage Logs
+                    (mileageLogsCache.value[car.id] ?: emptyList()).forEach { item ->
+                        val dto = item.toRemote().copy(carId = car.id)
+                        firestore.collection("users").document(uid)
+                            .collection("cars").document(car.id)
+                            .collection("mileage_logs").document(dto.id).set(dto).await()
+                    }
+
+                    // Push Fuel Logs
+                    (fuelLogsCache.value[car.id] ?: emptyList()).forEach { item ->
+                        val dto = item.toRemote().copy(carId = car.id)
+                        firestore.collection("users").document(uid)
+                            .collection("cars").document(car.id)
+                            .collection("fuel_logs").document(dto.id).set(dto).await()
+                    }
+
+                    // Push Maintenance Logs
+                    (maintenanceLogsCache.value[car.id] ?: emptyList()).forEach { item ->
+                        val dto = item.toRemote().copy(carId = car.id)
+                        firestore.collection("users").document(uid)
+                            .collection("cars").document(car.id)
+                            .collection("maintenance_logs").document(dto.id).set(dto).await()
+                    }
+
+                    // Push Inspections
+                    (inspectionsCache.value[car.id] ?: emptyList()).forEach { item ->
+                        val dto = item.toRemote().copy(carId = car.id)
+                        firestore.collection("users").document(uid)
+                            .collection("cars").document(car.id)
+                            .collection("inspections").document(dto.id).set(dto).await()
+                    }
+
+                    // Push Insurances
+                    (insurancesCache.value[car.id] ?: emptyList()).forEach { item ->
+                        val dto = item.toRemote().copy(carId = car.id)
+                        firestore.collection("users").document(uid)
+                            .collection("cars").document(car.id)
+                            .collection("insurances").document(dto.id).set(dto).await()
+                    }
+
+                    // Push Vignettes
+                    (vignettesCache.value[car.id] ?: emptyList()).forEach { item ->
+                        val dto = item.toRemote().copy(carId = car.id)
+                        firestore.collection("users").document(uid)
+                            .collection("cars").document(car.id)
+                            .collection("vignettes").document(dto.id).set(dto).await()
+                    }
+
+                    // Push Tire Sets
+                    (tireSetsCache.value[car.id] ?: emptyList()).forEach { item ->
+                        val dto = item.toRemote().copy(carId = car.id)
+                        firestore.collection("users").document(uid)
+                            .collection("cars").document(car.id)
+                            .collection("tire_sets").document(dto.id).set(dto).await()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("CarRepository", "Error pushing local data to remote: ${e.message}")
+        }
     }
 
     private fun fetchCarLogs(uid: String, carId: String, carDocRef: DocumentReference) {
@@ -218,31 +316,66 @@ class CarRepository @Inject constructor(
             try {
                 val insSnap = carDocRef.collection("inspections").get().await()
                 val ins = insSnap.documents.mapNotNull { it.toVehicleInspection() }.sortedByDescending { it.date }
-                if (ins.isNotEmpty()) updateMapCache(inspectionsCache, carId) { ins }
+                if (ins.isNotEmpty()) {
+                    updateMapCache(inspectionsCache, carId) { local ->
+                        val remoteIds = ins.map { it.id }.toSet()
+                        (ins + local.filterNot { it.id in remoteIds }).sortedByDescending { it.date }
+                    }
+                }
 
                 val fuelSnap = carDocRef.collection("fuel_logs").get().await()
                 val fuels = fuelSnap.documents.mapNotNull { it.toFuelLog() }.sortedByDescending { it.date }
-                if (fuels.isNotEmpty()) updateMapCache(fuelLogsCache, carId) { fuels }
+                if (fuels.isNotEmpty()) {
+                    updateMapCache(fuelLogsCache, carId) { local ->
+                        val remoteIds = fuels.map { it.id }.toSet()
+                        (fuels + local.filterNot { it.id in remoteIds }).sortedByDescending { it.date }
+                    }
+                }
 
                 val maintSnap = carDocRef.collection("maintenance_logs").get().await()
                 val maint = maintSnap.documents.mapNotNull { it.toMaintenance() }.sortedByDescending { it.date }
-                if (maint.isNotEmpty()) updateMapCache(maintenanceLogsCache, carId) { maint }
+                if (maint.isNotEmpty()) {
+                    updateMapCache(maintenanceLogsCache, carId) { local ->
+                        val remoteIds = maint.map { it.id }.toSet()
+                        (maint + local.filterNot { it.id in remoteIds }).sortedByDescending { it.date }
+                    }
+                }
 
                 val mileageSnap = carDocRef.collection("mileage_logs").get().await()
                 val mileage = mileageSnap.documents.mapNotNull { it.toMileageLog() }.sortedByDescending { it.date }
-                if (mileage.isNotEmpty()) updateMapCache(mileageLogsCache, carId) { mileage }
+                if (mileage.isNotEmpty()) {
+                    updateMapCache(mileageLogsCache, carId) { local ->
+                        val remoteIds = mileage.map { it.id }.toSet()
+                        (mileage + local.filterNot { it.id in remoteIds }).sortedByDescending { it.date }
+                    }
+                }
 
                 val insuSnap = carDocRef.collection("insurances").get().await()
                 val insu = insuSnap.documents.mapNotNull { it.toInsurance() }.sortedByDescending { it.date }
-                if (insu.isNotEmpty()) updateMapCache(insurancesCache, carId) { insu }
+                if (insu.isNotEmpty()) {
+                    updateMapCache(insurancesCache, carId) { local ->
+                        val remoteIds = insu.map { it.id }.toSet()
+                        (insu + local.filterNot { it.id in remoteIds }).sortedByDescending { it.date }
+                    }
+                }
 
                 val vigSnap = carDocRef.collection("vignettes").get().await()
                 val vig = vigSnap.documents.mapNotNull { it.toVignette() }.sortedByDescending { it.date }
-                if (vig.isNotEmpty()) updateMapCache(vignettesCache, carId) { vig }
+                if (vig.isNotEmpty()) {
+                    updateMapCache(vignettesCache, carId) { local ->
+                        val remoteIds = vig.map { it.id }.toSet()
+                        (vig + local.filterNot { it.id in remoteIds }).sortedByDescending { it.date }
+                    }
+                }
 
                 val tiresSnap = carDocRef.collection("tire_sets").get().await()
                 val tires = tiresSnap.documents.mapNotNull { it.toTireSet() }.sortedByDescending { it.isActive }
-                if (tires.isNotEmpty()) updateMapCache(tireSetsCache, carId) { tires }
+                if (tires.isNotEmpty()) {
+                    updateMapCache(tireSetsCache, carId) { local ->
+                        val remoteIds = tires.map { it.id }.toSet()
+                        (tires + local.filterNot { it.id in remoteIds }).sortedByDescending { it.isActive }
+                    }
+                }
             } catch (e: Exception) {
                 Log.e("CarRepository", "Error fetching logs for $carId: ${e.message}")
             }
@@ -252,7 +385,10 @@ class CarRepository @Inject constructor(
     fun refresh() {
         val uid = getUidSafe()
         if (uid != "guest" && uid != AuthRepository.GUEST_UID) {
-            syncAllAccountData(uid)
+            repositoryScope.launch(Dispatchers.IO) {
+                pushLocalDataToRemote(uid)
+                syncAllAccountData(uid)
+            }
         }
     }
 
@@ -264,17 +400,24 @@ class CarRepository @Inject constructor(
         val item = if (car.id.isBlank()) car.copy(id = UUID.randomUUID().toString()) else car
         val uid = getUidSafe()
 
-        updateCarsCache { list -> (list.filterNot { it.id == item.id } + item) }
+        val isCloudUser = uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID
+        val localItem = item.copy(isPendingSync = isCloudUser)
 
-        if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
+        updateCarsCache { list -> (list.filterNot { it.id == localItem.id } + localItem) }
+
+        if (isCloudUser) {
             repositoryScope.launch(Dispatchers.IO) {
                 try {
                     val email = authRepository.currentUserEmail ?: ""
                     authRepository.ensureProfileExists(uid, email)
 
-                    val remoteCar = item.toRemote().copy(userId = uid)
+                    val remoteCar = localItem.toRemote().copy(userId = uid)
                     firestore.collection("users").document(uid).collection("cars").document(remoteCar.id).set(remoteCar).await()
                     Log.d("CarRepository", "createCar saved to Firebase successfully")
+
+                    updateCarsCache { list ->
+                        list.map { if (it.id == localItem.id) it.copy(isPendingSync = false) else it }
+                    }
                 } catch (e: Exception) {
                     Log.e("CarRepository", "Error saving car to Firebase: ${e.message}", e)
                 }

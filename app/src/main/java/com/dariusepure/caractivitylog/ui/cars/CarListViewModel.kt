@@ -42,6 +42,9 @@ class CarListViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
 
+    val isGuestMode: StateFlow<Boolean> = authRepository.isAnonymousFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), authRepository.isCurrentlyGuest || authRepository.isAnonymous)
+
     val state: StateFlow<CarListUiState> = combine(
         carRepository.cars,
         _sortOrder,

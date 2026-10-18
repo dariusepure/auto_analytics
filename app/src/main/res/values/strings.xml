@@ -701,6 +701,7 @@
     <string name="settings_import_failed">Failed to import history.</string>
     <string name="settings_export_data">Export Data</string>
     <string name="settings_about_title">About</string>
+    <string name="offline_banner_message">You are offline. Data will be synchronized when you reconnect.</string>
 
     <!-- Notifications -->
     <string name="notification_warning_title">Warning: %s is expiring!</string>
