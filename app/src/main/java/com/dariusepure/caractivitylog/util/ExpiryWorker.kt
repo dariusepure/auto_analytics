@@ -39,7 +39,7 @@ class ExpiryWorker @AssistedInject constructor(
                 // Check Inspections
                 if (notifyItp) {
                     val inspections = carRepository.getInspections(car.id).first()
-                    inspections.firstOrNull()?.let { inspection ->
+                    inspections.maxByOrNull { it.date }?.let { inspection ->
                         checkAndNotify(car.displayName, itpLabel, inspection.expiryDate, now)
                     }
                 }
@@ -47,7 +47,7 @@ class ExpiryWorker @AssistedInject constructor(
                 // Check Insurances
                 if (notifyInsurance) {
                     val insurances = carRepository.getInsurances(car.id).first()
-                    insurances.firstOrNull()?.let { insurance ->
+                    insurances.maxByOrNull { it.date }?.let { insurance ->
                         checkAndNotify(car.displayName, insuranceLabel, insurance.expiryDate, now)
                     }
                 }
@@ -55,7 +55,7 @@ class ExpiryWorker @AssistedInject constructor(
                 // Check Vignettes
                 if (notifyVignette) {
                     val vignettes = carRepository.getVignettes(car.id).first()
-                    vignettes.firstOrNull()?.let { vignette ->
+                    vignettes.maxByOrNull { it.date }?.let { vignette ->
                         checkAndNotify(car.displayName, vignetteLabel, vignette.expiryDate, now)
                     }
                 }

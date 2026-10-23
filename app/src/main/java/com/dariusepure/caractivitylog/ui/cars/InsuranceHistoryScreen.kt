@@ -196,7 +196,8 @@ fun AddInsuranceDialog(
         context,
         { _, year, month, dayOfMonth ->
             val newCalendar = Calendar.getInstance()
-            newCalendar.set(year, month, dayOfMonth)
+            newCalendar.set(year, month, dayOfMonth, 12, 0, 0)
+            newCalendar.set(Calendar.MILLISECOND, 0)
             selectedDate = newCalendar.time
         },
         calendar.get(Calendar.YEAR),

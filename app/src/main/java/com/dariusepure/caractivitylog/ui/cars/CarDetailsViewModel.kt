@@ -22,6 +22,7 @@ import com.dariusepure.caractivitylog.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import android.content.Context
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -74,7 +75,10 @@ class CarDetailsViewModel @Inject constructor(
     
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
 
+    private var loadJob: Job? = null
+
     fun loadCarData(carId: String) {
+        loadJob?.cancel()
         val cachedCar = carRepository.getCarsFromCache().find { it.id == carId }
         if (cachedCar != null) {
             _state.value = CarDetailsUiState.Success(
@@ -92,7 +96,7 @@ class CarDetailsViewModel @Inject constructor(
             _state.value = CarDetailsUiState.Loading
         }
 
-        viewModelScope.launch {
+        loadJob = viewModelScope.launch {
             try {
                 val carFlow = carRepository.getCarFlow(carId)
                 val mileageFlow = carRepository.getMileageLogs(carId)

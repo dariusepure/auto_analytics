@@ -47,7 +47,8 @@ object PdfReportGenerator {
         reportType: ReportType = ReportType.FULL
     ) {
         val pdfDocument = PdfDocument()
-        var pageNumber = 1
+        try {
+            var pageNumber = 1
         
         val currentLocale = context.resources.configuration.locales[0] ?: Locale.getDefault()
         val dateFormat = SimpleDateFormat("dd MMM yyyy", currentLocale)
@@ -421,6 +422,8 @@ object PdfReportGenerator {
         drawFooter(canvas, pageNumber)
         pdfDocument.finishPage(currentPage)
         pdfDocument.writeTo(outputStream)
-        pdfDocument.close()
+        } finally {
+            pdfDocument.close()
+        }
     }
 }

@@ -76,11 +76,22 @@ class LocalStorageHelper @Inject constructor(
             sb.append("id,name,licensePlate,plateCountry,make,model,vin,year,engineSize,fuelType,power,powerUnit,vehicleType,gearboxType,drivetrain,color,emissionStandard,generation,engineVariant,isPendingSync\n")
             cars.forEach { item ->
                 val cleanName = item.name.replace(",", ";")
+                val cleanPlate = item.licensePlate.replace(",", ";")
+                val cleanCountry = item.plateCountry.replace(",", ";")
                 val cleanMake = item.make.replace(",", ";")
                 val cleanModel = item.model.replace(",", ";")
+                val cleanVin = item.vin.replace(",", ";")
+                val cleanEngineSize = item.engineSize.replace(",", ";")
+                val cleanFuel = item.fuelType.replace(",", ";")
+                val cleanPowerUnit = item.powerUnit.replace(",", ";")
+                val cleanVehicleType = item.vehicleType.replace(",", ";")
+                val cleanGearbox = item.gearboxType.replace(",", ";")
+                val cleanDrivetrain = item.drivetrain.replace(",", ";")
+                val cleanColor = item.color.replace(",", ";")
+                val cleanEmission = item.emissionStandard.replace(",", ";")
                 val cleanGen = item.generation.replace(",", ";")
                 val cleanVar = item.engineVariant.replace(",", ";")
-                sb.append("${item.id},$cleanName,${item.licensePlate},${item.plateCountry},$cleanMake,$cleanModel,${item.vin},${item.year},${item.engineSize},${item.fuelType},${item.power},${item.powerUnit},${item.vehicleType},${item.gearboxType},${item.drivetrain},${item.color},${item.emissionStandard},$cleanGen,$cleanVar,${item.isPendingSync}\n")
+                sb.append("${item.id},$cleanName,$cleanPlate,$cleanCountry,$cleanMake,$cleanModel,$cleanVin,${item.year},$cleanEngineSize,$cleanFuel,${item.power},$cleanPowerUnit,$cleanVehicleType,$cleanGearbox,$cleanDrivetrain,$cleanColor,$cleanEmission,$cleanGen,$cleanVar,${item.isPendingSync}\n")
             }
             file.writeText(sb.toString())
         } catch (e: Exception) {
@@ -209,7 +220,8 @@ class LocalStorageHelper @Inject constructor(
             allMap.forEach { (carId, list) ->
                 list.forEach { item ->
                     val cleanDesc = item.description.replace(",", ";")
-                    sb.append("${item.id},$carId,${item.date.time},${item.km},$cleanDesc,${item.mileageLogId},${item.category}\n")
+                    val cleanCategory = item.category.replace(",", ";")
+                    sb.append("${item.id},$carId,${item.date.time},${item.km},$cleanDesc,${item.mileageLogId},$cleanCategory\n")
                 }
             }
             file.writeText(sb.toString())
@@ -334,7 +346,8 @@ class LocalStorageHelper @Inject constructor(
             sb.append("id,carId,date,durationValue,durationUnit,country\n")
             allMap.forEach { (carId, list) ->
                 list.forEach { item ->
-                    sb.append("${item.id},$carId,${item.date.time},${item.durationValue},${item.durationUnit.name},${item.country}\n")
+                    val cleanCountry = item.country.replace(",", ";")
+                    sb.append("${item.id},$carId,${item.date.time},${item.durationValue},${item.durationUnit.name},$cleanCountry\n")
                 }
             }
             file.writeText(sb.toString())
