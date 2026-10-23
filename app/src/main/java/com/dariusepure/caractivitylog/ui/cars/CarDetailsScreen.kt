@@ -171,521 +171,186 @@ fun CarDetailsScreen(
                         Spacer(Modifier.height(4.dp))
                     }
 
-                    // Bento Rows
-                    val isExpanded = windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Expanded
+                    // Menu Items - One per row
+                    item {
+                        CarDetailRowItem(
+                            title = stringResource(R.string.car_technical_sheet),
+                            icon = Icons.Default.Description,
+                            onClick = onTechnicalSheetClick,
+                            containerColor = carAccentColor.copy(alpha = 0.15f),
+                            contentColor = carAccentColor
+                        )
+                    }
 
-                    if (isExpanded) {
-                        item {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(120.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                BentoCard(
-                                    onClick = onTechnicalSheetClick,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
-                                ) {
-                                    Icon(
-                                        Icons.Default.Description,
-                                        null,
-                                        modifier = Modifier.size(48.dp),
-                                        tint = carAccentColor
-                                    )
-                                    Spacer(Modifier.height(8.dp))
-                                    Text(
-                                        text = stringResource(R.string.car_technical_sheet),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        softWrap = true,
-                                        maxLines = 2
-                                    )
-                                }
-                                BentoCard(
-                                    onClick = onMileageClick,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            Icons.Default.Speed,
-                                            null,
-                                            modifier = Modifier.size(48.dp),
-                                            tint = carAccentColor
-                                        )
-                                        Icon(
-                                            Icons.Default.Add,
-                                            null,
-                                            modifier = Modifier.size(20.dp),
-                                            tint = carAccentColor
-                                        )
-                                    }
-                                    Spacer(Modifier.height(8.dp))
-                                    Text(
-                                        text = stringResource(R.string.car_mileage_history),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        softWrap = true,
-                                        maxLines = 2
-                                    )
-                                }
-                                BentoCard(
-                                    onClick = onInspectionClick,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    containerColor = inspectionColor.copy(alpha = 0.15f),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Icon(
-                                        Icons.Default.AssignmentTurnedIn,
-                                        null,
-                                        modifier = Modifier.size(48.dp),
-                                        tint = inspectionColor
-                                    )
-                                    Spacer(Modifier.height(8.dp))
-                                    Text(
-                                        text = stringResource(R.string.car_inspection_title),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                    StatusBadge(
-                                        label = stringResource(inspectionLabelRes),
-                                        color = inspectionColor
-                                    )
-                                }
-                            }
-                        }
-                        item {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(120.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                BentoCard(
-                                    onClick = onInsuranceClick,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    containerColor = insuranceColor.copy(alpha = 0.15f),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Icon(
-                                        Icons.Default.Security,
-                                        null,
-                                        modifier = Modifier.size(48.dp),
-                                        tint = insuranceColor
-                                    )
-                                    Spacer(Modifier.height(8.dp))
-                                    Text(
-                                        text = stringResource(R.string.car_insurance_title),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                    StatusBadge(
-                                        label = stringResource(insuranceLabelRes),
-                                        color = insuranceColor
-                                    )
-                                }
-                                BentoCard(
-                                    onClick = onVignetteClick,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    containerColor = vignetteColor.copy(alpha = 0.15f),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Icon(
-                                        Icons.Default.ConfirmationNumber,
-                                        null,
-                                        modifier = Modifier.size(48.dp),
-                                        tint = vignetteColor
-                                    )
-                                    Spacer(Modifier.height(8.dp))
-                                    Text(
-                                        text = stringResource(R.string.car_vignette_title),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                    StatusBadge(
-                                        label = stringResource(vignetteLabelRes),
-                                        color = vignetteColor
-                                    )
-                                }
-                                BentoCard(
-                                    onClick = onFuelClick,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
-                                ) {
-                                    Icon(
-                                        Icons.Default.LocalGasStation,
-                                        null,
-                                        modifier = Modifier.size(48.dp),
-                                        tint = carAccentColor
-                                    )
-                                    Spacer(Modifier.height(8.dp))
-                                    Text(
-                                        text = stringResource(R.string.car_fuel_consumption),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        softWrap = true,
-                                        maxLines = 2
-                                    )
-                                }
-                            }
-                        }
-                        item {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(120.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                BentoCard(
-                                    onClick = onServiceClick,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
-                                ) {
-                                    Icon(
-                                        Icons.Default.Build,
-                                        null,
-                                        modifier = Modifier.size(48.dp),
-                                        tint = carAccentColor
-                                    )
-                                    Spacer(Modifier.height(8.dp))
-                                    AutoSizeText(
-                                        text = stringResource(R.string.service_history_title),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        maxLines = 2,
-                                        minFontSize = 9.sp
-                                    )
-                                }
-                                BentoCard(
-                                    onClick = onTireClick,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
-                                ) {
-                                    Icon(
-                                        Icons.Default.TireRepair,
-                                        null,
-                                        modifier = Modifier.size(48.dp),
-                                        tint = carAccentColor
-                                    )
-                                    Spacer(Modifier.height(8.dp))
-                                    AutoSizeText(
-                                        text = stringResource(R.string.tire_management_title),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        maxLines = 2,
-                                        minFontSize = 9.sp
-                                    )
-                                }
-                                BentoCard(
-                                    onClick = onDiagnosisClick,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
-                                ) {
-                                    Icon(
-                                        Icons.Default.Engineering,
-                                        null,
-                                        modifier = Modifier.size(48.dp),
-                                        tint = carAccentColor
-                                    )
-                                    Spacer(Modifier.height(8.dp))
-                                    AutoSizeText(
-                                        text = stringResource(R.string.car_diagnosis_title),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        maxLines = 2,
-                                        minFontSize = 9.sp
-                                    )
-                                }
-                            }
-                        }
-                    } else {
-                        // Bento Row 1: Technical & Mileage
-                        item {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(110.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                BentoCard(
-                                    onClick = onTechnicalSheetClick,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
-                                ) {
-                                    Icon(
-                                        Icons.Default.Description,
-                                        null,
-                                        modifier = Modifier.size(52.dp),
-                                        tint = carAccentColor
-                                    )
-                                    Spacer(Modifier.weight(1f))
-                                    AutoSizeText(
-                                        text = stringResource(R.string.car_technical_sheet),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        maxLines = 2,
-                                        minFontSize = 10.sp
-                                    )
-                                }
+                    item {
+                        CarDetailRowItem(
+                            title = stringResource(R.string.car_mileage_history),
+                            icon = Icons.Default.Speed,
+                            secondaryIcon = Icons.Default.Add,
+                            onClick = onMileageClick,
+                            containerColor = carAccentColor.copy(alpha = 0.15f),
+                            contentColor = carAccentColor
+                        )
+                    }
 
-                                BentoCard(
-                                    onClick = onMileageClick,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            Icons.Default.Speed,
-                                            null,
-                                            modifier = Modifier.size(52.dp),
-                                            tint = carAccentColor
-                                        )
-                                        Icon(
-                                            Icons.Default.Add,
-                                            null,
-                                            modifier = Modifier.size(24.dp),
-                                            tint = carAccentColor
-                                        )
-                                    }
-                                    Spacer(Modifier.weight(1f))
-                                    AutoSizeText(
-                                        text = stringResource(R.string.car_mileage_history),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        maxLines = 2,
-                                        minFontSize = 10.sp
-                                    )
-                                }
-                            }
-                        }
+                    item {
+                        CarDetailRowItem(
+                            title = stringResource(R.string.car_inspection_title),
+                            icon = Icons.Default.AssignmentTurnedIn,
+                            onClick = onInspectionClick,
+                            containerColor = inspectionColor.copy(alpha = 0.15f),
+                            contentColor = inspectionColor,
+                            badgeLabel = stringResource(inspectionLabelRes),
+                            badgeColor = inspectionColor
+                        )
+                    }
 
-                        // Bento Row 2: ITP, RCA, Vignette (Squares)
-                        item {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(160.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                BentoCard(
-                                    onClick = onInspectionClick,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    containerColor = inspectionColor.copy(alpha = 0.15f),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Icon(
-                                        Icons.Default.AssignmentTurnedIn,
-                                        null,
-                                        modifier = Modifier.size(56.dp),
-                                        tint = inspectionColor
-                                    )
-                                    Spacer(Modifier.weight(1f))
-                                    Text(
-                                        text = stringResource(R.string.car_inspection_title),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        softWrap = true,
-                                        maxLines = 2,
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                    StatusBadge(
-                                        label = stringResource(inspectionLabelRes),
-                                        color = inspectionColor
-                                    )
-                                }
+                    item {
+                        CarDetailRowItem(
+                            title = stringResource(R.string.car_insurance_title),
+                            icon = Icons.Default.Security,
+                            onClick = onInsuranceClick,
+                            containerColor = insuranceColor.copy(alpha = 0.15f),
+                            contentColor = insuranceColor,
+                            badgeLabel = stringResource(insuranceLabelRes),
+                            badgeColor = insuranceColor
+                        )
+                    }
 
-                                BentoCard(
-                                    onClick = onInsuranceClick,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    containerColor = insuranceColor.copy(alpha = 0.15f),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Icon(
-                                        Icons.Default.Security,
-                                        null,
-                                        modifier = Modifier.size(56.dp),
-                                        tint = insuranceColor
-                                    )
-                                    Spacer(Modifier.weight(1f))
-                                    Text(
-                                        text = stringResource(R.string.car_insurance_title),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        softWrap = true,
-                                        maxLines = 2,
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                    StatusBadge(
-                                        label = stringResource(insuranceLabelRes),
-                                        color = insuranceColor
-                                    )
-                                }
+                    item {
+                        CarDetailRowItem(
+                            title = stringResource(R.string.car_vignette_title),
+                            icon = Icons.Default.ConfirmationNumber,
+                            onClick = onVignetteClick,
+                            containerColor = vignetteColor.copy(alpha = 0.15f),
+                            contentColor = vignetteColor,
+                            badgeLabel = stringResource(vignetteLabelRes),
+                            badgeColor = vignetteColor
+                        )
+                    }
 
-                                BentoCard(
-                                    onClick = onVignetteClick,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    containerColor = vignetteColor.copy(alpha = 0.15f),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Icon(
-                                        Icons.Default.ConfirmationNumber,
-                                        null,
-                                        modifier = Modifier.size(56.dp),
-                                        tint = vignetteColor
-                                    )
-                                    Spacer(Modifier.weight(1f))
-                                    Text(
-                                        text = stringResource(R.string.car_vignette_title),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        softWrap = true,
-                                        maxLines = 2,
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                    StatusBadge(
-                                        label = stringResource(vignetteLabelRes),
-                                        color = vignetteColor
-                                    )
-                                }
-                            }
-                        }
+                    item {
+                        CarDetailRowItem(
+                            title = stringResource(R.string.car_fuel_consumption),
+                            icon = Icons.Default.LocalGasStation,
+                            onClick = onFuelClick,
+                            containerColor = carAccentColor.copy(alpha = 0.15f),
+                            contentColor = carAccentColor
+                        )
+                    }
 
-                        // Bento Row 3: Fuel & Tires
-                        item {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(110.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                BentoCard(
-                                    onClick = onFuelClick,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
-                                ) {
-                                    Icon(
-                                        Icons.Default.LocalGasStation,
-                                        null,
-                                        modifier = Modifier.size(52.dp),
-                                        tint = carAccentColor
-                                    )
-                                    Spacer(Modifier.weight(1f))
-                                    AutoSizeText(
-                                        text = stringResource(R.string.car_fuel_consumption),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        maxLines = 2,
-                                        minFontSize = 10.sp
-                                    )
-                                }
+                    item {
+                        CarDetailRowItem(
+                            title = stringResource(R.string.service_history_title),
+                            icon = Icons.Default.Build,
+                            onClick = onServiceClick,
+                            containerColor = carAccentColor.copy(alpha = 0.15f),
+                            contentColor = carAccentColor
+                        )
+                    }
 
-                                BentoCard(
-                                    onClick = onTireClick,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
-                                ) {
-                                    Icon(
-                                        Icons.Default.TireRepair,
-                                        null,
-                                        modifier = Modifier.size(52.dp),
-                                        tint = carAccentColor
-                                    )
-                                    Spacer(Modifier.weight(1f))
-                                    AutoSizeText(
-                                        text = stringResource(R.string.tire_management_title),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        maxLines = 2,
-                                        minFontSize = 10.sp
-                                    )
-                                }
-                            }
-                        }
+                    item {
+                        CarDetailRowItem(
+                            title = stringResource(R.string.tire_management_title),
+                            icon = Icons.Default.TireRepair,
+                            onClick = onTireClick,
+                            containerColor = carAccentColor.copy(alpha = 0.15f),
+                            contentColor = carAccentColor
+                        )
+                    }
 
-                        // Bento Row 4: Service & Diagnosis
-                        item {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(110.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                BentoCard(
-                                    onClick = onServiceClick,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
-                                ) {
-                                    Icon(
-                                        Icons.Default.Build,
-                                        null,
-                                        modifier = Modifier.size(52.dp),
-                                        tint = carAccentColor
-                                    )
-                                    Spacer(Modifier.weight(1f))
-                                    AutoSizeText(
-                                        text = stringResource(R.string.service_history_title),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        maxLines = 2,
-                                        minFontSize = 10.sp
-                                    )
-                                }
-
-                                BentoCard(
-                                    onClick = onDiagnosisClick,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    containerColor = carAccentColor.copy(alpha = 0.15f)
-                                ) {
-                                    Icon(
-                                        Icons.Default.Engineering,
-                                        null,
-                                        modifier = Modifier.size(52.dp),
-                                        tint = carAccentColor
-                                    )
-                                    Spacer(Modifier.weight(1f))
-                                    AutoSizeText(
-                                        text = stringResource(R.string.car_diagnosis_title),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        maxLines = 2,
-                                        minFontSize = 10.sp
-                                    )
-                                }
-                            }
-                        }
+                    item {
+                        CarDetailRowItem(
+                            title = stringResource(R.string.car_diagnosis_title),
+                            icon = Icons.Default.Engineering,
+                            onClick = onDiagnosisClick,
+                            containerColor = carAccentColor.copy(alpha = 0.15f),
+                            contentColor = carAccentColor
+                        )
                     }
 
                     item { Spacer(Modifier.height(80.dp)) }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun CarDetailRowItem(
+    title: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    containerColor: Color,
+    contentColor: Color,
+    badgeLabel: String? = null,
+    badgeColor: Color = Color.Unspecified,
+    secondaryIcon: ImageVector? = null
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = containerColor)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = contentColor.copy(alpha = 0.15f),
+                modifier = Modifier.size(48.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = contentColor,
+                        modifier = Modifier.size(26.dp)
+                    )
+                    if (secondaryIcon != null) {
+                        Icon(
+                            imageVector = secondaryIcon,
+                            contentDescription = null,
+                            tint = contentColor,
+                            modifier = Modifier
+                                .size(14.dp)
+                                .align(Alignment.BottomEnd)
+                        )
+                    }
+                }
+            }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (badgeLabel != null && badgeColor != Color.Unspecified) {
+                    Spacer(Modifier.height(4.dp))
+                    StatusBadge(
+                        label = badgeLabel,
+                        color = badgeColor
+                    )
+                }
+            }
+
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }
@@ -698,78 +363,65 @@ private fun CarHeaderHeroCard(
 ) {
     val logoRes = remember(car.make) { CarFormatters.getBrandLogoResource(car.make) }
 
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = carAccentColor.copy(alpha = 0.15f)
-        ),
-        border = BorderStroke(1.dp, carAccentColor.copy(alpha = 0.3f))
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Column(
-            modifier = Modifier.padding(12.dp)
+        // Brand Logo Container
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = Color.White,
+            shadowElevation = 2.dp,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+            modifier = Modifier.size(64.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(14.dp)
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp)
             ) {
-                // Brand Logo Container
-                Surface(
-                    shape = RoundedCornerShape(16.dp),
-                    color = Color.White,
-                    shadowElevation = 2.dp,
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
-                    modifier = Modifier.size(58.dp)
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(8.dp)
-                    ) {
-                        if (logoRes != null) {
-                            Image(
-                                painter = painterResource(logoRes),
-                                contentDescription = null,
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Fit
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Outlined.DirectionsCar,
-                                contentDescription = null,
-                                modifier = Modifier.size(32.dp),
-                                tint = carAccentColor
-                            )
-                        }
-                    }
-                }
-
-                // Title & Badges (License Plate & VIN)
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = car.displayName,
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp
-                        ),
-                        color = MaterialTheme.colorScheme.primary,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
+                if (logoRes != null) {
+                    Image(
+                        painter = painterResource(logoRes),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
                     )
-
-                    if (car.licensePlate.isNotBlank()) {
-                        Spacer(Modifier.height(4.dp))
-                        LicensePlateBadge(
-                            licensePlate = car.licensePlate,
-                            countryCode = car.plateCountry
-                        )
-                    }
+                } else {
+                    Icon(
+                        imageVector = Icons.Outlined.DirectionsCar,
+                        contentDescription = null,
+                        modifier = Modifier.size(36.dp),
+                        tint = carAccentColor
+                    )
                 }
             }
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        Text(
+            text = car.displayName,
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            ),
+            color = MaterialTheme.colorScheme.primary,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        if (car.licensePlate.isNotBlank()) {
+            Spacer(Modifier.height(8.dp))
+            LicensePlateBadge(
+                licensePlate = car.licensePlate,
+                countryCode = car.plateCountry
+            )
         }
     }
 }
