@@ -1,7 +1,6 @@
 package com.dariusepure.caractivitylog.data.cars
 
 import android.util.Log
-import com.dariusepure.caractivitylog.data.auth.AuthEvent
 import com.dariusepure.caractivitylog.data.auth.AuthRepository
 import com.dariusepure.caractivitylog.domain.Car
 import com.dariusepure.caractivitylog.domain.CarReport
@@ -15,8 +14,8 @@ import com.dariusepure.caractivitylog.domain.TireSet
 import com.dariusepure.caractivitylog.domain.VehicleInspection
 import com.dariusepure.caractivitylog.domain.Vignette
 import com.dariusepure.caractivitylog.ui.cars.ChatMessage
+import com.dariusepure.caractivitylog.util.NetworkMonitor
 import com.google.firebase.Timestamp
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -27,7 +26,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import com.dariusepure.caractivitylog.util.NetworkMonitor
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -66,139 +64,106 @@ class CarRepository @Inject constructor(
     private var carsListenerRegistration: ListenerRegistration? = null
 
     init {
-        val initialUid = authRepository.getUserId() ?: "guest"
-        try {
-            carsCache.value = localStorageHelper.loadCars(initialUid)
-            inspectionsCache.value = localStorageHelper.loadInspections(initialUid)
-            fuelLogsCache.value = localStorageHelper.loadFuelLogs(initialUid)
-            maintenanceLogsCache.value = localStorageHelper.loadMaintenanceLogs(initialUid)
-            mileageLogsCache.value = localStorageHelper.loadMileageLogs(initialUid)
-            insurancesCache.value = localStorageHelper.loadInsurances(initialUid)
-            vignettesCache.value = localStorageHelper.loadVignettes(initialUid)
-            tireSetsCache.value = localStorageHelper.loadTireSets(initialUid)
-        } catch (e: Exception) {
-            Log.e("CarRepository", "Error loading initial user cache: ${e.message}")
-        }
-
         repositoryScope.launch {
-            var firstEmission = true
             authRepository.userId.collect { uid ->
-                val activeUid = uid ?: "guest"
-                if (firstEmission && activeUid == initialUid) {
-                    firstEmission = false
-                } else {
-                    firstEmission = false
-                    switchUserCache(activeUid)
-                }
-                if (uid != null && uid != "guest" && uid != AuthRepository.GUEST_UID) {
-                    pushLocalDataToRemote(uid)
-                    syncAllAccountData(uid)
-                }
-            }
-        }
-
-        repositoryScope.launch {
-            networkMonitor.isOnline.collect { online ->
-                if (online) {
-                    val uid = getUidSafe()
-                    if (uid != "guest" && uid != AuthRepository.GUEST_UID) {
-                        pushLocalDataToRemote(uid)
-                        syncAllAccountData(uid)
-                    }
-                }
+                setupUserSession(uid ?: "guest")
             }
         }
     }
 
-    private suspend fun switchUserCache(uid: String) {
-        withContext(Dispatchers.IO) {
-            try {
-                var localCars = try { localStorageHelper.loadCars(uid) } catch (e: Exception) { emptyList() }
-
-                if (localCars.isEmpty() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
-                    val guestCars = try { localStorageHelper.loadCars("guest") } catch (e: Exception) { emptyList() }
-                    if (guestCars.isNotEmpty()) {
-                        Log.d("CarRepository", "Migrating ${guestCars.size} guest cars to user $uid")
-                        localCars = guestCars.map { it.copy(isPendingSync = true) }
-                        localStorageHelper.saveCars(uid, localCars)
-
-                        val guestInspections = localStorageHelper.loadInspections("guest")
-                        if (guestInspections.isNotEmpty()) localStorageHelper.saveInspections(uid, guestInspections)
-
-                        val guestFuel = localStorageHelper.loadFuelLogs("guest")
-                        if (guestFuel.isNotEmpty()) localStorageHelper.saveFuelLogs(uid, guestFuel)
-
-                        val guestMaint = localStorageHelper.loadMaintenanceLogs("guest")
-                        if (guestMaint.isNotEmpty()) localStorageHelper.saveMaintenanceLogs(uid, guestMaint)
-
-                        val guestMileage = localStorageHelper.loadMileageLogs("guest")
-                        if (guestMileage.isNotEmpty()) localStorageHelper.saveMileageLogs(uid, guestMileage)
-
-                        val guestInsurances = localStorageHelper.loadInsurances("guest")
-                        if (guestInsurances.isNotEmpty()) localStorageHelper.saveInsurances(uid, guestInsurances)
-
-                        val guestVignettes = localStorageHelper.loadVignettes("guest")
-                        if (guestVignettes.isNotEmpty()) localStorageHelper.saveVignettes(uid, guestVignettes)
-
-                        val guestTires = localStorageHelper.loadTireSets("guest")
-                        if (guestTires.isNotEmpty()) localStorageHelper.saveTireSets(uid, guestTires)
-                    }
-                }
-
-                carsCache.value = localCars
-                inspectionsCache.value = try { localStorageHelper.loadInspections(uid) } catch (e: Exception) { emptyMap() }
-                fuelLogsCache.value = try { localStorageHelper.loadFuelLogs(uid) } catch (e: Exception) { emptyMap() }
-                maintenanceLogsCache.value = try { localStorageHelper.loadMaintenanceLogs(uid) } catch (e: Exception) { emptyMap() }
-                mileageLogsCache.value = try { localStorageHelper.loadMileageLogs(uid) } catch (e: Exception) { emptyMap() }
-                insurancesCache.value = try { localStorageHelper.loadInsurances(uid) } catch (e: Exception) { emptyMap() }
-                vignettesCache.value = try { localStorageHelper.loadVignettes(uid) } catch (e: Exception) { emptyMap() }
-                tireSetsCache.value = try { localStorageHelper.loadTireSets(uid) } catch (e: Exception) { emptyMap() }
-            } catch (e: Exception) {
-                Log.e("CarRepository", "Error switching user cache: ${e.message}")
-            }
-        }
+    private fun isCloudUser(): Boolean {
+        val uid = authRepository.getUserId() ?: "guest"
+        return uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID
     }
 
-    private fun <T> updateMapCache(
-        cache: MutableStateFlow<Map<String, List<T>>>,
-        carId: String,
-        saveAction: ((String, Map<String, List<T>>) -> Unit)? = null,
-        updateBlock: (List<T>) -> List<T>
-    ) {
-        val currentMap = cache.value.toMutableMap()
-        val currentList = currentMap[carId] ?: emptyList()
-        currentMap[carId] = updateBlock(currentList)
-        cache.value = currentMap
-        val uid = getUidSafe()
-        repositoryScope.launch(Dispatchers.IO) {
-            try {
-                if (saveAction != null) {
-                    saveAction(uid, currentMap)
-                } else {
-                    localStorageHelper.saveMileageLogs(uid, mileageLogsCache.value)
-                    localStorageHelper.saveInspections(uid, inspectionsCache.value)
-                    localStorageHelper.saveFuelLogs(uid, fuelLogsCache.value)
-                    localStorageHelper.saveMaintenanceLogs(uid, maintenanceLogsCache.value)
-                    localStorageHelper.saveInsurances(uid, insurancesCache.value)
-                    localStorageHelper.saveVignettes(uid, vignettesCache.value)
-                    localStorageHelper.saveTireSets(uid, tireSetsCache.value)
-                }
-            } catch (e: Exception) {
-                Log.e("CarRepository", "Error saving cache to local storage: ${e.message}")
-            }
-        }
+    private fun getUidSafe(): String {
+        return authRepository.getUserId() ?: "guest"
     }
 
-    private fun updateCarsCache(updateBlock: (List<Car>) -> List<Car>) {
-        val uid = getUidSafe()
-        val updated = updateBlock(carsCache.value)
-        carsCache.value = updated
-        repositoryScope.launch(Dispatchers.IO) {
+    private suspend fun setupUserSession(uid: String) {
+        carsListenerRegistration?.remove()
+        carsListenerRegistration = null
+
+        if (uid == "guest" || uid == AuthRepository.GUEST_UID) {
+            withContext(Dispatchers.IO) {
+                try {
+                    carsCache.value = localStorageHelper.loadCars(uid)
+                    inspectionsCache.value = localStorageHelper.loadInspections(uid)
+                    fuelLogsCache.value = localStorageHelper.loadFuelLogs(uid)
+                    maintenanceLogsCache.value = localStorageHelper.loadMaintenanceLogs(uid)
+                    mileageLogsCache.value = localStorageHelper.loadMileageLogs(uid)
+                    insurancesCache.value = localStorageHelper.loadInsurances(uid)
+                    vignettesCache.value = localStorageHelper.loadVignettes(uid)
+                    tireSetsCache.value = localStorageHelper.loadTireSets(uid)
+                } catch (e: Exception) {
+                    Log.e("CarRepository", "Error loading guest cache: ${e.message}")
+                }
+            }
+        } else {
             try {
-                localStorageHelper.saveCars(uid, updated)
+                authRepository.ensureProfileExists(uid, authRepository.currentUserEmail ?: "")
             } catch (e: Exception) {}
+
+            carsListenerRegistration = firestore.collection("users").document(uid).collection("cars")
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        Log.e("CarRepository", "Firestore listener failed: ${error.message}")
+                        return@addSnapshotListener
+                    }
+                    if (snapshot != null) {
+                        val remoteCars = snapshot.documents.mapNotNull { doc ->
+                            try { doc.toCar() } catch (e: Exception) { null }
+                        }
+                        carsCache.value = remoteCars
+
+                        remoteCars.forEach { car ->
+                            fetchSubCollectionDirect(uid, car.id)
+                        }
+                    }
+                }
         }
     }
+
+    private fun fetchSubCollectionDirect(uid: String, carId: String) {
+        val carDoc = firestore.collection("users").document(uid).collection("cars").document(carId)
+        repositoryScope.launch(Dispatchers.IO) {
+            try {
+                val ins = carDoc.collection("inspections").get().await().documents.mapNotNull { it.toVehicleInspection() }.sortedByDescending { it.date }
+                inspectionsCache.value = inspectionsCache.value.toMutableMap().apply { put(carId, ins) }
+
+                val fuels = carDoc.collection("fuel_logs").get().await().documents.mapNotNull { it.toFuelLog() }.sortedByDescending { it.date }
+                fuelLogsCache.value = fuelLogsCache.value.toMutableMap().apply { put(carId, fuels) }
+
+                val maint = carDoc.collection("maintenance_logs").get().await().documents.mapNotNull { it.toMaintenance() }.sortedByDescending { it.date }
+                maintenanceLogsCache.value = maintenanceLogsCache.value.toMutableMap().apply { put(carId, maint) }
+
+                val mileage = carDoc.collection("mileage_logs").get().await().documents.mapNotNull { it.toMileageLog() }.sortedByDescending { it.date }
+                mileageLogsCache.value = mileageLogsCache.value.toMutableMap().apply { put(carId, mileage) }
+
+                val insurances = carDoc.collection("insurances").get().await().documents.mapNotNull { it.toInsurance() }.sortedByDescending { it.date }
+                insurancesCache.value = insurancesCache.value.toMutableMap().apply { put(carId, insurances) }
+
+                val vignettes = carDoc.collection("vignettes").get().await().documents.mapNotNull { it.toVignette() }.sortedByDescending { it.date }
+                vignettesCache.value = vignettesCache.value.toMutableMap().apply { put(carId, vignettes) }
+
+                val tires = carDoc.collection("tire_sets").get().await().documents.mapNotNull { it.toTireSet() }.sortedByDescending { it.isActive }
+                tireSetsCache.value = tireSetsCache.value.toMutableMap().apply { put(carId, tires) }
+            } catch (e: Exception) {
+                Log.e("CarRepository", "Error fetching subcollections for car $carId: ${e.message}")
+            }
+        }
+    }
+
+    fun refresh() {
+        val uid = getUidSafe()
+        if (isCloudUser()) {
+            repositoryScope.launch(Dispatchers.IO) {
+                setupUserSession(uid)
+            }
+        }
+    }
+
+    val cars: Flow<List<Car>> = carsCache.asStateFlow()
 
     fun getCarsFromCache(): List<Car> = carsCache.value
     fun getInspectionsFromCache(carId: String): List<VehicleInspection> = inspectionsCache.value[carId] ?: emptyList()
@@ -209,283 +174,55 @@ class CarRepository @Inject constructor(
     fun getVignettesFromCache(carId: String): List<Vignette> = vignettesCache.value[carId] ?: emptyList()
     fun getTireSetsFromCache(carId: String): List<TireSet> = tireSetsCache.value[carId] ?: emptyList()
 
-    val cars: Flow<List<Car>> = carsCache.asStateFlow()
-
-    private fun syncAllAccountData(uid: String) {
-        if (uid.isBlank() || uid == "guest" || uid == AuthRepository.GUEST_UID) return
-
-        carsListenerRegistration?.remove()
-
-        repositoryScope.launch(Dispatchers.IO) {
-            try {
-                val email = authRepository.currentUserEmail
-                authRepository.ensureProfileExists(uid, email ?: "")
-                pushLocalDataToRemote(uid)
-            } catch (e: Exception) {}
-        }
-
-        carsListenerRegistration = firestore.collection("users").document(uid).collection("cars")
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    Log.e("CarRepository", "Firebase sync failed: ${error.message}")
-                    return@addSnapshotListener
-                }
-
-                if (snapshot != null) {
-                    val allRemoteCars = mutableListOf<Car>()
-                    val carDocRefs = mutableMapOf<String, DocumentReference>()
-
-                    for (doc in snapshot.documents) {
-                        try {
-                            val car = doc.toCar()
-                            if (allRemoteCars.none { it.id == car.id }) {
-                                allRemoteCars.add(car)
-                                carDocRefs[car.id] = doc.reference
-                            }
-                        } catch (e: Exception) {
-                            Log.e("CarRepository", "Error parsing car: ${e.message}")
-                        }
-                    }
-
-                    val currentLocal = carsCache.value
-                    val mergedCars = mutableListOf<Car>()
-                    val remoteMap = allRemoteCars.associateBy { it.id }
-
-                    for (localCar in currentLocal) {
-                        val remote = remoteMap[localCar.id]
-                        if (remote == null) {
-                            mergedCars.add(localCar)
-                        } else {
-                            val merged = if (localCar.isPendingSync || (localCar.updatedAt.after(remote.updatedAt))) {
-                                localCar
-                            } else {
-                                remote
-                            }
-                            mergedCars.add(merged)
-                        }
-                    }
-
-                    for (remoteCar in allRemoteCars) {
-                        if (mergedCars.none { it.id == remoteCar.id }) {
-                            mergedCars.add(remoteCar)
-                        }
-                    }
-
-                    carsCache.value = mergedCars
-                    repositoryScope.launch(Dispatchers.IO) {
-                        try {
-                            localStorageHelper.saveCars(uid, mergedCars)
-                        } catch (e: Exception) {}
-                    }
-
-                    mergedCars.forEach { car ->
-                        fetchCarLogs(uid, car.id, carDocRefs[car.id] ?: firestore.collection("users").document(uid).collection("cars").document(car.id))
-                    }
-                }
-            }
-    }
-
-    private suspend fun pushLocalDataToRemote(uid: String) {
-        if (uid.isBlank() || uid == "guest" || uid == AuthRepository.GUEST_UID) return
-        try {
-            val localCars = carsCache.value
-            for (car in localCars) {
-                if (car.id.isNotBlank()) {
-                    try {
-                        val remoteCar = car.toRemote().copy(userId = uid)
-                        firestore.collection("users").document(uid)
-                            .collection("cars").document(car.id)
-                            .set(remoteCar).await()
-
-                        updateCarsCache { list ->
-                            list.map { if (it.id == car.id) it.copy(isPendingSync = false) else it }
-                        }
-                    } catch (e: Exception) {
-                        Log.e("CarRepository", "Failed to push car ${car.id}: ${e.message}")
-                    }
-
-                    try {
-                        // Push Mileage Logs
-                        (mileageLogsCache.value[car.id] ?: emptyList()).forEach { item ->
-                            val dto = item.toRemote().copy(carId = car.id)
-                            firestore.collection("users").document(uid)
-                                .collection("cars").document(car.id)
-                                .collection("mileage_logs").document(dto.id).set(dto).await()
-                        }
-
-                        // Push Fuel Logs
-                        (fuelLogsCache.value[car.id] ?: emptyList()).forEach { item ->
-                            val dto = item.toRemote().copy(carId = car.id)
-                            firestore.collection("users").document(uid)
-                                .collection("cars").document(car.id)
-                                .collection("fuel_logs").document(dto.id).set(dto).await()
-                        }
-
-                        // Push Maintenance Logs
-                        (maintenanceLogsCache.value[car.id] ?: emptyList()).forEach { item ->
-                            val dto = item.toRemote().copy(carId = car.id)
-                            firestore.collection("users").document(uid)
-                                .collection("cars").document(car.id)
-                                .collection("maintenance_logs").document(dto.id).set(dto).await()
-                        }
-
-                        // Push Inspections
-                        (inspectionsCache.value[car.id] ?: emptyList()).forEach { item ->
-                            val dto = item.toRemote().copy(carId = car.id)
-                            firestore.collection("users").document(uid)
-                                .collection("cars").document(car.id)
-                                .collection("inspections").document(dto.id).set(dto).await()
-                        }
-
-                        // Push Insurances
-                        (insurancesCache.value[car.id] ?: emptyList()).forEach { item ->
-                            val dto = item.toRemote().copy(carId = car.id)
-                            firestore.collection("users").document(uid)
-                                .collection("cars").document(car.id)
-                                .collection("insurances").document(dto.id).set(dto).await()
-                        }
-
-                        // Push Vignettes
-                        (vignettesCache.value[car.id] ?: emptyList()).forEach { item ->
-                            val dto = item.toRemote().copy(carId = car.id)
-                            firestore.collection("users").document(uid)
-                                .collection("cars").document(car.id)
-                                .collection("vignettes").document(dto.id).set(dto).await()
-                        }
-
-                        // Push Tire Sets
-                        (tireSetsCache.value[car.id] ?: emptyList()).forEach { item ->
-                            val dto = item.toRemote().copy(carId = car.id)
-                            firestore.collection("users").document(uid)
-                                .collection("cars").document(car.id)
-                                .collection("tire_sets").document(dto.id).set(dto).await()
-                        }
-                    } catch (e: Exception) {
-                        Log.e("CarRepository", "Failed to push subcollections for ${car.id}: ${e.message}")
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("CarRepository", "Error pushing local data to remote: ${e.message}")
-        }
-    }
-
-    private fun fetchCarLogs(uid: String, carId: String, carDocRef: DocumentReference) {
-        repositoryScope.launch(Dispatchers.IO) {
-            try {
-                val insSnap = carDocRef.collection("inspections").get().await()
-                val ins = insSnap.documents.mapNotNull { it.toVehicleInspection() }.sortedByDescending { it.date }
-                if (ins.isNotEmpty()) {
-                    updateMapCache(inspectionsCache, carId) { local ->
-                        val remoteIds = ins.map { it.id }.toSet()
-                        (ins + local.filterNot { it.id in remoteIds }).sortedByDescending { it.date }
-                    }
-                }
-
-                val fuelSnap = carDocRef.collection("fuel_logs").get().await()
-                val fuels = fuelSnap.documents.mapNotNull { it.toFuelLog() }.sortedByDescending { it.date }
-                if (fuels.isNotEmpty()) {
-                    updateMapCache(fuelLogsCache, carId) { local ->
-                        val remoteIds = fuels.map { it.id }.toSet()
-                        (fuels + local.filterNot { it.id in remoteIds }).sortedByDescending { it.date }
-                    }
-                }
-
-                val maintSnap = carDocRef.collection("maintenance_logs").get().await()
-                val maint = maintSnap.documents.mapNotNull { it.toMaintenance() }.sortedByDescending { it.date }
-                if (maint.isNotEmpty()) {
-                    updateMapCache(maintenanceLogsCache, carId) { local ->
-                        val remoteIds = maint.map { it.id }.toSet()
-                        (maint + local.filterNot { it.id in remoteIds }).sortedByDescending { it.date }
-                    }
-                }
-
-                val mileageSnap = carDocRef.collection("mileage_logs").get().await()
-                val mileage = mileageSnap.documents.mapNotNull { it.toMileageLog() }.sortedByDescending { it.date }
-                if (mileage.isNotEmpty()) {
-                    updateMapCache(mileageLogsCache, carId) { local ->
-                        val remoteIds = mileage.map { it.id }.toSet()
-                        (mileage + local.filterNot { it.id in remoteIds }).sortedByDescending { it.date }
-                    }
-                }
-
-                val insuSnap = carDocRef.collection("insurances").get().await()
-                val insu = insuSnap.documents.mapNotNull { it.toInsurance() }.sortedByDescending { it.date }
-                if (insu.isNotEmpty()) {
-                    updateMapCache(insurancesCache, carId) { local ->
-                        val remoteIds = insu.map { it.id }.toSet()
-                        (insu + local.filterNot { it.id in remoteIds }).sortedByDescending { it.date }
-                    }
-                }
-
-                val vigSnap = carDocRef.collection("vignettes").get().await()
-                val vig = vigSnap.documents.mapNotNull { it.toVignette() }.sortedByDescending { it.date }
-                if (vig.isNotEmpty()) {
-                    updateMapCache(vignettesCache, carId) { local ->
-                        val remoteIds = vig.map { it.id }.toSet()
-                        (vig + local.filterNot { it.id in remoteIds }).sortedByDescending { it.date }
-                    }
-                }
-
-                val tiresSnap = carDocRef.collection("tire_sets").get().await()
-                val tires = tiresSnap.documents.mapNotNull { it.toTireSet() }.sortedByDescending { it.isActive }
-                if (tires.isNotEmpty()) {
-                    updateMapCache(tireSetsCache, carId) { local ->
-                        val remoteIds = tires.map { it.id }.toSet()
-                        (tires + local.filterNot { it.id in remoteIds }).sortedByDescending { it.isActive }
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("CarRepository", "Error fetching logs for $carId: ${e.message}")
-            }
-        }
-    }
-
-    fun refresh() {
-        val uid = getUidSafe()
-        if (uid != "guest" && uid != AuthRepository.GUEST_UID) {
-            repositoryScope.launch(Dispatchers.IO) {
-                pushLocalDataToRemote(uid)
-                syncAllAccountData(uid)
-            }
-        }
-    }
-
-    private fun getUidSafe(): String {
-        return authRepository.getUserId() ?: "guest"
-    }
-
+    // CAR OPERATIONS
     suspend fun createCar(car: Car) {
         val item = if (car.id.isBlank()) car.copy(id = UUID.randomUUID().toString()) else car
         val uid = getUidSafe()
-
-        val isCloudUser = uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID
-        val localItem = item.copy(isPendingSync = isCloudUser)
-
-        updateCarsCache { list -> (list.filterNot { it.id == localItem.id } + localItem) }
-
-        if (isCloudUser) {
-            repositoryScope.launch(Dispatchers.IO) {
-                try {
-                    val email = authRepository.currentUserEmail ?: ""
-                    authRepository.ensureProfileExists(uid, email)
-
-                    val remoteCar = localItem.toRemote().copy(userId = uid)
-                    firestore.collection("users").document(uid).collection("cars").document(remoteCar.id).set(remoteCar).await()
-                    Log.d("CarRepository", "createCar saved to Firebase successfully")
-
-                    updateCarsCache { list ->
-                        list.map { if (it.id == localItem.id) it.copy(isPendingSync = false) else it }
-                    }
-                } catch (e: Exception) {
-                    Log.e("CarRepository", "Error saving car to Firebase: ${e.message}", e)
-                }
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                val remoteCar = item.toRemote().copy(userId = uid)
+                firestore.collection("users").document(uid).collection("cars").document(remoteCar.id).set(remoteCar).await()
+            }
+        } else {
+            val updated = (carsCache.value.filterNot { it.id == item.id } + item)
+            carsCache.value = updated
+            withContext(Dispatchers.IO) {
+                try { localStorageHelper.saveCars(uid, updated) } catch (e: Exception) {}
             }
         }
     }
 
     suspend fun updateCar(car: Car) {
         createCar(car)
+    }
+
+    suspend fun deleteCar(carId: String) {
+        val uid = getUidSafe()
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                firestore.collection("users").document(uid).collection("cars").document(carId).delete().await()
+            }
+        } else {
+            val updated = carsCache.value.filterNot { it.id == carId }
+            carsCache.value = updated
+            withContext(Dispatchers.IO) {
+                try { localStorageHelper.saveCars(uid, updated) } catch (e: Exception) {}
+            }
+        }
+    }
+
+    suspend fun getCar(carId: String): Car? {
+        carsCache.value.find { it.id == carId }?.let { return it }
+        val uid = getUidSafe()
+        if (isCloudUser()) {
+            return try {
+                val doc = firestore.collection("users").document(uid).collection("cars").document(carId).get().await()
+                doc.toCar()
+            } catch (e: Exception) {
+                null
+            }
+        }
+        return null
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -500,67 +237,64 @@ class CarRepository @Inject constructor(
         }
     }
 
-    suspend fun getCar(carId: String): Car? {
-        val cached = try { carsCache.value.find { it.id == carId } } catch (e: Exception) { null }
-        if (cached != null) return cached
-
-        val uid = getUidSafe()
-        if (uid.isBlank() || uid == "guest" || uid == AuthRepository.GUEST_UID) return null
-
-        return try {
-            val doc = firestore.collection("users").document(uid).collection("cars").document(carId).get().await()
-            doc.toCar()
-        } catch (e: Exception) {
-            Log.e("CarRepository", "Error getting car $carId: ${e.message}")
-            null
-        }
-    }
-
     suspend fun isVinDuplicate(vin: String, excludeCarId: String?): Boolean {
         return try {
-            val currentCars = carsCache.value
-            currentCars.any { it.vin.equals(vin.trim(), ignoreCase = true) && it.id != excludeCarId }
+            carsCache.value.any { it.vin.equals(vin.trim(), ignoreCase = true) && it.id != excludeCarId }
         } catch (e: Exception) {
             false
         }
     }
 
-    suspend fun deleteCar(carId: String) {
-        updateCarsCache { list -> list.filterNot { it.id == carId } }
+    // SUBCOLLECTION HELPER
+    private fun <T> updateSubCollection(
+        cache: MutableStateFlow<Map<String, List<T>>>,
+        carId: String,
+        saveAction: ((String, Map<String, List<T>>) -> Unit)? = null,
+        updateBlock: (List<T>) -> List<T>
+    ) {
+        val currentMap = cache.value.toMutableMap()
+        val currentList = currentMap[carId] ?: emptyList()
+        val newList = updateBlock(currentList)
+        currentMap[carId] = newList
+        cache.value = currentMap
 
         val uid = getUidSafe()
-        repositoryScope.launch(Dispatchers.IO) {
-            try {
-                if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
-                    firestore.collection("users").document(uid).collection("cars").document(carId).delete().await()
-                }
-            } catch (e: Exception) {
-                Log.e("CarRepository", "Error deleting car $carId: ${e.message}")
+        if (!isCloudUser() && saveAction != null) {
+            repositoryScope.launch(Dispatchers.IO) {
+                try {
+                    saveAction(uid, currentMap)
+                } catch (e: Exception) {}
             }
         }
     }
 
     // MILEAGE LOGS
     fun getMileageLogs(carId: String): Flow<List<MileageLog>> {
-        fetchSubCollectionRemote(carId, "mileage_logs", mileageLogsCache) { it.toMileageLog() }
+        if (isCloudUser()) {
+            val uid = getUidSafe()
+            repositoryScope.launch(Dispatchers.IO) {
+                try {
+                    val snap = firestore.collection("users").document(uid).collection("cars").document(carId).collection("mileage_logs").get().await()
+                    val list = snap.documents.mapNotNull { it.toMileageLog() }.sortedByDescending { it.date }
+                    mileageLogsCache.value = mileageLogsCache.value.toMutableMap().apply { put(carId, list) }
+                } catch (e: Exception) {}
+            }
+        }
         return mileageLogsCache.map { map -> map[carId] ?: emptyList() }
     }
 
     suspend fun addMileageLog(carId: String, log: MileageLog) {
         val item = if (log.id.isBlank()) log.copy(id = UUID.randomUUID().toString()) else log
-        updateMapCache(mileageLogsCache, carId, localStorageHelper::saveMileageLogs) { list ->
-            (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
-        }
-
         val uid = getUidSafe()
-        if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
-            repositoryScope.launch(Dispatchers.IO) {
-                try {
-                    val dto = item.toRemote().copy(carId = carId)
-                    firestore.collection("users").document(uid).collection("cars").document(carId).collection("mileage_logs").document(dto.id).set(dto).await()
-                } catch (e: Exception) {
-                    Log.e("CarRepository", "Error syncing addMileageLog: ${e.message}")
-                }
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                val dto = item.toRemote().copy(carId = carId)
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("mileage_logs").document(dto.id).set(dto).await()
+                fetchSubCollectionDirect(uid, carId)
+            }
+        } else {
+            updateSubCollection(mileageLogsCache, carId, localStorageHelper::saveMileageLogs) { list ->
+                (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
             }
         }
     }
@@ -570,332 +304,253 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteMileageLog(carId: String, logId: String) {
-        updateMapCache(mileageLogsCache, carId, localStorageHelper::saveMileageLogs) { list -> list.filterNot { it.id == logId } }
-
         val uid = getUidSafe()
-        if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
-            repositoryScope.launch(Dispatchers.IO) {
-                try {
-                    firestore.collection("users").document(uid).collection("cars").document(carId).collection("mileage_logs").document(logId).delete().await()
-                } catch (e: Exception) {
-                    Log.e("CarRepository", "Error syncing deleteMileageLog: ${e.message}")
-                }
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("mileage_logs").document(logId).delete().await()
+                fetchSubCollectionDirect(uid, carId)
+            }
+        } else {
+            updateSubCollection(mileageLogsCache, carId, localStorageHelper::saveMileageLogs) { list ->
+                list.filterNot { it.id == logId }
             }
         }
     }
 
-    // INSPECTIONS (ITP)
-    fun getInspections(carId: String): Flow<List<VehicleInspection>> {
-        fetchSubCollectionRemote(carId, "inspections", inspectionsCache) { it.toVehicleInspection() }
-        return inspectionsCache.map { map -> map[carId] ?: emptyList() }
-    }
-
-    suspend fun addInspection(carId: String, inspection: VehicleInspection) {
-        val item = if (inspection.id.isBlank()) inspection.copy(id = UUID.randomUUID().toString()) else inspection
-        updateMapCache(inspectionsCache, carId, localStorageHelper::saveInspections) { list ->
-            (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
-        }
-
+    // INSPECTIONS
+    fun getInspections(carId: String): Flow<List<VehicleInspection>> = inspectionsCache.map { map -> map[carId] ?: emptyList() }
+    suspend fun addInspection(carId: String, item: VehicleInspection) {
+        val obj = if (item.id.isBlank()) item.copy(id = UUID.randomUUID().toString()) else item
         val uid = getUidSafe()
-        if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
-            repositoryScope.launch(Dispatchers.IO) {
-                try {
-                    val dto = item.toRemote().copy(carId = carId)
-                    firestore.collection("users").document(uid).collection("cars").document(carId).collection("inspections").document(dto.id).set(dto).await()
-                } catch (e: Exception) {
-                    Log.e("CarRepository", "Error syncing addInspection: ${e.message}")
-                }
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                val dto = obj.toRemote().copy(carId = carId)
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("inspections").document(dto.id).set(dto).await()
+                fetchSubCollectionDirect(uid, carId)
+            }
+        } else {
+            updateSubCollection(inspectionsCache, carId, localStorageHelper::saveInspections) { list ->
+                (list.filterNot { it.id == obj.id } + obj).sortedByDescending { it.date }
+            }
+        }
+    }
+    suspend fun updateInspection(carId: String, item: VehicleInspection) = addInspection(carId, item)
+    suspend fun deleteInspection(carId: String, item: VehicleInspection) {
+        val uid = getUidSafe()
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("inspections").document(item.id).delete().await()
+                fetchSubCollectionDirect(uid, carId)
+            }
+        } else {
+            updateSubCollection(inspectionsCache, carId, localStorageHelper::saveInspections) { list ->
+                list.filterNot { it.id == item.id }
             }
         }
     }
 
-    suspend fun updateInspection(carId: String, inspection: VehicleInspection) {
-        addInspection(carId, inspection)
-    }
-
-    suspend fun deleteInspection(carId: String, inspection: VehicleInspection) {
-        updateMapCache(inspectionsCache, carId, localStorageHelper::saveInspections) { list -> list.filterNot { it.id == inspection.id } }
-
+    // INSURANCES
+    fun getInsurances(carId: String): Flow<List<Insurance>> = insurancesCache.map { map -> map[carId] ?: emptyList() }
+    suspend fun addInsurance(carId: String, item: Insurance) {
+        val obj = if (item.id.isBlank()) item.copy(id = UUID.randomUUID().toString()) else item
         val uid = getUidSafe()
-        if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
-            repositoryScope.launch(Dispatchers.IO) {
-                try {
-                    firestore.collection("users").document(uid).collection("cars").document(carId).collection("inspections").document(inspection.id).delete().await()
-                } catch (e: Exception) {
-                    Log.e("CarRepository", "Error syncing deleteInspection: ${e.message}")
-                }
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                val dto = obj.toRemote().copy(carId = carId)
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("insurances").document(dto.id).set(dto).await()
+                fetchSubCollectionDirect(uid, carId)
+            }
+        } else {
+            updateSubCollection(insurancesCache, carId, localStorageHelper::saveInsurances) { list ->
+                (list.filterNot { it.id == obj.id } + obj).sortedByDescending { it.date }
             }
         }
     }
-
-    // INSURANCES (RCA/CASCO)
-    fun getInsurances(carId: String): Flow<List<Insurance>> {
-        fetchSubCollectionRemote(carId, "insurances", insurancesCache) { it.toInsurance() }
-        return insurancesCache.map { map -> map[carId] ?: emptyList() }
-    }
-
-    suspend fun addInsurance(carId: String, insurance: Insurance) {
-        val item = if (insurance.id.isBlank()) insurance.copy(id = UUID.randomUUID().toString()) else insurance
-        updateMapCache(insurancesCache, carId, localStorageHelper::saveInsurances) { list ->
-            (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
-        }
-
-        val uid = getUidSafe()
-        if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
-            repositoryScope.launch(Dispatchers.IO) {
-                try {
-                    val dto = item.toRemote().copy(carId = carId)
-                    firestore.collection("users").document(uid).collection("cars").document(carId).collection("insurances").document(dto.id).set(dto).await()
-                } catch (e: Exception) {
-                    Log.e("CarRepository", "Error syncing addInsurance: ${e.message}")
-                }
-            }
-        }
-    }
-
-    suspend fun updateInsurance(carId: String, insurance: Insurance) {
-        addInsurance(carId, insurance)
-    }
-
+    suspend fun updateInsurance(carId: String, item: Insurance) = addInsurance(carId, item)
     suspend fun deleteInsurance(carId: String, insuranceId: String) {
-        updateMapCache(insurancesCache, carId, localStorageHelper::saveInsurances) { list -> list.filterNot { it.id == insuranceId } }
-
         val uid = getUidSafe()
-        if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
-            repositoryScope.launch(Dispatchers.IO) {
-                try {
-                    firestore.collection("users").document(uid).collection("cars").document(carId).collection("insurances").document(insuranceId).delete().await()
-                } catch (e: Exception) {
-                    Log.e("CarRepository", "Error syncing deleteInsurance: ${e.message}")
-                }
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("insurances").document(insuranceId).delete().await()
+                fetchSubCollectionDirect(uid, carId)
+            }
+        } else {
+            updateSubCollection(insurancesCache, carId, localStorageHelper::saveInsurances) { list ->
+                list.filterNot { it.id == insuranceId }
             }
         }
     }
 
     // VIGNETTES
-    fun getVignettes(carId: String): Flow<List<Vignette>> {
-        fetchSubCollectionRemote(carId, "vignettes", vignettesCache) { it.toVignette() }
-        return vignettesCache.map { map -> map[carId] ?: emptyList() }
-    }
-
-    suspend fun addVignette(carId: String, vignette: Vignette) {
-        val item = if (vignette.id.isBlank()) vignette.copy(id = UUID.randomUUID().toString()) else vignette
-        updateMapCache(vignettesCache, carId, localStorageHelper::saveVignettes) { list ->
-            (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
-        }
-
+    fun getVignettes(carId: String): Flow<List<Vignette>> = vignettesCache.map { map -> map[carId] ?: emptyList() }
+    suspend fun addVignette(carId: String, item: Vignette) {
+        val obj = if (item.id.isBlank()) item.copy(id = UUID.randomUUID().toString()) else item
         val uid = getUidSafe()
-        if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
-            repositoryScope.launch(Dispatchers.IO) {
-                try {
-                    val dto = item.toRemote().copy(carId = carId)
-                    firestore.collection("users").document(uid).collection("cars").document(carId).collection("vignettes").document(dto.id).set(dto).await()
-                } catch (e: Exception) {
-                    Log.e("CarRepository", "Error syncing addVignette: ${e.message}")
-                }
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                val dto = obj.toRemote().copy(carId = carId)
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("vignettes").document(dto.id).set(dto).await()
+                fetchSubCollectionDirect(uid, carId)
+            }
+        } else {
+            updateSubCollection(vignettesCache, carId, localStorageHelper::saveVignettes) { list ->
+                (list.filterNot { it.id == obj.id } + obj).sortedByDescending { it.date }
             }
         }
     }
-
-    suspend fun updateVignette(carId: String, vignette: Vignette) {
-        addVignette(carId, vignette)
-    }
-
+    suspend fun updateVignette(carId: String, item: Vignette) = addVignette(carId, item)
     suspend fun deleteVignette(carId: String, vignetteId: String) {
-        updateMapCache(vignettesCache, carId, localStorageHelper::saveVignettes) { list -> list.filterNot { it.id == vignetteId } }
-
         val uid = getUidSafe()
-        if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
-            repositoryScope.launch(Dispatchers.IO) {
-                try {
-                    firestore.collection("users").document(uid).collection("cars").document(carId).collection("vignettes").document(vignetteId).delete().await()
-                } catch (e: Exception) {
-                    Log.e("CarRepository", "Error syncing deleteVignette: ${e.message}")
-                }
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("vignettes").document(vignetteId).delete().await()
+                fetchSubCollectionDirect(uid, carId)
+            }
+        } else {
+            updateSubCollection(vignettesCache, carId, localStorageHelper::saveVignettes) { list ->
+                list.filterNot { it.id == vignetteId }
             }
         }
     }
 
     // TIRE SETS
-    fun getTireSets(carId: String): Flow<List<TireSet>> {
-        fetchSubCollectionRemote(carId, "tire_sets", tireSetsCache) { it.toTireSet() }
-        return tireSetsCache.map { map -> map[carId] ?: emptyList() }
-    }
-
-    suspend fun addTireSet(carId: String, tireSet: TireSet) {
-        val item = if (tireSet.id.isBlank()) tireSet.copy(id = UUID.randomUUID().toString()) else tireSet
-        updateMapCache(tireSetsCache, carId, localStorageHelper::saveTireSets) { list ->
-            (list.filterNot { it.id == item.id } + item).sortedByDescending { it.isActive }
-        }
-
+    fun getTireSets(carId: String): Flow<List<TireSet>> = tireSetsCache.map { map -> map[carId] ?: emptyList() }
+    suspend fun addTireSet(carId: String, item: TireSet) {
+        val obj = if (item.id.isBlank()) item.copy(id = UUID.randomUUID().toString()) else item
         val uid = getUidSafe()
-        if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
-            repositoryScope.launch(Dispatchers.IO) {
-                try {
-                    val dto = item.toRemote().copy(carId = carId)
-                    firestore.collection("users").document(uid).collection("cars").document(carId).collection("tire_sets").document(dto.id).set(dto).await()
-                } catch (e: Exception) {
-                    Log.e("CarRepository", "Error syncing addTireSet: ${e.message}")
-                }
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                val dto = obj.toRemote().copy(carId = carId)
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("tire_sets").document(dto.id).set(dto).await()
+                fetchSubCollectionDirect(uid, carId)
+            }
+        } else {
+            updateSubCollection(tireSetsCache, carId, localStorageHelper::saveTireSets) { list ->
+                (list.filterNot { it.id == obj.id } + obj).sortedByDescending { it.isActive }
             }
         }
     }
-
-    suspend fun updateTireSet(carId: String, tireSet: TireSet) {
-        addTireSet(carId, tireSet)
-    }
-
+    suspend fun updateTireSet(carId: String, item: TireSet) = addTireSet(carId, item)
     suspend fun deleteTireSet(carId: String, tireSetId: String) {
-        updateMapCache(tireSetsCache, carId, localStorageHelper::saveTireSets) { list -> list.filterNot { it.id == tireSetId } }
-
         val uid = getUidSafe()
-        if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
-            repositoryScope.launch(Dispatchers.IO) {
-                try {
-                    firestore.collection("users").document(uid).collection("cars").document(carId).collection("tire_sets").document(tireSetId).delete().await()
-                } catch (e: Exception) {
-                    Log.e("CarRepository", "Error syncing deleteTireSet: ${e.message}")
-                }
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("tire_sets").document(tireSetId).delete().await()
+                fetchSubCollectionDirect(uid, carId)
+            }
+        } else {
+            updateSubCollection(tireSetsCache, carId, localStorageHelper::saveTireSets) { list ->
+                list.filterNot { it.id == tireSetId }
             }
         }
     }
 
     // DIAGNOSIS CHAT
-    fun getDiagnosisMessages(carId: String): Flow<List<ChatMessage>> {
-        return diagnosisCache.map { map -> map[carId] ?: emptyList() }
-    }
-
+    fun getDiagnosisMessages(carId: String): Flow<List<ChatMessage>> = diagnosisCache.map { map -> map[carId] ?: emptyList() }
     suspend fun addDiagnosisMessage(carId: String, message: ChatMessage) {
-        updateMapCache(diagnosisCache, carId) { list -> list + message }
+        updateSubCollection(diagnosisCache, carId) { list -> list + message }
     }
-
     suspend fun clearDiagnosisMessages(carId: String) {
-        updateMapCache(diagnosisCache, carId) { emptyList() }
+        updateSubCollection(diagnosisCache, carId) { emptyList() }
     }
 
     // FUEL LOGS
-    fun getFuelLogs(carId: String): Flow<List<FuelLog>> {
-        fetchSubCollectionRemote(carId, "fuel_logs", fuelLogsCache) { it.toFuelLog() }
-        return fuelLogsCache.map { map -> map[carId] ?: emptyList() }
-    }
-
-    suspend fun addFuelLog(carId: String, log: FuelLog) {
-        val item = if (log.id.isBlank()) log.copy(id = UUID.randomUUID().toString()) else log
-        updateMapCache(fuelLogsCache, carId, localStorageHelper::saveFuelLogs) { list ->
-            (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
-        }
-
+    fun getFuelLogs(carId: String): Flow<List<FuelLog>> = fuelLogsCache.map { map -> map[carId] ?: emptyList() }
+    suspend fun addFuelLog(carId: String, item: FuelLog) {
+        val obj = if (item.id.isBlank()) item.copy(id = UUID.randomUUID().toString()) else item
         val uid = getUidSafe()
-        if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
-            repositoryScope.launch(Dispatchers.IO) {
-                try {
-                    val dto = item.toRemote().copy(carId = carId)
-                    firestore.collection("users").document(uid).collection("cars").document(carId).collection("fuel_logs").document(dto.id).set(dto).await()
-                } catch (e: Exception) {
-                    Log.e("CarRepository", "Error syncing addFuelLog: ${e.message}")
-                }
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                val dto = obj.toRemote().copy(carId = carId)
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("fuel_logs").document(dto.id).set(dto).await()
+                fetchSubCollectionDirect(uid, carId)
+            }
+        } else {
+            updateSubCollection(fuelLogsCache, carId, localStorageHelper::saveFuelLogs) { list ->
+                (list.filterNot { it.id == obj.id } + obj).sortedByDescending { it.date }
+            }
+        }
+    }
+    suspend fun updateFuelLog(carId: String, item: FuelLog) = addFuelLog(carId, item)
+    suspend fun deleteFuelLog(carId: String, item: FuelLog) {
+        val uid = getUidSafe()
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("fuel_logs").document(item.id).delete().await()
+                fetchSubCollectionDirect(uid, carId)
+            }
+        } else {
+            updateSubCollection(fuelLogsCache, carId, localStorageHelper::saveFuelLogs) { list ->
+                list.filterNot { it.id == item.id }
             }
         }
     }
 
-    suspend fun updateFuelLog(carId: String, log: FuelLog) {
-        addFuelLog(carId, log)
-    }
-
-    suspend fun deleteFuelLog(carId: String, log: FuelLog) {
-        updateMapCache(fuelLogsCache, carId, localStorageHelper::saveFuelLogs) { list -> list.filterNot { it.id == log.id } }
-
+    // MAINTENANCE
+    fun getMaintenanceLogs(carId: String): Flow<List<Maintenance>> = maintenanceLogsCache.map { map -> map[carId] ?: emptyList() }
+    suspend fun addMaintenanceLog(carId: String, item: Maintenance) {
+        val obj = if (item.id.isBlank()) item.copy(id = UUID.randomUUID().toString()) else item
         val uid = getUidSafe()
-        if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
-            repositoryScope.launch(Dispatchers.IO) {
-                try {
-                    firestore.collection("users").document(uid).collection("cars").document(carId).collection("fuel_logs").document(log.id).delete().await()
-                } catch (e: Exception) {
-                    Log.e("CarRepository", "Error syncing deleteFuelLog: ${e.message}")
-                }
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                val dto = obj.toRemote().copy(carId = carId)
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("maintenance_logs").document(dto.id).set(dto).await()
+                fetchSubCollectionDirect(uid, carId)
+            }
+        } else {
+            updateSubCollection(maintenanceLogsCache, carId, localStorageHelper::saveMaintenanceLogs) { list ->
+                (list.filterNot { it.id == obj.id } + obj).sortedByDescending { it.date }
+            }
+        }
+    }
+    suspend fun updateMaintenanceLog(carId: String, item: Maintenance) = addMaintenanceLog(carId, item)
+    suspend fun deleteMaintenanceLog(carId: String, item: Maintenance) {
+        val uid = getUidSafe()
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("maintenance_logs").document(item.id).delete().await()
+                fetchSubCollectionDirect(uid, carId)
+            }
+        } else {
+            updateSubCollection(maintenanceLogsCache, carId, localStorageHelper::saveMaintenanceLogs) { list ->
+                list.filterNot { it.id == item.id }
             }
         }
     }
 
-    // MAINTENANCE LOGS
-    fun getMaintenanceLogs(carId: String): Flow<List<Maintenance>> {
-        fetchSubCollectionRemote(carId, "maintenance_logs", maintenanceLogsCache) { it.toMaintenance() }
-        return maintenanceLogsCache.map { map -> map[carId] ?: emptyList() }
-    }
-
-    suspend fun addMaintenanceLog(carId: String, log: Maintenance) {
-        val item = if (log.id.isBlank()) log.copy(id = UUID.randomUUID().toString()) else log
-        updateMapCache(maintenanceLogsCache, carId, localStorageHelper::saveMaintenanceLogs) { list ->
-            (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
-        }
-
-        val uid = getUidSafe()
-        if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
-            repositoryScope.launch(Dispatchers.IO) {
-                try {
-                    val dto = item.toRemote().copy(carId = carId)
-                    firestore.collection("users").document(uid).collection("cars").document(carId).collection("maintenance_logs").document(dto.id).set(dto).await()
-                } catch (e: Exception) {
-                    Log.e("CarRepository", "Error syncing addMaintenanceLog: ${e.message}")
-                }
-            }
-        }
-    }
-
-    suspend fun updateMaintenanceLog(carId: String, log: Maintenance) {
-        addMaintenanceLog(carId, log)
-    }
-
-    suspend fun deleteMaintenanceLog(carId: String, log: Maintenance) {
-        updateMapCache(maintenanceLogsCache, carId, localStorageHelper::saveMaintenanceLogs) { list -> list.filterNot { it.id == log.id } }
-
-        val uid = getUidSafe()
-        if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
-            repositoryScope.launch(Dispatchers.IO) {
-                try {
-                    firestore.collection("users").document(uid).collection("cars").document(carId).collection("maintenance_logs").document(log.id).delete().await()
-                } catch (e: Exception) {
-                    Log.e("CarRepository", "Error syncing deleteMaintenanceLog: ${e.message}")
-                }
-            }
-        }
-    }
-
-    // REPORTS
-    fun getCarReports(carId: String): Flow<List<CarReport>> {
-        return reportsCache.map { map -> map[carId] ?: emptyList() }
-    }
+    // CAR REPORTS
+    fun getCarReports(carId: String): Flow<List<CarReport>> = reportsCache.map { map -> map[carId] ?: emptyList() }
 
     suspend fun addCarReport(carId: String, report: CarReport) {
         val item = if (report.id.isBlank()) report.copy(id = UUID.randomUUID().toString()) else report
-        updateMapCache(reportsCache, carId) { list ->
-            (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
+        val uid = getUidSafe()
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                val dto = item.toRemote()
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("car_reports").document(dto.id).set(dto).await()
+                val snap = firestore.collection("users").document(uid).collection("cars").document(carId).collection("car_reports").get().await()
+                val list = snap.documents.mapNotNull { it.toCarReport() }.sortedByDescending { it.date }
+                reportsCache.value = reportsCache.value.toMutableMap().apply { put(carId, list) }
+            }
+        } else {
+            updateSubCollection(reportsCache, carId) { list ->
+                (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
+            }
         }
     }
 
     suspend fun deleteCarReport(carId: String, reportId: String) {
-        updateMapCache(reportsCache, carId) { list -> list.filterNot { it.id == reportId } }
-    }
-
-    private fun <T> fetchSubCollectionRemote(
-        carId: String,
-        collectionName: String,
-        cache: MutableStateFlow<Map<String, List<T>>>,
-        mapper: (DocumentSnapshot) -> T
-    ) {
         val uid = getUidSafe()
-        if (uid.isBlank() || uid == "guest" || uid == AuthRepository.GUEST_UID) return
-        repositoryScope.launch(Dispatchers.IO) {
-            try {
-                val snap = firestore.collection("users").document(uid).collection("cars").document(carId).collection(collectionName).get().await()
-                val results = snap.documents.mapNotNull { doc ->
-                    try { mapper(doc) } catch (e: Exception) { null }
-                }
-                if (results.isNotEmpty()) {
-                    updateMapCache(cache, carId) { results }
-                }
-            } catch (e: Exception) {
-                Log.e("CarRepository", "Error fetching $collectionName for $carId: ${e.message}")
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("car_reports").document(reportId).delete().await()
+                val snap = firestore.collection("users").document(uid).collection("cars").document(carId).collection("car_reports").get().await()
+                val list = snap.documents.mapNotNull { it.toCarReport() }.sortedByDescending { it.date }
+                reportsCache.value = reportsCache.value.toMutableMap().apply { put(carId, list) }
+            }
+        } else {
+            updateSubCollection(reportsCache, carId) { list ->
+                list.filterNot { it.id == reportId }
             }
         }
     }
@@ -909,62 +564,62 @@ fun DocumentSnapshot.toCar(): Car {
     return Car(
         id = id,
         name = safeString("name"),
-        licensePlate = safeString("licensePlate"),
-        plateCountry = safeString("plateCountry", "RO"),
+        licensePlate = safeString("licensePlate", safeString("license_plate")),
+        plateCountry = safeString("plateCountry", safeString("plate_country", "RO")),
         make = safeString("make"),
         model = safeString("model"),
         vin = safeString("vin"),
         year = safeInt("year"),
-        engineSize = safeString("engineSize"),
-        fuelType = safeString("fuelType"),
-        fuelSystem = safeString("fuelSystem"),
+        engineSize = safeString("engineSize", safeString("engine_size")),
+        fuelType = safeString("fuelType", safeString("fuel_type")),
+        fuelSystem = safeString("fuelSystem", safeString("fuel_system")),
         color = safeString("color"),
         power = safeInt("power"),
-        powerUnit = safeString("powerUnit", "hp"),
+        powerUnit = safeString("powerUnit", safeString("power_unit", "hp")),
         torque = safeInt("torque"),
-        engineCode = safeString("engineCode"),
-        engineLayout = safeString("engineLayout"),
-        cylinderLayout = safeString("cylinderLayout"),
+        engineCode = safeString("engineCode", safeString("engine_code")),
+        engineLayout = safeString("engineLayout", safeString("engine_layout")),
+        cylinderLayout = safeString("cylinderLayout", safeString("cylinder_layout")),
         length = safeInt("length"),
         width = safeInt("width"),
         height = safeInt("height"),
         wheelbase = safeInt("wheelbase"),
-        emissionStandard = safeString("emissionStandard"),
+        emissionStandard = safeString("emissionStandard", safeString("emission_standard")),
         aspiration = safeString("aspiration"),
-        fuelTankCapacity = safeDouble("fuelTankCapacity"),
-        batteryCapacity = safeDouble("batteryCapacity"),
+        fuelTankCapacity = safeDouble("fuelTankCapacity", safeDouble("fuel_tank_capacity")),
+        batteryCapacity = safeDouble("batteryCapacity", safeDouble("battery_capacity")),
         drivetrain = safeString("drivetrain"),
-        gearboxType = safeString("gearboxType"),
+        gearboxType = safeString("gearboxType", safeString("gearbox_type")),
         gears = safeString("gears"),
-        frontSuspension = safeString("frontSuspension"),
-        rearSuspension = safeString("rearSuspension"),
-        frontBrakes = safeString("frontBrakes"),
-        rearBrakes = safeString("rearBrakes"),
-        vehicleType = safeString("vehicleType"),
-        manufacturingCountry = safeString("manufacturingCountry"),
-        topSpeed = safeDouble("topSpeed"),
-        acceleration0to100 = safeDouble("acceleration0to100"),
-        fuelConsumptionCombined = safeDouble("fuelConsumptionCombined"),
-        fuelConsumptionUrban = safeDouble("fuelConsumptionUrban"),
-        fuelConsumptionExtraUrban = safeDouble("fuelConsumptionExtraUrban"),
-        co2Emissions = safeInt("co2Emissions"),
+        frontSuspension = safeString("frontSuspension", safeString("front_suspension")),
+        rearSuspension = safeString("rearSuspension", safeString("rear_suspension")),
+        frontBrakes = safeString("frontBrakes", safeString("front_brakes")),
+        rearBrakes = safeString("rearBrakes", safeString("rear_brakes")),
+        vehicleType = safeString("vehicleType", safeString("vehicle_type")),
+        manufacturingCountry = safeString("manufacturingCountry", safeString("manufacturing_country")),
+        topSpeed = safeDouble("topSpeed", safeDouble("top_speed")),
+        acceleration0to100 = safeDouble("acceleration0to100", safeDouble("acceleration_0_to_100")),
+        fuelConsumptionCombined = safeDouble("fuelConsumptionCombined", safeDouble("fuel_consumption_combined")),
+        fuelConsumptionUrban = safeDouble("fuelConsumptionUrban", safeDouble("fuel_consumption_urban")),
+        fuelConsumptionExtraUrban = safeDouble("fuelConsumptionExtraUrban", safeDouble("fuel_consumption_extra_urban")),
+        co2Emissions = safeInt("co2Emissions", safeInt("co2_emissions")),
         weight = safeInt("weight"),
-        numberOfSeats = safeInt("numberOfSeats"),
-        numberOfCylinders = safeInt("numberOfCylinders"),
-        valvesPerCylinder = safeInt("valvesPerCylinder"),
-        numberOfDoors = safeInt("numberOfDoors"),
-        bootSpace = safeInt("bootSpace"),
-        tireWidth = safeInt("tireWidth"),
-        tireAspectRatio = safeInt("tireAspectRatio"),
-        tireDiameter = safeInt("tireDiameter"),
+        numberOfSeats = safeInt("numberOfSeats", safeInt("number_of_seats")),
+        numberOfCylinders = safeInt("numberOfCylinders", safeInt("number_of_cylinders")),
+        valvesPerCylinder = safeInt("valvesPerCylinder", safeInt("valves_per_cylinder")),
+        numberOfDoors = safeInt("numberOfDoors", safeInt("number_of_doors")),
+        bootSpace = safeInt("bootSpace", safeInt("boot_space")),
+        tireWidth = safeInt("tireWidth", safeInt("tire_width")),
+        tireAspectRatio = safeInt("tireAspectRatio", safeInt("tire_aspect_ratio")),
+        tireDiameter = safeInt("tireDiameter", safeInt("tire_diameter")),
         equipments = safeStringList("equipments"),
-        accentColor = safeLongOrNull("accentColor"),
-        createdAt = safeDate("createdAt", Date()),
-        updatedAt = safeDate("updatedAt", Date()),
-        activityCount = safeInt("activityCount"),
+        accentColor = safeLongOrNull("accentColor") ?: safeLongOrNull("accent_color"),
+        createdAt = safeDate("createdAt", safeDate("created_at", Date())),
+        updatedAt = safeDate("updatedAt", safeDate("updated_at", Date())),
+        activityCount = safeInt("activityCount", safeInt("activity_count")),
         airbags = safeInt("airbags"),
         generation = safeString("generation"),
-        engineVariant = safeString("engineVariant"),
+        engineVariant = safeString("engineVariant", safeString("engine_variant")),
         isPendingSync = false
     )
 }
@@ -979,7 +634,7 @@ fun DocumentSnapshot.toMileageLog(): MileageLog {
 }
 
 fun DocumentSnapshot.toVehicleInspection(): VehicleInspection {
-    val unitStr = safeString("durationUnit", "YEARS")
+    val unitStr = safeString("durationUnit", safeString("duration_unit", "YEARS"))
     val durationUnitEnum = try {
         InspectionDurationUnit.valueOf(unitStr)
     } catch (e: Exception) {
@@ -989,14 +644,14 @@ fun DocumentSnapshot.toVehicleInspection(): VehicleInspection {
         id = id,
         date = safeDate("date", Date()),
         mileage = safeDouble("mileage", safeDouble("km", 0.0)),
-        durationValue = safeInt("durationValue", 1),
+        durationValue = safeInt("durationValue", safeInt("duration_value", 1)),
         durationUnit = durationUnitEnum,
-        mileageLogId = safeString("mileageLogId")
+        mileageLogId = safeString("mileageLogId", safeString("mileage_log_id"))
     )
 }
 
 fun DocumentSnapshot.toInsurance(): Insurance {
-    val unitStr = safeString("durationUnit", "MONTHS")
+    val unitStr = safeString("durationUnit", safeString("duration_unit", "MONTHS"))
     val durationUnitEnum = try {
         InspectionDurationUnit.valueOf(unitStr)
     } catch (e: Exception) {
@@ -1005,14 +660,14 @@ fun DocumentSnapshot.toInsurance(): Insurance {
     return Insurance(
         id = id,
         date = safeDate("date", Date()),
-        durationValue = safeInt("durationValue", 6),
+        durationValue = safeInt("durationValue", safeInt("duration_value", 6)),
         durationUnit = durationUnitEnum,
         provider = safeString("provider")
     )
 }
 
 fun DocumentSnapshot.toVignette(): Vignette {
-    val unitStr = safeString("durationUnit", "MONTHS")
+    val unitStr = safeString("durationUnit", safeString("duration_unit", "MONTHS"))
     val durationUnitEnum = try {
         InspectionDurationUnit.valueOf(unitStr)
     } catch (e: Exception) {
@@ -1021,7 +676,7 @@ fun DocumentSnapshot.toVignette(): Vignette {
     return Vignette(
         id = id,
         date = safeDate("date", Date()),
-        durationValue = safeInt("durationValue", 1),
+        durationValue = safeInt("durationValue", safeInt("duration_value", 1)),
         durationUnit = durationUnitEnum,
         country = safeString("country")
     )
@@ -1043,7 +698,7 @@ fun DocumentSnapshot.toTireSet(): TireSet {
         diameter = safeInt("diameter"),
         dotWeek = safeIntOrNull("dotWeek"),
         dotYear = safeIntOrNull("dotYear"),
-        isActive = safeBoolean("isActive", false)
+        isActive = safeBoolean("isActive", safeBoolean("is_active", false))
     )
 }
 
@@ -1053,8 +708,8 @@ fun DocumentSnapshot.toFuelLog(): FuelLog {
         date = safeDate("date", Date()),
         km = safeDouble("km", safeDouble("mileage", 0.0)),
         liters = safeDouble("liters"),
-        isFullTank = safeBoolean("isFullTank", true),
-        mileageLogId = safeString("mileageLogId")
+        isFullTank = safeBoolean("isFullTank", safeBoolean("is_full_tank", true)),
+        mileageLogId = safeString("mileageLogId", safeString("mileage_log_id"))
     )
 }
 
@@ -1064,7 +719,7 @@ fun DocumentSnapshot.toMaintenance(): Maintenance {
         date = safeDate("date", Date()),
         km = safeDouble("km", safeDouble("mileage", 0.0)),
         description = safeString("description"),
-        mileageLogId = safeString("mileageLogId"),
+        mileageLogId = safeString("mileageLogId", safeString("mileage_log_id")),
         category = safeString("category", "General")
     )
 }
@@ -1072,7 +727,7 @@ fun DocumentSnapshot.toMaintenance(): Maintenance {
 fun DocumentSnapshot.toCarReport(): CarReport {
     return CarReport(
         id = id,
-        carId = safeString("carId"),
+        carId = safeString("carId", safeString("car_id")),
         fileName = safeString("fileName", safeString("file_name")),
         date = safeDate("date", Date())
     )
@@ -1081,7 +736,7 @@ fun DocumentSnapshot.toCarReport(): CarReport {
 fun DocumentSnapshot.toChatMessage(): ChatMessage {
     return ChatMessage(
         text = safeString("text"),
-        isUser = safeBoolean("isUser", false),
+        isUser = safeBoolean("isUser", safeBoolean("is_user", false)),
         timestamp = safeLong("timestamp", System.currentTimeMillis())
     )
 }

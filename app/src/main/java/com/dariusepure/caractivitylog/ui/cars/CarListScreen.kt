@@ -245,7 +245,6 @@ fun CarCard(
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.weight(1f, fill = false)
                             )
-                            SyncStatusBadge(isPendingSync = car.isPendingSync, isGuestMode = isGuestMode)
                         }
 
                         Spacer(Modifier.width(8.dp))
