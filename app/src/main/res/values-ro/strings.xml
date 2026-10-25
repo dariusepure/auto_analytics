@@ -184,6 +184,8 @@
     <string name="auth_hide_password">Ascunde parola</string>
     <string name="auth_show_password">Afișează parola</string>
     <string name="auth_logout">Deconectare</string>
+    <string name="logout_dialog_title">Deconectare?</string>
+    <string name="logout_dialog_message">Ești sigur că vrei să te deconectezi din cont?</string>
     <string name="settings_change_password">Schimbă parola</string>
     <string name="settings_change_password_title">Actualizează parola</string>
     <string name="settings_current_password_label">Parola curentă</string>
@@ -522,7 +524,7 @@
     <string name="pdf_field_year">An</string>
     <string name="pdf_field_vin">VIN</string>
     <string name="pdf_field_license_plate">Număr înmatriculare</string>
-    <string name="pdf_field_country">Țara nr. înmatriculare</string>
+    <string name="pdf_field_country">Țara înmatriculării</string>
     <string name="pdf_field_color">Culoare</string>
     <string name="pdf_field_vehicle_type">Tip vehicul</string>
     <string name="pdf_field_manufacturing_country">Țara de fabricație</string>
@@ -571,7 +573,7 @@
     <string name="car_dimensions_capacity_section">Dimensiuni și capacitate</string>
     <string name="car_gears_count_label">Viteze</string>
     <string name="car_valves_label">Valve</string>
-    <string name="car_plate_country_label">Țara număr înmatriculare</string>
+    <string name="car_plate_country_label">Țara înmatriculării</string>
     <string name="car_dimensions_lxwxh">Dimensiuni</string>
     <string name="car_abs_label">ABS</string>
     <string name="car_esp_label">ESP</string>

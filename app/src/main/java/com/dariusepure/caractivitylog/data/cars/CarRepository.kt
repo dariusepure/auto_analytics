@@ -113,7 +113,38 @@ class CarRepository @Inject constructor(
     private suspend fun switchUserCache(uid: String) {
         withContext(Dispatchers.IO) {
             try {
-                val localCars = try { localStorageHelper.loadCars(uid) } catch (e: Exception) { emptyList() }
+                var localCars = try { localStorageHelper.loadCars(uid) } catch (e: Exception) { emptyList() }
+
+                if (localCars.isEmpty() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
+                    val guestCars = try { localStorageHelper.loadCars("guest") } catch (e: Exception) { emptyList() }
+                    if (guestCars.isNotEmpty()) {
+                        Log.d("CarRepository", "Migrating ${guestCars.size} guest cars to user $uid")
+                        localCars = guestCars.map { it.copy(isPendingSync = true) }
+                        localStorageHelper.saveCars(uid, localCars)
+
+                        val guestInspections = localStorageHelper.loadInspections("guest")
+                        if (guestInspections.isNotEmpty()) localStorageHelper.saveInspections(uid, guestInspections)
+
+                        val guestFuel = localStorageHelper.loadFuelLogs("guest")
+                        if (guestFuel.isNotEmpty()) localStorageHelper.saveFuelLogs(uid, guestFuel)
+
+                        val guestMaint = localStorageHelper.loadMaintenanceLogs("guest")
+                        if (guestMaint.isNotEmpty()) localStorageHelper.saveMaintenanceLogs(uid, guestMaint)
+
+                        val guestMileage = localStorageHelper.loadMileageLogs("guest")
+                        if (guestMileage.isNotEmpty()) localStorageHelper.saveMileageLogs(uid, guestMileage)
+
+                        val guestInsurances = localStorageHelper.loadInsurances("guest")
+                        if (guestInsurances.isNotEmpty()) localStorageHelper.saveInsurances(uid, guestInsurances)
+
+                        val guestVignettes = localStorageHelper.loadVignettes("guest")
+                        if (guestVignettes.isNotEmpty()) localStorageHelper.saveVignettes(uid, guestVignettes)
+
+                        val guestTires = localStorageHelper.loadTireSets("guest")
+                        if (guestTires.isNotEmpty()) localStorageHelper.saveTireSets(uid, guestTires)
+                    }
+                }
+
                 carsCache.value = localCars
                 inspectionsCache.value = try { localStorageHelper.loadInspections(uid) } catch (e: Exception) { emptyMap() }
                 fuelLogsCache.value = try { localStorageHelper.loadFuelLogs(uid) } catch (e: Exception) { emptyMap() }
@@ -217,9 +248,28 @@ class CarRepository @Inject constructor(
                     }
 
                     val currentLocal = carsCache.value
-                    val remoteIds = allRemoteCars.map { it.id }.toSet()
-                    val localOnly = currentLocal.filterNot { it.id in remoteIds }
-                    val mergedCars = allRemoteCars + localOnly
+                    val mergedCars = mutableListOf<Car>()
+                    val remoteMap = allRemoteCars.associateBy { it.id }
+
+                    for (localCar in currentLocal) {
+                        val remote = remoteMap[localCar.id]
+                        if (remote == null) {
+                            mergedCars.add(localCar)
+                        } else {
+                            val merged = if (localCar.isPendingSync || (localCar.updatedAt.after(remote.updatedAt))) {
+                                localCar
+                            } else {
+                                remote
+                            }
+                            mergedCars.add(merged)
+                        }
+                    }
+
+                    for (remoteCar in allRemoteCars) {
+                        if (mergedCars.none { it.id == remoteCar.id }) {
+                            mergedCars.add(remoteCar)
+                        }
+                    }
 
                     carsCache.value = mergedCars
                     repositoryScope.launch(Dispatchers.IO) {
@@ -1041,7 +1091,10 @@ fun DocumentSnapshot.toChatMessage(): ChatMessage {
 // ==========================================
 
 private fun String.camelToSnake(): String {
-    return this.replace(Regex("([a-z0-9])([A-Z])"), "$1_$2").lowercase()
+    return this
+        .replace("0to100", "_0_to_100")
+        .replace(Regex("([a-z0-9])([A-Z])"), "$1_$2")
+        .lowercase()
 }
 
 private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ROOT).apply {

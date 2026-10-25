@@ -80,6 +80,7 @@ object CarFormatters {
     }
 
     fun formatPower(context: android.content.Context, car: Car): String {
+        if (car.power <= 0) return ""
         val hpValue: Int = if (car.powerUnit.lowercase() == "kw") {
             (car.power * 1.35962).roundToInt()
         } else {

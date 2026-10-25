@@ -193,8 +193,7 @@ object PdfReportGenerator {
             val country = europeanCountries.find { it.code == car.plateCountry }
             
             // 1. Identity
-            drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.car_identity_section))
-            drawThreeColumns(listOf(
+            val identityItems = listOf(
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_make) to car.make,
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_model) to car.model,
                 context.getString(R.string.car_engine_variant_label) to car.engineVariant,
@@ -204,10 +203,14 @@ object PdfReportGenerator {
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_vin) to car.vin,
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_vehicle_type) to CarTranslations.getVehicleTypeLabel(context, car.vehicleType),
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_manufacturing_country) to car.manufacturingCountry
-            ).filter { it.second.isNotBlank() })
+            ).filter { it.second.isNotBlank() }
+
+            if (identityItems.isNotEmpty()) {
+                drawSectionHeader(context.getString(R.string.car_identity_section))
+                drawThreeColumns(identityItems)
+            }
 
             // 2. Engine & Performance
-            drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.car_engine_transmission_section))
             val speedUnit = context.getString(if (country?.usesMiles == true) com.dariusepure.caractivitylog.R.string.pdf_unit_mph else com.dariusepure.caractivitylog.R.string.pdf_unit_kmh)
             val powerUnit = context.getString(if (car.powerUnit.lowercase() == "hp") com.dariusepure.caractivitylog.R.string.pdf_unit_hp else com.dariusepure.caractivitylog.R.string.pdf_unit_kw)
             val consUnit = context.getString(com.dariusepure.caractivitylog.R.string.pdf_unit_liters_100km)
@@ -239,11 +242,14 @@ object PdfReportGenerator {
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_rear_suspension) to CarTranslations.getSuspensionLabel(context, car.rearSuspension),
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_front_brakes) to CarTranslations.getBrakesLabel(context, car.frontBrakes),
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_rear_brakes) to CarTranslations.getBrakesLabel(context, car.rearBrakes)
-            )
-            drawThreeColumns(engineSpecs.filter { it.second.isNotBlank() })
+            ).filter { it.second.isNotBlank() }
+
+            if (engineSpecs.isNotEmpty()) {
+                drawSectionHeader(context.getString(R.string.car_engine_transmission_section))
+                drawThreeColumns(engineSpecs)
+            }
 
             // 3. Dimensions
-            drawSectionHeader(context.getString(com.dariusepure.caractivitylog.R.string.car_dimensions_section))
             val mm = context.getString(com.dariusepure.caractivitylog.R.string.pdf_unit_mm)
             val kg = context.getString(com.dariusepure.caractivitylog.R.string.pdf_unit_kg)
             val litersUnit = context.getString(com.dariusepure.caractivitylog.R.string.pdf_unit_liters)
@@ -261,8 +267,12 @@ object PdfReportGenerator {
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_doors) to if (car.numberOfDoors > 0) car.numberOfDoors.toString() else "",
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_fuel_tank_capacity) to if (car.fuelTankCapacity > 0) "${car.fuelTankCapacity} $litersUnit" else "",
                 context.getString(com.dariusepure.caractivitylog.R.string.pdf_field_battery_capacity) to if (car.batteryCapacity > 0) "${car.batteryCapacity} ${context.getString(com.dariusepure.caractivitylog.R.string.pdf_unit_kwh)}" else ""
-            )
-            drawThreeColumns(dimensionSpecs.filter { it.second.isNotBlank() })
+            ).filter { it.second.isNotBlank() }
+
+            if (dimensionSpecs.isNotEmpty()) {
+                drawSectionHeader(context.getString(R.string.car_dimensions_section))
+                drawThreeColumns(dimensionSpecs)
+            }
 
             // 4. Safety
             val safetyIds = listOf(
@@ -276,7 +286,7 @@ object PdfReportGenerator {
             if (car.airbags > 0) {
                 safetyList.add(context.getString(R.string.car_airbags_label) to car.airbags.toString())
             }
-            car.equipments.filter { it in safetyIds }.forEach { id ->
+            car.equipments.filter { it.startsWith("safety_") || it in safetyIds }.forEach { id ->
                 safetyList.add("" to CarTranslations.getEquipmentLabel(context, id))
             }
 

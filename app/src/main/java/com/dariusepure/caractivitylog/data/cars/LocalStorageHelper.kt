@@ -18,24 +18,69 @@ import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
 
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.builtins.ListSerializer
+
 @Singleton
 class LocalStorageHelper @Inject constructor(
     @ApplicationContext context: Context
 ) {
     private val filesDir = context.filesDir
 
-    private fun getFile(prefix: String, userId: String): File {
-        val safeUid = userId.ifBlank { "guest" }.replace(Regex("[^a-zA-Z0-9_-]"), "_")
-        return File(filesDir, "${prefix}_${safeUid}.csv")
+    private val json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        coerceInputValues = true
     }
 
-    // CARS CSV
+    private fun getSafeUid(userId: String): String {
+        return if (userId.isBlank() || userId == "guest" || userId == "local_guest_user") {
+            "guest"
+        } else {
+            userId.replace(Regex("[^a-zA-Z0-9_-]"), "_")
+        }
+    }
+
+    private fun getFile(prefix: String, userId: String): File {
+        val safeUid = getSafeUid(userId)
+        val file = File(filesDir, "${prefix}_${safeUid}.csv")
+        if (!file.exists() && safeUid == "guest") {
+            val legacyGuestFile = File(filesDir, "${prefix}_local_guest_user.csv")
+            if (legacyGuestFile.exists()) return legacyGuestFile
+        }
+        return file
+    }
+
+    private fun getJsonFile(prefix: String, userId: String): File {
+        val safeUid = getSafeUid(userId)
+        val file = File(filesDir, "${prefix}_${safeUid}.json")
+        if (!file.exists() && safeUid == "guest") {
+            val legacyGuestFile = File(filesDir, "${prefix}_local_guest_user.json")
+            if (legacyGuestFile.exists()) return legacyGuestFile
+        }
+        return file
+    }
+
+    // CARS JSON / CSV
     fun loadCars(userId: String): List<Car> {
-        val file = getFile("cars", userId)
-        if (!file.exists()) return emptyList()
+        val jsonFile = getJsonFile("cars", userId)
+        if (jsonFile.exists()) {
+            try {
+                val jsonStr = jsonFile.readText()
+                if (jsonStr.isNotBlank()) {
+                    val remoteList = json.decodeFromString(ListSerializer(RemoteCar.serializer()), jsonStr)
+                    return remoteList.map { it.fromRemote() }
+                }
+            } catch (e: Exception) {
+                Log.e("LocalStorageHelper", "Error reading cars JSON", e)
+            }
+        }
+
+        val csvFile = getFile("cars", userId)
+        if (!csvFile.exists()) return emptyList()
         val list = mutableListOf<Car>()
         try {
-            file.readLines().drop(1).forEach { line ->
+            csvFile.readLines().drop(1).forEach { line ->
                 val parts = line.split(",")
                 if (parts.size >= 19) {
                     val car = Car(
@@ -63,6 +108,9 @@ class LocalStorageHelper @Inject constructor(
                     list.add(car)
                 }
             }
+            if (list.isNotEmpty()) {
+                saveCars(userId, list)
+            }
         } catch (e: Exception) {
             Log.e("LocalStorageHelper", "Error reading cars CSV", e)
         }
@@ -70,32 +118,13 @@ class LocalStorageHelper @Inject constructor(
     }
 
     fun saveCars(userId: String, cars: List<Car>) {
-        val file = getFile("cars", userId)
+        val jsonFile = getJsonFile("cars", userId)
         try {
-            val sb = StringBuilder()
-            sb.append("id,name,licensePlate,plateCountry,make,model,vin,year,engineSize,fuelType,power,powerUnit,vehicleType,gearboxType,drivetrain,color,emissionStandard,generation,engineVariant,isPendingSync\n")
-            cars.forEach { item ->
-                val cleanName = item.name.replace(",", ";")
-                val cleanPlate = item.licensePlate.replace(",", ";")
-                val cleanCountry = item.plateCountry.replace(",", ";")
-                val cleanMake = item.make.replace(",", ";")
-                val cleanModel = item.model.replace(",", ";")
-                val cleanVin = item.vin.replace(",", ";")
-                val cleanEngineSize = item.engineSize.replace(",", ";")
-                val cleanFuel = item.fuelType.replace(",", ";")
-                val cleanPowerUnit = item.powerUnit.replace(",", ";")
-                val cleanVehicleType = item.vehicleType.replace(",", ";")
-                val cleanGearbox = item.gearboxType.replace(",", ";")
-                val cleanDrivetrain = item.drivetrain.replace(",", ";")
-                val cleanColor = item.color.replace(",", ";")
-                val cleanEmission = item.emissionStandard.replace(",", ";")
-                val cleanGen = item.generation.replace(",", ";")
-                val cleanVar = item.engineVariant.replace(",", ";")
-                sb.append("${item.id},$cleanName,$cleanPlate,$cleanCountry,$cleanMake,$cleanModel,$cleanVin,${item.year},$cleanEngineSize,$cleanFuel,${item.power},$cleanPowerUnit,$cleanVehicleType,$cleanGearbox,$cleanDrivetrain,$cleanColor,$cleanEmission,$cleanGen,$cleanVar,${item.isPendingSync}\n")
-            }
-            file.writeText(sb.toString())
+            val remoteList = cars.map { it.toRemote() }
+            val jsonStr = json.encodeToString(ListSerializer(RemoteCar.serializer()), remoteList)
+            jsonFile.writeText(jsonStr)
         } catch (e: Exception) {
-            Log.e("LocalStorageHelper", "Error writing cars CSV", e)
+            Log.e("LocalStorageHelper", "Error writing cars JSON", e)
         }
     }
 

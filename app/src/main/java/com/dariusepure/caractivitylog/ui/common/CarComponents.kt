@@ -457,10 +457,11 @@ fun SpecificationCard(
                     AutoSizeText(
                         text = item.label,
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
-                        modifier = Modifier.weight(0.7f),
+                        modifier = Modifier.weight(1.1f),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         minFontSize = 9.sp,
-                        maxLines = 2
+                        maxLines = 1,
+                        softWrap = false
                     )
 
                     val isVin = item.label.contains("vin", ignoreCase = true) || item.label.contains("șasiu", ignoreCase = true)
@@ -471,17 +472,18 @@ fun SpecificationCard(
                             MaterialTheme.typography.bodyMedium.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = FontFamily.Monospace,
-                                fontSize = 13.5.sp,
+                                fontSize = 13.sp,
                                 letterSpacing = 0.5.sp
                             )
                         } else {
                             MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
                         },
-                        modifier = Modifier.weight(1.8f),
+                        modifier = Modifier.weight(1f),
                         color = MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.End,
-                        minFontSize = 10.sp,
-                        maxLines = 1
+                        minFontSize = 9.sp,
+                        maxLines = 1,
+                        softWrap = false
                     )
                 }
                 if (index < validItems.size - 1) {
@@ -639,21 +641,39 @@ fun AutoSizeText(
     text: String,
     style: androidx.compose.ui.text.TextStyle,
     modifier: Modifier = Modifier,
-    minFontSize: TextUnit = 10.sp,
+    minFontSize: TextUnit = 9.sp,
     maxLines: Int = 1,
-    softWrap: Boolean = maxLines > 1,
+    softWrap: Boolean = false,
     textAlign: TextAlign? = null,
     color: Color = Color.Unspecified
 ) {
+    var resizedTextStyle by remember(text, style) { mutableStateOf(style) }
+    var readyToDraw by remember(text, style) { mutableStateOf(false) }
+
     Text(
         text = text,
-        modifier = modifier,
-        style = style,
+        modifier = modifier.drawWithContent {
+            if (readyToDraw) drawContent()
+        },
+        style = resizedTextStyle,
         maxLines = maxLines,
         softWrap = softWrap,
-        overflow = TextOverflow.Ellipsis,
+        overflow = TextOverflow.Clip,
         textAlign = textAlign,
-        color = color
+        color = color,
+        onTextLayout = { textLayoutResult ->
+            if (textLayoutResult.didOverflowWidth || textLayoutResult.didOverflowHeight) {
+                val currentSize = resizedTextStyle.fontSize.takeIf { it.isSp } ?: style.fontSize
+                if (currentSize.value > minFontSize.value) {
+                    val newSize = (currentSize.value - 0.5f).coerceAtLeast(minFontSize.value)
+                    resizedTextStyle = resizedTextStyle.copy(fontSize = newSize.sp)
+                } else {
+                    readyToDraw = true
+                }
+            } else {
+                readyToDraw = true
+            }
+        }
     )
 }
 

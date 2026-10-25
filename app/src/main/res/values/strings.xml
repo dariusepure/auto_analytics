@@ -184,6 +184,8 @@
     <string name="auth_hide_password">Hide password</string>
     <string name="auth_show_password">Show password</string>
     <string name="auth_logout">Logout</string>
+    <string name="logout_dialog_title">Sign Out?</string>
+    <string name="logout_dialog_message">Are you sure you want to sign out of your account?</string>
     <string name="settings_change_password">Change Password</string>
     <string name="settings_change_password_title">Update Password</string>
     <string name="settings_current_password_label">Current Password</string>
