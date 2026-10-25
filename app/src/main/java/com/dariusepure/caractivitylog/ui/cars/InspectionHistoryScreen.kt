@@ -156,7 +156,11 @@ fun InspectionHistoryScreen(
                         }
                     }
 
-                    items(s.inspections) { inspection ->
+                    items(
+                        items = s.inspections,
+                        key = { it.id },
+                        contentType = { "inspection_log" }
+                    ) { inspection ->
                         InspectionLogItem(
                             inspection = inspection,
                             unit = unit,

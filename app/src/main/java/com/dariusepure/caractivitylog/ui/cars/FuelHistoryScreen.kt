@@ -160,7 +160,11 @@ fun FuelHistoryScreen(
                         }
                     }
 
-                    items(s.logs) { entry ->
+                    items(
+                        items = s.logs,
+                        key = { it.log.id },
+                        contentType = { "fuel_log" }
+                    ) { entry ->
                         FuelLogItem(
                             entry = entry,
                             distUnit = distUnit,

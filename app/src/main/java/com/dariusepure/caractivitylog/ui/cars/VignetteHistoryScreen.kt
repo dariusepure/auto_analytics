@@ -140,7 +140,11 @@ fun VignetteHistoryScreen(
                         }
                     }
 
-                    items(s.vignettes) { vignette ->
+                    items(
+                        items = s.vignettes,
+                        key = { it.id },
+                        contentType = { "vignette_log" }
+                    ) { vignette ->
                         VignetteLogItem(
                             vignette = vignette,
                             onEdit = { editingVignette = vignette },

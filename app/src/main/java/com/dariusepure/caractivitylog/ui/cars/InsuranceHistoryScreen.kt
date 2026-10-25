@@ -136,7 +136,11 @@ fun InsuranceHistoryScreen(
                         }
                     }
 
-                    items(s.insurances) { insurance ->
+                    items(
+                        items = s.insurances,
+                        key = { it.id },
+                        contentType = { "insurance_log" }
+                    ) { insurance ->
                         InsuranceLogItem(
                             insurance = insurance,
                             onEdit = { editingInsurance = insurance },

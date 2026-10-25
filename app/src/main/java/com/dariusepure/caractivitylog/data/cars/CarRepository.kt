@@ -131,28 +131,29 @@ class CarRepository @Inject constructor(
     private fun <T> updateMapCache(
         cache: MutableStateFlow<Map<String, List<T>>>,
         carId: String,
+        saveAction: ((String, Map<String, List<T>>) -> Unit)? = null,
         updateBlock: (List<T>) -> List<T>
     ) {
         val currentMap = cache.value.toMutableMap()
         val currentList = currentMap[carId] ?: emptyList()
         currentMap[carId] = updateBlock(currentList)
         cache.value = currentMap
-        saveSubCollectionsToLocalStorage()
-    }
-
-    private fun saveSubCollectionsToLocalStorage() {
         val uid = getUidSafe()
         repositoryScope.launch(Dispatchers.IO) {
             try {
-                localStorageHelper.saveMileageLogs(uid, mileageLogsCache.value)
-                localStorageHelper.saveInspections(uid, inspectionsCache.value)
-                localStorageHelper.saveFuelLogs(uid, fuelLogsCache.value)
-                localStorageHelper.saveMaintenanceLogs(uid, maintenanceLogsCache.value)
-                localStorageHelper.saveInsurances(uid, insurancesCache.value)
-                localStorageHelper.saveVignettes(uid, vignettesCache.value)
-                localStorageHelper.saveTireSets(uid, tireSetsCache.value)
+                if (saveAction != null) {
+                    saveAction(uid, currentMap)
+                } else {
+                    localStorageHelper.saveMileageLogs(uid, mileageLogsCache.value)
+                    localStorageHelper.saveInspections(uid, inspectionsCache.value)
+                    localStorageHelper.saveFuelLogs(uid, fuelLogsCache.value)
+                    localStorageHelper.saveMaintenanceLogs(uid, maintenanceLogsCache.value)
+                    localStorageHelper.saveInsurances(uid, insurancesCache.value)
+                    localStorageHelper.saveVignettes(uid, vignettesCache.value)
+                    localStorageHelper.saveTireSets(uid, tireSetsCache.value)
+                }
             } catch (e: Exception) {
-                Log.e("CarRepository", "Error saving subcollections to local storage: ${e.message}")
+                Log.e("CarRepository", "Error saving cache to local storage: ${e.message}")
             }
         }
     }
@@ -497,7 +498,7 @@ class CarRepository @Inject constructor(
 
     suspend fun addMileageLog(carId: String, log: MileageLog) {
         val item = if (log.id.isBlank()) log.copy(id = UUID.randomUUID().toString()) else log
-        updateMapCache(mileageLogsCache, carId) { list ->
+        updateMapCache(mileageLogsCache, carId, localStorageHelper::saveMileageLogs) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
         }
 
@@ -519,7 +520,7 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteMileageLog(carId: String, logId: String) {
-        updateMapCache(mileageLogsCache, carId) { list -> list.filterNot { it.id == logId } }
+        updateMapCache(mileageLogsCache, carId, localStorageHelper::saveMileageLogs) { list -> list.filterNot { it.id == logId } }
 
         val uid = getUidSafe()
         if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
@@ -541,7 +542,7 @@ class CarRepository @Inject constructor(
 
     suspend fun addInspection(carId: String, inspection: VehicleInspection) {
         val item = if (inspection.id.isBlank()) inspection.copy(id = UUID.randomUUID().toString()) else inspection
-        updateMapCache(inspectionsCache, carId) { list ->
+        updateMapCache(inspectionsCache, carId, localStorageHelper::saveInspections) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
         }
 
@@ -563,7 +564,7 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteInspection(carId: String, inspection: VehicleInspection) {
-        updateMapCache(inspectionsCache, carId) { list -> list.filterNot { it.id == inspection.id } }
+        updateMapCache(inspectionsCache, carId, localStorageHelper::saveInspections) { list -> list.filterNot { it.id == inspection.id } }
 
         val uid = getUidSafe()
         if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
@@ -585,7 +586,7 @@ class CarRepository @Inject constructor(
 
     suspend fun addInsurance(carId: String, insurance: Insurance) {
         val item = if (insurance.id.isBlank()) insurance.copy(id = UUID.randomUUID().toString()) else insurance
-        updateMapCache(insurancesCache, carId) { list ->
+        updateMapCache(insurancesCache, carId, localStorageHelper::saveInsurances) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
         }
 
@@ -607,7 +608,7 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteInsurance(carId: String, insuranceId: String) {
-        updateMapCache(insurancesCache, carId) { list -> list.filterNot { it.id == insuranceId } }
+        updateMapCache(insurancesCache, carId, localStorageHelper::saveInsurances) { list -> list.filterNot { it.id == insuranceId } }
 
         val uid = getUidSafe()
         if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
@@ -629,7 +630,7 @@ class CarRepository @Inject constructor(
 
     suspend fun addVignette(carId: String, vignette: Vignette) {
         val item = if (vignette.id.isBlank()) vignette.copy(id = UUID.randomUUID().toString()) else vignette
-        updateMapCache(vignettesCache, carId) { list ->
+        updateMapCache(vignettesCache, carId, localStorageHelper::saveVignettes) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
         }
 
@@ -651,7 +652,7 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteVignette(carId: String, vignetteId: String) {
-        updateMapCache(vignettesCache, carId) { list -> list.filterNot { it.id == vignetteId } }
+        updateMapCache(vignettesCache, carId, localStorageHelper::saveVignettes) { list -> list.filterNot { it.id == vignetteId } }
 
         val uid = getUidSafe()
         if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
@@ -673,7 +674,7 @@ class CarRepository @Inject constructor(
 
     suspend fun addTireSet(carId: String, tireSet: TireSet) {
         val item = if (tireSet.id.isBlank()) tireSet.copy(id = UUID.randomUUID().toString()) else tireSet
-        updateMapCache(tireSetsCache, carId) { list ->
+        updateMapCache(tireSetsCache, carId, localStorageHelper::saveTireSets) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.isActive }
         }
 
@@ -695,7 +696,7 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteTireSet(carId: String, tireSetId: String) {
-        updateMapCache(tireSetsCache, carId) { list -> list.filterNot { it.id == tireSetId } }
+        updateMapCache(tireSetsCache, carId, localStorageHelper::saveTireSets) { list -> list.filterNot { it.id == tireSetId } }
 
         val uid = getUidSafe()
         if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
@@ -730,7 +731,7 @@ class CarRepository @Inject constructor(
 
     suspend fun addFuelLog(carId: String, log: FuelLog) {
         val item = if (log.id.isBlank()) log.copy(id = UUID.randomUUID().toString()) else log
-        updateMapCache(fuelLogsCache, carId) { list ->
+        updateMapCache(fuelLogsCache, carId, localStorageHelper::saveFuelLogs) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
         }
 
@@ -752,7 +753,7 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteFuelLog(carId: String, log: FuelLog) {
-        updateMapCache(fuelLogsCache, carId) { list -> list.filterNot { it.id == log.id } }
+        updateMapCache(fuelLogsCache, carId, localStorageHelper::saveFuelLogs) { list -> list.filterNot { it.id == log.id } }
 
         val uid = getUidSafe()
         if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {
@@ -774,7 +775,7 @@ class CarRepository @Inject constructor(
 
     suspend fun addMaintenanceLog(carId: String, log: Maintenance) {
         val item = if (log.id.isBlank()) log.copy(id = UUID.randomUUID().toString()) else log
-        updateMapCache(maintenanceLogsCache, carId) { list ->
+        updateMapCache(maintenanceLogsCache, carId, localStorageHelper::saveMaintenanceLogs) { list ->
             (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
         }
 
@@ -796,7 +797,7 @@ class CarRepository @Inject constructor(
     }
 
     suspend fun deleteMaintenanceLog(carId: String, log: Maintenance) {
-        updateMapCache(maintenanceLogsCache, carId) { list -> list.filterNot { it.id == log.id } }
+        updateMapCache(maintenanceLogsCache, carId, localStorageHelper::saveMaintenanceLogs) { list -> list.filterNot { it.id == log.id } }
 
         val uid = getUidSafe()
         if (uid.isNotBlank() && uid != "guest" && uid != AuthRepository.GUEST_UID) {

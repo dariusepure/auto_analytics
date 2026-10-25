@@ -120,7 +120,11 @@ fun DiagnosisScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        items(state.messages) { message ->
+                        items(
+                            items = state.messages,
+                            key = { "${it.timestamp}_${it.isUser}_${it.text.hashCode()}" },
+                            contentType = { "chat_message" }
+                        ) { message ->
                             ChatMessageBubble(message)
                         }
                         
