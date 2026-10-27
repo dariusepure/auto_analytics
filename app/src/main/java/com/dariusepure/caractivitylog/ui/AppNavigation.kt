@@ -30,7 +30,7 @@ import com.dariusepure.caractivitylog.ui.cars.FuelHistoryScreen
 import com.dariusepure.caractivitylog.ui.cars.InsuranceHistoryScreen
 import com.dariusepure.caractivitylog.ui.cars.VignetteHistoryScreen
 import com.dariusepure.caractivitylog.ui.cars.TireHistoryScreen
-import com.dariusepure.caractivitylog.ui.cars.CarReportsScreen
+// import com.dariusepure.caractivitylog.ui.cars.CarReportsScreen
 import com.dariusepure.caractivitylog.ui.cars.ServiceHistoryScreen
 import com.dariusepure.caractivitylog.ui.settings.SettingsScreen
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -77,9 +77,7 @@ sealed class Screen(val route: String) {
     data object ServiceHistory : Screen("servicehistory/{carId}") {
         fun createRoute(carId: String) = "servicehistory/$carId"
     }
-    data object CarReports : Screen("carreports/{carId}") {
-        fun createRoute(carId: String) = "carreports/$carId"
-    }
+    /* CarReports removed */
     data object AddCar : Screen("addcar")
     data object TechnicalSheet : Screen("technicalsheet/{carId}") {
         fun createRoute(carId: String) = "technicalsheet/$carId"
@@ -306,10 +304,7 @@ fun AppNavigation(
             LaunchedEffect(carId) { mainViewModel.setLastNavigation("technical_sheet", carId) }
             TechnicalSheetScreen(
                 carId = carId,
-                onBack = { navController.popBackStack() },
-                onReportsClick = {
-                    navController.navigate(Screen.CarReports.createRoute(carId))
-                }
+                onBack = { navController.popBackStack() }
             )
         }
         composable(Screen.AddCar.route) {
@@ -368,14 +363,7 @@ fun AppNavigation(
                 onBack = { navController.popBackStack() }
             )
         }
-        composable(Screen.CarReports.route) { backStackEntry ->
-            val carId = backStackEntry.arguments?.getString("carId") ?: return@composable
-            LaunchedEffect(carId) { mainViewModel.setLastNavigation("car_reports", carId) }
-            CarReportsScreen(
-                carId = carId,
-                onBack = { navController.popBackStack() }
-            )
-        }
+        // CarReports route removed
     }
 }
 

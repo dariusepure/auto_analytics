@@ -34,3 +34,13 @@ fun RemoteFuelLog.fromRemote() = FuelLog(
     isFullTank = this.isFullTank,
     mileageLogId = this.mileageLogId
 )
+
+fun RemoteFuelLog.toFirestoreMap(): Map<String, Any> = mapOf(
+    "id" to id,
+    "car_id" to carId,
+    "date" to date,
+    "km" to km,
+    "liters" to liters,
+    "is_full_tank" to isFullTank,
+    "mileage_log_id" to mileageLogId
+)

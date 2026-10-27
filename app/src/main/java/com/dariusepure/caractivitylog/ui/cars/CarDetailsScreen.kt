@@ -186,7 +186,6 @@ fun CarDetailsScreen(
                         CarDetailRowItem(
                             title = stringResource(R.string.car_mileage_history),
                             icon = Icons.Default.Speed,
-                            secondaryIcon = Icons.Default.Add,
                             onClick = onMileageClick,
                             containerColor = carAccentColor.copy(alpha = 0.15f),
                             contentColor = carAccentColor

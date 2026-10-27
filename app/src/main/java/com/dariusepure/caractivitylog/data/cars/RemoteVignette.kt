@@ -32,3 +32,12 @@ fun RemoteVignette.fromRemote() = Vignette(
     durationUnit = try { InspectionDurationUnit.valueOf(this.durationUnit) } catch (e: Exception) { InspectionDurationUnit.MONTHS },
     country = this.country
 )
+
+fun RemoteVignette.toFirestoreMap(): Map<String, Any> = mapOf(
+    "id" to id,
+    "car_id" to carId,
+    "date" to date,
+    "duration_value" to durationValue,
+    "duration_unit" to durationUnit,
+    "country" to country
+)

@@ -34,3 +34,13 @@ fun RemoteMaintenance.fromRemote() = Maintenance(
     mileageLogId = this.mileageLogId,
     category = this.category
 )
+
+fun RemoteMaintenance.toFirestoreMap(): Map<String, Any> = mapOf(
+    "id" to id,
+    "car_id" to carId,
+    "date" to date,
+    "km" to km,
+    "description" to description,
+    "mileage_log_id" to mileageLogId,
+    "category" to category
+)

@@ -3,7 +3,7 @@ package com.dariusepure.caractivitylog.data.cars
 import android.util.Log
 import com.dariusepure.caractivitylog.data.auth.AuthRepository
 import com.dariusepure.caractivitylog.domain.Car
-import com.dariusepure.caractivitylog.domain.CarReport
+// import com.dariusepure.caractivitylog.domain.CarReport
 import com.dariusepure.caractivitylog.domain.FuelLog
 import com.dariusepure.caractivitylog.domain.InspectionDurationUnit
 import com.dariusepure.caractivitylog.domain.Insurance
@@ -58,7 +58,7 @@ class CarRepository @Inject constructor(
     private val tireSetsCache = MutableStateFlow<Map<String, List<TireSet>>>(emptyMap())
     private val fuelLogsCache = MutableStateFlow<Map<String, List<FuelLog>>>(emptyMap())
     private val maintenanceLogsCache = MutableStateFlow<Map<String, List<Maintenance>>>(emptyMap())
-    private val reportsCache = MutableStateFlow<Map<String, List<CarReport>>>(emptyMap())
+    // private val reportsCache = MutableStateFlow<Map<String, List<CarReport>>>(emptyMap())
     private val diagnosisCache = MutableStateFlow<Map<String, List<ChatMessage>>>(emptyMap())
 
     private var carsListenerRegistration: ListenerRegistration? = null
@@ -84,22 +84,32 @@ class CarRepository @Inject constructor(
         carsListenerRegistration?.remove()
         carsListenerRegistration = null
 
+        // Clear all memory caches immediately to prevent cross-account data leaks
+        carsCache.value = emptyList()
+        inspectionsCache.value = emptyMap()
+        fuelLogsCache.value = emptyMap()
+        maintenanceLogsCache.value = emptyMap()
+        mileageLogsCache.value = emptyMap()
+        insurancesCache.value = emptyMap()
+        vignettesCache.value = emptyMap()
+        tireSetsCache.value = emptyMap()
+        diagnosisCache.value = emptyMap()
+
         if (uid == "guest" || uid == AuthRepository.GUEST_UID) {
             withContext(Dispatchers.IO) {
                 try {
-                    carsCache.value = localStorageHelper.loadCars(uid)
-                    inspectionsCache.value = localStorageHelper.loadInspections(uid)
-                    fuelLogsCache.value = localStorageHelper.loadFuelLogs(uid)
-                    maintenanceLogsCache.value = localStorageHelper.loadMaintenanceLogs(uid)
-                    mileageLogsCache.value = localStorageHelper.loadMileageLogs(uid)
-                    insurancesCache.value = localStorageHelper.loadInsurances(uid)
-                    vignettesCache.value = localStorageHelper.loadVignettes(uid)
-                    tireSetsCache.value = localStorageHelper.loadTireSets(uid)
+                    localStorageHelper.clearAllLocalData()
                 } catch (e: Exception) {
-                    Log.e("CarRepository", "Error loading guest cache: ${e.message}")
+                    Log.e("CarRepository", "Error clearing local cache: ${e.message}")
                 }
             }
         } else {
+            withContext(Dispatchers.IO) {
+                try {
+                    localStorageHelper.clearAllLocalData()
+                } catch (e: Exception) {}
+            }
+
             try {
                 authRepository.ensureProfileExists(uid, authRepository.currentUserEmail ?: "")
             } catch (e: Exception) {}
@@ -181,7 +191,7 @@ class CarRepository @Inject constructor(
         if (isCloudUser()) {
             withContext(Dispatchers.IO) {
                 val remoteCar = item.toRemote().copy(userId = uid)
-                firestore.collection("users").document(uid).collection("cars").document(remoteCar.id).set(remoteCar).await()
+                firestore.collection("users").document(uid).collection("cars").document(remoteCar.id).set(remoteCar.toFirestoreMap()).await()
             }
         } else {
             val updated = (carsCache.value.filterNot { it.id == item.id } + item)
@@ -289,7 +299,7 @@ class CarRepository @Inject constructor(
         if (isCloudUser()) {
             withContext(Dispatchers.IO) {
                 val dto = item.toRemote().copy(carId = carId)
-                firestore.collection("users").document(uid).collection("cars").document(carId).collection("mileage_logs").document(dto.id).set(dto).await()
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("mileage_logs").document(dto.id).set(dto.toFirestoreMap()).await()
                 fetchSubCollectionDirect(uid, carId)
             }
         } else {
@@ -325,7 +335,7 @@ class CarRepository @Inject constructor(
         if (isCloudUser()) {
             withContext(Dispatchers.IO) {
                 val dto = obj.toRemote().copy(carId = carId)
-                firestore.collection("users").document(uid).collection("cars").document(carId).collection("inspections").document(dto.id).set(dto).await()
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("inspections").document(dto.id).set(dto.toFirestoreMap()).await()
                 fetchSubCollectionDirect(uid, carId)
             }
         } else {
@@ -357,7 +367,7 @@ class CarRepository @Inject constructor(
         if (isCloudUser()) {
             withContext(Dispatchers.IO) {
                 val dto = obj.toRemote().copy(carId = carId)
-                firestore.collection("users").document(uid).collection("cars").document(carId).collection("insurances").document(dto.id).set(dto).await()
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("insurances").document(dto.id).set(dto.toFirestoreMap()).await()
                 fetchSubCollectionDirect(uid, carId)
             }
         } else {
@@ -389,7 +399,7 @@ class CarRepository @Inject constructor(
         if (isCloudUser()) {
             withContext(Dispatchers.IO) {
                 val dto = obj.toRemote().copy(carId = carId)
-                firestore.collection("users").document(uid).collection("cars").document(carId).collection("vignettes").document(dto.id).set(dto).await()
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("vignettes").document(dto.id).set(dto.toFirestoreMap()).await()
                 fetchSubCollectionDirect(uid, carId)
             }
         } else {
@@ -421,7 +431,7 @@ class CarRepository @Inject constructor(
         if (isCloudUser()) {
             withContext(Dispatchers.IO) {
                 val dto = obj.toRemote().copy(carId = carId)
-                firestore.collection("users").document(uid).collection("cars").document(carId).collection("tire_sets").document(dto.id).set(dto).await()
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("tire_sets").document(dto.id).set(dto.toFirestoreMap()).await()
                 fetchSubCollectionDirect(uid, carId)
             }
         } else {
@@ -462,7 +472,7 @@ class CarRepository @Inject constructor(
         if (isCloudUser()) {
             withContext(Dispatchers.IO) {
                 val dto = obj.toRemote().copy(carId = carId)
-                firestore.collection("users").document(uid).collection("cars").document(carId).collection("fuel_logs").document(dto.id).set(dto).await()
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("fuel_logs").document(dto.id).set(dto.toFirestoreMap()).await()
                 fetchSubCollectionDirect(uid, carId)
             }
         } else {
@@ -494,7 +504,7 @@ class CarRepository @Inject constructor(
         if (isCloudUser()) {
             withContext(Dispatchers.IO) {
                 val dto = obj.toRemote().copy(carId = carId)
-                firestore.collection("users").document(uid).collection("cars").document(carId).collection("maintenance_logs").document(dto.id).set(dto).await()
+                firestore.collection("users").document(uid).collection("cars").document(carId).collection("maintenance_logs").document(dto.id).set(dto.toFirestoreMap()).await()
                 fetchSubCollectionDirect(uid, carId)
             }
         } else {
@@ -518,42 +528,7 @@ class CarRepository @Inject constructor(
         }
     }
 
-    // CAR REPORTS
-    fun getCarReports(carId: String): Flow<List<CarReport>> = reportsCache.map { map -> map[carId] ?: emptyList() }
-
-    suspend fun addCarReport(carId: String, report: CarReport) {
-        val item = if (report.id.isBlank()) report.copy(id = UUID.randomUUID().toString()) else report
-        val uid = getUidSafe()
-        if (isCloudUser()) {
-            withContext(Dispatchers.IO) {
-                val dto = item.toRemote()
-                firestore.collection("users").document(uid).collection("cars").document(carId).collection("car_reports").document(dto.id).set(dto).await()
-                val snap = firestore.collection("users").document(uid).collection("cars").document(carId).collection("car_reports").get().await()
-                val list = snap.documents.mapNotNull { it.toCarReport() }.sortedByDescending { it.date }
-                reportsCache.value = reportsCache.value.toMutableMap().apply { put(carId, list) }
-            }
-        } else {
-            updateSubCollection(reportsCache, carId) { list ->
-                (list.filterNot { it.id == item.id } + item).sortedByDescending { it.date }
-            }
-        }
-    }
-
-    suspend fun deleteCarReport(carId: String, reportId: String) {
-        val uid = getUidSafe()
-        if (isCloudUser()) {
-            withContext(Dispatchers.IO) {
-                firestore.collection("users").document(uid).collection("cars").document(carId).collection("car_reports").document(reportId).delete().await()
-                val snap = firestore.collection("users").document(uid).collection("cars").document(carId).collection("car_reports").get().await()
-                val list = snap.documents.mapNotNull { it.toCarReport() }.sortedByDescending { it.date }
-                reportsCache.value = reportsCache.value.toMutableMap().apply { put(carId, list) }
-            }
-        } else {
-            updateSubCollection(reportsCache, carId) { list ->
-                list.filterNot { it.id == reportId }
-            }
-        }
-    }
+    // CAR REPORTS REMOVED
 }
 
 // ==========================================
@@ -724,14 +699,7 @@ fun DocumentSnapshot.toMaintenance(): Maintenance {
     )
 }
 
-fun DocumentSnapshot.toCarReport(): CarReport {
-    return CarReport(
-        id = id,
-        carId = safeString("carId", safeString("car_id")),
-        fileName = safeString("fileName", safeString("file_name")),
-        date = safeDate("date", Date())
-    )
-}
+    // toCarReport removed
 
 fun DocumentSnapshot.toChatMessage(): ChatMessage {
     return ChatMessage(

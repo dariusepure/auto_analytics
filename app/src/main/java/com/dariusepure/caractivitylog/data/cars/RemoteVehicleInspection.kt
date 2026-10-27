@@ -35,3 +35,13 @@ fun RemoteVehicleInspection.fromRemote() = VehicleInspection(
     durationUnit = try { InspectionDurationUnit.valueOf(this.durationUnit) } catch (e: Exception) { InspectionDurationUnit.YEARS },
     mileageLogId = this.mileageLogId
 )
+
+fun RemoteVehicleInspection.toFirestoreMap(): Map<String, Any> = mapOf(
+    "id" to id,
+    "car_id" to carId,
+    "date" to date,
+    "mileage" to mileage,
+    "duration_value" to durationValue,
+    "duration_unit" to durationUnit,
+    "mileage_log_id" to mileageLogId
+)

@@ -41,14 +41,8 @@ import com.dariusepure.caractivitylog.ui.common.CarFormatters
 import com.dariusepure.caractivitylog.ui.common.CarTranslations
 import com.dariusepure.caractivitylog.ui.common.ErrorState
 import com.dariusepure.caractivitylog.ui.common.LoadingState
-import com.dariusepure.caractivitylog.ui.common.PdfPreviewDialog
 import com.dariusepure.caractivitylog.ui.common.SpecItem
 import com.dariusepure.caractivitylog.ui.common.SpecificationCard
-import com.dariusepure.caractivitylog.util.PdfReportGenerator
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
 import java.util.Locale
 import kotlin.math.roundToInt
 
@@ -57,54 +51,12 @@ import kotlin.math.roundToInt
 fun TechnicalSheetScreen(
     carId: String,
     onBack: () -> Unit,
-    onReportsClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CarDetailsViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    
-    var tempPdfFile by remember { mutableStateOf<File?>(null) }
-
-    val pdfLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.CreateDocument("application/pdf"),
-        onResult = { uri ->
-            uri?.let { destUri ->
-                scope.launch {
-                    try {
-                        withContext(Dispatchers.IO) {
-                            context.contentResolver.openOutputStream(destUri)?.use { os ->
-                                tempPdfFile?.inputStream()?.use { it.copyTo(os) }
-                            }
-                        }
-                        snackbarHostState.showSnackbar(context.getString(R.string.car_report_success))
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        snackbarHostState.showSnackbar(context.getString(R.string.car_report_failed))
-                    } finally {
-                        tempPdfFile?.delete()
-                        tempPdfFile = null
-                    }
-                }
-            }
-        }
-    )
-
-    if (tempPdfFile != null) {
-        val carName = (state as? CarDetailsUiState.Success)?.car?.let { "${it.make}_${it.model}" } ?: "Car"
-        PdfPreviewDialog(
-            pdfFile = tempPdfFile!!,
-            onDismiss = { 
-                tempPdfFile?.delete()
-                tempPdfFile = null 
-            },
-            onSave = {
-                pdfLauncher.launch("Technical_Sheet_$carName.pdf")
-            }
-        )
-    }
 
     LaunchedEffect(carId) {
         viewModel.loadCarData(carId)
@@ -119,53 +71,6 @@ fun TechnicalSheetScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
-                    }
-                },
-                actions = {
-                    Button(
-                        onClick = { 
-                            val successState = state as? CarDetailsUiState.Success
-                            if (successState != null) {
-                                scope.launch {
-                                    try {
-                                        val file = File(context.cacheDir, "temp_report.pdf")
-                                        withContext(Dispatchers.IO) {
-                                            file.outputStream().use { os ->
-                                                PdfReportGenerator.generateReport(
-                                                    context = context,
-                                                    car = successState.car,
-                                                    mileageLogs = successState.mileageLogs,
-                                                    inspections = successState.inspections,
-                                                    fuelLogs = successState.fuelLogs,
-                                                    tireSets = successState.tireSets,
-                                                    maintenanceLogs = successState.maintenanceLogs,
-                                                    insurances = successState.insurances,
-                                                    vignettes = successState.vignettes,
-                                                    outputStream = os,
-                                                    reportType = PdfReportGenerator.ReportType.TECHNICAL_SHEET
-                                                )
-                                            }
-                                        }
-                                        tempPdfFile = file
-                                    } catch (e: Exception) {
-                                        e.printStackTrace()
-                                    }
-                                }
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                        ),
-                        modifier = Modifier.padding(end = 8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.FileDownload,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.common_save_pdf))
                     }
                 }
             )

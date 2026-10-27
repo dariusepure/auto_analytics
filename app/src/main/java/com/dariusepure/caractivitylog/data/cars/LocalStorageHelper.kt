@@ -128,8 +128,25 @@ class LocalStorageHelper @Inject constructor(
         }
     }
 
-    // INSPECTIONS CSV (id,carId,date,mileage,durationValue,durationUnit,mileageLogId)
+    // INSPECTIONS JSON (with CSV fallback/migration)
     fun loadInspections(userId: String): Map<String, List<VehicleInspection>> {
+        val jsonFile = getJsonFile("inspections", userId)
+        if (jsonFile.exists()) {
+            try {
+                val jsonStr = jsonFile.readText()
+                if (jsonStr.isNotBlank()) {
+                    val remoteList = json.decodeFromString(ListSerializer(RemoteVehicleInspection.serializer()), jsonStr)
+                    val map = mutableMapOf<String, MutableList<VehicleInspection>>()
+                    remoteList.forEach { remote ->
+                        map.getOrPut(remote.carId) { mutableListOf() }.add(remote.fromRemote())
+                    }
+                    return map
+                }
+            } catch (e: Exception) {
+                Log.e("LocalStorageHelper", "Error reading inspections JSON", e)
+            }
+        }
+
         val file = getFile("inspections", userId)
         if (!file.exists()) return emptyMap()
         val result = mutableMapOf<String, MutableList<VehicleInspection>>()
@@ -149,6 +166,9 @@ class LocalStorageHelper @Inject constructor(
                     result.getOrPut(carId) { mutableListOf() }.add(inspection)
                 }
             }
+            if (result.isNotEmpty()) {
+                saveInspections(userId, result)
+            }
         } catch (e: Exception) {
             Log.e("LocalStorageHelper", "Error reading inspections CSV", e)
         }
@@ -156,23 +176,40 @@ class LocalStorageHelper @Inject constructor(
     }
 
     fun saveInspections(userId: String, allMap: Map<String, List<VehicleInspection>>) {
-        val file = getFile("inspections", userId)
+        val jsonFile = getJsonFile("inspections", userId)
         try {
-            val sb = StringBuilder()
-            sb.append("id,carId,date,mileage,durationValue,durationUnit,mileageLogId\n")
-            allMap.forEach { (carId, list) ->
-                list.forEach { item ->
-                    sb.append("${item.id},$carId,${item.date.time},${item.mileage},${item.durationValue},${item.durationUnit.name},${item.mileageLogId}\n")
+            val list = mutableListOf<RemoteVehicleInspection>()
+            allMap.forEach { (carId, items) ->
+                items.forEach { item ->
+                    list.add(item.toRemote().copy(carId = carId))
                 }
             }
-            file.writeText(sb.toString())
+            val jsonStr = json.encodeToString(ListSerializer(RemoteVehicleInspection.serializer()), list)
+            jsonFile.writeText(jsonStr)
         } catch (e: Exception) {
-            Log.e("LocalStorageHelper", "Error writing inspections CSV", e)
+            Log.e("LocalStorageHelper", "Error writing inspections JSON", e)
         }
     }
 
-    // FUEL LOGS CSV (id,carId,date,km,liters,isFullTank,mileageLogId)
+    // FUEL LOGS JSON (with CSV fallback/migration)
     fun loadFuelLogs(userId: String): Map<String, List<FuelLog>> {
+        val jsonFile = getJsonFile("fuel_logs", userId)
+        if (jsonFile.exists()) {
+            try {
+                val jsonStr = jsonFile.readText()
+                if (jsonStr.isNotBlank()) {
+                    val remoteList = json.decodeFromString(ListSerializer(RemoteFuelLog.serializer()), jsonStr)
+                    val map = mutableMapOf<String, MutableList<FuelLog>>()
+                    remoteList.forEach { remote ->
+                        map.getOrPut(remote.carId) { mutableListOf() }.add(remote.fromRemote())
+                    }
+                    return map
+                }
+            } catch (e: Exception) {
+                Log.e("LocalStorageHelper", "Error reading fuel logs JSON", e)
+            }
+        }
+
         val file = getFile("fuel_logs", userId)
         if (!file.exists()) return emptyMap()
         val result = mutableMapOf<String, MutableList<FuelLog>>()
@@ -192,6 +229,9 @@ class LocalStorageHelper @Inject constructor(
                     result.getOrPut(carId) { mutableListOf() }.add(fuel)
                 }
             }
+            if (result.isNotEmpty()) {
+                saveFuelLogs(userId, result)
+            }
         } catch (e: Exception) {
             Log.e("LocalStorageHelper", "Error reading fuel logs CSV", e)
         }
@@ -199,23 +239,40 @@ class LocalStorageHelper @Inject constructor(
     }
 
     fun saveFuelLogs(userId: String, allMap: Map<String, List<FuelLog>>) {
-        val file = getFile("fuel_logs", userId)
+        val jsonFile = getJsonFile("fuel_logs", userId)
         try {
-            val sb = StringBuilder()
-            sb.append("id,carId,date,km,liters,isFullTank,mileageLogId\n")
-            allMap.forEach { (carId, list) ->
-                list.forEach { item ->
-                    sb.append("${item.id},$carId,${item.date.time},${item.km},${item.liters},${item.isFullTank},${item.mileageLogId}\n")
+            val list = mutableListOf<RemoteFuelLog>()
+            allMap.forEach { (carId, items) ->
+                items.forEach { item ->
+                    list.add(item.toRemote().copy(carId = carId))
                 }
             }
-            file.writeText(sb.toString())
+            val jsonStr = json.encodeToString(ListSerializer(RemoteFuelLog.serializer()), list)
+            jsonFile.writeText(jsonStr)
         } catch (e: Exception) {
-            Log.e("LocalStorageHelper", "Error writing fuel logs CSV", e)
+            Log.e("LocalStorageHelper", "Error writing fuel logs JSON", e)
         }
     }
 
-    // MAINTENANCE CSV (id,carId,date,km,description,mileageLogId,category)
+    // MAINTENANCE JSON (with CSV fallback/migration)
     fun loadMaintenanceLogs(userId: String): Map<String, List<Maintenance>> {
+        val jsonFile = getJsonFile("maintenance_logs", userId)
+        if (jsonFile.exists()) {
+            try {
+                val jsonStr = jsonFile.readText()
+                if (jsonStr.isNotBlank()) {
+                    val remoteList = json.decodeFromString(ListSerializer(RemoteMaintenance.serializer()), jsonStr)
+                    val map = mutableMapOf<String, MutableList<Maintenance>>()
+                    remoteList.forEach { remote ->
+                        map.getOrPut(remote.carId) { mutableListOf() }.add(remote.fromRemote())
+                    }
+                    return map
+                }
+            } catch (e: Exception) {
+                Log.e("LocalStorageHelper", "Error reading maintenance JSON", e)
+            }
+        }
+
         val file = getFile("maintenance_logs", userId)
         if (!file.exists()) return emptyMap()
         val result = mutableMapOf<String, MutableList<Maintenance>>()
@@ -235,6 +292,9 @@ class LocalStorageHelper @Inject constructor(
                     result.getOrPut(carId) { mutableListOf() }.add(item)
                 }
             }
+            if (result.isNotEmpty()) {
+                saveMaintenanceLogs(userId, result)
+            }
         } catch (e: Exception) {
             Log.e("LocalStorageHelper", "Error reading maintenance CSV", e)
         }
@@ -242,25 +302,40 @@ class LocalStorageHelper @Inject constructor(
     }
 
     fun saveMaintenanceLogs(userId: String, allMap: Map<String, List<Maintenance>>) {
-        val file = getFile("maintenance_logs", userId)
+        val jsonFile = getJsonFile("maintenance_logs", userId)
         try {
-            val sb = StringBuilder()
-            sb.append("id,carId,date,km,description,mileageLogId,category\n")
-            allMap.forEach { (carId, list) ->
-                list.forEach { item ->
-                    val cleanDesc = item.description.replace(",", ";")
-                    val cleanCategory = item.category.replace(",", ";")
-                    sb.append("${item.id},$carId,${item.date.time},${item.km},$cleanDesc,${item.mileageLogId},$cleanCategory\n")
+            val list = mutableListOf<RemoteMaintenance>()
+            allMap.forEach { (carId, items) ->
+                items.forEach { item ->
+                    list.add(item.toRemote().copy(carId = carId))
                 }
             }
-            file.writeText(sb.toString())
+            val jsonStr = json.encodeToString(ListSerializer(RemoteMaintenance.serializer()), list)
+            jsonFile.writeText(jsonStr)
         } catch (e: Exception) {
-            Log.e("LocalStorageHelper", "Error writing maintenance CSV", e)
+            Log.e("LocalStorageHelper", "Error writing maintenance JSON", e)
         }
     }
 
-    // MILEAGE LOGS CSV (id,carId,km,date)
+    // MILEAGE LOGS JSON (with CSV fallback/migration)
     fun loadMileageLogs(userId: String): Map<String, List<MileageLog>> {
+        val jsonFile = getJsonFile("mileage_logs", userId)
+        if (jsonFile.exists()) {
+            try {
+                val jsonStr = jsonFile.readText()
+                if (jsonStr.isNotBlank()) {
+                    val remoteList = json.decodeFromString(ListSerializer(RemoteMileageLog.serializer()), jsonStr)
+                    val map = mutableMapOf<String, MutableList<MileageLog>>()
+                    remoteList.forEach { remote ->
+                        map.getOrPut(remote.carId) { mutableListOf() }.add(remote.fromRemote())
+                    }
+                    return map
+                }
+            } catch (e: Exception) {
+                Log.e("LocalStorageHelper", "Error reading mileage JSON", e)
+            }
+        }
+
         val file = getFile("mileage_logs", userId)
         if (!file.exists()) return emptyMap()
         val result = mutableMapOf<String, MutableList<MileageLog>>()
@@ -277,6 +352,9 @@ class LocalStorageHelper @Inject constructor(
                     result.getOrPut(carId) { mutableListOf() }.add(item)
                 }
             }
+            if (result.isNotEmpty()) {
+                saveMileageLogs(userId, result)
+            }
         } catch (e: Exception) {
             Log.e("LocalStorageHelper", "Error reading mileage CSV", e)
         }
@@ -284,23 +362,40 @@ class LocalStorageHelper @Inject constructor(
     }
 
     fun saveMileageLogs(userId: String, allMap: Map<String, List<MileageLog>>) {
-        val file = getFile("mileage_logs", userId)
+        val jsonFile = getJsonFile("mileage_logs", userId)
         try {
-            val sb = StringBuilder()
-            sb.append("id,carId,km,date\n")
-            allMap.forEach { (carId, list) ->
-                list.forEach { item ->
-                    sb.append("${item.id},$carId,${item.km},${item.date.time}\n")
+            val list = mutableListOf<RemoteMileageLog>()
+            allMap.forEach { (carId, items) ->
+                items.forEach { item ->
+                    list.add(item.toRemote().copy(carId = carId))
                 }
             }
-            file.writeText(sb.toString())
+            val jsonStr = json.encodeToString(ListSerializer(RemoteMileageLog.serializer()), list)
+            jsonFile.writeText(jsonStr)
         } catch (e: Exception) {
-            Log.e("LocalStorageHelper", "Error writing mileage CSV", e)
+            Log.e("LocalStorageHelper", "Error writing mileage JSON", e)
         }
     }
 
-    // INSURANCES CSV (id,carId,date,durationValue,durationUnit,provider)
+    // INSURANCES JSON (with CSV fallback/migration)
     fun loadInsurances(userId: String): Map<String, List<Insurance>> {
+        val jsonFile = getJsonFile("insurances", userId)
+        if (jsonFile.exists()) {
+            try {
+                val jsonStr = jsonFile.readText()
+                if (jsonStr.isNotBlank()) {
+                    val remoteList = json.decodeFromString(ListSerializer(RemoteInsurance.serializer()), jsonStr)
+                    val map = mutableMapOf<String, MutableList<Insurance>>()
+                    remoteList.forEach { remote ->
+                        map.getOrPut(remote.carId) { mutableListOf() }.add(remote.fromRemote())
+                    }
+                    return map
+                }
+            } catch (e: Exception) {
+                Log.e("LocalStorageHelper", "Error reading insurances JSON", e)
+            }
+        }
+
         val file = getFile("insurances", userId)
         if (!file.exists()) return emptyMap()
         val result = mutableMapOf<String, MutableList<Insurance>>()
@@ -319,6 +414,9 @@ class LocalStorageHelper @Inject constructor(
                     result.getOrPut(carId) { mutableListOf() }.add(item)
                 }
             }
+            if (result.isNotEmpty()) {
+                saveInsurances(userId, result)
+            }
         } catch (e: Exception) {
             Log.e("LocalStorageHelper", "Error reading insurances CSV", e)
         }
@@ -326,24 +424,40 @@ class LocalStorageHelper @Inject constructor(
     }
 
     fun saveInsurances(userId: String, allMap: Map<String, List<Insurance>>) {
-        val file = getFile("insurances", userId)
+        val jsonFile = getJsonFile("insurances", userId)
         try {
-            val sb = StringBuilder()
-            sb.append("id,carId,date,durationValue,durationUnit,provider\n")
-            allMap.forEach { (carId, list) ->
-                list.forEach { item ->
-                    val cleanProvider = item.provider.replace(",", ";")
-                    sb.append("${item.id},$carId,${item.date.time},${item.durationValue},${item.durationUnit.name},$cleanProvider\n")
+            val list = mutableListOf<RemoteInsurance>()
+            allMap.forEach { (carId, items) ->
+                items.forEach { item ->
+                    list.add(item.toRemote().copy(carId = carId))
                 }
             }
-            file.writeText(sb.toString())
+            val jsonStr = json.encodeToString(ListSerializer(RemoteInsurance.serializer()), list)
+            jsonFile.writeText(jsonStr)
         } catch (e: Exception) {
-            Log.e("LocalStorageHelper", "Error writing insurances CSV", e)
+            Log.e("LocalStorageHelper", "Error writing insurances JSON", e)
         }
     }
 
-    // VIGNETTES CSV (id,carId,date,durationValue,durationUnit,country)
+    // VIGNETTES JSON (with CSV fallback/migration)
     fun loadVignettes(userId: String): Map<String, List<Vignette>> {
+        val jsonFile = getJsonFile("vignettes", userId)
+        if (jsonFile.exists()) {
+            try {
+                val jsonStr = jsonFile.readText()
+                if (jsonStr.isNotBlank()) {
+                    val remoteList = json.decodeFromString(ListSerializer(RemoteVignette.serializer()), jsonStr)
+                    val map = mutableMapOf<String, MutableList<Vignette>>()
+                    remoteList.forEach { remote ->
+                        map.getOrPut(remote.carId) { mutableListOf() }.add(remote.fromRemote())
+                    }
+                    return map
+                }
+            } catch (e: Exception) {
+                Log.e("LocalStorageHelper", "Error reading vignettes JSON", e)
+            }
+        }
+
         val file = getFile("vignettes", userId)
         if (!file.exists()) return emptyMap()
         val result = mutableMapOf<String, MutableList<Vignette>>()
@@ -362,6 +476,9 @@ class LocalStorageHelper @Inject constructor(
                     result.getOrPut(carId) { mutableListOf() }.add(item)
                 }
             }
+            if (result.isNotEmpty()) {
+                saveVignettes(userId, result)
+            }
         } catch (e: Exception) {
             Log.e("LocalStorageHelper", "Error reading vignettes CSV", e)
         }
@@ -369,24 +486,40 @@ class LocalStorageHelper @Inject constructor(
     }
 
     fun saveVignettes(userId: String, allMap: Map<String, List<Vignette>>) {
-        val file = getFile("vignettes", userId)
+        val jsonFile = getJsonFile("vignettes", userId)
         try {
-            val sb = StringBuilder()
-            sb.append("id,carId,date,durationValue,durationUnit,country\n")
-            allMap.forEach { (carId, list) ->
-                list.forEach { item ->
-                    val cleanCountry = item.country.replace(",", ";")
-                    sb.append("${item.id},$carId,${item.date.time},${item.durationValue},${item.durationUnit.name},$cleanCountry\n")
+            val list = mutableListOf<RemoteVignette>()
+            allMap.forEach { (carId, items) ->
+                items.forEach { item ->
+                    list.add(item.toRemote().copy(carId = carId))
                 }
             }
-            file.writeText(sb.toString())
+            val jsonStr = json.encodeToString(ListSerializer(RemoteVignette.serializer()), list)
+            jsonFile.writeText(jsonStr)
         } catch (e: Exception) {
-            Log.e("LocalStorageHelper", "Error writing vignettes CSV", e)
+            Log.e("LocalStorageHelper", "Error writing vignettes JSON", e)
         }
     }
 
-    // TIRE SETS CSV (id,carId,season,brand,width,ratio,diameter,dotWeek,dotYear,isActive)
+    // TIRE SETS JSON (with CSV fallback/migration)
     fun loadTireSets(userId: String): Map<String, List<TireSet>> {
+        val jsonFile = getJsonFile("tire_sets", userId)
+        if (jsonFile.exists()) {
+            try {
+                val jsonStr = jsonFile.readText()
+                if (jsonStr.isNotBlank()) {
+                    val remoteList = json.decodeFromString(ListSerializer(RemoteTireSet.serializer()), jsonStr)
+                    val map = mutableMapOf<String, MutableList<TireSet>>()
+                    remoteList.forEach { remote ->
+                        map.getOrPut(remote.carId) { mutableListOf() }.add(remote.fromRemote())
+                    }
+                    return map
+                }
+            } catch (e: Exception) {
+                Log.e("LocalStorageHelper", "Error reading tire sets JSON", e)
+            }
+        }
+
         val file = getFile("tire_sets", userId)
         if (!file.exists()) return emptyMap()
         val result = mutableMapOf<String, MutableList<TireSet>>()
@@ -409,6 +542,9 @@ class LocalStorageHelper @Inject constructor(
                     result.getOrPut(carId) { mutableListOf() }.add(item)
                 }
             }
+            if (result.isNotEmpty()) {
+                saveTireSets(userId, result)
+            }
         } catch (e: Exception) {
             Log.e("LocalStorageHelper", "Error reading tire sets CSV", e)
         }
@@ -416,19 +552,40 @@ class LocalStorageHelper @Inject constructor(
     }
 
     fun saveTireSets(userId: String, allMap: Map<String, List<TireSet>>) {
-        val file = getFile("tire_sets", userId)
+        val jsonFile = getJsonFile("tire_sets", userId)
         try {
-            val sb = StringBuilder()
-            sb.append("id,carId,season,brand,width,ratio,diameter,dotWeek,dotYear,isActive\n")
-            allMap.forEach { (carId, list) ->
-                list.forEach { item ->
-                    val cleanBrand = item.brand.replace(",", ";")
-                    sb.append("${item.id},$carId,${item.season.name},$cleanBrand,${item.width},${item.ratio},${item.diameter},${item.dotWeek ?: ""},${item.dotYear ?: ""},${item.isActive}\n")
+            val list = mutableListOf<RemoteTireSet>()
+            allMap.forEach { (carId, items) ->
+                items.forEach { item ->
+                    list.add(item.toRemote().copy(carId = carId))
                 }
             }
-            file.writeText(sb.toString())
+            val jsonStr = json.encodeToString(ListSerializer(RemoteTireSet.serializer()), list)
+            jsonFile.writeText(jsonStr)
         } catch (e: Exception) {
-            Log.e("LocalStorageHelper", "Error writing tire sets CSV", e)
+            Log.e("LocalStorageHelper", "Error writing tire sets JSON", e)
+        }
+    }
+
+    fun clearLocalData(userId: String) {
+        try {
+            val safeUid = getSafeUid(userId)
+            listOf("cars", "inspections", "fuel_logs", "maintenance_logs", "mileage_logs", "insurances", "vignettes", "tire_sets").forEach { prefix ->
+                getJsonFile(prefix, safeUid).delete()
+                getFile(prefix, safeUid).delete()
+            }
+        } catch (e: Exception) {
+            Log.e("LocalStorageHelper", "Error clearing local data", e)
+        }
+    }
+
+    fun clearAllLocalData() {
+        try {
+            listOf("cars", "inspections", "fuel_logs", "maintenance_logs", "mileage_logs", "insurances", "vignettes", "tire_sets").forEach { prefix ->
+                filesDir.listFiles { file -> file.name.startsWith("${prefix}_") }?.forEach { it.delete() }
+            }
+        } catch (e: Exception) {
+            Log.e("LocalStorageHelper", "Error clearing all local data", e)
         }
     }
 }

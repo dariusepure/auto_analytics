@@ -227,3 +227,68 @@ fun RemoteCar.fromRemote(isPendingSync: Boolean = false): Car {
         isPendingSync = isPendingSync
     )
 }
+
+fun RemoteCar.toFirestoreMap(): Map<String, Any> {
+    val map = mutableMapOf<String, Any>(
+        "id" to id,
+        "user_id" to userId,
+        "name" to name,
+        "license_plate" to licensePlate,
+        "plate_country" to plateCountry,
+        "make" to make,
+        "model" to model,
+        "vin" to vin,
+        "year" to year,
+        "engine_size" to engineSize,
+        "fuel_type" to fuelType,
+        "fuel_system" to fuelSystem,
+        "color" to color,
+        "power" to power,
+        "power_unit" to powerUnit,
+        "torque" to torque,
+        "engine_code" to engineCode,
+        "engine_layout" to engineLayout,
+        "cylinder_layout" to cylinderLayout,
+        "length" to length,
+        "width" to width,
+        "height" to height,
+        "wheelbase" to wheelbase,
+        "emission_standard" to emissionStandard,
+        "aspiration" to aspiration,
+        "fuel_tank_capacity" to fuelTankCapacity,
+        "battery_capacity" to batteryCapacity,
+        "drivetrain" to drivetrain,
+        "gearbox_type" to gearboxType,
+        "gears" to gears,
+        "front_suspension" to frontSuspension,
+        "rear_suspension" to rearSuspension,
+        "front_brakes" to frontBrakes,
+        "rear_brakes" to rearBrakes,
+        "vehicle_type" to vehicleType,
+        "manufacturing_country" to manufacturingCountry,
+        "top_speed" to topSpeed,
+        "acceleration_0_to_100" to acceleration0to100,
+        "fuel_consumption_combined" to fuelConsumptionCombined,
+        "fuel_consumption_urban" to fuelConsumptionUrban,
+        "fuel_consumption_extra_urban" to fuelConsumptionExtraUrban,
+        "co2_emissions" to co2Emissions,
+        "weight" to weight,
+        "number_of_seats" to numberOfSeats,
+        "number_of_cylinders" to numberOfCylinders,
+        "valves_per_cylinder" to valvesPerCylinder,
+        "number_of_doors" to numberOfDoors,
+        "boot_space" to bootSpace,
+        "tire_width" to tireWidth,
+        "tire_aspect_ratio" to tireAspectRatio,
+        "tire_diameter" to tireDiameter,
+        "equipments" to equipments,
+        "activity_count" to activityCount,
+        "airbags" to airbags,
+        "generation" to generation,
+        "engine_variant" to engineVariant
+    )
+    accentColor?.let { map["accent_color"] = it }
+    createdAt?.let { map["created_at"] = it }
+    updatedAt?.let { map["updated_at"] = it }
+    return map
+}

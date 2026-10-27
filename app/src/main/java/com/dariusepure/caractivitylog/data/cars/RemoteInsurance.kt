@@ -32,3 +32,12 @@ fun RemoteInsurance.fromRemote() = Insurance(
     durationUnit = try { InspectionDurationUnit.valueOf(this.durationUnit) } catch (e: Exception) { InspectionDurationUnit.MONTHS },
     provider = this.provider
 )
+
+fun RemoteInsurance.toFirestoreMap(): Map<String, Any> = mapOf(
+    "id" to id,
+    "car_id" to carId,
+    "date" to date,
+    "duration_value" to durationValue,
+    "duration_unit" to durationUnit,
+    "provider" to provider
+)

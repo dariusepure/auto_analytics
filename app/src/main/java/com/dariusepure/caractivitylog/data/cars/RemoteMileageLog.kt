@@ -25,3 +25,10 @@ fun RemoteMileageLog.fromRemote() = MileageLog(
     km = this.km,
     date = Date(this.date)
 )
+
+fun RemoteMileageLog.toFirestoreMap(): Map<String, Any> = mapOf(
+    "id" to id,
+    "car_id" to carId,
+    "mileage" to km,
+    "date" to date
+)

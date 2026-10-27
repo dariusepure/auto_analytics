@@ -43,3 +43,19 @@ fun RemoteTireSet.fromRemote() = TireSet(
     dotYear = this.dotYear,
     isActive = this.isActive
 )
+
+fun RemoteTireSet.toFirestoreMap(): Map<String, Any> {
+    val map = mutableMapOf<String, Any>(
+        "id" to id,
+        "car_id" to carId,
+        "season" to season,
+        "brand" to brand,
+        "width" to width,
+        "ratio" to ratio,
+        "diameter" to diameter,
+        "is_active" to isActive
+    )
+    dotWeek?.let { map["dot_week"] = it }
+    dotYear?.let { map["dot_year"] = it }
+    return map
+}
