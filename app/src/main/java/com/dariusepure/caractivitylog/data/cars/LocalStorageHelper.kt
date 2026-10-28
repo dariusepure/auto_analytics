@@ -12,6 +12,7 @@ import com.dariusepure.caractivitylog.domain.TireSeason
 import com.dariusepure.caractivitylog.domain.TireSet
 import com.dariusepure.caractivitylog.domain.VehicleInspection
 import com.dariusepure.caractivitylog.domain.Vignette
+import com.dariusepure.caractivitylog.ui.cars.ChatMessage
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.util.Date
@@ -567,10 +568,47 @@ class LocalStorageHelper @Inject constructor(
         }
     }
 
+    // DIAGNOSIS MESSAGES JSON
+    fun loadDiagnosisMessages(userId: String): Map<String, List<ChatMessage>> {
+        val jsonFile = getJsonFile("diagnosis", userId)
+        if (jsonFile.exists()) {
+            try {
+                val jsonStr = jsonFile.readText()
+                if (jsonStr.isNotBlank()) {
+                    val remoteList = json.decodeFromString(ListSerializer(RemoteChatMessage.serializer()), jsonStr)
+                    val map = mutableMapOf<String, MutableList<ChatMessage>>()
+                    remoteList.forEach { remote ->
+                        map.getOrPut(remote.carId) { mutableListOf() }.add(remote.toChatMessage())
+                    }
+                    return map
+                }
+            } catch (e: Exception) {
+                Log.e("LocalStorageHelper", "Error reading diagnosis JSON", e)
+            }
+        }
+        return emptyMap()
+    }
+
+    fun saveDiagnosisMessages(userId: String, allMap: Map<String, List<ChatMessage>>) {
+        val jsonFile = getJsonFile("diagnosis", userId)
+        try {
+            val list = mutableListOf<RemoteChatMessage>()
+            allMap.forEach { (carId, items) ->
+                items.forEach { item ->
+                    list.add(RemoteChatMessage.fromChatMessage(item).copy(carId = carId))
+                }
+            }
+            val jsonStr = json.encodeToString(ListSerializer(RemoteChatMessage.serializer()), list)
+            jsonFile.writeText(jsonStr)
+        } catch (e: Exception) {
+            Log.e("LocalStorageHelper", "Error writing diagnosis JSON", e)
+        }
+    }
+
     fun clearLocalData(userId: String) {
         try {
             val safeUid = getSafeUid(userId)
-            listOf("cars", "inspections", "fuel_logs", "maintenance_logs", "mileage_logs", "insurances", "vignettes", "tire_sets").forEach { prefix ->
+            listOf("cars", "inspections", "fuel_logs", "maintenance_logs", "mileage_logs", "insurances", "vignettes", "tire_sets", "diagnosis").forEach { prefix ->
                 getJsonFile(prefix, safeUid).delete()
                 getFile(prefix, safeUid).delete()
             }
@@ -581,7 +619,7 @@ class LocalStorageHelper @Inject constructor(
 
     fun clearAllLocalData() {
         try {
-            listOf("cars", "inspections", "fuel_logs", "maintenance_logs", "mileage_logs", "insurances", "vignettes", "tire_sets").forEach { prefix ->
+            listOf("cars", "inspections", "fuel_logs", "maintenance_logs", "mileage_logs", "insurances", "vignettes", "tire_sets", "diagnosis").forEach { prefix ->
                 filesDir.listFiles { file -> file.name.startsWith("${prefix}_") }?.forEach { it.delete() }
             }
         } catch (e: Exception) {

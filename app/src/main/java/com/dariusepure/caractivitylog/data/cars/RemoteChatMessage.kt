@@ -17,6 +17,13 @@ data class RemoteChatMessage(
         timestamp = timestamp
     )
 
+    fun toFirestoreMap(): Map<String, Any> = mapOf(
+        "car_id" to carId,
+        "is_user" to isUser,
+        "text" to text,
+        "timestamp" to timestamp
+    )
+
     companion object {
         fun fromChatMessage(message: ChatMessage) = RemoteChatMessage(
             carId = "",

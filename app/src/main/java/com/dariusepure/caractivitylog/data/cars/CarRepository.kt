@@ -23,6 +23,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -110,9 +112,11 @@ class CarRepository @Inject constructor(
                 } catch (e: Exception) {}
             }
 
-            try {
-                authRepository.ensureProfileExists(uid, authRepository.currentUserEmail ?: "")
-            } catch (e: Exception) {}
+            repositoryScope.launch(Dispatchers.IO) {
+                try {
+                    authRepository.ensureProfileExists(uid, authRepository.currentUserEmail ?: "")
+                } catch (e: Exception) {}
+            }
 
             carsListenerRegistration = firestore.collection("users").document(uid).collection("cars")
                 .addSnapshotListener { snapshot, error ->
@@ -138,26 +142,34 @@ class CarRepository @Inject constructor(
         val carDoc = firestore.collection("users").document(uid).collection("cars").document(carId)
         repositoryScope.launch(Dispatchers.IO) {
             try {
-                val ins = carDoc.collection("inspections").get().await().documents.mapNotNull { it.toVehicleInspection() }.sortedByDescending { it.date }
-                inspectionsCache.value = inspectionsCache.value.toMutableMap().apply { put(carId, ins) }
+                coroutineScope {
+                    val insDeferred = async { try { carDoc.collection("inspections").get().await().documents.mapNotNull { it.toVehicleInspection() }.sortedByDescending { it.date } } catch (e: Exception) { emptyList() } }
+                    val fuelsDeferred = async { try { carDoc.collection("fuel_logs").get().await().documents.mapNotNull { it.toFuelLog() }.sortedByDescending { it.date } } catch (e: Exception) { emptyList() } }
+                    val maintDeferred = async { try { carDoc.collection("maintenance_logs").get().await().documents.mapNotNull { it.toMaintenance() }.sortedByDescending { it.date } } catch (e: Exception) { emptyList() } }
+                    val mileageDeferred = async { try { carDoc.collection("mileage_logs").get().await().documents.mapNotNull { it.toMileageLog() }.sortedByDescending { it.date } } catch (e: Exception) { emptyList() } }
+                    val insurancesDeferred = async { try { carDoc.collection("insurances").get().await().documents.mapNotNull { it.toInsurance() }.sortedByDescending { it.date } } catch (e: Exception) { emptyList() } }
+                    val vignettesDeferred = async { try { carDoc.collection("vignettes").get().await().documents.mapNotNull { it.toVignette() }.sortedByDescending { it.date } } catch (e: Exception) { emptyList() } }
+                    val tiresDeferred = async { try { carDoc.collection("tire_sets").get().await().documents.mapNotNull { it.toTireSet() }.sortedByDescending { it.isActive } } catch (e: Exception) { emptyList() } }
+                    val diagDeferred = async { try { carDoc.collection("diagnosis").get().await().documents.mapNotNull { it.toChatMessage() }.sortedBy { it.timestamp } } catch (e: Exception) { emptyList() } }
 
-                val fuels = carDoc.collection("fuel_logs").get().await().documents.mapNotNull { it.toFuelLog() }.sortedByDescending { it.date }
-                fuelLogsCache.value = fuelLogsCache.value.toMutableMap().apply { put(carId, fuels) }
+                    val ins = insDeferred.await()
+                    val fuels = fuelsDeferred.await()
+                    val maint = maintDeferred.await()
+                    val mileage = mileageDeferred.await()
+                    val insurances = insurancesDeferred.await()
+                    val vignettes = vignettesDeferred.await()
+                    val tires = tiresDeferred.await()
+                    val diag = diagDeferred.await()
 
-                val maint = carDoc.collection("maintenance_logs").get().await().documents.mapNotNull { it.toMaintenance() }.sortedByDescending { it.date }
-                maintenanceLogsCache.value = maintenanceLogsCache.value.toMutableMap().apply { put(carId, maint) }
-
-                val mileage = carDoc.collection("mileage_logs").get().await().documents.mapNotNull { it.toMileageLog() }.sortedByDescending { it.date }
-                mileageLogsCache.value = mileageLogsCache.value.toMutableMap().apply { put(carId, mileage) }
-
-                val insurances = carDoc.collection("insurances").get().await().documents.mapNotNull { it.toInsurance() }.sortedByDescending { it.date }
-                insurancesCache.value = insurancesCache.value.toMutableMap().apply { put(carId, insurances) }
-
-                val vignettes = carDoc.collection("vignettes").get().await().documents.mapNotNull { it.toVignette() }.sortedByDescending { it.date }
-                vignettesCache.value = vignettesCache.value.toMutableMap().apply { put(carId, vignettes) }
-
-                val tires = carDoc.collection("tire_sets").get().await().documents.mapNotNull { it.toTireSet() }.sortedByDescending { it.isActive }
-                tireSetsCache.value = tireSetsCache.value.toMutableMap().apply { put(carId, tires) }
+                    inspectionsCache.value = inspectionsCache.value.toMutableMap().apply { put(carId, ins) }
+                    fuelLogsCache.value = fuelLogsCache.value.toMutableMap().apply { put(carId, fuels) }
+                    maintenanceLogsCache.value = maintenanceLogsCache.value.toMutableMap().apply { put(carId, maint) }
+                    mileageLogsCache.value = mileageLogsCache.value.toMutableMap().apply { put(carId, mileage) }
+                    insurancesCache.value = insurancesCache.value.toMutableMap().apply { put(carId, insurances) }
+                    vignettesCache.value = vignettesCache.value.toMutableMap().apply { put(carId, vignettes) }
+                    tireSetsCache.value = tireSetsCache.value.toMutableMap().apply { put(carId, tires) }
+                    diagnosisCache.value = diagnosisCache.value.toMutableMap().apply { put(carId, diag) }
+                }
             } catch (e: Exception) {
                 Log.e("CarRepository", "Error fetching subcollections for car $carId: ${e.message}")
             }
@@ -458,10 +470,35 @@ class CarRepository @Inject constructor(
     // DIAGNOSIS CHAT
     fun getDiagnosisMessages(carId: String): Flow<List<ChatMessage>> = diagnosisCache.map { map -> map[carId] ?: emptyList() }
     suspend fun addDiagnosisMessage(carId: String, message: ChatMessage) {
-        updateSubCollection(diagnosisCache, carId) { list -> list + message }
+        val uid = getUidSafe()
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                val dto = RemoteChatMessage.fromChatMessage(message).copy(carId = carId)
+                firestore.collection("users").document(uid).collection("cars").document(carId)
+                    .collection("diagnosis").add(dto.toFirestoreMap()).await()
+                fetchSubCollectionDirect(uid, carId)
+            }
+        } else {
+            updateSubCollection(diagnosisCache, carId, localStorageHelper::saveDiagnosisMessages) { list ->
+                list + message
+            }
+        }
     }
+
     suspend fun clearDiagnosisMessages(carId: String) {
-        updateSubCollection(diagnosisCache, carId) { emptyList() }
+        val uid = getUidSafe()
+        if (isCloudUser()) {
+            withContext(Dispatchers.IO) {
+                val snap = firestore.collection("users").document(uid).collection("cars").document(carId)
+                    .collection("diagnosis").get().await()
+                for (doc in snap.documents) {
+                    doc.reference.delete().await()
+                }
+                fetchSubCollectionDirect(uid, carId)
+            }
+        } else {
+            updateSubCollection(diagnosisCache, carId, localStorageHelper::saveDiagnosisMessages) { emptyList() }
+        }
     }
 
     // FUEL LOGS
@@ -731,24 +768,26 @@ private fun DocumentSnapshot.safeString(camelCaseKey: String, defaultValue: Stri
 
 private fun DocumentSnapshot.safeLong(camelCaseKey: String, defaultValue: Long = 0L): Long {
     val snake = camelCaseKey.camelToSnake()
-    getLong(camelCaseKey)?.let { return it }
-    getLong(snake)?.let { return it }
-    val v1 = get(camelCaseKey)
-    if (v1 is Number) return v1.toLong()
-    val v2 = get(snake)
-    if (v2 is Number) return v2.toLong()
-    return getString(camelCaseKey)?.toLongOrNull() ?: getString(snake)?.toLongOrNull() ?: defaultValue
+    val raw = try { get(camelCaseKey) ?: get(snake) } catch (e: Exception) { null }
+    return when (raw) {
+        is Number -> raw.toLong()
+        is Timestamp -> raw.toDate().time
+        is Date -> raw.time
+        is String -> raw.toLongOrNull() ?: defaultValue
+        else -> defaultValue
+    }
 }
 
 private fun DocumentSnapshot.safeLongOrNull(camelCaseKey: String): Long? {
     val snake = camelCaseKey.camelToSnake()
-    getLong(camelCaseKey)?.let { return it }
-    getLong(snake)?.let { return it }
-    val v1 = get(camelCaseKey)
-    if (v1 is Number) return v1.toLong()
-    val v2 = get(snake)
-    if (v2 is Number) return v2.toLong()
-    return getString(camelCaseKey)?.toLongOrNull() ?: getString(snake)?.toLongOrNull()
+    val raw = try { get(camelCaseKey) ?: get(snake) } catch (e: Exception) { null }
+    return when (raw) {
+        is Number -> raw.toLong()
+        is Timestamp -> raw.toDate().time
+        is Date -> raw.time
+        is String -> raw.toLongOrNull()
+        else -> null
+    }
 }
 
 private fun DocumentSnapshot.safeInt(camelCaseKey: String, defaultValue: Int = 0): Int {

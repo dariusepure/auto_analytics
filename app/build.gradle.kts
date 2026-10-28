@@ -31,8 +31,8 @@ android {
         applicationId = "com.dariusepure.caractivitylog"
         minSdk = 26
         targetSdk = 37
-        versionCode = 49
-        versionName = "1.2.2"
+        versionCode = 50
+        versionName = "1.2.3"
 
         multiDexEnabled = true
 
