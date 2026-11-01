@@ -400,22 +400,6 @@ fun SettingsScreen(
                     )
                 }
             }
-
-            // About Section
-            SettingsSection(title = stringResource(R.string.settings_about_title)) {
-                SettingsItem(
-                    label = stringResource(R.string.common_powered_by),
-                    icon = Icons.Default.Info,
-                    onClick = {
-                        try {
-                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://dariusdevworks.com"))
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    }
-                )
-            }
         }
     }
 

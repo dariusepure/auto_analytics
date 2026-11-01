@@ -36,9 +36,12 @@ import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.ui.common.AuthFooter
 import com.dariusepure.caractivitylog.ui.common.LanguageSelector
 import com.dariusepure.caractivitylog.ui.common.ModernAppLogo
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -70,6 +73,7 @@ fun SignUpScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpContent(
     state: SignUpState,
@@ -88,6 +92,22 @@ fun SignUpContent(
 
     Scaffold(
         modifier = modifier,
+        topBar = {
+            TopAppBar(
+                title = {},
+                navigationIcon = {
+                    IconButton(onClick = onBackToSignIn) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.common_back)
+                        )
+                    }
+                },
+                actions = {
+                    LanguageSelector()
+                }
+            )
+        },
         bottomBar = {
             AuthFooter()
         }
