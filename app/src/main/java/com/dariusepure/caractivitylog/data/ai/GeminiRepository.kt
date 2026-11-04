@@ -142,7 +142,7 @@ class GeminiRepository @Inject constructor(
                         )
                     )
                 ),
-                generationConfig = GenerationConfig(temperature = temperature)
+                generationConfig = GenerationConfig(temperature = temperature, responseMimeType = "application/json")
             )
 
             val response = postGemini(request)
@@ -215,7 +215,7 @@ class GeminiRepository @Inject constructor(
                         )
                     )
                 ),
-                generationConfig = GenerationConfig(temperature = temperature)
+                generationConfig = GenerationConfig(temperature = temperature, responseMimeType = "application/json")
             )
 
             val response = postGemini(request)
@@ -281,29 +281,24 @@ class GeminiRepository @Inject constructor(
 
     private fun extractJson(text: String): String {
         val cleanedText = text.replace("```json", "").replace("```", "").trim()
-        val startBrace = cleanedText.indexOf('{')
-        val startBracket = cleanedText.indexOf('[')
         
-        val start = when {
-            startBrace != -1 && startBracket != -1 -> minOf(startBrace, startBracket)
-            startBrace != -1 -> startBrace
-            startBracket != -1 -> startBracket
-            else -> -1
+        val firstBracket = cleanedText.indexOf('[')
+        val firstBrace = cleanedText.indexOf('{')
+        
+        if (firstBracket != -1 && (firstBrace == -1 || firstBracket < firstBrace)) {
+            val lastBracket = cleanedText.lastIndexOf(']')
+            if (lastBracket > firstBracket) {
+                return cleanedText.substring(firstBracket, lastBracket + 1)
+            }
         }
         
-        val endBrace = cleanedText.lastIndexOf('}')
-        val endBracket = cleanedText.lastIndexOf(']')
-        
-        val end = when {
-            endBrace != -1 && endBracket != -1 -> maxOf(endBrace, endBracket)
-            endBrace != -1 -> endBrace
-            endBracket != -1 -> endBracket
-            else -> -1
+        if (firstBrace != -1) {
+            val lastBrace = cleanedText.lastIndexOf('}')
+            if (lastBrace > firstBrace) {
+                return cleanedText.substring(firstBrace, lastBrace + 1)
+            }
         }
 
-        if (start != -1 && end != -1 && end > start) {
-            return cleanedText.substring(start, end + 1)
-        }
         return cleanedText
     }
 }

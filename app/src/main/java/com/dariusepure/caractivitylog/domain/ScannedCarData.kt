@@ -1,6 +1,8 @@
 package com.dariusepure.caractivitylog.domain
 
+import com.dariusepure.caractivitylog.util.FlexibleBooleanSerializer
 import com.dariusepure.caractivitylog.util.FlexibleDoubleSerializer
+import com.dariusepure.caractivitylog.util.FlexibleStringSerializer
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -40,6 +42,7 @@ data class ScannedCarData(
     val engineCode: String? = null,
     val emissionStandard: String? = null,
     val gearboxType: String? = null,
+    @Serializable(with = FlexibleStringSerializer::class)
     val gears: String? = null,
     val drivetrain: String? = null,
     val engineLayout: String? = null,
@@ -73,7 +76,9 @@ data class ScannedCarData(
     val rearSuspension: String? = null,
     val frontBrakes: String? = null,
     val rearBrakes: String? = null,
+    @Serializable(with = FlexibleBooleanSerializer::class)
     val hasAbs: Boolean? = null,
+    @Serializable(with = FlexibleBooleanSerializer::class)
     val hasEsp: Boolean? = null,
     @Serializable(with = FlexibleDoubleSerializer::class)
     val airbags: Double? = null,

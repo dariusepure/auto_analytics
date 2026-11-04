@@ -63,7 +63,8 @@ data class GenerationConfig(
     @SerialName("topK") val topK: Int? = null,
     @SerialName("candidateCount") val candidateCount: Int? = null,
     @SerialName("maxOutputTokens") val maxOutputTokens: Int? = null,
-    @SerialName("stopSequences") val stopSequences: List<String>? = null
+    @SerialName("stopSequences") val stopSequences: List<String>? = null,
+    @SerialName("responseMimeType") val responseMimeType: String? = null
 )
 
 @Serializable
