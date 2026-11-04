@@ -47,10 +47,13 @@ class CarListViewModel @Inject constructor(
 
     val state: StateFlow<CarListUiState> = combine(
         carRepository.cars,
+        carRepository.isInitialLoadDone,
         _sortOrder,
         _searchQuery
-    ) { cars, order, query ->
-        if (cars.isEmpty()) {
+    ) { cars, isLoaded, order, query ->
+        if (!isLoaded && cars.isEmpty()) {
+            CarListUiState.Loading
+        } else if (cars.isEmpty()) {
             CarListUiState.Empty
         } else {
             val filteredCars = if (query.isBlank()) {

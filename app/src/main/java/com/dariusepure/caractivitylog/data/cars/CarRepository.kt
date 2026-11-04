@@ -53,6 +53,8 @@ class CarRepository @Inject constructor(
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val carsCache = MutableStateFlow<List<Car>>(emptyList())
+    private val _isInitialLoadDone = MutableStateFlow(false)
+    val isInitialLoadDone: Flow<Boolean> = _isInitialLoadDone.asStateFlow()
     private val mileageLogsCache = MutableStateFlow<Map<String, List<MileageLog>>>(emptyMap())
     private val inspectionsCache = MutableStateFlow<Map<String, List<VehicleInspection>>>(emptyMap())
     private val insurancesCache = MutableStateFlow<Map<String, List<Insurance>>>(emptyMap())
@@ -86,6 +88,8 @@ class CarRepository @Inject constructor(
         carsListenerRegistration?.remove()
         carsListenerRegistration = null
 
+        _isInitialLoadDone.value = false
+
         // Clear all memory caches immediately to prevent cross-account data leaks
         carsCache.value = emptyList()
         inspectionsCache.value = emptyMap()
@@ -103,6 +107,8 @@ class CarRepository @Inject constructor(
                     localStorageHelper.clearAllLocalData()
                 } catch (e: Exception) {
                     Log.e("CarRepository", "Error clearing local cache: ${e.message}")
+                } finally {
+                    _isInitialLoadDone.value = true
                 }
             }
         } else {
@@ -122,6 +128,7 @@ class CarRepository @Inject constructor(
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
                         Log.e("CarRepository", "Firestore listener failed: ${error.message}")
+                        _isInitialLoadDone.value = true
                         return@addSnapshotListener
                     }
                     if (snapshot != null) {
@@ -129,6 +136,7 @@ class CarRepository @Inject constructor(
                             try { doc.toCar() } catch (e: Exception) { null }
                         }
                         carsCache.value = remoteCars
+                        _isInitialLoadDone.value = true
 
                         remoteCars.forEach { car ->
                             fetchSubCollectionDirect(uid, car.id)
