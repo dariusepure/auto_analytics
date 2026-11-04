@@ -119,35 +119,44 @@ fun TechnicalSheetScreen(
 
                     val logoRes = remember(car.make) { CarFormatters.getBrandLogoResource(car.make) }
 
-                    if (logoRes != null) {
-                        Surface(
-                            shape = RoundedCornerShape(14.dp),
-                            color = Color.White,
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
-                            modifier = Modifier.size(56.dp)
-                        ) {
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(6.dp)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        if (logoRes != null) {
+                            Surface(
+                                shape = RoundedCornerShape(16.dp),
+                                color = Color.White,
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+                                modifier = Modifier.size(64.dp)
                             ) {
-                                Image(
-                                    painter = painterResource(logoRes),
-                                    contentDescription = car.make,
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Fit
-                                )
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(8.dp)
+                                ) {
+                                    Image(
+                                        painter = painterResource(logoRes),
+                                        contentDescription = car.make,
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Fit
+                                    )
+                                }
                             }
+                            Spacer(modifier = Modifier.height(12.dp))
                         }
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
 
-                    Text(
-                        text = displayTitle,
-                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                        Text(
+                            text = displayTitle,
+                            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                     
                     Spacer(modifier = Modifier.height(16.dp))
 
