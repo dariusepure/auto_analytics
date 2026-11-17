@@ -1,0 +1,451 @@
+package com.dariusepure.caractivitylog.features.histories
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.TireRepair
+import androidx.compose.material.icons.outlined.TireRepair
+import androidx.compose.material3.*
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
+import com.dariusepure.caractivitylog.ui.components.DropdownPositionProvider
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.platform.LocalDensity
+import com.dariusepure.caractivitylog.R
+import com.dariusepure.caractivitylog.core.domain.TireSet
+import com.dariusepure.caractivitylog.core.domain.TireSeason
+import com.dariusepure.caractivitylog.core.domain.displayName
+import com.dariusepure.caractivitylog.features.add_edit_car.tireBrands
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.sp
+import com.dariusepure.caractivitylog.ui.components.*
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TireHistoryScreen(
+    carId: String,
+    onBack: () -> Unit,
+    viewModel: TireHistoryViewModel = hiltViewModel()
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    var showAddDialog by remember { mutableStateOf(false) }
+    var editingTireSet by remember { mutableStateOf<TireSet?>(null) }
+    var tireSetToDelete by remember { mutableStateOf<TireSet?>(null) }
+
+    LaunchedEffect(carId) {
+        viewModel.loadData(carId)
+    }
+
+    if (tireSetToDelete != null) {
+        DeleteConfirmationDialog(
+            onConfirm = {
+                viewModel.deleteTireSet(carId, tireSetToDelete!!.id)
+                tireSetToDelete = null
+            },
+            onDismiss = { tireSetToDelete = null }
+        )
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.tire_management_title)) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
+                    }
+                }
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { showAddDialog = true },
+                containerColor = Color(0xFF1A73E8),
+                contentColor = Color.White
+            ) {
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.tire_add_title))
+            }
+        }
+    ) { padding ->
+        when (val s = state) {
+            TireHistoryUiState.Loading -> LoadingState()
+            is TireHistoryUiState.Error -> ErrorState(message = s.message, onRetry = { viewModel.loadData(carId) })
+            is TireHistoryUiState.Success -> {
+                val carAccentColor = Color(0xFF1A73E8)
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    item {
+                        Spacer(Modifier.height(8.dp))
+                    }
+
+                    if (s.tireSets.isEmpty()) {
+                        item {
+                            EmptyState(
+                                icon = Icons.Outlined.TireRepair,
+                                title = stringResource(R.string.tire_empty),
+                                subtitle = ""
+                            )
+                        }
+                    }
+
+                    items(
+                        items = s.tireSets,
+                        key = { it.id },
+                        contentType = { "tire_set" }
+                    ) { tireSet ->
+                        TireSetLogItem(
+                            tireSet = tireSet,
+                            onEdit = { editingTireSet = tireSet },
+                            onDelete = { tireSetToDelete = tireSet }
+                        )
+                    }
+                    
+                    item(contentType = { "spacer" }) { Spacer(Modifier.height(80.dp)) }
+                }
+
+                if (showAddDialog || editingTireSet != null) {
+                    AddTireSetDialog(
+                        existingTireSet = editingTireSet,
+                        onDismiss = { 
+                            showAddDialog = false
+                            editingTireSet = null
+                        },
+                        onConfirm = { tireSet ->
+                            if (editingTireSet != null) {
+                                viewModel.updateTireSet(carId, tireSet.copy(id = editingTireSet!!.id))
+                            } else {
+                                viewModel.addTireSet(carId, tireSet)
+                            }
+                            showAddDialog = false
+                            editingTireSet = null
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddTireSetDialog(
+    existingTireSet: TireSet? = null,
+    onDismiss: () -> Unit,
+    onConfirm: (TireSet) -> Unit
+) {
+    var season by remember { mutableStateOf(existingTireSet?.season ?: TireSeason.SUMMER) }
+    var brand by remember { mutableStateOf(existingTireSet?.brand ?: "") }
+    var brandExpanded by remember { mutableStateOf(false) }
+    var width by remember { mutableStateOf(existingTireSet?.width?.toString() ?: "") }
+    var ratio by remember { mutableStateOf(existingTireSet?.ratio?.toString() ?: "") }
+    var diameter by remember { mutableStateOf(existingTireSet?.diameter?.toString() ?: "") }
+    var dotWeek by remember { mutableStateOf(existingTireSet?.dotWeek?.toString() ?: "") }
+    var dotYear by remember { mutableStateOf(existingTireSet?.dotYear?.toString() ?: "") }
+    var isActive by remember { mutableStateOf(existingTireSet?.isActive ?: false) }
+    var seasonExpanded by remember { mutableStateOf(false) }
+    
+    var seasonMenuWidth by remember { mutableStateOf(0.dp) }
+    var brandMenuWidth by remember { mutableStateOf(0.dp) }
+    val density = LocalDensity.current
+    
+    val context = LocalContext.current
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(if (existingTireSet == null) stringResource(R.string.tire_add_title) else stringResource(R.string.tire_edit_title)) },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                ExposedDropdownMenuBox(
+                    expanded = seasonExpanded,
+                    onExpandedChange = { seasonExpanded = it },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    OutlinedTextField(
+                        value = stringResource(season.labelRes),
+                        onValueChange = { },
+                        readOnly = true,
+                        label = { Text(stringResource(R.string.tire_season_label)) },
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                            .onGloballyPositioned { seasonMenuWidth = with(density) { it.size.width.toDp() } },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = seasonExpanded)
+                        },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+                    )
+                    if (seasonExpanded) {
+                        Popup(
+                            onDismissRequest = { seasonExpanded = false },
+                            popupPositionProvider = DropdownPositionProvider(),
+                            properties = PopupProperties(focusable = false, clippingEnabled = false)
+                        ) {
+                            Surface(
+                                modifier = Modifier.width(seasonMenuWidth),
+                                shape = RoundedCornerShape(4.dp),
+                                tonalElevation = 3.dp,
+                                shadowElevation = 3.dp
+                            ) {
+                                Column {
+                                    TireSeason.entries.forEach { s ->
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(s.labelRes)) },
+                                            onClick = {
+                                                season = s
+                                                seasonExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                ExposedDropdownMenuBox(
+                    expanded = brandExpanded,
+                    onExpandedChange = { brandExpanded = it },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    OutlinedTextField(
+                        value = brand,
+                        onValueChange = { input ->
+                            brand = input.lowercase().replaceFirstChar { it.uppercase() }
+                        },
+                        label = { Text(stringResource(R.string.tire_brand_label)) },
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable, true).fillMaxWidth()
+                            .onGloballyPositioned { brandMenuWidth = with(density) { it.size.width.toDp() } },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = brandExpanded)
+                        },
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Characters
+                        ),
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+                    )
+                    if (brandExpanded) {
+                        Popup(
+                            onDismissRequest = { brandExpanded = false },
+                            popupPositionProvider = DropdownPositionProvider(),
+                            properties = PopupProperties(focusable = false, clippingEnabled = false)
+                        ) {
+                            Surface(
+                                modifier = Modifier.width(brandMenuWidth).heightIn(max = 300.dp),
+                                shape = RoundedCornerShape(4.dp),
+                                tonalElevation = 3.dp,
+                                shadowElevation = 3.dp
+                            ) {
+                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                    tireBrands.forEach { b ->
+                                        DropdownMenuItem(
+                                            text = { Text(b) },
+                                            onClick = {
+                                                brand = if (b == "OTHER") "" else b
+                                                brandExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                OutlinedTextField(
+                    value = width,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) width = it },
+                    label = { Text(stringResource(R.string.car_tire_width_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    suffix = { Text("mm") }
+                )
+                OutlinedTextField(
+                    value = ratio,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) ratio = it },
+                    label = { Text(stringResource(R.string.car_tire_ratio_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    suffix = { Text("%") }
+                )
+                OutlinedTextField(
+                    value = diameter,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) diameter = it },
+                    label = { Text(stringResource(R.string.car_tire_diam_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    suffix = { Text("\"") }
+                )
+
+                val dotWeekInt = dotWeek.toIntOrNull()
+                val isWeekInvalid = dotWeek.isNotBlank() && (dotWeekInt == null || dotWeekInt !in 1..53)
+                
+                OutlinedTextField(
+                    value = dotWeek,
+                    onValueChange = { if (it.length <= 2 && it.all { char -> char.isDigit() }) dotWeek = it },
+                    label = { Text(stringResource(R.string.tire_dot_week_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    isError = isWeekInvalid,
+                    supportingText = if (isWeekInvalid) {
+                        { Text(stringResource(R.string.validation_dot_week_range)) }
+                    } else null
+                )
+                OutlinedTextField(
+                    value = dotYear,
+                    onValueChange = { if (it.length <= 4 && it.all { char -> char.isDigit() }) dotYear = it },
+                    label = { Text(stringResource(R.string.tire_dot_year_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 2.dp)
+                ) {
+                    Checkbox(checked = isActive, onCheckedChange = { isActive = it })
+                    Text(stringResource(R.string.tire_active_label))
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onConfirm(
+                        TireSet(
+                            season = season,
+                            brand = brand,
+                            width = width.toIntOrNull() ?: 0,
+                            ratio = ratio.toIntOrNull() ?: 0,
+                            diameter = diameter.toIntOrNull() ?: 0,
+                            dotWeek = dotWeek.toIntOrNull(),
+                            dotYear = dotYear.toIntOrNull(),
+                            isActive = isActive
+                        )
+                    )
+                },
+                enabled = brand.isNotBlank() && width.isNotBlank() && 
+                        (dotWeek.isBlank() || (dotWeek.toIntOrNull() in 1..53)),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            ) {
+                Text(stringResource(R.string.common_save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.common_cancel))
+            }
+        }
+    )
+}
+
+@Composable
+fun TireSetLogItem(
+    tireSet: TireSet,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(Icons.Default.TireRepair, null, tint = MaterialTheme.colorScheme.primary)
+            Spacer(Modifier.width(16.dp))
+            Column(Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = tireSet.brand,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (tireSet.isActive) {
+                        Spacer(Modifier.width(8.dp))
+                        Surface(
+                            color = Color(0xFF4CAF50),
+                            shape = MaterialTheme.shapes.extraSmall
+                        ) {
+                            Text(
+                                text = stringResource(R.string.tire_on_vehicle),
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+                Text(
+                    text = stringResource(tireSet.season.labelRes),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+                Text(
+                    text = stringResource(
+                        R.string.tire_summary,
+                        "",
+                        tireSet.width,
+                        tireSet.ratio,
+                        tireSet.diameter
+                    ).trim().replace("  ", " "),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                if (tireSet.dotWeek != null && tireSet.dotYear != null) {
+                    Text(
+                        text = "DOT ${String.format(java.util.Locale.getDefault(), "%02d%02d", tireSet.dotWeek, tireSet.dotYear % 100)}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            
+            ActionButtons(
+                onEdit = onEdit,
+                onDelete = onDelete
+            )
+        }
+    }
+}

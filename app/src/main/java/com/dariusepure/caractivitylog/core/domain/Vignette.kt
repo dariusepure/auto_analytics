@@ -1,0 +1,27 @@
+package com.dariusepure.caractivitylog.core.domain
+
+import java.util.Calendar
+import androidx.compose.runtime.Stable
+import java.util.Date
+
+@Stable
+data class Vignette(
+    val id: String = "",
+    val date: Date = Date(),
+    val durationValue: Int = 1,
+    val durationUnit: InspectionDurationUnit = InspectionDurationUnit.MONTHS,
+    val country: String = ""
+) {
+    val expiryDate: Date
+        get() {
+            val calendar = Calendar.getInstance()
+            calendar.time = date
+            when (durationUnit) {
+                InspectionDurationUnit.DAYS -> calendar.add(Calendar.DAY_OF_YEAR, durationValue)
+                InspectionDurationUnit.MONTHS -> calendar.add(Calendar.MONTH, durationValue)
+                InspectionDurationUnit.YEARS -> calendar.add(Calendar.YEAR, durationValue)
+            }
+            return calendar.time
+        }
+}
+

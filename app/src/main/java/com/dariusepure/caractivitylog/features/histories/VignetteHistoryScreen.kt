@@ -1,0 +1,453 @@
+package com.dariusepure.caractivitylog.features.histories
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ConfirmationNumber
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.ConfirmationNumber
+import androidx.compose.material3.*
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dariusepure.caractivitylog.ui.components.DropdownPositionProvider
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.platform.LocalContext
+import com.dariusepure.caractivitylog.R
+import com.dariusepure.caractivitylog.core.domain.Vignette
+import com.dariusepure.caractivitylog.core.domain.InspectionDurationUnit
+import com.dariusepure.caractivitylog.core.domain.displayName
+import com.dariusepure.caractivitylog.features.add_edit_car.europeanCountries
+import com.dariusepure.caractivitylog.features.add_edit_car.Country
+import com.dariusepure.caractivitylog.ui.components.*
+import com.dariusepure.caractivitylog.ui.theme.statusExpiredRed
+import java.text.SimpleDateFormat
+import java.util.*
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun VignetteHistoryScreen(
+    carId: String,
+    onBack: () -> Unit,
+    viewModel: VignetteHistoryViewModel = hiltViewModel()
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    var showAddDialog by remember { mutableStateOf(false) }
+    var editingVignette by remember { mutableStateOf<Vignette?>(null) }
+    var vignetteToDelete by remember { mutableStateOf<Vignette?>(null) }
+
+    LaunchedEffect(carId) {
+        viewModel.loadData(carId)
+    }
+
+    if (vignetteToDelete != null) {
+        DeleteConfirmationDialog(
+            onConfirm = {
+                viewModel.deleteVignette(carId, vignetteToDelete!!.id)
+                vignetteToDelete = null
+            },
+            onDismiss = { vignetteToDelete = null }
+        )
+    }
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(stringResource(R.string.vignette_history_title)) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
+                    }
+                }
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { showAddDialog = true },
+                containerColor = Color(0xFF1A73E8),
+                contentColor = Color.White
+            ) {
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.vignette_add_title))
+            }
+        }
+    ) { padding ->
+        when (val s = state) {
+            VignetteHistoryUiState.Loading -> LoadingState()
+            is VignetteHistoryUiState.Error -> ErrorState(message = s.message, onRetry = { viewModel.loadData(carId) })
+            is VignetteHistoryUiState.Success -> {
+                val carAccentColor = Color(0xFF1A73E8)
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    item {
+                        val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
+                        val statusColor = when {
+                            s.stats.daysRemaining == null -> MaterialTheme.colorScheme.primary
+                            s.stats.daysRemaining < 0 -> statusExpiredRed
+                            s.stats.daysRemaining < 14 -> Color(0xFFFF9800)
+                            else -> Color(0xFF4CAF50)
+                        }
+
+                        Spacer(Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            StatItem(
+                                label = stringResource(R.string.stats_valid_until), 
+                                value = s.stats.latestExpiryDate?.let { dateFormat.format(it) } ?: "--",
+                                color = statusColor
+                            )
+                            StatItem(
+                                label = stringResource(R.string.stats_remaining), 
+                                value = s.stats.daysRemaining?.let { if (it < 0) stringResource(R.string.common_expired) else stringResource(R.string.stats_days_suffix, it) } ?: "--",
+                                color = statusColor
+                            )
+                        }
+                    }
+
+                    if (s.vignettes.isEmpty()) {
+                        item {
+                            EmptyState(
+                                icon = Icons.Outlined.ConfirmationNumber,
+                                title = stringResource(R.string.vignette_empty),
+                                subtitle = ""
+                            )
+                        }
+                    }
+
+                    items(
+                        items = s.vignettes,
+                        key = { it.id },
+                        contentType = { "vignette_log" }
+                    ) { vignette ->
+                        VignetteLogItem(
+                            vignette = vignette,
+                            onEdit = { editingVignette = vignette },
+                            onDelete = { vignetteToDelete = vignette }
+                        )
+                    }
+                    
+                    item { Spacer(Modifier.height(80.dp)) }
+                }
+
+                if (showAddDialog || editingVignette != null) {
+                    AddVignetteDialog(
+                        existingVignette = editingVignette,
+                        onDismiss = { 
+                            showAddDialog = false
+                            editingVignette = null
+                        },
+                        onConfirm = { vignette: Vignette ->
+                            if (editingVignette != null) {
+                                viewModel.updateVignette(carId, vignette.copy(id = editingVignette!!.id))
+                            } else {
+                                viewModel.addVignette(carId, vignette)
+                            }
+                            showAddDialog = false
+                            editingVignette = null
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddVignetteDialog(
+    existingVignette: Vignette? = null,
+    onDismiss: () -> Unit,
+    onConfirm: (Vignette) -> Unit
+) {
+    var selectedDate by remember { mutableStateOf(existingVignette?.date ?: Date()) }
+    var durationValue by remember { mutableStateOf(existingVignette?.durationValue?.toString() ?: "1") }
+    var durationUnit by remember { mutableStateOf(existingVignette?.durationUnit ?: InspectionDurationUnit.MONTHS) }
+    var countryQuery by remember { mutableStateOf(existingVignette?.country ?: "") }
+    var showFullCountryList by remember { mutableStateOf(false) }
+    var unitExpanded by remember { mutableStateOf(false) }
+    var countryExpanded by remember { mutableStateOf(false) }
+    
+    var countryMenuWidth by remember { mutableStateOf(0.dp) }
+    var unitMenuWidth by remember { mutableStateOf(0.dp) }
+    val density = LocalDensity.current
+
+    val context = LocalContext.current
+    val sortedCountries = remember { europeanCountries.sortedBy { CarTranslations.getCountryName(context, it.code, it.name) } }
+    val filteredCountries = remember(countryQuery, sortedCountries, showFullCountryList) {
+        if (showFullCountryList || countryQuery.isBlank()) sortedCountries
+        else sortedCountries.filter { c ->
+            val localizedName = CarTranslations.getCountryName(context, c.code, c.name)
+            c.name.contains(countryQuery, ignoreCase = true) ||
+            c.code.contains(countryQuery, ignoreCase = true) ||
+            localizedName.contains(countryQuery, ignoreCase = true)
+        }
+    }
+    val selectedCountry = remember(countryQuery) {
+        europeanCountries.find { it.name.equals(countryQuery, ignoreCase = true) || it.code.equals(countryQuery, ignoreCase = true) || CarTranslations.getCountryName(context, it.code, it.name).equals(countryQuery, ignoreCase = true) }
+    }
+
+    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
+
+    val calendar = Calendar.getInstance()
+    calendar.time = selectedDate
+    
+    val datePickerDialog = android.app.DatePickerDialog(
+        context,
+        { _, year, month, dayOfMonth ->
+            val newCalendar = Calendar.getInstance()
+            newCalendar.set(year, month, dayOfMonth, 12, 0, 0)
+            newCalendar.set(Calendar.MILLISECOND, 0)
+            selectedDate = newCalendar.time
+        },
+        calendar.get(Calendar.YEAR),
+        calendar.get(Calendar.MONTH),
+        calendar.get(Calendar.DAY_OF_MONTH)
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.vignette_add_title)) },
+        text = {
+            androidx.compose.foundation.layout.Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                ExposedDropdownMenuBox(
+                    expanded = countryExpanded,
+                    onExpandedChange = { countryExpanded = it },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    OutlinedTextField(
+                        value = countryQuery,
+                        onValueChange = { input ->
+                            countryQuery = input
+                            showFullCountryList = false
+                            countryExpanded = true
+                            val match = sortedCountries.find {
+                                it.name.equals(input, ignoreCase = true) ||
+                                it.code.equals(input, ignoreCase = true) ||
+                                CarTranslations.getCountryName(context, it.code, it.name).equals(input, ignoreCase = true)
+                            }
+                            if (match != null) {
+                                countryQuery = match.name
+                            }
+                        },
+                        label = { Text(stringResource(R.string.vignette_country_label)) },
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable, true).fillMaxWidth()
+                            .onGloballyPositioned { countryMenuWidth = with(density) { it.size.width.toDp() } },
+                        readOnly = false,
+                        leadingIcon = selectedCountry?.let {
+                            { Text(it.flag, modifier = Modifier.padding(start = 8.dp), style = MaterialTheme.typography.headlineSmall) }
+                        },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = countryExpanded)
+                        },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+                    )
+                    if (countryExpanded) {
+                        Popup(
+                            onDismissRequest = { countryExpanded = false },
+                            popupPositionProvider = DropdownPositionProvider(),
+                            properties = PopupProperties(focusable = false, clippingEnabled = false)
+                        ) {
+                            Surface(
+                                modifier = Modifier.width(countryMenuWidth).heightIn(max = 300.dp),
+                                shape = RoundedCornerShape(4.dp),
+                                tonalElevation = 3.dp,
+                                shadowElevation = 3.dp
+                            ) {
+                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                    filteredCountries.forEach { c ->
+                                        DropdownMenuItem(
+                                            text = {
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    Text(c.flag)
+                                                    Spacer(Modifier.width(8.dp))
+                                                    Text(CarTranslations.getCountryName(context, c.code, c.name))
+                                                }
+                                            },
+                                            onClick = {
+                                                countryQuery = c.name
+                                                countryExpanded = false
+                                                showFullCountryList = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                OutlinedTextField(
+                    value = dateFormat.format(selectedDate),
+                    onValueChange = { },
+                    readOnly = true,
+                    label = { Text(stringResource(R.string.common_date)) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { datePickerDialog.show() },
+                    trailingIcon = {
+                        IconButton(onClick = { datePickerDialog.show() }) {
+                            Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                        }
+                    },
+                    enabled = false,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledBorderColor = MaterialTheme.colorScheme.outline,
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                )
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    OutlinedTextField(
+                        value = durationValue,
+                        onValueChange = { if (it.all { char -> char.isDigit() }) durationValue = it },
+                        label = { Text(stringResource(R.string.inspection_validity_label)) },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    ExposedDropdownMenuBox(
+                        expanded = unitExpanded,
+                        onExpandedChange = { unitExpanded = it },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        OutlinedTextField(
+                            value = stringResource(durationUnit.labelRes),
+                            onValueChange = { },
+                            readOnly = true,
+                            label = { Text(stringResource(R.string.common_unit)) },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitExpanded)
+                            },
+                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true).fillMaxWidth()
+                                .onGloballyPositioned { unitMenuWidth = with(density) { it.size.width.toDp() } },
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+                        )
+                        if (unitExpanded) {
+                            Popup(
+                                onDismissRequest = { unitExpanded = false },
+                                popupPositionProvider = DropdownPositionProvider(),
+                                properties = PopupProperties(focusable = false, clippingEnabled = false)
+                            ) {
+                                Surface(
+                                    modifier = Modifier.width(unitMenuWidth),
+                                    shape = RoundedCornerShape(4.dp),
+                                    tonalElevation = 3.dp,
+                                    shadowElevation = 3.dp
+                                ) {
+                                    Column {
+                                        InspectionDurationUnit.entries.forEach { unit ->
+                                            DropdownMenuItem(
+                                                text = { Text(stringResource(unit.labelRes)) },
+                                                onClick = {
+                                                    durationUnit = unit
+                                                    unitExpanded = false
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onConfirm(
+                        Vignette(
+                            id = existingVignette?.id ?: "",
+                            date = selectedDate,
+                            durationValue = durationValue.toIntOrNull() ?: 1,
+                            durationUnit = durationUnit,
+                            country = selectedCountry?.name ?: countryQuery
+                        )
+                    )
+                },
+                enabled = durationValue.isNotBlank() && countryQuery.isNotBlank(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            ) {
+                Text(stringResource(R.string.common_save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.common_cancel))
+            }
+        }
+    )
+}
+
+@Composable
+fun VignetteLogItem(
+    vignette: Vignette,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
+    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(Icons.Default.ConfirmationNumber, null, tint = MaterialTheme.colorScheme.primary)
+            Spacer(Modifier.width(16.dp))
+            Column(Modifier.weight(1f)) {
+                Text(dateFormat.format(vignette.date), style = MaterialTheme.typography.labelSmall)
+                Text(
+                    text = vignette.country.ifBlank { "Vignette" },
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "${stringResource(R.string.common_expires)}: ${dateFormat.format(vignette.expiryDate)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            
+            ActionButtons(
+                onEdit = onEdit,
+                onDelete = onDelete
+            )
+        }
+    }
+}

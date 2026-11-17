@@ -1,0 +1,104 @@
+package com.dariusepure.caractivitylog.core.util
+
+import android.content.Context
+import androidx.hilt.work.HiltWorker
+import androidx.work.CoroutineWorker
+import androidx.work.WorkerParameters
+import com.dariusepure.caractivitylog.R
+import com.dariusepure.caractivitylog.features.cars.CarRepository
+import com.dariusepure.caractivitylog.core.domain.displayName
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
+import kotlinx.coroutines.flow.first
+import java.util.Calendar
+import java.util.Date
+import java.util.concurrent.TimeUnit
+
+@HiltWorker
+class ExpiryWorker @AssistedInject constructor(
+    @Assisted context: Context,
+    @Assisted workerParams: WorkerParameters,
+    private val carRepository: CarRepository,
+    private val preferenceRepository: com.dariusepure.caractivitylog.core.data.prefs.PreferenceRepository
+) : CoroutineWorker(context, workerParams) {
+
+    override suspend fun doWork(): Result {
+        try {
+            val cars = carRepository.getCarsForWorker()
+            val now = Date()
+            
+            val notifyItp = preferenceRepository.notifyItp.first()
+            val notifyInsurance = preferenceRepository.notifyInsurance.first()
+            val notifyVignette = preferenceRepository.notifyVignette.first()
+
+            val itpLabel = applicationContext.getString(R.string.common_inspection)
+            val insuranceLabel = applicationContext.getString(R.string.car_insurance_title)
+            val vignetteLabel = applicationContext.getString(R.string.car_vignette_title)
+
+            cars.forEach { car ->
+                // Check Inspections
+                if (notifyItp) {
+                    val inspections = carRepository.getInspections(car.id).first()
+                    inspections.maxByOrNull { it.date }?.let { inspection ->
+                        checkAndNotify(car.displayName, itpLabel, inspection.expiryDate, now)
+                    }
+                }
+
+                // Check Insurances
+                if (notifyInsurance) {
+                    val insurances = carRepository.getInsurances(car.id).first()
+                    insurances.maxByOrNull { it.date }?.let { insurance ->
+                        checkAndNotify(car.displayName, insuranceLabel, insurance.expiryDate, now)
+                    }
+                }
+
+                // Check Vignettes
+                if (notifyVignette) {
+                    val vignettes = carRepository.getVignettes(car.id).first()
+                    vignettes.maxByOrNull { it.date }?.let { vignette ->
+                        checkAndNotify(car.displayName, vignetteLabel, vignette.expiryDate, now)
+                    }
+                }
+            }
+
+            return Result.success()
+        } catch (e: Exception) {
+            return Result.retry()
+        }
+    }
+
+    private fun checkAndNotify(carName: String, docType: String, expiryDate: Date, now: Date) {
+        val diffInDays = getCalendarDaysDiff(expiryDate, now)
+
+        if (diffInDays in listOf(30L, 7L, 1L, 0L)) {
+            val title = applicationContext.getString(R.string.notification_warning_title, docType)
+            val message = when (diffInDays) {
+                0L -> applicationContext.getString(R.string.notification_msg_today, docType, carName)
+                1L -> applicationContext.getString(R.string.notification_msg_tomorrow, docType, carName)
+                else -> applicationContext.getString(R.string.notification_msg_days, docType, carName, diffInDays)
+            }
+            
+            val notificationId = (carName + docType + diffInDays).hashCode()
+            NotificationHelper.showNotification(applicationContext, notificationId, title, message)
+        }
+    }
+
+    private fun getCalendarDaysDiff(targetDate: Date, currentDate: Date): Long {
+        val calTarget = Calendar.getInstance().apply {
+            time = targetDate
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val calCurrent = Calendar.getInstance().apply {
+            time = currentDate
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val diffMs = calTarget.timeInMillis - calCurrent.timeInMillis
+        return TimeUnit.MILLISECONDS.toDays(diffMs)
+    }
+}

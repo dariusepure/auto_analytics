@@ -29,11 +29,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.dariusepure.caractivitylog.ui.AppNavigation
+import com.dariusepure.caractivitylog.ui.navigation.AppNavigation
 import com.dariusepure.caractivitylog.ui.MainViewModel
-import com.dariusepure.caractivitylog.ui.Screen
+import com.dariusepure.caractivitylog.ui.navigation.Screen
 import com.dariusepure.caractivitylog.ui.theme.CarActivityLogTheme
-import com.dariusepure.caractivitylog.ui.theme.SettingsViewModel
+import com.dariusepure.caractivitylog.features.settings.SettingsViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 

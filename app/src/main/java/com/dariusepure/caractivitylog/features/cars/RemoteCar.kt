@@ -1,0 +1,294 @@
+package com.dariusepure.caractivitylog.features.cars
+
+import com.dariusepure.caractivitylog.core.domain.Car
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
+
+@Serializable
+data class RemoteCar(
+    @SerialName("id") val id: String = "",
+    @SerialName("user_id") val userId: String = "",
+    @SerialName("name") val name: String = "",
+    @SerialName("license_plate") val licensePlate: String = "",
+    @SerialName("plate_country") val plateCountry: String = "RO",
+    @SerialName("make") val make: String = "",
+    @SerialName("model") val model: String = "",
+    @SerialName("vin") val vin: String = "",
+    @SerialName("year") val year: Int = 0,
+    @SerialName("engine_size") val engineSize: String = "",
+    @SerialName("fuel_type") val fuelType: String = "",
+    @SerialName("fuel_system") val fuelSystem: String = "",
+    @SerialName("color") val color: String = "",
+    @SerialName("power") val power: Int = 0,
+    @SerialName("power_unit") val powerUnit: String = "hp",
+    @SerialName("torque") val torque: Int = 0,
+    @SerialName("engine_code") val engineCode: String = "",
+    @SerialName("engine_layout") val engineLayout: String = "",
+    @SerialName("cylinder_layout") val cylinderLayout: String = "",
+    @SerialName("length") val length: Int = 0,
+    @SerialName("width") val width: Int = 0,
+    @SerialName("height") val height: Int = 0,
+    @SerialName("wheelbase") val wheelbase: Int = 0,
+    @SerialName("emission_standard") val emissionStandard: String = "",
+    @SerialName("aspiration") val aspiration: String = "",
+    @SerialName("fuel_tank_capacity") val fuelTankCapacity: Double = 0.0,
+    @SerialName("battery_capacity") val batteryCapacity: Double = 0.0,
+    @SerialName("drivetrain") val drivetrain: String = "",
+    @SerialName("gearbox_type") val gearboxType: String = "",
+    @SerialName("gears") val gears: String = "",
+    @SerialName("front_suspension") val frontSuspension: String = "",
+    @SerialName("rear_suspension") val rearSuspension: String = "",
+    @SerialName("front_brakes") val frontBrakes: String = "",
+    @SerialName("rear_brakes") val rearBrakes: String = "",
+    @SerialName("vehicle_type") val vehicleType: String = "",
+    @SerialName("manufacturing_country") val manufacturingCountry: String = "",
+    @SerialName("top_speed") val topSpeed: Double = 0.0,
+    @SerialName("acceleration_0_to_100") val acceleration0to100: Double = 0.0,
+    @SerialName("fuel_consumption_combined") val fuelConsumptionCombined: Double = 0.0,
+    @SerialName("fuel_consumption_urban") val fuelConsumptionUrban: Double = 0.0,
+    @SerialName("fuel_consumption_extra_urban") val fuelConsumptionExtraUrban: Double = 0.0,
+    @SerialName("co2_emissions") val co2Emissions: Int = 0,
+    @SerialName("weight") val weight: Int = 0,
+    @SerialName("number_of_seats") val numberOfSeats: Int = 0,
+    @SerialName("number_of_cylinders") val numberOfCylinders: Int = 0,
+    @SerialName("valves_per_cylinder") val valvesPerCylinder: Int = 0,
+    @SerialName("number_of_doors") val numberOfDoors: Int = 0,
+    @SerialName("boot_space") val bootSpace: Int = 0,
+    @SerialName("tire_width") val tireWidth: Int = 0,
+    @SerialName("tire_aspect_ratio") val tireAspectRatio: Int = 0,
+    @SerialName("tire_diameter") val tireDiameter: Int = 0,
+    @SerialName("equipments") val equipments: List<String> = emptyList(),
+    @SerialName("accent_color") val accentColor: Long? = null,
+    @SerialName("created_at") val createdAt: String? = null,
+    @SerialName("updated_at") val updatedAt: String? = null,
+    @SerialName("activity_count") val activityCount: Int = 0,
+    @SerialName("airbags") val airbags: Int = 0,
+    @SerialName("generation") val generation: String = "",
+    @SerialName("engine_variant") val engineVariant: String = ""
+)
+
+private val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ROOT).apply {
+    timeZone = TimeZone.getTimeZone("UTC")
+}
+
+fun Car.toRemote(): RemoteCar {
+    val computedName = if (this.name.isNotBlank()) {
+        this.name
+    } else {
+        buildString {
+            if (make.isNotBlank()) append(make)
+            if (model.isNotBlank()) {
+                if (isNotEmpty()) append(" ")
+                append(model)
+            }
+            if (generation.isNotBlank()) {
+                if (isNotEmpty()) append(" ")
+                append(generation)
+            }
+            if (engineVariant.isNotBlank()) {
+                if (isNotEmpty()) append(" ")
+                append(engineVariant)
+            }
+        }.ifBlank { "Car" }
+    }
+
+    return RemoteCar(
+        id = this.id,
+        userId = "",
+        name = computedName,
+        licensePlate = this.licensePlate,
+        plateCountry = this.plateCountry,
+        make = this.make,
+        model = this.model,
+        vin = this.vin,
+        year = this.year,
+        engineSize = this.engineSize,
+        fuelType = this.fuelType,
+        fuelSystem = this.fuelSystem,
+        color = this.color,
+        power = this.power,
+        powerUnit = this.powerUnit,
+        torque = this.torque,
+        engineCode = this.engineCode,
+        engineLayout = this.engineLayout,
+        cylinderLayout = this.cylinderLayout,
+        length = this.length,
+        width = this.width,
+        height = this.height,
+        wheelbase = this.wheelbase,
+        emissionStandard = this.emissionStandard,
+        aspiration = this.aspiration,
+        fuelTankCapacity = this.fuelTankCapacity,
+        batteryCapacity = this.batteryCapacity,
+        drivetrain = this.drivetrain,
+        gearboxType = this.gearboxType,
+        gears = this.gears,
+        frontSuspension = this.frontSuspension,
+        rearSuspension = this.rearSuspension,
+        frontBrakes = this.frontBrakes,
+        rearBrakes = this.rearBrakes,
+        vehicleType = this.vehicleType,
+        manufacturingCountry = this.manufacturingCountry,
+        topSpeed = this.topSpeed,
+        acceleration0to100 = this.acceleration0to100,
+        fuelConsumptionCombined = this.fuelConsumptionCombined,
+        fuelConsumptionUrban = this.fuelConsumptionUrban,
+        fuelConsumptionExtraUrban = this.fuelConsumptionExtraUrban,
+        co2Emissions = this.co2Emissions,
+        weight = this.weight,
+        numberOfSeats = this.numberOfSeats,
+        numberOfCylinders = this.numberOfCylinders,
+        valvesPerCylinder = this.valvesPerCylinder,
+        numberOfDoors = this.numberOfDoors,
+        bootSpace = this.bootSpace,
+        tireWidth = this.tireWidth,
+        tireAspectRatio = this.tireAspectRatio,
+        tireDiameter = this.tireDiameter,
+        equipments = this.equipments,
+        accentColor = this.accentColor,
+        createdAt = isoFormat.format(this.createdAt),
+        updatedAt = isoFormat.format(this.updatedAt),
+        activityCount = this.activityCount,
+        airbags = this.airbags,
+        generation = this.generation,
+        engineVariant = this.engineVariant
+    )
+}
+
+fun RemoteCar.fromRemote(isPendingSync: Boolean = false): Car {
+    val migratedEquipments = this.equipments.toMutableList()
+
+    val createdDate = try { this.createdAt?.let { isoFormat.parse(it) } } catch (e: Exception) { null } ?: Date()
+    val updatedDate = try { this.updatedAt?.let { isoFormat.parse(it) } } catch (e: Exception) { null } ?: Date()
+
+    return Car(
+        id = this.id,
+        name = this.name,
+        licensePlate = this.licensePlate,
+        plateCountry = this.plateCountry,
+        make = this.make,
+        model = this.model,
+        vin = this.vin,
+        year = this.year,
+        engineSize = this.engineSize,
+        fuelType = this.fuelType,
+        fuelSystem = this.fuelSystem,
+        color = this.color,
+        power = this.power,
+        powerUnit = this.powerUnit,
+        torque = this.torque,
+        engineCode = this.engineCode,
+        engineLayout = this.engineLayout,
+        cylinderLayout = this.cylinderLayout,
+        length = this.length,
+        width = this.width,
+        height = this.height,
+        wheelbase = this.wheelbase,
+        emissionStandard = this.emissionStandard,
+        aspiration = this.aspiration,
+        fuelTankCapacity = this.fuelTankCapacity,
+        batteryCapacity = this.batteryCapacity,
+        drivetrain = this.drivetrain,
+        gearboxType = this.gearboxType,
+        gears = this.gears,
+        frontSuspension = this.frontSuspension,
+        rearSuspension = this.rearSuspension,
+        frontBrakes = this.frontBrakes,
+        rearBrakes = this.rearBrakes,
+        vehicleType = this.vehicleType,
+        manufacturingCountry = this.manufacturingCountry,
+        topSpeed = this.topSpeed,
+        acceleration0to100 = this.acceleration0to100,
+        fuelConsumptionCombined = this.fuelConsumptionCombined,
+        fuelConsumptionUrban = this.fuelConsumptionUrban,
+        fuelConsumptionExtraUrban = this.fuelConsumptionExtraUrban,
+        co2Emissions = this.co2Emissions,
+        weight = this.weight,
+        numberOfSeats = this.numberOfSeats,
+        numberOfCylinders = this.numberOfCylinders,
+        valvesPerCylinder = this.valvesPerCylinder,
+        numberOfDoors = this.numberOfDoors,
+        bootSpace = this.bootSpace,
+        tireWidth = this.tireWidth,
+        tireAspectRatio = this.tireAspectRatio,
+        tireDiameter = this.tireDiameter,
+        equipments = migratedEquipments,
+        accentColor = this.accentColor,
+        createdAt = createdDate,
+        updatedAt = updatedDate,
+        activityCount = this.activityCount,
+        airbags = this.airbags,
+        generation = this.generation,
+        engineVariant = this.engineVariant,
+        isPendingSync = isPendingSync
+    )
+}
+
+fun RemoteCar.toFirestoreMap(): Map<String, Any> {
+    val map = mutableMapOf<String, Any>(
+        "id" to id,
+        "user_id" to userId,
+        "name" to name,
+        "license_plate" to licensePlate,
+        "plate_country" to plateCountry,
+        "make" to make,
+        "model" to model,
+        "vin" to vin,
+        "year" to year,
+        "engine_size" to engineSize,
+        "fuel_type" to fuelType,
+        "fuel_system" to fuelSystem,
+        "color" to color,
+        "power" to power,
+        "power_unit" to powerUnit,
+        "torque" to torque,
+        "engine_code" to engineCode,
+        "engine_layout" to engineLayout,
+        "cylinder_layout" to cylinderLayout,
+        "length" to length,
+        "width" to width,
+        "height" to height,
+        "wheelbase" to wheelbase,
+        "emission_standard" to emissionStandard,
+        "aspiration" to aspiration,
+        "fuel_tank_capacity" to fuelTankCapacity,
+        "battery_capacity" to batteryCapacity,
+        "drivetrain" to drivetrain,
+        "gearbox_type" to gearboxType,
+        "gears" to gears,
+        "front_suspension" to frontSuspension,
+        "rear_suspension" to rearSuspension,
+        "front_brakes" to frontBrakes,
+        "rear_brakes" to rearBrakes,
+        "vehicle_type" to vehicleType,
+        "manufacturing_country" to manufacturingCountry,
+        "top_speed" to topSpeed,
+        "acceleration_0_to_100" to acceleration0to100,
+        "fuel_consumption_combined" to fuelConsumptionCombined,
+        "fuel_consumption_urban" to fuelConsumptionUrban,
+        "fuel_consumption_extra_urban" to fuelConsumptionExtraUrban,
+        "co2_emissions" to co2Emissions,
+        "weight" to weight,
+        "number_of_seats" to numberOfSeats,
+        "number_of_cylinders" to numberOfCylinders,
+        "valves_per_cylinder" to valvesPerCylinder,
+        "number_of_doors" to numberOfDoors,
+        "boot_space" to bootSpace,
+        "tire_width" to tireWidth,
+        "tire_aspect_ratio" to tireAspectRatio,
+        "tire_diameter" to tireDiameter,
+        "equipments" to equipments,
+        "activity_count" to activityCount,
+        "airbags" to airbags,
+        "generation" to generation,
+        "engine_variant" to engineVariant
+    )
+    accentColor?.let { map["accent_color"] = it }
+    createdAt?.let { map["created_at"] = it }
+    updatedAt?.let { map["updated_at"] = it }
+    return map
+}

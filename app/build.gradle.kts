@@ -29,10 +29,10 @@ android {
 
     defaultConfig {
         applicationId = "com.dariusepure.caractivitylog"
-        minSdk = 26
+        minSdk = 29
         targetSdk = 37
-        versionCode = 52
-        versionName = "1.2.5"
+        versionCode = 53
+        versionName = "1.3.0"
 
         multiDexEnabled = true
 

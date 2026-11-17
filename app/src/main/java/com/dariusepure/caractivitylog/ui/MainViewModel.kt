@@ -2,9 +2,10 @@ package com.dariusepure.caractivitylog.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dariusepure.caractivitylog.data.auth.AuthRepository
-import com.dariusepure.caractivitylog.data.prefs.PreferenceRepository
-import com.dariusepure.caractivitylog.util.NetworkMonitor
+import com.dariusepure.caractivitylog.features.auth.AuthRepository
+import com.dariusepure.caractivitylog.core.data.prefs.PreferenceRepository
+import com.dariusepure.caractivitylog.core.network.NetworkMonitor
+import com.dariusepure.caractivitylog.ui.navigation.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

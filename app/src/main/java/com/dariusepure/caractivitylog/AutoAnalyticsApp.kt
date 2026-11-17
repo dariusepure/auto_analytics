@@ -8,8 +8,8 @@ import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.dariusepure.caractivitylog.util.ExpiryWorker
-import com.dariusepure.caractivitylog.util.NotificationHelper
+import com.dariusepure.caractivitylog.core.util.ExpiryWorker
+import com.dariusepure.caractivitylog.core.util.NotificationHelper
 import com.google.firebase.FirebaseApp
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
