@@ -25,11 +25,13 @@ fun Modifier.shimmer(): Modifier = composed {
         label = "shimmerTranslate"
     )
 
-    val shimmerColors = listOf(
-        Color.LightGray.copy(alpha = 0.5f),
-        Color.LightGray.copy(alpha = 0.2f),
-        Color.LightGray.copy(alpha = 0.5f),
-    )
+    val shimmerColors = remember {
+        listOf(
+            Color.LightGray.copy(alpha = 0.5f),
+            Color.LightGray.copy(alpha = 0.2f),
+            Color.LightGray.copy(alpha = 0.5f),
+        )
+    }
 
     val brush = Brush.linearGradient(
         colors = shimmerColors,

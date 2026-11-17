@@ -189,12 +189,13 @@ fun ChatMessageBubble(message: ChatMessage) {
                 )
             ) {
                 Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+                    val formattedTime = remember(message.timestamp) { CarFormatters.formatTime(message.timestamp) }
                     Text(
                         text = message.text,
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
-                        text = CarFormatters.formatTime(message.timestamp),
+                        text = formattedTime,
                         style = MaterialTheme.typography.labelSmall,
                         modifier = Modifier.align(Alignment.End).padding(top = 4.dp),
                         color = contentColor.copy(alpha = 0.6f)
