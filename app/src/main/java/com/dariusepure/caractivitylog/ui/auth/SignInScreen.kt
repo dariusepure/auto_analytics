@@ -34,8 +34,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.layout.width
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.ui.common.AuthFooter
 import com.dariusepure.caractivitylog.ui.common.LanguageSelector
@@ -231,23 +234,35 @@ fun SignInContent(
             }
 
             OutlinedButton(
-                onClick = { onSignInWithGoogle(context)  },
+                onClick = { onSignInWithGoogle(context) },
                 enabled = !submitting,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 12.dp),
                 border = androidx.compose.foundation.BorderStroke(
                     width = 1.dp,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.outlineVariant
                 ),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.primary
+                    contentColor = MaterialTheme.colorScheme.onSurface
                 )
             ) {
-                Text(
-                    text = stringResource(R.string.auth_continue_google),
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_google_logo),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = stringResource(R.string.auth_continue_google),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
             TextButton(
