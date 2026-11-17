@@ -104,20 +104,15 @@ class CarRepository @Inject constructor(
         if (uid == "guest" || uid == AuthRepository.GUEST_UID) {
             withContext(Dispatchers.IO) {
                 try {
-                    localStorageHelper.clearAllLocalData()
+                    val localCars = localStorageHelper.loadCars("guest")
+                    carsCache.value = localCars
                 } catch (e: Exception) {
-                    Log.e("CarRepository", "Error clearing local cache: ${e.message}")
+                    Log.e("CarRepository", "Error loading guest cars: ${e.message}")
                 } finally {
                     _isInitialLoadDone.value = true
                 }
             }
         } else {
-            withContext(Dispatchers.IO) {
-                try {
-                    localStorageHelper.clearAllLocalData()
-                } catch (e: Exception) {}
-            }
-
             repositoryScope.launch(Dispatchers.IO) {
                 try {
                     authRepository.ensureProfileExists(uid, authRepository.currentUserEmail ?: "")
@@ -196,6 +191,18 @@ class CarRepository @Inject constructor(
     val cars: Flow<List<Car>> = carsCache.asStateFlow()
 
     fun getCarsFromCache(): List<Car> = carsCache.value
+
+    suspend fun getCarsForWorker(): List<Car> {
+        val cached = carsCache.value
+        if (cached.isNotEmpty()) return cached
+        val uid = getUidSafe()
+        val loaded = localStorageHelper.loadCars(uid)
+        if (loaded.isNotEmpty()) {
+            carsCache.value = loaded
+            return loaded
+        }
+        return emptyList()
+    }
     fun getInspectionsFromCache(carId: String): List<VehicleInspection> = inspectionsCache.value[carId] ?: emptyList()
     fun getFuelLogsFromCache(carId: String): List<FuelLog> = fuelLogsCache.value[carId] ?: emptyList()
     fun getMaintenanceLogsFromCache(carId: String): List<Maintenance> = maintenanceLogsCache.value[carId] ?: emptyList()

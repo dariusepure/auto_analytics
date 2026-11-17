@@ -24,7 +24,7 @@ class ExpiryWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         try {
-            val cars = carRepository.cars.first()
+            val cars = carRepository.getCarsForWorker()
             val now = Date()
             
             val notifyItp = preferenceRepository.notifyItp.first()

@@ -280,7 +280,7 @@ class GeminiRepository @Inject constructor(
     }
 
     private fun extractJson(text: String): String {
-        val cleanedText = text.replace("```json", "").replace("```", "").trim()
+        val cleanedText = text.replace(Regex("(?i)```json"), "").replace("```", "").trim()
         
         val firstBracket = cleanedText.indexOf('[')
         val firstBrace = cleanedText.indexOf('{')

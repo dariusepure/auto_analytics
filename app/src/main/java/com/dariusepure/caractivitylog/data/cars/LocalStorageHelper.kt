@@ -82,7 +82,7 @@ class LocalStorageHelper @Inject constructor(
         val list = mutableListOf<Car>()
         try {
             csvFile.readLines().drop(1).forEach { line ->
-                val parts = line.split(",")
+                val parts = line.split(Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)")).map { it.trim().removeSurrounding("\"") }
                 if (parts.size >= 19) {
                     val car = Car(
                         id = parts[0],
