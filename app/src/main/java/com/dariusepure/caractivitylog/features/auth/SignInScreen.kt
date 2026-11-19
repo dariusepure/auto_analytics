@@ -60,7 +60,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.ui.theme.CarActivityLogTheme
 import androidx.appcompat.app.AppCompatDelegate
-import com.dariusepure.caractivitylog.ui.components.ModernAppLogo
 
 @Composable
 fun SignInScreen(

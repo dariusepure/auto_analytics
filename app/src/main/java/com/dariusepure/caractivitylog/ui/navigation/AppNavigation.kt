@@ -1,53 +1,38 @@
 package com.dariusepure.caractivitylog.ui.navigation
 
-import androidx.compose.material3.Text
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import com.dariusepure.caractivitylog.features.auth.SignInScreen
-import com.dariusepure.caractivitylog.features.auth.SignUpScreen
+import com.dariusepure.caractivitylog.features.add_edit_car.AddCarScreen
 import com.dariusepure.caractivitylog.features.auth.ForgotPasswordScreen
 import com.dariusepure.caractivitylog.features.auth.ResetPasswordScreen
-import com.dariusepure.caractivitylog.features.add_edit_car.AddCarScreen
+import com.dariusepure.caractivitylog.features.auth.SignInScreen
+import com.dariusepure.caractivitylog.features.auth.SignUpScreen
 import com.dariusepure.caractivitylog.features.car_details.CarDetailsScreen
-import com.dariusepure.caractivitylog.features.car_list.CarListScreen
-import com.dariusepure.caractivitylog.features.histories.MileageHistoryScreen
-import com.dariusepure.caractivitylog.features.histories.InspectionHistoryScreen
 import com.dariusepure.caractivitylog.features.car_details.TechnicalSheetScreen
+import com.dariusepure.caractivitylog.features.car_list.CarListScreen
 import com.dariusepure.caractivitylog.features.diagnosis.DiagnosisScreen
 import com.dariusepure.caractivitylog.features.histories.FuelHistoryScreen
+import com.dariusepure.caractivitylog.features.histories.InspectionHistoryScreen
 import com.dariusepure.caractivitylog.features.histories.InsuranceHistoryScreen
-import com.dariusepure.caractivitylog.features.histories.VignetteHistoryScreen
-import com.dariusepure.caractivitylog.features.histories.TireHistoryScreen
-// import com.dariusepure.caractivitylog.ui.cars.CarReportsScreen
+import com.dariusepure.caractivitylog.features.histories.MileageHistoryScreen
 import com.dariusepure.caractivitylog.features.histories.ServiceHistoryScreen
+import com.dariusepure.caractivitylog.features.histories.TireHistoryScreen
+import com.dariusepure.caractivitylog.features.histories.VignetteHistoryScreen
 import com.dariusepure.caractivitylog.features.settings.SettingsScreen
-import com.dariusepure.caractivitylog.ui.MainViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dariusepure.caractivitylog.ui.components.LoadingState
 import com.dariusepure.caractivitylog.features.settings.SettingsViewModel
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.background
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.dariusepure.caractivitylog.ui.components.ModernAppLogo
+import com.dariusepure.caractivitylog.ui.MainViewModel
 
 sealed class Screen(val route: String) {
     data object SignIn : Screen("signin")
@@ -78,7 +63,6 @@ sealed class Screen(val route: String) {
     data object ServiceHistory : Screen("servicehistory/{carId}") {
         fun createRoute(carId: String) = "servicehistory/$carId"
     }
-    /* CarReports removed */
     data object AddCar : Screen("addcar")
     data object TechnicalSheet : Screen("technicalsheet/{carId}") {
         fun createRoute(carId: String) = "technicalsheet/$carId"
@@ -129,7 +113,6 @@ fun AppNavigation(
                 destination.startsWith("fuelhistory") -> mainViewModel.setLastNavigation("fuel_history", carId)
                 destination.startsWith("technicalsheet") -> mainViewModel.setLastNavigation("technical_sheet", carId)
                 destination.startsWith("diagnosis") -> mainViewModel.setLastNavigation("diagnosis", carId)
-                destination.startsWith("carreports") -> mainViewModel.setLastNavigation("car_reports", carId)
                 destination.startsWith("carlist") -> mainViewModel.setLastNavigation("car_list", "")
                 destination.startsWith("settings") -> mainViewModel.setLastNavigation("settings", "")
             }
@@ -364,7 +347,6 @@ fun AppNavigation(
                 onBack = { navController.popBackStack() }
             )
         }
-        // CarReports route removed
     }
 }
 

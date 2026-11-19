@@ -42,9 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.core.domain.Insurance
-import com.dariusepure.caractivitylog.core.domain.MileageLog
 import com.dariusepure.caractivitylog.core.domain.TireSet
-import com.dariusepure.caractivitylog.core.domain.VehicleInspection
 import com.dariusepure.caractivitylog.core.domain.Vignette
 import com.dariusepure.caractivitylog.features.add_edit_car.europeanCountries
 import com.dariusepure.caractivitylog.ui.theme.statusExpiredRed
@@ -216,28 +214,6 @@ fun TireSetItem(
     }
 }
 
-fun getSpecIconColor(icon: ImageVector?, text: String = ""): Color {
-    if (icon == null) return Color(0xFF2563EB)
-    val textLower = text.lowercase()
-    return when (icon) {
-        Icons.Default.CalendarToday -> Color(0xFF2563EB)
-        Icons.Outlined.DirectionsCar, Icons.Default.DirectionsCar -> Color(0xFF7C3AED)
-        Icons.Default.LocalGasStation, Icons.Default.Eco -> {
-            when {
-                textLower.contains("lpg") || textLower.contains("gpl") || textLower.contains("electric") || textLower.contains("ev") || textLower.contains("hybrid") || textLower.contains("cng") -> Color(0xFF059669)
-                textLower.contains("diesel") -> Color(0xFF0284C7)
-                textLower.contains("petrol") || textLower.contains("benzina") || textLower.contains("gasoline") -> Color(0xFFDC2626)
-                else -> Color(0xFF059669)
-            }
-        }
-        Icons.Default.Speed -> Color(0xFFEA580C)
-        Icons.Default.Palette -> Color(0xFFEC4899)
-        Icons.Default.Fingerprint, Icons.Default.Badge -> Color(0xFF0D9488)
-        Icons.Default.ElectricBolt -> Color(0xFFEAB308)
-        Icons.Default.Eco, Icons.Default.Cloud -> Color(0xFF16A34A)
-        else -> Color(0xFF2563EB)
-    }
-}
 
 /**
  * Authentic European/Romanian style License Plate badge component.
@@ -295,63 +271,6 @@ fun LicensePlateBadge(
     }
 }
 
-/**
- * Stylized VIN (Chassis Number) badge component matching LicensePlateBadge height and style.
- */
-@Composable
-fun VinBadge(
-    vin: String,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier = modifier
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
-                shape = RoundedCornerShape(6.dp)
-            )
-            .clip(RoundedCornerShape(6.dp)),
-        color = MaterialTheme.colorScheme.surface,
-        shadowElevation = 0.5.dp
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.height(24.dp)
-        ) {
-            // Left VIN Tag
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .background(MaterialTheme.colorScheme.primary)
-                    .padding(horizontal = 5.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "VIN",
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                )
-            }
-
-            // VIN Code
-            Text(
-                text = vin.uppercase(),
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = FontFamily.Monospace,
-                    letterSpacing = 0.5.sp,
-                    color = MaterialTheme.colorScheme.onSurface
-                ),
-                modifier = Modifier.padding(horizontal = 6.dp),
-                maxLines = 1
-            )
-        }
-    }
-}
 
 /**
  * Spec pill tag for displaying quick vehicle technical attributes with vibrant colors.
@@ -494,102 +413,6 @@ fun SpecificationCard(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun InspectionItem(
-    inspection: VehicleInspection,
-    unit: String,
-    onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = "${inspection.mileage.roundToInt()} $unit",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = CarFormatters.formatDate(inspection.date),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = stringResource(R.string.formatter_inspection_valid_until, CarFormatters.formatDate(inspection.expiryDate)),
-                style = MaterialTheme.typography.labelSmall,
-                color = if (inspection.expiryDate.before(java.util.Date())) statusExpiredRed else MaterialTheme.colorScheme.secondary
-            )
-        }
-
-        ActionButtons(
-            onEdit = onEditClick,
-            onDelete = onDeleteClick
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MileageItem(
-    log: MileageLog,
-    unit: String,
-    onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = "${log.km.roundToInt()} $unit",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = CarFormatters.formatDate(log.date),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-        ActionButtons(
-            onEdit = onEditClick,
-            onDelete = onDeleteClick
-        )
-    }
-}
-
-@Composable
-fun BentoCard(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    containerColor: Color = MaterialTheme.colorScheme.surface,
-    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Card(
-        onClick = onClick,
-        modifier = modifier,
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = containerColor)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxSize(),
-            horizontalAlignment = horizontalAlignment,
-            content = content
-        )
-    }
-}
 
 @Composable
 fun StatusBadge(
@@ -726,35 +549,5 @@ fun ActionButtons(
     }
 }
 
-/**
- * Adaptive unit suffix for input fields (e.g. hp, km/h, kg, mm, L/100km).
- * When space is constrained (long number entered), scales down or hides the unit
- * so the number remains 100% visible without being clipped or truncated.
- */
-@Composable
-fun AdaptiveUnitSuffix(
-    unit: String,
-    textValue: String,
-    modifier: Modifier = Modifier
-) {
-    if (unit.isBlank()) return
-    val length = textValue.length
-    if (length >= 3 || (unit.length >= 4 && length >= 1)) return
 
-    val fontSize = when {
-        length >= 2 -> 10.sp
-        else -> 12.sp
-    }
-
-    Text(
-        text = unit,
-        style = MaterialTheme.typography.bodySmall.copy(
-            fontSize = fontSize,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
-        ),
-        maxLines = 1,
-        overflow = TextOverflow.Clip,
-        modifier = modifier
-    )
-}
 
