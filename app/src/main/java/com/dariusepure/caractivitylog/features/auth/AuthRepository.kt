@@ -239,30 +239,31 @@ class AuthRepository @Inject constructor(
             Log.d(TAG, "Calling getCredential with Primary Flow...")
             val response = credentialManager.getCredential(activity, primaryRequest)
             processCredentialResult(response.credential)
+        } catch (e: GetCredentialCancellationException) {
+            Log.i(TAG, "User canceled Google Sign-In.")
+            throw e
         } catch (e: GetCredentialException) {
-            if (e is NoCredentialException || e !is GetCredentialCancellationException) {
-                Log.w(TAG, "Primary flow failed (Type=${e.type}). Launching Legacy Fallback Flow...", e)
+            Log.w(TAG, "Primary flow failed (Type=${e.type}). Launching Legacy Fallback Flow...", e)
 
-                val legacyGoogleOption = GetSignInWithGoogleOption.Builder(webClientId)
-                    .build()
+            val legacyGoogleOption = GetSignInWithGoogleOption.Builder(webClientId)
+                .build()
 
-                val fallbackRequest = GetCredentialRequest.Builder()
-                    .addCredentialOption(legacyGoogleOption)
-                    .build()
+            val fallbackRequest = GetCredentialRequest.Builder()
+                .addCredentialOption(legacyGoogleOption)
+                .build()
 
-                try {
-                    val response = credentialManager.getCredential(activity, fallbackRequest)
-                    processCredentialResult(response.credential)
-                } catch (fallbackError: GetCredentialException) {
-                    Log.e(TAG, "Fallback Google Sign-In failed: ${fallbackError.type}", fallbackError)
-                    throw Exception("Google Sign-In failed: ${fallbackError.message}")
-                }
-            } else {
-                Log.i(TAG, "User canceled Google Sign-In.")
-                throw Exception("Google Sign-In failed: ${e.message}")
+            try {
+                val response = credentialManager.getCredential(activity, fallbackRequest)
+                processCredentialResult(response.credential)
+            } catch (fallbackError: GetCredentialCancellationException) {
+                Log.i(TAG, "User canceled fallback Google Sign-In.")
+                throw fallbackError
+            } catch (fallbackError: GetCredentialException) {
+                Log.e(TAG, "Fallback Google Sign-In failed: type=${fallbackError.type}", fallbackError)
+                throw Exception("Google Sign-In failed: ${fallbackError.message}")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Unexpected Exception: ${e.message}", e)
+            Log.e(TAG, "Unexpected Exception during Google Sign-In: ${e.message}", e)
             throw e
         }
     }

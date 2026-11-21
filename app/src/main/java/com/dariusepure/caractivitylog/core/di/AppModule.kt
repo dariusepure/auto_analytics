@@ -127,6 +127,26 @@ object AppModule {
         return remoteConfig
     }
 
+    @Provides
+    @Singleton
+    fun provideAppDatabase(
+        @ApplicationContext context: android.content.Context
+    ): com.dariusepure.caractivitylog.core.data.local.db.AppDatabase {
+        return androidx.room.Room.databaseBuilder(
+            context,
+            com.dariusepure.caractivitylog.core.data.local.db.AppDatabase::class.java,
+            "auto_analytics.db"
+        )
+        .fallbackToDestructiveMigration()
+        .build()
+    }
 
+    @Provides
+    @Singleton
+    fun provideCarDao(
+        database: com.dariusepure.caractivitylog.core.data.local.db.AppDatabase
+    ): com.dariusepure.caractivitylog.core.data.local.db.CarDao {
+        return database.carDao()
+    }
 }
 

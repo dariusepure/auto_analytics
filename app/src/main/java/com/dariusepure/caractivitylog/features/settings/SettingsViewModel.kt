@@ -37,6 +37,7 @@ class SettingsViewModel @Inject constructor(
     val isDarkMode = preferenceRepository.isDarkMode
     val unitSystem = preferenceRepository.unitSystem
     val isGuestMode = preferenceRepository.isGuestMode
+    val appLanguage = preferenceRepository.appLanguage
     
     val notifyItp = preferenceRepository.notifyItp
     val notifyInsurance = preferenceRepository.notifyInsurance
@@ -87,6 +88,10 @@ class SettingsViewModel @Inject constructor(
 
     fun setNotifyVignette(enabled: Boolean) {
         preferenceRepository.setNotifyVignette(enabled)
+    }
+
+    fun setAppLanguage(languageCode: String) {
+        preferenceRepository.setAppLanguage(languageCode)
     }
 
     fun signOut() {

@@ -31,6 +31,7 @@ val supportedLanguages = listOf(
 fun LanguageDialog(
     onDismiss: () -> Unit
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val locales = AppCompatDelegate.getApplicationLocales()
     val currentLocale = if (!locales.isEmpty) locales.get(0)?.language ?: "en" else "en"
 
@@ -46,6 +47,10 @@ fun LanguageDialog(
                             .clickable {
                                 val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(language.code)
                                 AppCompatDelegate.setApplicationLocales(appLocale)
+                                context.getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
+                                    .edit()
+                                    .putString("app_language", language.code)
+                                    .apply()
                                 onDismiss()
                             }
                             .padding(vertical = 12.dp),

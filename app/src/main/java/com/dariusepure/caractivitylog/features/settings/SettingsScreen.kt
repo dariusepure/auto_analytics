@@ -272,8 +272,7 @@ fun SettingsScreen(
                                         DropdownMenuItem(
                                             text = { Text("${language.flag} ${language.name}") },
                                             onClick = {
-                                                val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(language.code)
-                                                AppCompatDelegate.setApplicationLocales(appLocale)
+                                                viewModel.setAppLanguage(language.code)
                                                 languageMenuExpanded = false
                                             },
                                             trailingIcon = {

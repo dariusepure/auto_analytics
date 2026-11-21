@@ -24,6 +24,9 @@ class AutoAnalyticsApp : Application(), Configuration.Provider {
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
+    @Inject
+    lateinit var preferenceRepository: com.dariusepure.caractivitylog.core.data.prefs.PreferenceRepository
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
@@ -35,14 +38,13 @@ class AutoAnalyticsApp : Application(), Configuration.Provider {
         FirebaseApp.initializeApp(this)
         AppCheckHelper.init(this)
 
+        // Force user preferred language (default "en" - English), ignoring system locale
+        val savedLanguage = preferenceRepository.appLanguage.value
+        AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(savedLanguage))
+
         CoroutineScope(Dispatchers.IO).launch {
             NotificationHelper.createNotificationChannel(applicationContext)
             scheduleExpiryChecks()
-        }
-
-        // Set English as default if no language is selected (overrides system language on first run)
-        if (AppCompatDelegate.getApplicationLocales().isEmpty) {
-            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("en"))
         }
     }
 

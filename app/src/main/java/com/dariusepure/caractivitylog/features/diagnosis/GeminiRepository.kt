@@ -57,6 +57,7 @@ class GeminiRepository @Inject constructor(
     }
 
     private val tag = "GeminiRepository"
+    private val responseCache = java.util.concurrent.ConcurrentHashMap<String, GeminiResponse>()
 
     private suspend fun postGemini(request: GeminiRequest): GeminiResponse {
         val model = modelName
@@ -271,12 +272,17 @@ class GeminiRepository @Inject constructor(
             parts = listOf(Part(text = fullPrompt))
         )
 
+        val cacheKey = "$prompt|$carContext|$language"
+        responseCache[cacheKey]?.let { return it }
+
         val request = GeminiRequest(
             contents = validatedHistory + userContent,
             generationConfig = GenerationConfig(temperature = temperature)
         )
 
-        return postGemini(request)
+        val response = postGemini(request)
+        responseCache[cacheKey] = response
+        return response
     }
 
     private fun extractJson(text: String): String {

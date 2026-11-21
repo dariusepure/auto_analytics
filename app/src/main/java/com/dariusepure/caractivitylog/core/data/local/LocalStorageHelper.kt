@@ -17,15 +17,20 @@ import com.dariusepure.caractivitylog.features.diagnosis.ChatMessage
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.util.Date
+import com.dariusepure.caractivitylog.core.data.local.db.CarDao
+import com.dariusepure.caractivitylog.core.data.local.db.toEntity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.builtins.ListSerializer
 import javax.inject.Inject
 import javax.inject.Singleton
 
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.builtins.ListSerializer
-
 @Singleton
 class LocalStorageHelper @Inject constructor(
-    @ApplicationContext context: Context
+    @ApplicationContext context: Context,
+    private val carDao: CarDao
 ) {
     private val filesDir = context.filesDir
 
@@ -71,7 +76,15 @@ class LocalStorageHelper @Inject constructor(
                 val jsonStr = jsonFile.readText()
                 if (jsonStr.isNotBlank()) {
                     val remoteList = json.decodeFromString(ListSerializer(RemoteCar.serializer()), jsonStr)
-                    return remoteList.map { it.fromRemote() }
+                    val cars = remoteList.map { it.fromRemote() }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            carDao.insertAll(cars.map { it.toEntity(userId) })
+                        } catch (e: Exception) {
+                            Log.e("LocalStorageHelper", "Error inserting cars to Room", e)
+                        }
+                    }
+                    return cars
                 }
             } catch (e: Exception) {
                 Log.e("LocalStorageHelper", "Error reading cars JSON", e)
@@ -125,6 +138,13 @@ class LocalStorageHelper @Inject constructor(
             val remoteList = cars.map { it.toRemote() }
             val jsonStr = json.encodeToString(ListSerializer(RemoteCar.serializer()), remoteList)
             jsonFile.writeText(jsonStr)
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    carDao.insertAll(cars.map { it.toEntity(userId) })
+                } catch (e: Exception) {
+                    Log.e("LocalStorageHelper", "Error saving cars to Room", e)
+                }
+            }
         } catch (e: Exception) {
             Log.e("LocalStorageHelper", "Error writing cars JSON", e)
         }

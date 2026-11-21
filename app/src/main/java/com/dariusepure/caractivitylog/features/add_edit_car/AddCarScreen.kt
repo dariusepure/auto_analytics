@@ -60,6 +60,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -597,7 +598,7 @@ fun AddCarScreen(
                     }
                 },
                 actions = {
-                    val canSave = (make.isNotBlank() && model.isNotBlank()) && state !is AddCarState.Pending
+                    val canSave by remember(make, model, state) { derivedStateOf { make.isNotBlank() && model.isNotBlank() && state !is AddCarState.Pending } }
                     if (state is AddCarState.Pending) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(40.dp).padding(end = 16.dp),

@@ -69,6 +69,8 @@ class SignInViewModel @Inject constructor(
             try {
                 authRepository.signInWithGoogle(context)
                 _state.value = SignInState.Idle
+            } catch (e: androidx.credentials.exceptions.GetCredentialCancellationException) {
+                _state.value = SignInState.Idle
             } catch (exception: Exception) {
                 _state.value = SignInState.Error(
                     exception.localizedMessage ?: getLocalizedString(R.string.error_google_signin_failed)

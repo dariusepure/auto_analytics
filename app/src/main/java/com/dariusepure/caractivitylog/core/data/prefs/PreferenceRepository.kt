@@ -39,6 +39,17 @@ class PreferenceRepository @Inject constructor(
     private val _notifyVignette = MutableStateFlow(prefs.getBoolean("notify_vignette", true))
     val notifyVignette = _notifyVignette.asStateFlow()
 
+    private val _appLanguage = MutableStateFlow(prefs.getString("app_language", "en") ?: "en")
+    val appLanguage = _appLanguage.asStateFlow()
+
+    fun setAppLanguage(languageCode: String) {
+        _appLanguage.value = languageCode
+        prefs.edit().putString("app_language", languageCode).apply()
+        androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(
+            androidx.core.os.LocaleListCompat.forLanguageTags(languageCode)
+        )
+    }
+
     fun setDarkMode(enabled: Boolean?) {
         _isDarkMode.value = enabled
         if (enabled == null) {
