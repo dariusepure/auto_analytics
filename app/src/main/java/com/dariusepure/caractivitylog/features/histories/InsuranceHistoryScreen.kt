@@ -349,7 +349,7 @@ fun InsuranceLogItem(
             Column(Modifier.weight(1f)) {
                 Text(dateFormat.format(insurance.date), style = MaterialTheme.typography.labelSmall)
                 Text(
-                    text = insurance.provider.ifBlank { "Insurance Policy" },
+                    text = insurance.provider.ifBlank { stringResource(R.string.insurance_policy_default) },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )

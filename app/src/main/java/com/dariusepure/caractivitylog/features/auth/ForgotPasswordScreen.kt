@@ -13,7 +13,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.DirectionsCar
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,7 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
-import com.dariusepure.caractivitylog.ui.components.AuthFooter
+import com.dariusepure.caractivitylog.ui.components.LanguageSelector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
@@ -85,11 +84,11 @@ fun ForgotPasswordContent(
                             contentDescription = stringResource(R.string.common_back)
                         )
                     }
+                },
+                actions = {
+                    LanguageSelector()
                 }
             )
-        },
-        bottomBar = {
-            AuthFooter()
         }
     ) { innerPadding ->
         Column(

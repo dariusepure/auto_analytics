@@ -80,6 +80,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.R
 import com.dariusepure.caractivitylog.core.domain.Car
 import com.dariusepure.caractivitylog.core.domain.displayName
+import com.dariusepure.caractivitylog.core.domain.getLocalizedDisplayName
 import com.dariusepure.caractivitylog.ui.components.ActionButtons
 import com.dariusepure.caractivitylog.ui.components.AutoSizeText
 import com.dariusepure.caractivitylog.ui.components.CarFormatters
@@ -227,7 +228,7 @@ fun CarCard(
                 Spacer(Modifier.width(12.dp))
 
                 AutoSizeText(
-                    text = car.displayName,
+                    text = car.getLocalizedDisplayName(LocalContext.current),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 17.sp

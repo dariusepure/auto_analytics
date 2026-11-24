@@ -39,7 +39,7 @@ class ForgotPasswordViewModel @Inject constructor(
                 _state.value = ForgotPasswordState.Success
             } catch (exception: Exception) {
                 _state.value = ForgotPasswordState.Error(
-                    exception.message ?: context.getString(R.string.error_reset_email_failed)
+                    AuthErrorUtils.getLocalizedAuthErrorMessage(context, exception, R.string.error_reset_email_failed)
                 )
             }
         }

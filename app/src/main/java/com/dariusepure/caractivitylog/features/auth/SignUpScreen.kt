@@ -245,10 +245,6 @@ fun SignUpContent(
                 }
             }
 
-            LanguageSelector(
-                modifier = Modifier.padding(top = 8.dp)
-            )
-
             Spacer(Modifier.height(16.dp))
         }
     }

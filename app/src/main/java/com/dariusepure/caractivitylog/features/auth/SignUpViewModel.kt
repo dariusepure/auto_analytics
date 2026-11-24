@@ -45,7 +45,7 @@ class SignUpViewModel @Inject constructor(
                 _state.value = SignUpState.Idle
             } catch (e: Exception) {
                 _state.value = SignUpState.Error(
-                    e.localizedMessage ?: context.getString(R.string.error_signup_failed)
+                    AuthErrorUtils.getLocalizedAuthErrorMessage(context, e, R.string.error_signup_failed)
                 )
             }
         }

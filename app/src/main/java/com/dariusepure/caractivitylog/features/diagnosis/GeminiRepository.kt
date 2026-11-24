@@ -38,7 +38,7 @@ class GeminiRepository @Inject constructor(
     }
 
     private val modelName: String
-        get() = remoteConfig.getString("gemini_model_name").ifBlank { "gemini-3.5-flash-lite" }
+        get() = remoteConfig.getString("gemini_model_name").ifBlank { "gemini-2.0-flash" }
 
     private val temperature: Float
         get() = remoteConfig.getDouble("gemini_temperature").toFloat()
@@ -60,34 +60,57 @@ class GeminiRepository @Inject constructor(
     private val responseCache = java.util.concurrent.ConcurrentHashMap<String, GeminiResponse>()
 
     private suspend fun postGemini(request: GeminiRequest): GeminiResponse {
-        val model = modelName
-        val url = "https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=$geminiApiKey"
+        val candidateModels = listOf(modelName, "gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-flash-8b")
+            .filter { it.isNotBlank() }
+            .distinct()
+
         val sha1 = DiagnosticUtils.getAppSignatureSha1(context, withColons = true)
         val packageName = context.packageName
 
-        Log.d(tag, "Requesting Gemini model: $model")
-        Log.d(tag, "Using Package: $packageName")
-        Log.d(tag, "Using real SHA1 (standard): $sha1")
+        var lastException: Exception? = null
 
-        try {
-            val response: io.ktor.client.statement.HttpResponse = httpClient.post(url) {
-                contentType(ContentType.Application.Json)
-                header("X-Android-Package", packageName)
-                header("X-Android-Cert", sha1)
-                setBody(request)
-            }
-            
-            if (response.status.value !in 200..299) {
-                val errorBody = response.body<String>()
-                Log.e(tag, "Gemini API Error (${response.status}): $errorBody")
-                throw Exception("Gemini API Error ${response.status}: $errorBody")
-            }
+        for (model in candidateModels) {
+            val url = "https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=$geminiApiKey"
+            Log.d(tag, "Attempting Gemini request with model: $model")
 
-            return response.body()
-        } catch (e: Exception) {
-            Log.e(tag, "Gemini Post failed", e)
-            throw e
+            for (attempt in 1..2) {
+                try {
+                    val response: io.ktor.client.statement.HttpResponse = httpClient.post(url) {
+                        contentType(ContentType.Application.Json)
+                        header("X-Android-Package", packageName)
+                        header("X-Android-Cert", sha1)
+                        setBody(request)
+                    }
+
+                    val statusCode = response.status.value
+                    if (statusCode in 200..299) {
+                        Log.d(tag, "Gemini request succeeded with model: $model")
+                        return response.body()
+                    }
+
+                    val errorBody = response.body<String>()
+                    Log.w(tag, "Gemini API Attempt $attempt for model $model returned status $statusCode: $errorBody")
+
+                    if (statusCode == 503 || statusCode == 429 || statusCode == 500) {
+                        lastException = Exception("Server Gemini supra-solicitat ($statusCode). Reîncercăm...")
+                        kotlinx.coroutines.delay(1000L * attempt)
+                    } else if (statusCode == 404) {
+                        lastException = Exception("Modelul $model nu este disponibil ($statusCode).")
+                        break
+                    } else {
+                        throw Exception("Gemini API Error $statusCode: $errorBody")
+                    }
+                } catch (e: Exception) {
+                    Log.w(tag, "Failed attempt $attempt for model $model: ${e.message}")
+                    lastException = e
+                    if (attempt < 2) {
+                        kotlinx.coroutines.delay(1000L * attempt)
+                    }
+                }
+            }
         }
+
+        throw lastException ?: Exception("Serverul Gemini este supra-solicitat (High Demand). Te rugăm să încerci din nou în câteva secunde.")
     }
 
     suspend fun scanRegistrationCertificate(bitmap: Bitmap): Result<List<ScannedCarData>> {

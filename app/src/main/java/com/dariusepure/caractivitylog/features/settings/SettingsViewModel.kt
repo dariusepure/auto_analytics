@@ -15,6 +15,10 @@ import com.dariusepure.caractivitylog.core.domain.UnitSystem
 import com.dariusepure.caractivitylog.core.domain.User
 import com.dariusepure.caractivitylog.core.domain.VehicleInspection
 import com.dariusepure.caractivitylog.core.domain.Vignette
+import com.dariusepure.caractivitylog.R
+import com.dariusepure.caractivitylog.features.auth.AuthErrorUtils
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -29,6 +33,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
+    @param:ApplicationContext private val context: Context,
     private val preferenceRepository: PreferenceRepository,
     private val authRepository: AuthRepository,
     private val carRepository: com.dariusepure.caractivitylog.features.cars.CarRepository
@@ -106,7 +111,7 @@ class SettingsViewModel @Inject constructor(
                 authRepository.updatePassword(newPassword)
                 _settingsEvent.send(SettingsEvent.PasswordChanged)
             } catch (e: Exception) {
-                onError(e.message ?: "Unknown error")
+                onError(AuthErrorUtils.getLocalizedAuthErrorMessage(context, e, R.string.error_generic))
             }
         }
     }
@@ -120,7 +125,7 @@ class SettingsViewModel @Inject constructor(
                 authRepository.deleteAccount()
                 _settingsEvent.send(SettingsEvent.AccountDeleted)
             } catch (e: Exception) {
-                onError(e.message ?: "Unknown error")
+                onError(AuthErrorUtils.getLocalizedAuthErrorMessage(context, e, R.string.error_generic))
             }
         }
     }

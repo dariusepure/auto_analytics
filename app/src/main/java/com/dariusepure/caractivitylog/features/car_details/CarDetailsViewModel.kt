@@ -63,6 +63,24 @@ class CarDetailsViewModel @Inject constructor(
     private val preferenceRepository: PreferenceRepository
 ) : ViewModel() {
 
+    @Suppress("AppBundleLocaleChanges")
+    private fun getLocalizedString(resId: Int, vararg args: Any): String {
+        val locales = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales()
+        val contextToUse = if (!locales.isEmpty) {
+            val config = android.content.res.Configuration(context.resources.configuration)
+            config.setLocale(locales.get(0))
+            context.createConfigurationContext(config)
+        } else {
+            context
+        }
+        return contextToUse.getString(resId, *args)
+    }
+
+    private fun showErrorToast(e: Exception) {
+        val msg = e.localizedMessage ?: getLocalizedString(R.string.error_generic)
+        _uiEvent.trySend(CarDetailsUiEvent.ShowToast(getLocalizedString(R.string.toast_error_prefix, msg)))
+    }
+
     private val _state = MutableStateFlow<CarDetailsUiState>(CarDetailsUiState.Loading)
     val state = _state.asStateFlow()
     
@@ -165,12 +183,12 @@ class CarDetailsViewModel @Inject constructor(
                     if (entries.isNotEmpty()) {
                         _scannedMileageEvent.trySend(entries.distinctBy { it.km })
                     } else {
-                        _uiEvent.trySend(CarDetailsUiEvent.ShowToast("No mileage found in photo"))
+                        _uiEvent.trySend(CarDetailsUiEvent.ShowToast(getLocalizedString(R.string.toast_mileage_not_found_photo)))
                     }
                 }
                 .onFailure { e ->
                     _state.value = currentState.copy(isScanning = false)
-                    _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Scan failed: ${e.localizedMessage}"))
+                    _uiEvent.trySend(CarDetailsUiEvent.ShowToast(getLocalizedString(R.string.toast_scan_failed, e.localizedMessage ?: "")))
                 }
         }
     }
@@ -192,12 +210,12 @@ class CarDetailsViewModel @Inject constructor(
                     if (entries.isNotEmpty()) {
                         _scannedMileageEvent.trySend(entries.distinctBy { it.km })
                     } else {
-                        _uiEvent.trySend(CarDetailsUiEvent.ShowToast("No mileage records found in document"))
+                        _uiEvent.trySend(CarDetailsUiEvent.ShowToast(getLocalizedString(R.string.toast_mileage_not_found_doc)))
                     }
                 }
                 .onFailure { e ->
                     _state.value = currentState.copy(isScanning = false)
-                    _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Scan failed: ${e.localizedMessage}"))
+                    _uiEvent.trySend(CarDetailsUiEvent.ShowToast(getLocalizedString(R.string.toast_scan_failed, e.localizedMessage ?: "")))
                 }
         }
     }
@@ -207,7 +225,7 @@ class CarDetailsViewModel @Inject constructor(
             try {
                 carRepository.addMileageLog(carId, MileageLog(km = km, date = date))
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+                showErrorToast(e)
             }
         }
     }
@@ -218,9 +236,9 @@ class CarDetailsViewModel @Inject constructor(
                 logs.forEach { log ->
                     carRepository.addMileageLog(carId, log)
                 }
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Successfully imported ${logs.size} records"))
+                _uiEvent.trySend(CarDetailsUiEvent.ShowToast(getLocalizedString(R.string.toast_import_success, logs.size)))
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+                showErrorToast(e)
             }
         }
     }
@@ -230,7 +248,7 @@ class CarDetailsViewModel @Inject constructor(
             try {
                 carRepository.updateMileageLog(carId, log)
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+                showErrorToast(e)
             }
         }
     }
@@ -240,7 +258,7 @@ class CarDetailsViewModel @Inject constructor(
             try {
                 carRepository.deleteMileageLog(carId, logId)
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+                showErrorToast(e)
             }
         }
     }
@@ -251,7 +269,7 @@ class CarDetailsViewModel @Inject constructor(
             try {
                 carRepository.addInspection(carId, inspection)
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+                showErrorToast(e)
             }
         }
     }
@@ -261,7 +279,7 @@ class CarDetailsViewModel @Inject constructor(
             try {
                 carRepository.updateInspection(carId, inspection)
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+                showErrorToast(e)
             }
         }
     }
@@ -271,7 +289,7 @@ class CarDetailsViewModel @Inject constructor(
             try {
                 carRepository.deleteInspection(carId, inspection)
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+                showErrorToast(e)
             }
         }
     }
@@ -281,7 +299,7 @@ class CarDetailsViewModel @Inject constructor(
             try {
                 carRepository.addInsurance(carId, insurance)
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+                showErrorToast(e)
             }
         }
     }
@@ -291,7 +309,7 @@ class CarDetailsViewModel @Inject constructor(
             try {
                 carRepository.updateInsurance(carId, insurance)
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+                showErrorToast(e)
             }
         }
     }
@@ -301,7 +319,7 @@ class CarDetailsViewModel @Inject constructor(
             try {
                 carRepository.deleteInsurance(carId, insuranceId)
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+                showErrorToast(e)
             }
         }
     }
@@ -311,7 +329,7 @@ class CarDetailsViewModel @Inject constructor(
             try {
                 carRepository.addVignette(carId, vignette)
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+                showErrorToast(e)
             }
         }
     }
@@ -321,7 +339,7 @@ class CarDetailsViewModel @Inject constructor(
             try {
                 carRepository.updateVignette(carId, vignette)
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+                showErrorToast(e)
             }
         }
     }
@@ -331,7 +349,7 @@ class CarDetailsViewModel @Inject constructor(
             try {
                 carRepository.deleteVignette(carId, vignetteId)
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+                showErrorToast(e)
             }
         }
     }
@@ -341,7 +359,7 @@ class CarDetailsViewModel @Inject constructor(
             try {
                 carRepository.addTireSet(carId, tireSet)
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+                showErrorToast(e)
             }
         }
     }
@@ -351,7 +369,7 @@ class CarDetailsViewModel @Inject constructor(
             try {
                 carRepository.updateTireSet(carId, tireSet)
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+                showErrorToast(e)
             }
         }
     }
@@ -361,7 +379,7 @@ class CarDetailsViewModel @Inject constructor(
             try {
                 carRepository.deleteTireSet(carId, tireSetId)
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+                showErrorToast(e)
             }
         }
     }
@@ -371,7 +389,7 @@ class CarDetailsViewModel @Inject constructor(
             try {
                 carRepository.addMaintenanceLog(carId, log)
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+                showErrorToast(e)
             }
         }
     }
@@ -381,7 +399,7 @@ class CarDetailsViewModel @Inject constructor(
             try {
                 carRepository.updateMaintenanceLog(carId, log)
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+                showErrorToast(e)
             }
         }
     }
@@ -391,7 +409,7 @@ class CarDetailsViewModel @Inject constructor(
             try {
                 carRepository.deleteMaintenanceLog(carId, log)
             } catch (e: Exception) {
-                _uiEvent.trySend(CarDetailsUiEvent.ShowToast("Error: ${e.localizedMessage}"))
+                showErrorToast(e)
             }
         }
     }

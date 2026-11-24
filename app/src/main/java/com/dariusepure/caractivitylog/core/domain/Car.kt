@@ -72,6 +72,20 @@ val Car.displayName: String
         return base.ifBlank { "Unnamed car" }
     }
 
+fun Car.getLocalizedDisplayName(context: android.content.Context): String {
+    val base = if (make.isNotBlank() && model.isNotBlank()) "$make $model".trim() else name.ifBlank { "$make $model".trim() }
+    if (base.isNotBlank() && base != "Unnamed car") return base
+    val locales = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales()
+    val contextToUse = if (!locales.isEmpty) {
+        val config = android.content.res.Configuration(context.resources.configuration)
+        config.setLocale(locales.get(0))
+        context.createConfigurationContext(config)
+    } else {
+        context
+    }
+    return contextToUse.getString(com.dariusepure.caractivitylog.R.string.car_unnamed)
+}
+
 object CarEquipment {
     const val ABS = "safety_abs"
     const val ESP = "safety_esp"

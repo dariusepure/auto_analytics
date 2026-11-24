@@ -10,14 +10,14 @@ import com.dariusepure.caractivitylog.R
 
 object NotificationHelper {
     private const val CHANNEL_ID = "car_alerts_channel"
-    private const val CHANNEL_NAME = "Car Expiry Alerts"
-    private const val CHANNEL_DESCRIPTION = "Notifications for document expirations like ITP, Insurance, etc."
 
     fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = context.getString(R.string.notification_channel_name)
+            val descriptionText = context.getString(R.string.notification_channel_desc)
             val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance).apply {
-                description = CHANNEL_DESCRIPTION
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                description = descriptionText
             }
             val notificationManager: NotificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

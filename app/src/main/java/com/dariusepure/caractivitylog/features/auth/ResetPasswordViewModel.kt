@@ -38,7 +38,7 @@ class ResetPasswordViewModel @Inject constructor(
                 _state.value = ResetPasswordState.Success
             } catch (exception: Exception) {
                 _state.value = ResetPasswordState.Error(
-                    exception.message ?: context.getString(R.string.error_password_reset_failed)
+                    AuthErrorUtils.getLocalizedAuthErrorMessage(context, exception, R.string.error_password_reset_failed)
                 )
             }
         }

@@ -704,4 +704,14 @@
     <string name="notification_msg_today">%1$s for %2$s expires today!</string>
     <string name="notification_msg_tomorrow">%1$s for %2$s expires tomorrow!</string>
     <string name="notification_msg_days">%1$s for %2$s expires in %3$d days.</string>
+    <string name="error_user_not_found">No user account found with this email.</string>
+    <string name="error_email_already_in_use">An account already exists with this email address.</string>
+    <string name="error_weak_password">Password is too weak. Please use at least 6 characters.</string>
+    <string name="error_network">Network error. Please check your internet connection.</string>
+    <string name="error_too_many_requests">Too many failed attempts. Please try again later.</string>
+    <string name="car_unnamed">Unnamed car</string>
+    <string name="insurance_policy_default">Insurance Policy</string>
+    <string name="toast_error_prefix">Error: %s</string>
+    <string name="notification_channel_name">Car Activity Alerts</string>
+    <string name="notification_channel_desc">Notifications for car maintenance and events</string>
 </resources>

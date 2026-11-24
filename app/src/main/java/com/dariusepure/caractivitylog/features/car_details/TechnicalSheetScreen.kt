@@ -116,7 +116,7 @@ fun TechnicalSheetScreen(
                     val displayTitle = if (titleParts.isNotEmpty()) {
                         titleParts.joinToString(" ")
                     } else {
-                        car.name.ifBlank { "Unnamed car" }
+                        car.name.ifBlank { stringResource(R.string.car_unnamed) }
                     }
 
                     val logoRes = remember(car.make) { CarFormatters.getBrandLogoResource(car.make) }

@@ -74,7 +74,7 @@ object AppModule {
         }
         remoteConfig.setConfigSettingsAsync(configSettings)
         remoteConfig.setDefaultsAsync(mapOf(
-            "gemini_model_name" to "gemini-3.5-flash-lite",
+            "gemini_model_name" to "gemini-2.0-flash",
             "gemini_timeout_seconds" to 30L,
             "gemini_temperature" to 0.7f,
             "gemini_prompt" to """

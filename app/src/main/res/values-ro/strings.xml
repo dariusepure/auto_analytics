@@ -705,4 +705,14 @@
     <string name="notification_msg_today">%1$s pentru %2$s expiră astăzi!</string>
     <string name="notification_msg_tomorrow">%1$s pentru %2$s expiră mâine!</string>
     <string name="notification_msg_days">%1$s pentru %2$s expiră în %3$d zile.</string>
+    <string name="error_user_not_found">Nu s-a găsit niciun cont înregistrat cu acest e-mail.</string>
+    <string name="error_email_already_in_use">Există deja un cont creat cu această adresă de e-mail.</string>
+    <string name="error_weak_password">Parola este prea slabă. Folosește cel puțin 6 caractere.</string>
+    <string name="error_network">Eroare de conexiune la rețea. Verifică conexiunea la internet.</string>
+    <string name="error_too_many_requests">Prea multe încercări eșuate. Încearcă din nou mai târziu.</string>
+    <string name="car_unnamed">Mașină fără nume</string>
+    <string name="insurance_policy_default">Poliță de asigurare</string>
+    <string name="toast_error_prefix">Eroare: %s</string>
+    <string name="notification_channel_name">Alerte Auto Analytics</string>
+    <string name="notification_channel_desc">Notificări pentru întreținerea și evenimentele mașinii</string>
 </resources>

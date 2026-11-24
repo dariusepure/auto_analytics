@@ -82,7 +82,8 @@ class CarListViewModel @Inject constructor(
         }
     }
         .catch { e ->
-            emit(CarListUiState.Error(e.localizedMessage ?: "An error occurred"))
+            val msg = e.localizedMessage ?: "An error occurred"
+            emit(CarListUiState.Error(msg))
         }
         .stateIn(
             scope = viewModelScope,

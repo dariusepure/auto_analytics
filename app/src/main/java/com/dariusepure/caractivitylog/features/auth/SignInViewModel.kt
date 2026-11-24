@@ -57,8 +57,9 @@ class SignInViewModel @Inject constructor(
                 authRepository.signIn(email, password)
                 _state.value = SignInState.Idle
             } catch (exception: Exception) {
-                val errorMessage = exception.localizedMessage ?: getLocalizedString(R.string.error_signin_failed)
-                _state.value = SignInState.Error(errorMessage)
+                _state.value = SignInState.Error(
+                    AuthErrorUtils.getLocalizedAuthErrorMessage(context, exception, R.string.error_signin_failed)
+                )
             }
         }
     }
@@ -73,7 +74,7 @@ class SignInViewModel @Inject constructor(
                 _state.value = SignInState.Idle
             } catch (exception: Exception) {
                 _state.value = SignInState.Error(
-                    exception.localizedMessage ?: getLocalizedString(R.string.error_google_signin_failed)
+                    AuthErrorUtils.getLocalizedAuthErrorMessage(context, exception, R.string.error_google_signin_failed)
                 )
             }
         }
@@ -87,7 +88,7 @@ class SignInViewModel @Inject constructor(
                 _state.value = SignInState.Idle
             } catch (exception: Exception) {
                 _state.value = SignInState.Error(
-                    exception.localizedMessage ?: getLocalizedString(R.string.error_generic)
+                    AuthErrorUtils.getLocalizedAuthErrorMessage(context, exception, R.string.error_generic)
                 )
             }
         }

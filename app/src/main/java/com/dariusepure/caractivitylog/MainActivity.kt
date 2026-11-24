@@ -148,8 +148,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "Car Activity Alerts"
-            val descriptionText = "Notifications for car maintenance and events"
+            val name = getString(R.string.notification_channel_name)
+            val descriptionText = getString(R.string.notification_channel_desc)
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel("car_activity_alerts", name, importance).apply {
                 description = descriptionText

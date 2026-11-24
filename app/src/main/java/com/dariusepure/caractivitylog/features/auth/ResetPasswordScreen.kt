@@ -37,7 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import com.dariusepure.caractivitylog.ui.components.AuthFooter
+import com.dariusepure.caractivitylog.ui.components.LanguageSelector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
 import com.dariusepure.caractivitylog.R
@@ -47,7 +47,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dariusepure.caractivitylog.ui.theme.CarActivityLogTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResetPasswordScreen(
     oobCode: String,
@@ -91,7 +90,7 @@ fun ResetPasswordContent(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.auth_set_new_password_title)) },
+                title = { Text(stringResource(R.string.auth_reset_password_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -99,11 +98,11 @@ fun ResetPasswordContent(
                             contentDescription = stringResource(R.string.common_back)
                         )
                     }
+                },
+                actions = {
+                    LanguageSelector()
                 }
             )
-        },
-        bottomBar = {
-            AuthFooter()
         }
     ) { innerPadding ->
         Column(

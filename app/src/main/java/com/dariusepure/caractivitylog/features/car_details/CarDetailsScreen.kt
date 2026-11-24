@@ -404,7 +404,7 @@ private fun CarHeaderHeroCard(
         Spacer(Modifier.height(12.dp))
 
         Text(
-            text = car.displayName,
+            text = car.getLocalizedDisplayName(LocalContext.current),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp

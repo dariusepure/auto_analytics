@@ -50,7 +50,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -92,6 +95,7 @@ fun SignInScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInContent(
     state: SignInState,
@@ -112,6 +116,17 @@ fun SignInContent(
 
     Scaffold(
         modifier = modifier,
+        topBar = {
+            TopAppBar(
+                title = {},
+                actions = {
+                    LanguageSelector()
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
+                )
+            )
+        },
         bottomBar = {
             AuthFooter()
         }
@@ -288,10 +303,6 @@ fun SignInContent(
                     Text(stringResource(R.string.auth_signup_button))
                 }
             }
-
-            LanguageSelector(
-                modifier = Modifier.padding(top = 8.dp)
-            )
 
             Spacer(Modifier.height(16.dp))
         }
